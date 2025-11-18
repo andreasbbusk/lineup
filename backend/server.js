@@ -23,13 +23,13 @@ app.get("/api/profile", (req, res) => {
   });
 });
 
-app.get("/api/login", (req, res) => {
+app.post("/api/login", (req, res) => {
   res.json({
-    message: "Here goes the login from",
+    message: "Here goes the login form",
   });
 });
 
-app.get("/api/signup", (req, res) => {
+app.post("/api/signup", (req, res) => {
   res.json({
     message: "Here goes the sign up form",
   });
