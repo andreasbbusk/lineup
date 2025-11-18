@@ -1,0 +1,31 @@
+name: Sync to School Remote
+
+on:
+  push:
+    branches: 
+      - main
+      - dev
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history for proper syncing
+      
+      - name: Configure git
+        run: |
+          git config user.email "github-actions[bot]@github.com"
+          git config user.name "github-actions[bot]"
+      
+      - name: Add school remote and push
+        run: |
+          # Add the school remote
+          git remote add school https://x-access-token:${{ secrets.SCHOOL_REPO_TOKEN }}@github.com/eaaa-dob-wu-e25a/sem-proj-pinnaacle.git
+          
+          # Push the current branch to school remote
+          git push school ${{ github.ref_name }}:${{ github.ref_name }} --force-with-lease
+        env:
+          GITHUB_TOKEN: ${{ secrets.SCHOOL_REPO_TOKEN }}
