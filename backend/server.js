@@ -1,4 +1,5 @@
 import express from "express";
+import { sql } from "./db.js";
 import cors from "cors";
 
 //Server
@@ -34,6 +35,23 @@ app.post("/api/signup", (req, res) => {
     message: "Here goes the sign up form",
   });
 });
+
+// Database connection test endpoint
+app.get(
+  "/api/databasetest",
+  /*/requireAuth,/*/ async (req, res) => {
+    try {
+      const connectionTest = await sql`
+      SELECT *
+      FROM connection_test 
+    `;
+      res.json(connectionTest[0]);
+    } catch (error) {
+      console.error("Error getting database connection:", error);
+      res.status(500).json({ error: "Failed to get database connection" });
+    }
+  }
+);
 
 //Start Server
 app.listen(PORT, () => {
