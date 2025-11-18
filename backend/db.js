@@ -9,11 +9,6 @@ if (!connectionString) {
   );
 }
 
-const sql = postgres(connectionString, {
-  ssl: "require",
-  connection: {
-    application_name: "lineup-backend",
-  },
-});
+const sql = postgres(connectionString);
 
 export { sql };
