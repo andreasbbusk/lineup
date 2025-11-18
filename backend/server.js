@@ -12,7 +12,7 @@ app.use(express.json());
 //API Endpoints
 app.get("/", (req, res) => {
   res.json({
-    message: "InLine ♬",
+    message: "lineUp ♬",
     version: "1.0.0",
   });
 });
