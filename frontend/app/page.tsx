@@ -1,65 +1,215 @@
-import Image from "next/image";
-
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <main className="min-h-screen w-full bg-background p-16">
+      <div className="mx-auto max-w-7xl space-y-12">
+        <header className="space-y-4">
+          <h1 className="text-h1 font-bold text-foreground">
+            Design System - Color Variables Test
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-body text-grey">
+            Testing all custom Tailwind color classes from @theme
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+        </header>
+
+        {/* Primary Colors */}
+        <section className="space-y-4">
+          <h2 className="text-h2 font-semibold text-foreground">
+            Primary Colors
+          </h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-2">
+              <div className="h-32 rounded-lg bg-crocus-yellow p-4">
+                <span className="text-sm font-medium text-black">
+                  bg-crocus-yellow
+                </span>
+              </div>
+              <code className="text-xs text-grey">oklch(86.8% 0.12 85)</code>
+            </div>
+            <div className="space-y-2">
+              <div className="h-32 rounded-lg bg-blackberry-harvest p-4">
+                <span className="text-sm font-medium text-white">
+                  bg-blackberry-harvest
+                </span>
+              </div>
+              <code className="text-xs text-grey">oklch(32.5% 0.045 310)</code>
+            </div>
+          </div>
+        </section>
+
+        {/* Neutral Colors */}
+        <section className="space-y-4">
+          <h2 className="text-h2 font-semibold text-foreground">
+            Neutral Colors
+          </h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-2">
+              <div className="h-32 rounded-lg bg-black p-4">
+                <span className="text-sm font-medium text-white">bg-black</span>
+              </div>
+              <code className="text-xs text-grey">oklch(15.2% 0 0)</code>
+            </div>
+            <div className="space-y-2">
+              <div className="h-32 rounded-lg border border-grey bg-white p-4">
+                <span className="text-sm font-medium text-black">bg-white</span>
+              </div>
+              <code className="text-xs text-grey">oklch(100% 0 0)</code>
+            </div>
+            <div className="space-y-2">
+              <div className="h-32 rounded-lg bg-light-grey p-4">
+                <span className="text-sm font-medium text-black">
+                  bg-light-grey
+                </span>
+              </div>
+              <code className="text-xs text-grey">oklch(97.5% 0.002 0)</code>
+            </div>
+            <div className="space-y-2">
+              <div className="h-32 rounded-lg bg-grey p-4">
+                <span className="text-sm font-medium text-white">bg-grey</span>
+              </div>
+              <code className="text-xs text-grey">oklch(42% 0 0)</code>
+            </div>
+            <div className="space-y-2">
+              <div className="h-32 rounded-lg bg-melting-glacier p-4">
+                <span className="text-sm font-medium text-black">
+                  bg-melting-glacier
+                </span>
+              </div>
+              <code className="text-xs text-grey">oklch(94.5% 0 0)</code>
+            </div>
+          </div>
+        </section>
+
+        {/* Secondary Colors */}
+        <section className="space-y-4">
+          <h2 className="text-h2 font-semibold text-foreground">
+            Secondary Colors (Customization)
+          </h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-2">
+              <div className="h-32 rounded-lg bg-dark-grey-red p-4">
+                <span className="text-sm font-medium text-white">
+                  bg-dark-grey-red
+                </span>
+              </div>
+              <code className="text-xs text-grey">oklch(40% 0.012 15)</code>
+            </div>
+            <div className="space-y-2">
+              <div className="h-32 rounded-lg bg-dark-cyan-blue p-4">
+                <span className="text-sm font-medium text-white">
+                  bg-dark-cyan-blue
+                </span>
+              </div>
+              <code className="text-xs text-grey">oklch(35% 0.02 235)</code>
+            </div>
+            <div className="space-y-2">
+              <div className="h-32 rounded-lg bg-dark-blue p-4">
+                <span className="text-sm font-medium text-white">
+                  bg-dark-blue
+                </span>
+              </div>
+              <code className="text-xs text-grey">oklch(32% 0.03 275)</code>
+            </div>
+            <div className="space-y-2">
+              <div className="h-32 rounded-lg bg-dark-pink-red p-4">
+                <span className="text-sm font-medium text-white">
+                  bg-dark-pink-red
+                </span>
+              </div>
+              <code className="text-xs text-grey">oklch(33% 0.028 15)</code>
+            </div>
+            <div className="space-y-2">
+              <div className="h-32 rounded-lg bg-dark-orange p-4">
+                <span className="text-sm font-medium text-white">
+                  bg-dark-orange
+                </span>
+              </div>
+              <code className="text-xs text-grey">oklch(37% 0.025 50)</code>
+            </div>
+          </div>
+        </section>
+
+        {/* Accent Colors */}
+        <section className="space-y-4">
+          <h2 className="text-h2 font-semibold text-foreground">
+            Accent Colors (Utility)
+          </h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-2">
+              <div className="h-32 rounded-lg bg-maroon p-4">
+                <span className="text-sm font-medium text-white">
+                  bg-maroon
+                </span>
+              </div>
+              <code className="text-xs text-grey">oklch(30% 0.12 30)</code>
+            </div>
+            <div className="space-y-2">
+              <div className="h-32 rounded-lg bg-deep-aquamarine p-4">
+                <span className="text-sm font-medium text-white">
+                  bg-deep-aquamarine
+                </span>
+              </div>
+              <code className="text-xs text-grey">oklch(52% 0.06 170)</code>
+            </div>
+          </div>
+        </section>
+
+        {/* Typography Test */}
+        <section className="space-y-4">
+          <h2 className="text-h2 font-semibold text-foreground">
+            Typography System
+          </h2>
+          <div className="space-y-4 rounded-lg bg-light-grey p-6">
+            <h1 className="text-h1 font-bold text-foreground">
+              Heading 1 (text-h1) - 1.5rem
+            </h1>
+            <h2 className="text-h2 font-semibold text-foreground">
+              Heading 2 (text-h2) - 1.25rem
+            </h2>
+            <h3 className="text-h3 font-semibold text-foreground">
+              Heading 3 (text-h3) - 1.125rem
+            </h3>
+            <p className="text-body text-grey">Body text (text-body) - 1rem</p>
+          </div>
+        </section>
+
+        {/* Text Color Examples */}
+        <section className="space-y-4">
+          <h2 className="text-h2 font-semibold text-foreground">
+            Text Color Classes
+          </h2>
+          <div className="space-y-2 rounded-lg bg-light-grey p-6">
+            <p className="text-body text-crocus-yellow">
+              This text uses text-crocus-yellow
+            </p>
+            <p className="text-body text-blackberry-harvest">
+              This text uses text-blackberry-harvest
+            </p>
+            <p className="text-body text-grey">This text uses text-grey</p>
+            <p className="text-body text-maroon">This text uses text-maroon</p>
+            <p className="text-body text-deep-aquamarine">
+              This text uses text-deep-aquamarine
+            </p>
+          </div>
+        </section>
+
+        {/* Border Examples */}
+        <section className="space-y-4">
+          <h2 className="text-h2 font-semibold text-foreground">
+            Border Color Classes
+          </h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="rounded-lg border-4 border-crocus-yellow bg-white p-4">
+              <span className="text-sm">border-crocus-yellow</span>
+            </div>
+            <div className="rounded-lg border-4 border-blackberry-harvest bg-white p-4">
+              <span className="text-sm">border-blackberry-harvest</span>
+            </div>
+            <div className="rounded-lg border-4 border-grey bg-white p-4">
+              <span className="text-sm">border-grey</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
   );
 }
