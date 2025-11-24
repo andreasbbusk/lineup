@@ -10,9 +10,9 @@
 		"securitySchemes": {}
 	},
 	"info": {
-		"title": "Lineup API",
+		"title": "LineUp API",
 		"version": "1.0.0",
-		"description": "API documentation for the Lineup application",
+		"description": "API documentation for the LineUp application",
 		"license": {
 			"name": "ISC"
 		},
