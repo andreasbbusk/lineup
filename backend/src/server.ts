@@ -1,14 +1,14 @@
 import express from "express";
-import { sql } from "./db.js";
-import { requireAuth } from "./auth.js";
-import cors from "cors";
+import { sql } from "./config/database.config.js";
+import { requireAuth } from "./middleware/auth.middleware.js";
+import { corsMiddleware } from "./middleware/cors.middleware.js";
 
 //Server
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 //Middleware
-app.use(cors());
+app.use(corsMiddleware);
 app.use(express.json());
 
 //API Endpoints

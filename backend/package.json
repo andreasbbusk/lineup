@@ -13,9 +13,14 @@
   "type": "module",
   "dependencies": {
     "@supabase/supabase-js": "^2.81.1",
+    "@types/express": "^5.0.5",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "nodemon": "^3.1.11",
-    "postgres": "^3.4.7"
+    "postgres": "^3.4.7",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19"
   }
 }
