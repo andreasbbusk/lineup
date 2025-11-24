@@ -23,7 +23,7 @@
 	"paths": {
 		"/users": {
 			"get": {
-				"operationId": "GetUsers",
+				"operationId": "GetAllUsers",
 				"responses": {
 					"200": {
 						"description": "Ok",

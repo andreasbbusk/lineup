@@ -53,24 +53,24 @@ export function RegisterRoutes(app: Router) {
 
 
     
-        const argsUsersController_getUsers: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsUsersController_getAllUsers: Record<string, TsoaRoute.ParameterSchema> = {
         };
         app.get('/users',
             ...(fetchMiddlewares<RequestHandler>(UsersController)),
-            ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.getUsers)),
+            ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.getAllUsers)),
 
-            async function UsersController_getUsers(request: ExRequest, response: ExResponse, next: any) {
+            async function UsersController_getAllUsers(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsUsersController_getUsers, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsUsersController_getAllUsers, request, response });
 
                 const controller = new UsersController();
 
               await templateService.apiHandler({
-                methodName: 'getUsers',
+                methodName: 'getAllUsers',
                 controller,
                 response,
                 next,
