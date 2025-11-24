@@ -16,12 +16,11 @@ This roadmap follows a vertical slice approach - each phase delivers a working f
 
 ### Setup & Infrastructure
 
-- Set up Node/Express server
+- Set up Node/Express server with Typescript
 - Configure Supabase connection
 - Set up Next.js project structure
 - Configure Supabase Auth client
 - Set up TanStack Query + Zustand stores
-- Database migration: Run existing schema + story_views table
 
 ### Authentication & Onboarding
 
@@ -38,10 +37,10 @@ This roadmap follows a vertical slice approach - each phase delivers a working f
 - Onboarding flow (multi-step):
   - Splash screen
   - Concept slider
+  - Basic info form/auth providers
   - User type selection
-  - Basic info form
+  - User metadata
   - Interests selector
-  - Genres selector
 
 **Testing**
 
@@ -54,7 +53,7 @@ This roadmap follows a vertical slice approach - each phase delivers a working f
 
 - Endpoints:
   - GET /api/users/:username - View profile
-  - PATCH /api/users/:username - Update profile
+  - PUT /api/users/:username - Update profile
 
 **Frontend**
 
