@@ -1,0 +1,17 @@
+{
+  "entryFile": "src/server.ts",
+  "noImplicitAdditionalProperties": "throw-on-extras",
+  "controllerPathGlobs": ["src/controllers/**/*.ts"],
+  "spec": {
+    "outputDirectory": "src/docs",
+    "specVersion": 3,
+    "x-enum-varnames": true,
+    "name": "LineUp API",
+    "description": "API documentation for the LineUp application",
+    "version": "1.0.0"
+  },
+  "routes": {
+    "routesDir": "src/routes",
+    "routesFileName": "tsoa-routes.ts"
+  }
+}
