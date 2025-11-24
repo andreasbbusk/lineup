@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { Request, Response, NextFunction } from "express";
 
 // Enviroments
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -12,7 +13,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-export async function requireAuth(req, res, next) {
+export async function requireAuth(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {

@@ -25,7 +25,7 @@
 
 ## Authentication & Profiles (6)
 
-### `PATCH /api/users/:username`
+### `PUT /api/users/:username`
 
 - **Purpose:** Update own profile
 - **Updates:** Bio, interests, genres, social links, avatar, FAQ
@@ -74,7 +74,7 @@
 - **Query:** `includeComments`, `commentsLimit`
 - **Returns:** Full post data, author, engagement, optional comments
 
-### `PATCH /api/posts/:id`
+### `PUT /api/posts/:id`
 
 - **Purpose:** Edit existing post
 - **Updates:** Title, description, tags, genres, media, location
@@ -124,11 +124,11 @@
 ### `DELETE /api/posts/:postId/comments/:commentId`
 
 - **Purpose:** Delete your own comment
-- **Behavior:** Soft delete, updates post comment count
+- **Behavior:** Delete, updates post comment count
 
 ---
 
-## Feed & Discovery (2)
+## Feed & Discovery (1)
 
 ### `GET /api/feed`
 
@@ -212,7 +212,7 @@
 - **Query:** `cursor`, `limit`, `unreadOnly`
 - **Returns:** Conversations with last message and unread count
 
-### `PATCH /api/conversations/:id`
+### `PUT /api/conversations/:id`
 
 - **Purpose:** Update conversation settings
 - **Body:** `name`, `isMuted`, `isPinned`, `customEmoji`
