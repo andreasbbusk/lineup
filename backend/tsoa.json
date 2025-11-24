@@ -12,6 +12,7 @@
   },
   "routes": {
     "routesDir": "src/routes",
-    "routesFileName": "tsoa-routes.ts"
+    "routesFileName": "tsoa-routes.ts",
+    "esm": false
   }
 }
