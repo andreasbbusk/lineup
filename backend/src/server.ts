@@ -32,6 +32,9 @@ try {
 // TSOA Routes
 RegisterRoutes(app);
 
+import postsRoutes from "./routes/posts.routes.js";
+app.use("/api/posts", postsRoutes);
+
 //API Endpoints
 app.get("/", (req, res) => {
   res.json({
