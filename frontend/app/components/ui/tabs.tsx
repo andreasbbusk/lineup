@@ -13,6 +13,17 @@ type TabsPropsProfile = {
 	children: React.ReactNode;
 };
 
+type TabsPropsChat = {
+	/** Tabs variant */
+	variant: "chat";
+	/** Active tab */
+	activeTab: "chats" | "groups";
+	/** Callback when tab is clicked */
+	onTabChange: (tab: "chats" | "groups") => void;
+	/** Tab content */
+	children: React.ReactNode;
+};
+
 type TabsPropsCreate = {
 	/** Tabs variant */
 	variant: "create";
@@ -24,7 +35,7 @@ type TabsPropsCreate = {
 	children: React.ReactNode;
 };
 
-type TabsProps = TabsPropsProfile | TabsPropsCreate;
+type TabsProps = TabsPropsProfile | TabsPropsCreate | TabsPropsChat;
 
 type TabsContentProps = {
 	value: string;
@@ -44,18 +55,22 @@ const TabsContent = ({ value, children }: TabsContentProps) => {
 const Tabs = (props: TabsProps) => {
 	const children = React.Children.toArray(props.children);
 
-	if (props.variant === "profile") {
+	if (props.variant === "profile" || props.variant === "chat") {
 		return (
 			<div>
 				<ul className="flex items-center rounded-tl-[2.8125rem] rounded-tr-[2.8125rem] bg-[var(--color-white)]">
 					<button
-						onClick={() => props.onTabChange("about")}
+						onClick={() =>
+							props.variant === "profile"
+								? props.onTabChange("about")
+								: props.onTabChange("chats")
+						}
 						className={`flex w-1/2 py-[0.9375rem] justify-center items-center gap-[0.3125rem]  rounded-tl-[2.8125rem] bg-[var(--color-white)] text-base font-medium transition-colors ${
 							props.activeTab === "about"
 								? "text-[var(--color-black)]"
 								: "text-[var(--color-grey)]"
 						}`}>
-						About
+						{props.variant === "profile" ? "About" : "Chats"}
 					</button>
 					<svg
 						width="1"
@@ -73,13 +88,17 @@ const Tabs = (props: TabsProps) => {
 						/>
 					</svg>
 					<button
-						onClick={() => props.onTabChange("notes")}
+						onClick={() =>
+							props.variant === "profile"
+								? props.onTabChange("notes")
+								: props.onTabChange("groups")
+						}
 						className={`flex w-1/2 py-[0.9375rem] justify-center items-center gap-[0.3125rem] rounded-tr-[2.8125rem] bg-[var(--color-white)] text-base font-medium transition-colors ${
 							props.activeTab === "notes"
 								? "text-[var(--color-black)]"
 								: "text-[var(--color-grey)]"
 						}`}>
-						Notes
+						{props.variant === "profile" ? "Notes" : "Groups"}
 					</button>
 				</ul>
 				<div>
@@ -145,3 +164,22 @@ const Tabs = (props: TabsProps) => {
 };
 
 export { Tabs, TabsContent };
+
+// Example usage:
+{
+	/* <Tabs variant="profile" activeTab={activeTab} onTabChange={setActiveTab}>
+	<TabsContent value="about">About Me</TabsContent>
+	<TabsContent value="notes">My notes</TabsContent>
+</Tabs>;
+
+<Tabs variant="chat" activeTab={activeTab} onTabChange={setActiveTab}>
+	<TabsContent value="chats">Chats</TabsContent>
+	<TabsContent value="groups">Groups</TabsContent>
+</Tabs>;
+
+<Tabs variant="create" activeTab={activeTab} onTabChange={setActiveTab}>
+	<TabsContent value="note">Create a Note</TabsContent>
+	<TabsContent value="story">Share Your Story</TabsContent>
+	<TabsContent value="request">Submit a Request</TabsContent>
+</Tabs>; */
+}
