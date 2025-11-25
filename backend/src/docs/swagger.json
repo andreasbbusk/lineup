@@ -119,6 +119,76 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"CreatePostBody": {
+				"properties": {
+					"type": {
+						"type": "string",
+						"enum": [
+							"note",
+							"request",
+							"story"
+						]
+					},
+					"title": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"tags": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"genres": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"location": {
+						"type": "string"
+					},
+					"paidOpportunity": {
+						"type": "boolean"
+					},
+					"taggedUsers": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"media": {
+						"items": {
+							"properties": {
+								"type": {
+									"type": "string"
+								},
+								"thumbnail_url": {
+									"type": "string"
+								},
+								"url": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"type",
+								"url"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"type",
+					"title",
+					"description"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"MetadataItem": {
 				"properties": {
 					"id": {
@@ -664,88 +734,34 @@
 			}
 		},
 		"/posts": {
-			"get": {
-				"operationId": "GetPosts",
+			"post": {
+				"operationId": "CreatePost",
 				"responses": {
 					"200": {
 						"description": "Ok",
 						"content": {
 							"application/json": {
-								"schema": {
-									"anyOf": [
-										{
-											"items": {},
-											"type": "array"
-										},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
+								"schema": {}
 							}
 						}
 					}
 				},
-				"description": "Retrieves a list of all posts.",
+				"description": "Creates a new post (note, request, or story)",
 				"tags": [
 					"Posts"
 				],
 				"security": [],
-				"parameters": []
-			}
-		},
-		"/posts/{userId}": {
-			"get": {
-				"operationId": "GetUserPosts",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreatePostBody"
 							}
 						}
 					}
-				},
-				"description": "Retrieves all posts for a user by their ID.",
-				"tags": [
-					"Posts"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"description": "The ID of the user to retrieve posts from",
-						"in": "path",
-						"name": "userId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
+				}
 			}
 		},
 		"/notifications": {

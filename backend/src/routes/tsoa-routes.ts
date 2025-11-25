@@ -83,6 +83,22 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CreatePostBody": {
+        "dataType": "refObject",
+        "properties": {
+            "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["note"]},{"dataType":"enum","enums":["request"]},{"dataType":"enum","enums":["story"]}],"required":true},
+            "title": {"dataType":"string","required":true},
+            "description": {"dataType":"string","required":true},
+            "tags": {"dataType":"array","array":{"dataType":"string"}},
+            "genres": {"dataType":"array","array":{"dataType":"string"}},
+            "location": {"dataType":"string"},
+            "paidOpportunity": {"dataType":"boolean"},
+            "taggedUsers": {"dataType":"array","array":{"dataType":"string"}},
+            "media": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"type":{"dataType":"string","required":true},"thumbnail_url":{"dataType":"string"},"url":{"dataType":"string","required":true}}}},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "MetadataItem": {
         "dataType": "refObject",
         "properties": {
@@ -399,54 +415,26 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsPostsController_getPosts: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsPostsController_createPost: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"ref":"CreatePostBody"},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
         };
-        app.get('/posts',
+        app.post('/posts',
             ...(fetchMiddlewares<RequestHandler>(PostsController)),
-            ...(fetchMiddlewares<RequestHandler>(PostsController.prototype.getPosts)),
+            ...(fetchMiddlewares<RequestHandler>(PostsController.prototype.createPost)),
 
-            async function PostsController_getPosts(request: ExRequest, response: ExResponse, next: any) {
+            async function PostsController_createPost(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsPostsController_getPosts, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsPostsController_createPost, request, response });
 
                 const controller = new PostsController();
 
               await templateService.apiHandler({
-                methodName: 'getPosts',
-                controller,
-                response,
-                next,
-                validatedArgs,
-                successStatus: undefined,
-              });
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsPostsController_getUserPosts: Record<string, TsoaRoute.ParameterSchema> = {
-                userId: {"in":"path","name":"userId","required":true,"dataType":"string"},
-        };
-        app.get('/posts/:userId',
-            ...(fetchMiddlewares<RequestHandler>(PostsController)),
-            ...(fetchMiddlewares<RequestHandler>(PostsController.prototype.getUserPosts)),
-
-            async function PostsController_getUserPosts(request: ExRequest, response: ExResponse, next: any) {
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsPostsController_getUserPosts, request, response });
-
-                const controller = new PostsController();
-
-              await templateService.apiHandler({
-                methodName: 'getUserPosts',
+                methodName: 'createPost',
                 controller,
                 response,
                 next,
