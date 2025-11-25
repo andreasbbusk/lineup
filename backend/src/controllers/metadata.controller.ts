@@ -1,45 +1,62 @@
-import { Controller, Get, Route, Tags, Path } from "tsoa";
-import { supabase } from "../middleware/auth.middleware.js";
+import { Controller, Get, Route, Tags } from "tsoa";
+import { supabase } from "../services/auth.service.js";
+import { MetadataResponse, MetadataItem } from "../types/api.types.js";
 
 @Route("metadata")
 @Tags("Metadata")
 export class MetadataController extends Controller {
   /**
-   * Retrieves a list of all metadata.
+   * Get all tags, genres, artists, interests for dropdowns/autocomplete
+   * Returns metadata grouped by type with usage counts
    */
   @Get("/")
-  public async getMetadata(): Promise<any[] | { error: string }> {
-    //change type of Promise<any> when interfaces are created
-    const { data, error } = await supabase.from("metadata").select("*");
+  public async getMetadata(): Promise<MetadataResponse | { error: string }> {
+    try {
+      // Get all metadata grouped by type
+      const { data: allMetadata, error: metadataError } = await supabase
+        .from("metadata")
+        .select("*")
+        .order("name", { ascending: true });
 
-    if (error) {
+      if (metadataError) {
+        this.setStatus(500);
+        return { error: metadataError.message };
+      }
+
+      if (!allMetadata || allMetadata.length === 0) {
+        this.setStatus(200);
+        return {
+          tags: [],
+          genres: [],
+          artists: [],
+        };
+      }
+
+      // Group by type
+      const tags = allMetadata.filter((m) => m.type === "tag");
+      const genres = allMetadata.filter((m) => m.type === "genre");
+      const artists = allMetadata.filter((m) => m.type === "artist");
+      const interests = allMetadata.filter((m) => m.type === "interest");
+
+      // Map to MetadataItem format
+      const mapToMetadataItem = (items: any[]): MetadataItem[] => {
+        return items.map((item) => ({
+          id: item.id,
+          type: item.type as "tag" | "genre" | "artist",
+          name: item.name,
+          createdAt: item.created_at,
+        }));
+      };
+
+      this.setStatus(200);
+      return {
+        tags: mapToMetadataItem(tags),
+        genres: mapToMetadataItem(genres),
+        artists: mapToMetadataItem(artists),
+      };
+    } catch (error) {
       this.setStatus(500);
-      return { error: error.message };
+      return { error: (error as Error).message };
     }
-
-    this.setStatus(200);
-    return data;
-  }
-
-  /**
-   * Retrieves all metadata for a user by their ID.
-   * @param userId The ID of the user to retrieve metadata from
-   */
-  @Get("{userId}")
-  public async getUserMetadata(
-    @Path() userId: string
-  ): Promise<any | { error: string }> {
-    //change type of Promise<any> when interfaces are created
-    const { data, error } = await supabase
-      .from("user_metadata")
-      .select("*")
-      .eq("user_id", userId);
-
-    if (error) {
-      this.setStatus(404);
-      return { error: "metadata not found" };
-    }
-    this.setStatus(200);
-    return data;
   }
 }

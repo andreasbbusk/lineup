@@ -1,5 +1,5 @@
 import { Controller, Get, Route, Tags, Path } from "tsoa";
-import { supabase } from "../middleware/auth.middleware.js";
+import { supabase } from "../services/auth.service.js";
 
 @Route("search")
 @Tags("Search")

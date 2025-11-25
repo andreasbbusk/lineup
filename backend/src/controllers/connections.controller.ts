@@ -1,5 +1,5 @@
 import { Controller, Get, Route, Tags, Path } from "tsoa";
-import { supabase } from "../middleware/auth.middleware.js";
+import { supabase } from "../services/auth.service.js";
 
 @Route("connections")
 @Tags("Connections")
@@ -11,7 +11,7 @@ export class ConnectionsController extends Controller {
   public async getConnectionRequests(): Promise<any[] | { error: string }> {
     //change type of Promise<any> when interfaces are created
     const { data, error } = await supabase
-      .from("connections_requests")
+      .from("connection_requests")
       .select("*");
 
     if (error) {
@@ -33,7 +33,7 @@ export class ConnectionsController extends Controller {
   ): Promise<any | { error: string }> {
     //change type of Promise<any> when interfaces are created
     const { data, error } = await supabase
-      .from("connections_requests")
+      .from("connection_requests")
       .select("*")
       .eq("recipient_id", userId);
 
