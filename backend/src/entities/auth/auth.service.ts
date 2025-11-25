@@ -8,7 +8,8 @@ import {
   SignupRequest,
   UserProfile,
 } from "../types/api.types.js";
-import { Profile } from "../types/database.types.js";
+import { ProfileRow } from "../utils/supabase-helpers.js";
+import { mapProfileToAPI } from "../utils/mappers/index.js";
 import {
   createHttpError,
   handleSupabaseAuthError,
@@ -82,7 +83,7 @@ async function createUserProfile(
   userId: string,
   username: string,
   data: SignupRequest
-): Promise<Profile> {
+): Promise<ProfileRow> {
   const { data: profile, error } = await supabase
     .from("profiles")
     .insert({
@@ -108,48 +109,9 @@ async function createUserProfile(
     });
   }
 
-  return profile as Profile;
+  return profile as ProfileRow;
 }
 
-/**
- * Helper function to convert database profile to API profile format
- * @param profile - Database profile object
- * @param includePrivateFields - Whether to include phone/email/yearOfBirth (default: true)
- */
-function mapProfileToAPI(
-  profile: Profile,
-  includePrivateFields: boolean = true
-): UserProfile {
-  const baseProfile = {
-    id: profile.id,
-    username: profile.username,
-    firstName: profile.first_name,
-    lastName: profile.last_name,
-    avatarUrl: profile.avatar_url,
-    bio: profile.bio,
-    aboutMe: profile.about_me,
-    location: profile.location,
-    userType: profile.user_type,
-    themeColor: profile.theme_color,
-    spotifyPlaylistUrl: profile.spotify_playlist_url,
-    onboardingCompleted: profile.onboarding_completed,
-    createdAt: profile.created_at,
-    updatedAt: profile.updated_at,
-  };
-
-  // Include private fields only for own profile
-  if (includePrivateFields) {
-    return {
-      ...baseProfile,
-      phoneCountryCode: profile.phone_country_code,
-      phoneNumber: profile.phone_number,
-      yearOfBirth: profile.year_of_birth,
-    };
-  }
-
-  // Public profile (no phone, no yearOfBirth)
-  return baseProfile;
-}
 
 /**
  * Sign up a new user with Supabase Auth and create profile
@@ -215,7 +177,7 @@ export async function signUp(data: SignupRequest): Promise<AuthResponse> {
         expiresIn: 0,
         expiresAt: 0,
       },
-      profile: mapProfileToAPI(profile as Profile),
+      profile: mapProfileToAPI(profile as ProfileRow),
     };
   }
 
@@ -232,7 +194,7 @@ export async function signUp(data: SignupRequest): Promise<AuthResponse> {
       expiresIn: authData.session.expires_in || 3600,
       expiresAt: authData.session.expires_at || Date.now() / 1000 + 3600,
     },
-    profile: mapProfileToAPI(profile as Profile),
+      profile: mapProfileToAPI(profile as ProfileRow),
   };
 }
 
@@ -295,7 +257,7 @@ export async function signIn(
       expiresIn: authData.session.expires_in || 3600,
       expiresAt: authData.session.expires_at || Date.now() / 1000 + 3600,
     },
-    profile: mapProfileToAPI(profile as Profile),
+      profile: mapProfileToAPI(profile as ProfileRow),
   };
 }
 
@@ -323,7 +285,7 @@ export async function getUserByUsername(
 
   // Include private fields only if viewing own profile
   const isOwnProfile = authenticatedUserId === profile.id;
-  return mapProfileToAPI(profile as Profile, isOwnProfile);
+  return mapProfileToAPI(profile as ProfileRow, isOwnProfile);
 }
 
 /**
@@ -418,7 +380,7 @@ export async function updateUserProfile(
     });
   }
 
-  return mapProfileToAPI(updatedProfile as Profile);
+  return mapProfileToAPI(updatedProfile as ProfileRow);
 }
 
 async function createAuthedSupabaseClient(token: string) {
