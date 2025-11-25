@@ -4,29 +4,26 @@ import {
   Tags,
   Post,
   Body,
-  Request
+  Request,
+  Security
 } from "tsoa";
 import { sql } from "../config/database.config.js";
 import { CreatePostBody } from "../types/posts.js";
 import { supabase } from "../services/auth.service.js";
-
+import { extractUserId } from "../services/auth.service.js";
 @Route("posts")
 @Tags("Posts")
 export class PostsController extends Controller {
   /**
    * Creates a new post (note, request, or story)
    */
+  @Security("bearerAuth")
   @Post("/")
   public async createPost(
     @Body() body: CreatePostBody,
     @Request() req: any
   ): Promise<any> {
-    const userId = req.userId;
-
-    if (!userId) {
-      this.setStatus(401);
-      return { error: "Unauthorized" };
-    }
+    const userId = await extractUserId(req);
 
     const {
       type,

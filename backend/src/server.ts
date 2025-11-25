@@ -34,8 +34,6 @@ const apiRouter = express.Router();
 RegisterRoutes(apiRouter);
 app.use("/api", apiRouter);
 
-import postsRoutes from "./routes/posts.routes.js";
-app.use("/api/posts", postsRoutes);
 
 // Global error handler middleware (must be after routes)
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
