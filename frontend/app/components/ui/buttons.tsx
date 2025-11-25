@@ -1,9 +1,13 @@
+"use client";
+
 import Image from "next/image";
 
 type buttonProps =
 	| {
 			/** Button type */
-			type: "primary" | "secondary";
+			type?: "button" | "submit" | "reset";
+			/** Button variant */
+			variant: "primary" | "secondary";
 			/** Liquid glass effect */
 			glass?: boolean;
 			/** Button icon */
@@ -12,10 +16,14 @@ type buttonProps =
 			pressed?: boolean;
 			/** Button text */
 			children?: React.ReactNode;
+			/** OnClick event */
+			onClick: () => void;
 	  }
 	| {
 			/** Button type */
-			type: "icon";
+			type?: "button" | "submit" | "reset";
+			/** Button variant */
+			variant: "icon";
 			/** Liquid glass effect */
 			glass?: boolean;
 			/** Button icon */
@@ -24,6 +32,8 @@ type buttonProps =
 			pressed?: boolean;
 			/** Button text */
 			children?: React.ReactNode;
+			/** OnClick event */
+			onClick: () => void;
 	  };
 
 const iconPaths: Record<string, string> = {
@@ -39,7 +49,7 @@ const iconPaths: Record<string, string> = {
 
 const Button = (props: buttonProps) => {
 	// Defined styles for each button type
-	const typeStyles = {
+	const variantStyles = {
 		primary: ` ${
 			props.glass
 				? props.pressed
@@ -57,8 +67,11 @@ const Button = (props: buttonProps) => {
 
 	return (
 		<button
-			className={`${typeStyles[props.type]}${props.glass ? " liquidGL" : ""}`}
-			data-type={props.type}>
+			className={`${variantStyles[props.variant]}${
+				props.glass ? " liquidGL" : ""
+			}`}
+			type={props.type}
+			onClick={props.onClick}>
 			<div className="content flex justify-center items-center gap-[0.5rem]">
 				{props.icon ? (
 					<Image
@@ -67,7 +80,8 @@ const Button = (props: buttonProps) => {
 						width={16}
 						height={16}
 						className={
-							props.type === "icon" || (props.type === "primary" && props.glass)
+							props.variant === "icon" ||
+							(props.variant === "primary" && props.glass)
 								? "brightness-0 invert"
 								: ""
 						}
