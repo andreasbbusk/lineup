@@ -39,3 +39,17 @@ function Message(props: messageProps) {
 }
 
 export { Message };
+
+// Example usage:
+{
+	/* <Message
+		sender="self"
+		content="Welcome to LineUp!"
+	/>
+	
+	<Message
+		sender="other"
+		content="Welcome to LineUp! Welcome to LineUp! Welcome to LineUp! Welcome to LineUp!"
+		imgSrc="/avatars/cd5ba1b2b51aa23578ec39ca57088f729c806336.webp"
+	/> */
+}
