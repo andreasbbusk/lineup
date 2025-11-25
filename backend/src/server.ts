@@ -1,9 +1,9 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import { sql } from "./config/database.config.js";
-import { requireAuth } from "./middleware/auth.middleware.js";
 import { corsMiddleware } from "./middleware/cors.middleware.js";
 import swaggerUi from "swagger-ui-express";
 import { RegisterRoutes } from "./routes/tsoa-routes.js";
+import { buildErrorResponse } from "./utils/error-handler.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 
 //Server
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 //Middleware
 app.use(corsMiddleware);
@@ -29,50 +29,34 @@ try {
   console.error("Unable to load swagger.json", err);
 }
 
-// TSOA Routes
-RegisterRoutes(app);
+// TSOA Routes (all routes are prefixed with /api in tsoa.json)
+const apiRouter = express.Router();
+RegisterRoutes(apiRouter);
+app.use("/api", apiRouter);
 
 import postsRoutes from "./routes/posts.routes.js";
 app.use("/api/posts", postsRoutes);
 
-//API Endpoints
+// Global error handler middleware (must be after routes)
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error("Error:", {
+    name: err.name,
+    message: err.message,
+    stack: process.env.NODE_ENV !== "production" ? err.stack : undefined,
+    path: req.path,
+    method: req.method,
+  });
+
+  const { statusCode, payload } = buildErrorResponse(err);
+  res.status(statusCode).json(payload);
+});
+
+// Root endpoint
 app.get("/", (req, res) => {
   res.json({
     message: "lineUp ♬",
     version: "1.0.0",
   });
-});
-
-app.get("/api/profile", (req, res) => {
-  res.json({
-    message: "Here goes the profile data",
-  });
-});
-
-app.post("/api/login", (req, res) => {
-  res.json({
-    message: "Here goes the login form",
-  });
-});
-
-app.post("/api/signup", (req, res) => {
-  res.json({
-    message: "Here goes the sign up form",
-  });
-});
-
-// Database connection test endpoint
-app.get("/api/databasetest", requireAuth, async (req, res) => {
-  try {
-    const connectionTest = await sql`
-      SELECT *
-      FROM connection_test 
-    `;
-    res.json(connectionTest[0]);
-  } catch (error) {
-    console.error("Error getting database connection:", error);
-    res.status(500).json({ error: "Failed to get database connection" });
-  }
 });
 
 //Start Server

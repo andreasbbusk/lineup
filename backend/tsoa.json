@@ -8,11 +8,19 @@
     "x-enum-varnames": true,
     "name": "LineUp API",
     "description": "API documentation for the LineUp application",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "basePath": "/api",
+    "securityDefinitions": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
   },
   "routes": {
     "routesDir": "src/routes",
     "routesFileName": "tsoa-routes.ts",
-    "esm": false
+    "authenticationModule": "./src/middleware/authentication.ts"
   }
 }

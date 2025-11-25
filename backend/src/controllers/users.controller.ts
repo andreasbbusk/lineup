@@ -1,46 +1,65 @@
-import { Controller, Get, Route, Tags, Path } from "tsoa";
-import { supabase } from "../middleware/auth.middleware.js";
+import { Request as ExpressRequest } from "express";
+import {
+  Body,
+  Controller,
+  Get,
+  Path,
+  Put,
+  Request,
+  Route,
+  Security,
+  Tags,
+} from "tsoa";
+import {
+  extractBearerToken,
+  extractUserId,
+  getUserByUsername,
+  updateUserProfile,
+} from "../services/auth.service.js";
+import { ProfileUpdateRequest, UserProfile } from "../types/api.types.js";
+import { handleControllerRequest } from "../utils/controller-helpers.js";
 
 @Route("users")
 @Tags("Users")
 export class UsersController extends Controller {
   /**
-   * Retrieves a list of all users.
+   * Get user profile by username
+   * Returns public profile by default. If authenticated and viewing own profile, returns private fields.
    */
-  @Get("/")
-  public async getAllUsers(): Promise<any[] | { error: string }> {
-    //change type of Promise<any> when profile interface is created
-    const { data, error } = await supabase.from("profiles").select("*");
+  @Security("bearerAuth")
+  @Get("{username}")
+  public async getUser(
+    @Path() username: string,
+    @Request() request: ExpressRequest
+  ): Promise<UserProfile> {
+    return handleControllerRequest(this, async () => {
+      // Check for optional authentication
+      let authenticatedUserId: string | undefined;
+      try {
+        authenticatedUserId = await extractUserId(request);
+      } catch {
+        // Not authenticated - will return public profile
+      }
 
-    if (error) {
-      this.setStatus(500);
-      return { error: error.message };
-    }
-
-    this.setStatus(200);
-    return data;
+      return getUserByUsername(username, authenticatedUserId);
+    });
   }
 
   /**
-   * Retrieves a specific user by their ID.
-   * @param userId The ID of the user to retrieve
+   * Update own profile (requires authentication)
+   * Only the profile owner can update their own profile
    */
-  @Get("{userId}")
-  public async getUser(
-    @Path() userId: string
-  ): Promise<any | { error: string }> {
-    //change type of Promise<any> when profile interface is created
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
-
-    if (error) {
-      this.setStatus(404);
-      return { error: "User not found" };
-    }
-    this.setStatus(200);
-    return data;
+  @Security("bearerAuth")
+  @Put("{username}")
+  public async updateProfile(
+    @Path() username: string,
+    @Body() body: ProfileUpdateRequest,
+    @Request() request: ExpressRequest
+  ): Promise<UserProfile> {
+    return handleControllerRequest(this, async () => {
+      const userId = await extractUserId(request);
+      const token = extractBearerToken(request);
+      return updateUserProfile(username, userId, body, token);
+    });
   }
 }
