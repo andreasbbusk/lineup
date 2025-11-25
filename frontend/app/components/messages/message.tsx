@@ -7,6 +7,8 @@ type messageProps = {
 	sender: "self" | "other";
 	/** Sender image */
 	imgSrc?: string;
+	/** Message timestamp */
+	timestamp?: string;
 };
 
 function Message(props: messageProps) {
@@ -29,9 +31,14 @@ function Message(props: messageProps) {
 					</div>
 				</div>
 			) : (
-				<div
-					className={`flex max-w-[16.5rem] px-3.5 py-2.5 items-center gap-4 justify-center self-end rounded-[1.25rem_1.25rem_0_1.25rem] bg-[var(--color-dark-cyan-blue)] font-normal text-base tracking-[0.03125rem] leading-normal text-[var(--color-white)]`}>
-					{props.content}
+				<div className="flex flex-col items-end gap-0.25 ">
+					<div
+						className={`flex max-w-[16.5rem] px-3.5 py-2.5 items-center gap-4 justify-center self-end rounded-[1.25rem_1.25rem_0_1.25rem] bg-[var(--color-dark-cyan-blue)] font-normal text-base tracking-[0.03125rem] leading-normal text-[var(--color-white)]`}>
+						{props.content}
+					</div>
+					<span className="text-[var(--color-grey)] text-right text-xs font-normal leading-[100%] tracking-[0.03125rem]">
+						{props.timestamp}
+					</span>
 				</div>
 			)}
 		</>
@@ -45,7 +52,8 @@ export { Message };
 	/* <Message
 		sender="self"
 		content="Welcome to LineUp!"
-	/>
+		timestamp="lige nu!"
+		/>
 	
 	<Message
 		sender="other"
