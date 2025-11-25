@@ -19,19 +19,11 @@ import {
   signupSchema,
   handleValidationError,
 } from "../utils/validation.js";
-
-// Supabase Configuration
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    "Missing required environment variables: SUPABASE_URL and SUPABASE_ANON_KEY must be set"
-  );
-}
-
-// Public client (respects RLS)
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import {
+  SUPABASE_ANON_KEY,
+  SUPABASE_URL,
+  supabase,
+} from "../config/supabase.js";
 
 /**
  * Extract and validate user ID from request Bearer token
@@ -430,7 +422,7 @@ export async function updateUserProfile(
 }
 
 async function createAuthedSupabaseClient(token: string) {
-  const client = createClient(supabaseUrl!, supabaseAnonKey!, {
+  const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     global: {
       headers: {
         Authorization: `Bearer ${token}`,

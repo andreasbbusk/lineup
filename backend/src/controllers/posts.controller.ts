@@ -9,7 +9,6 @@ import {
 } from "tsoa";
 import { sql } from "../config/database.config.js";
 import { CreatePostBody } from "../types/posts.js";
-import { supabase } from "../services/auth.service.js";
 import { extractUserId } from "../services/auth.service.js";
 @Route("posts")
 @Tags("Posts")

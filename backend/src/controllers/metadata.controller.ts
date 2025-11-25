@@ -1,5 +1,5 @@
 import { Controller, Get, Route, Tags } from "tsoa";
-import { supabase } from "../services/auth.service.js";
+import { supabase } from "../config/supabase.js";
 import { MetadataResponse, MetadataItem } from "../types/api.types.js";
 
 @Route("metadata")
