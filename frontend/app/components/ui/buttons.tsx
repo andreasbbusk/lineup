@@ -45,6 +45,7 @@ const iconPaths: Record<string, string> = {
 	mic: "/icons/mic.svg",
 	"arrow-right": "/icons/arrow-right.svg",
 	"arrow-left": "/icons/arrow-left.svg",
+	send: "/icons/send-diagonal.svg",
 };
 
 const Button = (props: buttonProps) => {
