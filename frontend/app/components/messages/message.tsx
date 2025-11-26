@@ -22,7 +22,7 @@ function Message(props: messageProps) {
 							alt="Sender image"
 							width={32}
 							height={32}
-							className="rounded-full"
+							className="rounded-full aspect-square object-cover"
 						/>
 					)}
 					<div
