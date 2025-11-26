@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Script from "next/script";
-import { Button } from "./components/ui/buttons";
 
 export const metadata: Metadata = {
 	title: "LineUp",

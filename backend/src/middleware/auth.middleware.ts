@@ -1,17 +1,8 @@
-import { createClient } from "@supabase/supabase-js";
 import { Request, Response, NextFunction } from "express";
+import { supabase } from "../config/supabase.js";
 
-// Enviroments
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    "Missing required environment variables: SUPABASE_URL and SUPABASE_ANON_KEY must be set"
-  );
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const MOCK_USER_ID = "bdad3024-4403-43ed-98fd-675b0d8d030b"; // Use your actual user ID
+const IS_DEVELOPMENT = process.env.NODE_ENV !== "production";
 
 export async function requireAuth(
   req: Request,
@@ -19,6 +10,13 @@ export async function requireAuth(
   next: NextFunction
 ) {
   try {
+    // Development mock: If no auth header, use mock userId
+    if (IS_DEVELOPMENT && !req.headers.authorization) {
+      console.log("⚠️  Using mock userId for development:", MOCK_USER_ID);
+      req.userId = MOCK_USER_ID;
+      return next();
+    }
+
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({ error: "Unauthorized" });

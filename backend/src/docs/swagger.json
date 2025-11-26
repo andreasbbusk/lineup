@@ -6,13 +6,390 @@
 		"parameters": {},
 		"requestBodies": {},
 		"responses": {},
-		"schemas": {},
-		"securitySchemes": {}
+		"schemas": {
+			"UserProfile": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"username": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"avatarUrl": {
+						"type": "string"
+					},
+					"bio": {
+						"type": "string"
+					},
+					"aboutMe": {
+						"type": "string"
+					},
+					"phoneCountryCode": {
+						"type": "number",
+						"format": "double"
+					},
+					"phoneNumber": {
+						"type": "number",
+						"format": "double"
+					},
+					"yearOfBirth": {
+						"type": "number",
+						"format": "double"
+					},
+					"location": {
+						"type": "string"
+					},
+					"userType": {
+						"type": "string"
+					},
+					"themeColor": {
+						"type": "string"
+					},
+					"spotifyPlaylistUrl": {
+						"type": "string"
+					},
+					"onboardingCompleted": {
+						"type": "boolean"
+					},
+					"createdAt": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"username",
+					"firstName",
+					"lastName",
+					"location",
+					"userType",
+					"onboardingCompleted",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ProfileUpdateRequest": {
+				"properties": {
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"bio": {
+						"type": "string"
+					},
+					"aboutMe": {
+						"type": "string"
+					},
+					"avatarUrl": {
+						"type": "string"
+					},
+					"location": {
+						"type": "string"
+					},
+					"themeColor": {
+						"type": "string"
+					},
+					"spotifyPlaylistUrl": {
+						"type": "string"
+					},
+					"phoneCountryCode": {
+						"type": "number",
+						"format": "double"
+					},
+					"phoneNumber": {
+						"type": "number",
+						"format": "double"
+					},
+					"onboardingCompleted": {
+						"type": "boolean"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CreatePostBody": {
+				"properties": {
+					"type": {
+						"type": "string",
+						"enum": [
+							"note",
+							"request",
+							"story"
+						]
+					},
+					"title": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"tags": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"genres": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"location": {
+						"type": "string"
+					},
+					"paidOpportunity": {
+						"type": "boolean"
+					},
+					"taggedUsers": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"media": {
+						"items": {
+							"properties": {
+								"type": {
+									"type": "string"
+								},
+								"thumbnail_url": {
+									"type": "string"
+								},
+								"url": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"type",
+								"url"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"type",
+					"title",
+					"description"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"MetadataItem": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string",
+						"enum": [
+							"tag",
+							"genre",
+							"artist"
+						]
+					},
+					"name": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"type",
+					"name",
+					"createdAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"MetadataResponse": {
+				"properties": {
+					"tags": {
+						"items": {
+							"$ref": "#/components/schemas/MetadataItem"
+						},
+						"type": "array"
+					},
+					"genres": {
+						"items": {
+							"$ref": "#/components/schemas/MetadataItem"
+						},
+						"type": "array"
+					},
+					"artists": {
+						"items": {
+							"$ref": "#/components/schemas/MetadataItem"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"tags",
+					"genres",
+					"artists"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"AuthResponse": {
+				"properties": {
+					"user": {
+						"properties": {
+							"createdAt": {
+								"type": "string"
+							},
+							"email": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"createdAt",
+							"email",
+							"id"
+						],
+						"type": "object"
+					},
+					"session": {
+						"properties": {
+							"expiresAt": {
+								"type": "number",
+								"format": "double"
+							},
+							"expiresIn": {
+								"type": "number",
+								"format": "double"
+							},
+							"refreshToken": {
+								"type": "string"
+							},
+							"accessToken": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"expiresAt",
+							"expiresIn",
+							"refreshToken",
+							"accessToken"
+						],
+						"type": "object"
+					},
+					"profile": {
+						"$ref": "#/components/schemas/UserProfile"
+					}
+				},
+				"required": [
+					"user",
+					"session",
+					"profile"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"SignupRequest": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"username": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"phoneCountryCode": {
+						"type": "number",
+						"format": "double"
+					},
+					"phoneNumber": {
+						"type": "number",
+						"format": "double"
+					},
+					"yearOfBirth": {
+						"type": "number",
+						"format": "double"
+					},
+					"location": {
+						"type": "string"
+					},
+					"userType": {
+						"type": "string",
+						"enum": [
+							"musician",
+							"service_provider",
+							"other"
+						]
+					}
+				},
+				"required": [
+					"email",
+					"password",
+					"username",
+					"firstName",
+					"lastName",
+					"phoneCountryCode",
+					"phoneNumber",
+					"yearOfBirth",
+					"location",
+					"userType"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"LoginRequest": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"email",
+					"password"
+				],
+				"type": "object",
+				"additionalProperties": false
+			}
+		},
+		"securitySchemes": {
+			"bearerAuth": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT"
+			}
+		}
 	},
 	"info": {
-		"title": "Lineup API",
+		"title": "LineUp API",
 		"version": "1.0.0",
-		"description": "API documentation for the Lineup application",
+		"description": "API documentation for the LineUp application",
 		"license": {
 			"name": "ISC"
 		},
@@ -21,41 +398,1079 @@
 		}
 	},
 	"paths": {
-		"/users": {
+		"/users/{username}": {
 			"get": {
-				"operationId": "GetUsers",
+				"operationId": "GetUser",
 				"responses": {
 					"200": {
 						"description": "Ok",
 						"content": {
 							"application/json": {
 								"schema": {
-									"properties": {
-										"message": {
-											"type": "string"
-										}
-									},
-									"required": [
-										"message"
-									],
-									"type": "object"
+									"$ref": "#/components/schemas/UserProfile"
 								}
 							}
 						}
 					}
 				},
-				"description": "Retrieves a list of users.",
+				"description": "Get user profile by username\nReturns public profile by default. If authenticated and viewing own profile, returns private fields.",
 				"tags": [
 					"Users"
 				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "username",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdateProfile",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserProfile"
+								}
+							}
+						}
+					}
+				},
+				"description": "Update own profile (requires authentication)\nOnly the profile owner can update their own profile",
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "username",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ProfileUpdateRequest"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/uploads": {
+			"get": {
+				"operationId": "GetUploads",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves a list of all uploads.",
+				"tags": [
+					"Uploads"
+				],
 				"security": [],
 				"parameters": []
+			}
+		},
+		"/uploads/{userId}": {
+			"get": {
+				"operationId": "GetUserUploads",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves all uploads for a user by their ID.",
+				"tags": [
+					"Uploads"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The ID of the user to retrieve uploads from",
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/search": {
+			"get": {
+				"operationId": "GetRecentSearchResults",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves a list of all recent search results.",
+				"tags": [
+					"Search"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/search/{userId}": {
+			"get": {
+				"operationId": "GetUserRecentSearches",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves all recent searches for a user by their ID.",
+				"tags": [
+					"Search"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The ID of the user to retrieve recent searches from",
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/reviews": {
+			"get": {
+				"operationId": "GetReviews",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves a list of all reviews.",
+				"tags": [
+					"Reviews"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/reviews/{userId}": {
+			"get": {
+				"operationId": "GetUserReviews",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves all reviews for a user by their ID.",
+				"tags": [
+					"Reviews"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The ID of the user to retrieve reviews from",
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/posts": {
+			"post": {
+				"operationId": "CreatePost",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "Creates a new post (note, request, or story)",
+				"tags": [
+					"Posts"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreatePostBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/notifications": {
+			"get": {
+				"operationId": "GetNotifications",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves a list of all notifications.",
+				"tags": [
+					"Notifications"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/notifications/{userId}": {
+			"get": {
+				"operationId": "GetUserNotifications",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves all notifications for a user by their ID.",
+				"tags": [
+					"Notifications"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The ID of the user to retrieve notifications from",
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/metadata": {
+			"get": {
+				"operationId": "GetMetadata",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/MetadataResponse"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all tags, genres, artists, interests for dropdowns/autocomplete\nReturns metadata grouped by type with usage counts",
+				"tags": [
+					"Metadata"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/messages": {
+			"get": {
+				"operationId": "GetMessages",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves a list of all messages.",
+				"tags": [
+					"Messages"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/messages/{userId}": {
+			"get": {
+				"operationId": "GetUserMessages",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves all messages for a user by their ID.",
+				"tags": [
+					"Messages"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The ID of the user to retrieve messages from",
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/conversations": {
+			"get": {
+				"operationId": "GetConversations",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves a list of all conversations.",
+				"tags": [
+					"Conversations"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/conversations/{userId}": {
+			"get": {
+				"operationId": "GetUserConversations",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves all conversations for a user by their ID.",
+				"tags": [
+					"Conversations"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The ID of the user to retrieve conversations from",
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/connections": {
+			"get": {
+				"operationId": "GetConnectionRequests",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves a list of all connections.",
+				"tags": [
+					"Connections"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/connections/{userId}": {
+			"get": {
+				"operationId": "GetUserConnectionsRequest",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves all connections requests for a user by their ID.",
+				"tags": [
+					"Connections"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The ID of the user to retrieve connections from",
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/comments": {
+			"get": {
+				"operationId": "GetComments",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves a list of all comments.",
+				"tags": [
+					"Comments"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/comments/{userId}": {
+			"get": {
+				"operationId": "GetUserComments",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves all comments for a user by their ID.",
+				"tags": [
+					"Comments"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The ID of the user to retrieve comments from",
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/collaborations": {
+			"get": {
+				"operationId": "GetCollaborations",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves a list of all collaborations.",
+				"tags": [
+					"Collaborations"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/collaborations/{userId}": {
+			"get": {
+				"operationId": "GetUserCollaborations",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves all collaborations for a user by their ID.",
+				"tags": [
+					"Collaborations"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The ID of the user to retrieve collaborations from",
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/bookmarks": {
+			"get": {
+				"operationId": "GetBookmarks",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {},
+											"type": "array"
+										},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves a list of all bookmarks.",
+				"tags": [
+					"Bookmarks"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/bookmarks/{userId}": {
+			"get": {
+				"operationId": "GetUserBookmarks",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{},
+										{
+											"properties": {
+												"error": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"error"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Retrieves all bookmarks for a user by their ID.",
+				"tags": [
+					"Bookmarks"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The ID of the user to retrieve bookmarks from",
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/auth/signup": {
+			"post": {
+				"operationId": "Signup",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuthResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Sign up a new user\nCreates a new user account with email, password, and basic profile information",
+				"tags": [
+					"Authentication"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SignupRequest"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/auth/login": {
+			"post": {
+				"operationId": "Login",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuthResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Sign in an existing user\nAuthenticates a user with email and password",
+				"tags": [
+					"Authentication"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/LoginRequest"
+							}
+						}
+					}
+				}
 			}
 		}
 	},
 	"servers": [
 		{
-			"url": "/"
+			"url": "/api"
 		}
 	]
 }
