@@ -37,7 +37,9 @@ function Tags(props: TagsProps) {
 
 	return (
 		<div
-			className={`inline-flex px-[0.6875rem] py-2 justify-center items-center rounded-[1.1875rem] border text-center font-medium leading-[100%] ${
+			className={` ${
+				props.hashTag === true ? "py-1.5 px-2" : "px-[0.6875rem] py-2"
+			} inline-flex justify-center items-center rounded-[1.1875rem] border text-center font-medium leading-[100%] ${
 				isSelected === true
 					? "border-[var(--color-blackberry-harvest)] bg-[var(--color-blackberry-harvest)] text-[var(--color-white)]"
 					: "border-[var(--color-grey)] text-[var(--color-grey)]"
