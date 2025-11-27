@@ -1,29 +1,30 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Script from "next/script";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-	title: "LineUp",
-	description: "LineUp Application",
+  title: "LineUp",
+  description: "LineUp Application",
 };
 
 export default function RootLayout({
-	children,
+  children,
 }: Readonly<{
-	children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-	return (
-		<html lang="en">
-			<body className="antialiased">
-				{children}
+  return (
+    <html lang="en">
+      <body className="antialiased">
+        <Providers>{children}</Providers>
 
-				<Script
-					src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
-					strategy="beforeInteractive"
-				/>
-				<Script src="/scripts/liquidGL.js" strategy="beforeInteractive" />
-				<Script id="liquidGL-inline" strategy="lazyOnload">
-					{`
+        <Script
+          src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+          strategy="beforeInteractive"
+        />
+        <Script src="/scripts/liquidGL.js" strategy="beforeInteractive" />
+        <Script id="liquidGL-inline" strategy="lazyOnload">
+          {`
 						document.addEventListener("DOMContentLoaded", () => {
 							const glassEffect = liquidGL({
 								snapshot: "body",
@@ -47,8 +48,8 @@ export default function RootLayout({
 							});
 						});
 					`}
-				</Script>
-			</body>
-		</html>
-	);
+        </Script>
+      </body>
+    </html>
+  );
 }
