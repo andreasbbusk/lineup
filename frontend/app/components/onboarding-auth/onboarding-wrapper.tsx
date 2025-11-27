@@ -12,12 +12,12 @@ import {
   OnboardingUserType,
 } from "@/app/components/onboarding-auth";
 import { useOnboardingNavigation } from "@/app/lib/hooks/useOnboardingNavigation";
-import { useOnboardingStore } from "@/app/lib/stores/onboarding-store";
+import { useAppStore } from "@/app/lib/stores/app-store";
 
 export function OnboardingWrapper() {
   const router = useRouter();
   const { step } = useOnboardingNavigation();
-  const storeStep = useOnboardingStore((s) => s.step);
+  const storeStep = useAppStore((s) => s.onboarding.step);
 
   // Initialize URL on first render if missing - only runs once
   useEffect(() => {

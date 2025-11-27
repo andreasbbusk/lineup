@@ -1,4 +1,4 @@
-import { useAuthStore } from "../stores/auth-store";
+import { useAppStore } from "../stores/app-store";
 import { ErrorResponse } from "../types/api-types";
 
 interface RequestOptions {
@@ -33,7 +33,7 @@ class ApiClient {
     const { headers = {}, requiresAuth = false, ...fetchOptions } = options;
 
     // Add auth header if required or if token exists
-    const accessToken = useAuthStore.getState().accessToken;
+    const accessToken = useAppStore.getState().accessToken;
     if (accessToken) {
       headers["Authorization"] = `Bearer ${accessToken}`;
     }
@@ -91,7 +91,7 @@ class ApiClient {
 
     if (response.status === 401) {
       // Unauthorized - clear auth and show message
-      useAuthStore.getState().clearAuth();
+      useAppStore.getState().clearAuth();
       userMessage = "Your session has expired. Please sign in again.";
     } else if (response.status === 409 && errorData.code === "CONFLICT") {
       userMessage = "This email or username is already in use.";

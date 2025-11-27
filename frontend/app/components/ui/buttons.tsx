@@ -25,6 +25,8 @@ type buttonProps =
       onClick: () => void;
       /** Custom className for additional styling */
       className?: string;
+      /** Disabled state */
+      disabled?: boolean;
     }
   | {
       /** Button type */
@@ -48,6 +50,8 @@ type buttonProps =
       onClick: () => void;
       /** Custom className for additional styling */
       className?: string;
+      /** Disabled state */
+      disabled?: boolean;
     };
 
 const iconPaths: Record<string, string> = {
@@ -87,9 +91,12 @@ const Button = (props: buttonProps) => {
     <button
       className={`${variantStyles[props.variant]} cursor-pointer${
         props.glass ? " liquidGL" : ""
-      }${props.className ? ` ${props.className}` : ""}`}
+      }${props.className ? ` ${props.className}` : ""}${
+        props.disabled ? " opacity-50 cursor-not-allowed" : ""
+      }`}
       type={props.type}
       onClick={props.onClick}
+      disabled={props.disabled}
     >
       <div className="content flex justify-center items-center gap-2 w-full">
         {props.icon ? (

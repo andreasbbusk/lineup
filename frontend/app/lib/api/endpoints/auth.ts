@@ -1,4 +1,4 @@
-'use server'
+"use server";
 
 import { apiClient } from "../client";
 import {
@@ -11,13 +11,6 @@ import {
 
 export async function signup(data: SignupRequest): Promise<AuthResponse> {
   return apiClient.post<AuthResponse>("/auth/signup", data);
-}
-
-export async function signupBasic(data: {
-  email: string;
-  password: string;
-}): Promise<AuthResponse> {
-  return apiClient.post<AuthResponse>("/auth/signup-basic", data);
 }
 
 export async function login(

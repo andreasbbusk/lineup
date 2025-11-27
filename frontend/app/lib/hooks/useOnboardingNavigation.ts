@@ -1,17 +1,17 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useOnboardingStore } from "@/app/lib/stores/onboarding-store";
+import { useAppStore } from "@/app/lib/stores/app-store";
 import { useCallback } from "react";
 
 export function useOnboardingNavigation() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { step: storeStep, goToStep: setStoreStep } = useOnboardingStore();
+  const { onboarding, goToStep: setStoreStep } = useAppStore();
 
   // Get current step from URL or fallback to store
   const urlStep = searchParams.get("step");
-  const currentStep = urlStep ? parseInt(urlStep, 10) : storeStep;
+  const currentStep = urlStep ? parseInt(urlStep, 10) : onboarding.step;
 
   const navigateToStep = useCallback(
     (step: number) => {

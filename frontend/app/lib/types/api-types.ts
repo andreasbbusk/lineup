@@ -68,7 +68,10 @@ export interface ProfileUpdateRequest {
   spotifyPlaylistUrl?: string;
   phoneCountryCode?: number;
   phoneNumber?: number;
+  yearOfBirth?: number;
   onboardingCompleted?: boolean;
+  userType?: string;
+  lookingFor?: string[];
 }
 
 // ==================== Looking For Types ====================

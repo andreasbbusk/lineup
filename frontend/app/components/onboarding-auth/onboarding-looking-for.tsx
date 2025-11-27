@@ -1,9 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useOnboardingStore } from "@/app/lib/stores/onboarding-store";
+import { useAppStore } from "@/app/lib/stores/app-store";
 import { useUpdateProfileMutation } from "@/app/lib/query/mutations/profile.mutations";
-import { useAuthStore } from "@/app/lib/stores/auth-store";
 import { Button } from "@/app/components/ui/buttons";
 import { CheckboxCircle } from "@/app/components/ui/checkbox-circle";
 import { ErrorMessage } from "@/app/components/ui/error-message";
@@ -17,8 +16,8 @@ const OPTIONS = [
 
 export function OnboardingLookingFor() {
   const router = useRouter();
-  const { data, updateData } = useOnboardingStore();
-  const user = useAuthStore((s) => s.user);
+  const { onboarding, updateOnboardingData } = useAppStore();
+  const user = useAppStore((s) => s.user);
 
   const {
     mutate: updateProfile,
@@ -27,10 +26,10 @@ export function OnboardingLookingFor() {
   } = useUpdateProfileMutation();
 
   const toggleOption = (id: string) => {
-    const current = data.lookingFor || [];
-    updateData({
+    const current = onboarding.data.lookingFor || [];
+    updateOnboardingData({
       lookingFor: current.includes(id)
-        ? current.filter((i) => i !== id)
+        ? current.filter((i: string) => i !== id)
         : [...current, id],
     });
   };
@@ -41,21 +40,26 @@ export function OnboardingLookingFor() {
       return;
     }
 
+    // Ensure we have username from onboarding data
+    if (!onboarding.data.username) {
+      console.error("Username is missing from onboarding data");
+      return;
+    }
+
     updateProfile({
-      username: data.username || user.email.split("@")[0],
+      username: onboarding.data.username,
       data: {
-        firstName: data.firstName!,
-        lastName: data.lastName!,
-        phoneCountryCode: Number(data.phoneCountryCode!.replace("+", "")),
-        phoneNumber: Number(data.phoneNumber!),
-        location: data.location!,
+        firstName: onboarding.data.firstName!,
+        lastName: onboarding.data.lastName!,
+        phoneCountryCode: Number(onboarding.data.phoneCountryCode!.replace("+", "")),
+        phoneNumber: Number(onboarding.data.phoneNumber!),
+        yearOfBirth: onboarding.data.yearOfBirth!,
+        location: onboarding.data.location!,
         onboardingCompleted: true,
+        userType: onboarding.data.userType,
+        lookingFor: onboarding.data.lookingFor,
       },
     });
-  };
-
-  const handleSkip = () => {
-    handleSubmit();
   };
 
   return (
@@ -69,7 +73,7 @@ export function OnboardingLookingFor() {
         {/* Options */}
         <div className="flex w-full flex-col gap-4">
           {OPTIONS.map((option) => {
-            const isSelected = data.lookingFor?.includes(option.id) ?? false;
+            const isSelected = onboarding.data.lookingFor?.includes(option.id) ?? false;
             return (
               <button
                 key={option.id}
@@ -102,15 +106,6 @@ export function OnboardingLookingFor() {
           >
             {isPending ? "Saving..." : "Continue"}
           </Button>
-
-          <button
-            type="button"
-            onClick={handleSkip}
-            disabled={isPending}
-            className="text-base leading-normal tracking-[0.5px] text-text-secondary underline decoration-solid underline-offset-2"
-          >
-            Skip for now
-          </button>
         </div>
       </div>
     </div>

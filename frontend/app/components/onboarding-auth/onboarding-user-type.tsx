@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useOnboardingStore } from "@/app/lib/stores/onboarding-store";
+import { useAppStore } from "@/app/lib/stores/app-store";
 import { useOnboardingNavigation } from "@/app/lib/hooks/useOnboardingNavigation";
 import { Button } from "@/app/components/ui/buttons";
 import { CheckboxCircle } from "@/app/components/ui/checkbox-circle";
@@ -23,15 +23,15 @@ const USER_TYPES = [
 ];
 
 export function OnboardingUserType() {
-  const { data, updateData } = useOnboardingStore();
+  const { onboarding, updateOnboardingData } = useAppStore();
   const { nextStep } = useOnboardingNavigation();
   const [selectedType, setSelectedType] = useState<string | null>(
-    data.userType || null
+    onboarding.data.userType || null
   );
 
   const handleSelect = (value: "musician" | "service_provider") => {
     setSelectedType(value);
-    updateData({ userType: value });
+    updateOnboardingData({ userType: value });
   };
 
   return (
