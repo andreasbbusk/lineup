@@ -79,46 +79,160 @@
 				"additionalProperties": false
 			},
 			"UpdateProfileDto": {
-				"description": "DTO for updating user profile\r\nMatches ProfileUpdateRequest API format (camelCase)",
+				"description": "DTO for updating user profile\r\n\r\nUsed to update user profile information. All fields are optional - only\r\nprovided fields will be updated. The user_id is automatically extracted\r\nfrom the authentication token.",
 				"properties": {
 					"firstName": {
-						"type": "string"
+						"type": "string",
+						"description": "First name (1-50 characters)",
+						"example": "John"
 					},
 					"lastName": {
-						"type": "string"
+						"type": "string",
+						"description": "Last name (1-50 characters)",
+						"example": "Doe"
 					},
 					"bio": {
-						"type": "string"
+						"type": "string",
+						"description": "Short bio (max 100 characters)",
+						"example": "Musician from New York"
 					},
 					"aboutMe": {
-						"type": "string"
+						"type": "string",
+						"description": "Detailed about me section (max 500 characters)",
+						"example": "I'm a professional musician with 10 years of experience..."
 					},
 					"avatarUrl": {
-						"type": "string"
+						"type": "string",
+						"description": "URL to user's avatar image",
+						"example": "https://example.com/avatar.jpg"
 					},
 					"location": {
-						"type": "string"
+						"type": "string",
+						"description": "User's location (1-100 characters)",
+						"example": "New York, NY"
 					},
 					"themeColor": {
-						"type": "string"
+						"type": "string",
+						"description": "Theme color in hex format",
+						"example": "#FF5733"
 					},
 					"spotifyPlaylistUrl": {
-						"type": "string"
+						"type": "string",
+						"description": "URL to Spotify playlist",
+						"example": "https://open.spotify.com/playlist/..."
 					},
 					"phoneCountryCode": {
 						"type": "number",
-						"format": "double"
+						"format": "double",
+						"description": "Phone country code (1-999)",
+						"example": 1
 					},
 					"phoneNumber": {
 						"type": "number",
-						"format": "double"
+						"format": "double",
+						"description": "Phone number (4-15 digits)",
+						"example": 1234567890
 					},
 					"onboardingCompleted": {
-						"type": "boolean"
+						"type": "boolean",
+						"description": "Whether user has completed onboarding",
+						"example": true
 					}
 				},
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"firstName": "John",
+					"lastName": "Doe",
+					"bio": "Musician from New York",
+					"location": "New York, NY",
+					"themeColor": "#FF5733"
+				}
+			},
+			"PostRow": {
+				"properties": {
+					"updated_at": {
+						"type": "string",
+						"nullable": true
+					},
+					"type": {
+						"type": "string",
+						"enum": [
+							"note",
+							"request",
+							"story"
+						]
+					},
+					"title": {
+						"type": "string"
+					},
+					"search_vector": {},
+					"paid_opportunity": {
+						"type": "boolean",
+						"nullable": true
+					},
+					"location": {
+						"type": "string",
+						"nullable": true
+					},
+					"id": {
+						"type": "string"
+					},
+					"expires_at": {
+						"type": "string",
+						"nullable": true
+					},
+					"description": {
+						"type": "string"
+					},
+					"created_at": {
+						"type": "string",
+						"nullable": true
+					},
+					"author_id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"updated_at",
+					"type",
+					"title",
+					"search_vector",
+					"paid_opportunity",
+					"location",
+					"id",
+					"expires_at",
+					"description",
+					"created_at",
+					"author_id"
+				],
+				"type": "object"
+			},
+			"PostResponse": {
+				"allOf": [
+					{
+						"$ref": "#/components/schemas/PostRow"
+					},
+					{
+						"properties": {
+							"author": {},
+							"tagged_users": {
+								"items": {},
+								"type": "array"
+							},
+							"media": {
+								"items": {},
+								"type": "array"
+							},
+							"metadata": {
+								"items": {},
+								"type": "array"
+							}
+						},
+						"type": "object"
+					}
+				],
+				"description": "API response format for a post with flattened relations\r\nBased on PostRow with additional flattened metadata, media, tagged_users, and author"
 			},
 			"PostType": {
 				"type": "string",
@@ -129,15 +243,22 @@
 				]
 			},
 			"MediaItemDto": {
+				"description": "DTO for media items attached to posts",
 				"properties": {
 					"url": {
-						"type": "string"
+						"type": "string",
+						"description": "URL to the media file",
+						"example": "https://example.com/image.jpg"
 					},
 					"thumbnail_url": {
-						"type": "string"
+						"type": "string",
+						"description": "Optional thumbnail URL for the media",
+						"example": "https://example.com/thumb.jpg"
 					},
 					"type": {
-						"type": "string"
+						"type": "string",
+						"description": "Media type: \"image\" or \"video\"",
+						"example": "image"
 					}
 				},
 				"required": [
@@ -145,7 +266,12 @@
 					"type"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"url": "https://example.com/image.jpg",
+					"thumbnail_url": "https://example.com/thumb.jpg",
+					"type": "image"
+				}
 			},
 			"Pick_PostInsert.Exclude_keyofPostInsert.id-or-author_id-or-created_at-or-updated_at-or-search_vector__": {
 				"properties": {
@@ -182,51 +308,87 @@
 				"description": "From T, pick a set of properties whose keys are in the union K"
 			},
 			"CreatePostBody": {
+				"description": "DTO for creating a new post\r\n\r\nUsed when creating a post (note, request, or story). The author_id is\r\nautomatically extracted from the authentication token.\r\n\r\nFor \"note\" posts, you can include tags.\r\nFor \"request\" posts, you can include genres and paid_opportunity flag.\r\nAll post types can include media attachments and tagged users.",
 				"properties": {
 					"description": {
-						"type": "string"
+						"type": "string",
+						"description": "Post description (10-5000 characters)",
+						"example": "I'm looking for an experienced drummer to join our band..."
 					},
 					"expires_at": {
 						"type": "string",
-						"nullable": true
+						"nullable": true,
+						"description": "Optional expiration date/time (ISO 8601 format)",
+						"example": "2024-12-31T23:59:59Z"
 					},
 					"location": {
 						"type": "string",
-						"nullable": true
+						"nullable": true,
+						"description": "Optional location where the post is relevant",
+						"example": "New York, NY"
 					},
 					"paid_opportunity": {
 						"type": "boolean",
-						"nullable": true
+						"nullable": true,
+						"description": "Whether this is a paid opportunity (only for \"request\" type posts)",
+						"example": true
 					},
 					"title": {
-						"type": "string"
+						"type": "string",
+						"description": "Post title (1-100 characters)",
+						"example": "Looking for a drummer"
 					},
 					"type": {
-						"$ref": "#/components/schemas/PostType"
+						"$ref": "#/components/schemas/PostType",
+						"description": "Post type: \"note\", \"request\", or \"story\"",
+						"example": "note"
 					},
 					"tags": {
 						"items": {
 							"type": "string"
 						},
-						"type": "array"
+						"type": "array",
+						"description": "Tags for \"note\" type posts",
+						"example": [
+							"music",
+							"jazz",
+							"performance"
+						]
 					},
 					"genres": {
 						"items": {
 							"type": "string"
 						},
-						"type": "array"
+						"type": "array",
+						"description": "Genres for \"request\" type posts",
+						"example": [
+							"rock",
+							"pop",
+							"indie"
+						]
 					},
 					"taggedUsers": {
 						"items": {
 							"type": "string"
 						},
-						"type": "array"
+						"type": "array",
+						"description": "Array of user IDs to tag in the post",
+						"example": [
+							"123e4567-e89b-12d3-a456-426614174000"
+						]
 					},
 					"media": {
 						"items": {
 							"$ref": "#/components/schemas/MediaItemDto"
 						},
-						"type": "array"
+						"type": "array",
+						"description": "Media attachments (images or videos)",
+						"example": [
+							{
+								"url": "https://example.com/image.jpg",
+								"type": "image"
+							}
+						]
 					}
 				},
 				"required": [
@@ -235,7 +397,233 @@
 					"type"
 				],
 				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"type": "note",
+					"title": "My First Post",
+					"description": "This is a detailed description of my post",
+					"location": "New York, NY",
+					"tags": [
+						"music",
+						"jazz"
+					],
+					"media": [
+						{
+							"url": "https://example.com/image.jpg",
+							"type": "image"
+						}
+					]
+				}
+			},
+			"CollaborationResponse": {
+				"description": "API response format for a user collaboration\r\nRepresents a past collaboration between two users",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"collaboratorId": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"collaborator": {
+						"properties": {
+							"avatarUrl": {
+								"type": "string",
+								"nullable": true
+							},
+							"lastName": {
+								"type": "string",
+								"nullable": true
+							},
+							"firstName": {
+								"type": "string",
+								"nullable": true
+							},
+							"username": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"username",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"userId",
+					"collaboratorId",
+					"createdAt"
+				],
+				"type": "object",
 				"additionalProperties": false
+			},
+			"Pick_CollaborationInsert.Exclude_keyofCollaborationInsert.user_id-or-created_at-or-id__": {
+				"properties": {
+					"description": {
+						"type": "string"
+					},
+					"collaborator_id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"collaborator_id"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"CreateCollaborationDto": {
+				"description": "DTO for creating a collaboration\r\n\r\nRepresents a past collaboration between the authenticated user and another user.\r\nThe description is optional and limited to 200 characters.",
+				"properties": {
+					"description": {
+						"type": "string",
+						"nullable": true,
+						"description": "Optional description of the collaboration (max 200 characters)",
+						"example": "Worked together on a jazz album in 2023"
+					},
+					"collaborator_id": {
+						"type": "string",
+						"description": "The ID of the user you collaborated with (UUID format)",
+						"example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+					}
+				},
+				"required": [
+					"collaborator_id"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"collaborator_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+					"description": "Worked together on a jazz album in 2023"
+				}
+			},
+			"BookmarkResponse": {
+				"description": "API response format for a bookmark\r\nIncludes the bookmark details and optional post information with author",
+				"properties": {
+					"postId": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"post": {
+						"properties": {
+							"author": {
+								"properties": {
+									"avatarUrl": {
+										"type": "string",
+										"nullable": true
+									},
+									"lastName": {
+										"type": "string"
+									},
+									"firstName": {
+										"type": "string"
+									},
+									"username": {
+										"type": "string"
+									},
+									"id": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"avatarUrl",
+									"lastName",
+									"firstName",
+									"username",
+									"id"
+								],
+								"type": "object"
+							},
+							"createdAt": {
+								"type": "string",
+								"nullable": true
+							},
+							"location": {
+								"type": "string",
+								"nullable": true
+							},
+							"type": {
+								"type": "string"
+							},
+							"description": {
+								"type": "string"
+							},
+							"title": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"createdAt",
+							"location",
+							"type",
+							"description",
+							"title",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"postId",
+					"userId",
+					"createdAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Pick_BookmarkInsert.Exclude_keyofBookmarkInsert.user_id-or-created_at__": {
+				"properties": {
+					"post_id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"post_id"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"CreateBookmarkDto": {
+				"description": "DTO for creating a bookmark\r\n\r\nUsed when a user wants to bookmark a post for later reference.\r\nThe user_id is automatically extracted from the authentication token.",
+				"properties": {
+					"post_id": {
+						"type": "string",
+						"description": "The UUID of the post to bookmark",
+						"example": "123e4567-e89b-12d3-a456-426614174000"
+					}
+				},
+				"required": [
+					"post_id"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"post_id": "123e4567-e89b-12d3-a456-426614174000"
+				}
 			},
 			"AuthResponse": {
 				"properties": {
@@ -296,37 +684,55 @@
 				"additionalProperties": false
 			},
 			"SignupDto": {
-				"description": "DTO for user signup\r\nValidates all required fields for creating a new user account",
+				"description": "DTO for user signup\r\n\r\nValidates all required fields for creating a new user account.\r\nThe username, email, and phone number combination must be unique.",
 				"properties": {
 					"email": {
-						"type": "string"
+						"type": "string",
+						"description": "User's email address (10-60 characters)",
+						"example": "user@example.com"
 					},
 					"password": {
-						"type": "string"
+						"type": "string",
+						"description": "Password (6-60 characters, must contain uppercase, lowercase, and number)",
+						"example": "SecurePass123"
 					},
 					"username": {
-						"type": "string"
+						"type": "string",
+						"description": "Unique username (3-30 characters, alphanumeric and underscores only)",
+						"example": "johndoe"
 					},
 					"firstName": {
-						"type": "string"
+						"type": "string",
+						"description": "First name (2-50 characters)",
+						"example": "John"
 					},
 					"lastName": {
-						"type": "string"
+						"type": "string",
+						"description": "Last name (2-50 characters)",
+						"example": "Doe"
 					},
 					"phoneCountryCode": {
 						"type": "number",
-						"format": "double"
+						"format": "double",
+						"description": "Phone country code (1-999)",
+						"example": 1
 					},
 					"phoneNumber": {
 						"type": "number",
-						"format": "double"
+						"format": "double",
+						"description": "Phone number (4-15 digits)",
+						"example": 1234567890
 					},
 					"yearOfBirth": {
 						"type": "number",
-						"format": "double"
+						"format": "double",
+						"description": "Year of birth (must be 13+ years old)",
+						"example": 1990
 					},
 					"location": {
-						"type": "string"
+						"type": "string",
+						"description": "User's location (1-100 characters)",
+						"example": "New York, NY"
 					},
 					"userType": {
 						"type": "string",
@@ -334,7 +740,9 @@
 							"musician",
 							"service_provider",
 							"other"
-						]
+						],
+						"description": "User type: \"musician\", \"service_provider\", or \"other\"",
+						"example": "musician"
 					}
 				},
 				"required": [
@@ -350,16 +758,32 @@
 					"userType"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"email": "user@example.com",
+					"password": "SecurePass123",
+					"username": "johndoe",
+					"firstName": "John",
+					"lastName": "Doe",
+					"phoneCountryCode": 1,
+					"phoneNumber": 1234567890,
+					"yearOfBirth": 1990,
+					"location": "New York, NY",
+					"userType": "musician"
+				}
 			},
 			"LoginDto": {
-				"description": "DTO for user login",
+				"description": "DTO for user login\r\n\r\nUsed to authenticate an existing user with their email and password.",
 				"properties": {
 					"email": {
-						"type": "string"
+						"type": "string",
+						"description": "User's email address",
+						"example": "user@example.com"
 					},
 					"password": {
-						"type": "string"
+						"type": "string",
+						"description": "User's password",
+						"example": "SecurePass123"
 					}
 				},
 				"required": [
@@ -367,7 +791,11 @@
 					"password"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"email": "user@example.com",
+					"password": "SecurePass123"
+				}
 			},
 			"MetadataItem": {
 				"properties": {
@@ -453,7 +881,7 @@
 				"operationId": "GetUser",
 				"responses": {
 					"200": {
-						"description": "Ok",
+						"description": "User profile (public or private based on authentication)",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -463,7 +891,8 @@
 						}
 					}
 				},
-				"description": "Get user profile by username\r\nReturns public profile by default. If authenticated and viewing own profile, returns private fields.\r\nAuthentication is optional - endpoint can be accessed without a token.",
+				"description": "Get user profile by username\r\n\r\nRetrieves a user's profile information. Returns public profile data by default.\r\nIf authenticated and viewing your own profile, returns additional private fields\r\nsuch as phone number, year of birth, etc.\r\n\r\nAuthentication is optional - endpoint can be accessed without a token for public profiles.",
+				"summary": "Get user profile",
 				"tags": [
 					"Users"
 				],
@@ -474,6 +903,7 @@
 				],
 				"parameters": [
 					{
+						"description": "The username of the user to retrieve",
 						"in": "path",
 						"name": "username",
 						"required": true,
@@ -487,7 +917,7 @@
 				"operationId": "UpdateProfile",
 				"responses": {
 					"200": {
-						"description": "Ok",
+						"description": "Updated user profile",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -497,7 +927,8 @@
 						}
 					}
 				},
-				"description": "Update own profile (requires authentication)\r\nOnly the profile owner can update their own profile\r\nAuthentication is required - will throw 401 if not authenticated",
+				"description": "Update own profile\r\n\r\nUpdates the authenticated user's profile information. Only the profile owner\r\ncan update their own profile. All fields in the request body are optional -\r\nonly provided fields will be updated.",
+				"summary": "Update user profile",
 				"tags": [
 					"Users"
 				],
@@ -508,6 +939,7 @@
 				],
 				"parameters": [
 					{
+						"description": "The username of the profile to update (must match authenticated user)",
 						"in": "path",
 						"name": "username",
 						"required": true,
@@ -517,11 +949,13 @@
 					}
 				],
 				"requestBody": {
+					"description": "The profile fields to update (all optional)",
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/UpdateProfileDto"
+								"$ref": "#/components/schemas/UpdateProfileDto",
+								"description": "The profile fields to update (all optional)"
 							}
 						}
 					}
@@ -533,14 +967,18 @@
 				"operationId": "CreatePost",
 				"responses": {
 					"200": {
-						"description": "Ok",
+						"description": "The created post with all related data (metadata, media, tagged users, author)",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"$ref": "#/components/schemas/PostResponse"
+								}
 							}
 						}
 					}
 				},
+				"description": "Create a new post\r\n\r\nCreates a new post (note, request, or story) with optional metadata, media,\r\nand tagged users. The post is automatically associated with the authenticated user.\r\n\r\nFor \"note\" type posts, you can include tags.\r\nFor \"request\" type posts, you can include genres and paid_opportunity flag.\r\nAll post types can include media and tagged users.",
+				"summary": "Create a post",
 				"tags": [
 					"Posts"
 				],
@@ -551,15 +989,254 @@
 				],
 				"parameters": [],
 				"requestBody": {
+					"description": "The post data including type, title, description, and optional fields",
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/CreatePostBody"
+								"$ref": "#/components/schemas/CreatePostBody",
+								"description": "The post data including type, title, description, and optional fields"
 							}
 						}
 					}
 				}
+			}
+		},
+		"/collaborations": {
+			"get": {
+				"operationId": "GetCollaborations",
+				"responses": {
+					"200": {
+						"description": "Array of collaborations with collaborator details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/CollaborationResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all collaborations for the authenticated user\r\n\r\nReturns a list of all collaborations where the authenticated user is involved.\r\nEach collaboration includes the collaborator's profile information.",
+				"summary": "Get user's collaborations",
+				"tags": [
+					"Collaborations"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "CreateCollaboration",
+				"responses": {
+					"200": {
+						"description": "The created collaboration",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CollaborationResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create a collaboration\r\n\r\nAllows the authenticated user to record a past collaboration with another user.\r\nThe collaborator must exist and the collaboration must not already exist.",
+				"summary": "Create a collaboration",
+				"tags": [
+					"Collaborations"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "Collaboration data including collaborator ID and optional description",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateCollaborationDto",
+								"description": "Collaboration data including collaborator ID and optional description"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/collaborations/{userId}": {
+			"get": {
+				"operationId": "GetUserCollaborations",
+				"responses": {
+					"200": {
+						"description": "Array of collaborations with collaborator details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/CollaborationResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get collaborations for a specific user\r\n\r\nReturns all collaborations for the specified user. This endpoint can be\r\naccessed without authentication to view public collaboration information.",
+				"summary": "Get collaborations by user ID",
+				"tags": [
+					"Collaborations"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The UUID of the user to retrieve collaborations for",
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/collaborations/{collaborationId}": {
+			"delete": {
+				"operationId": "DeleteCollaboration",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Delete a collaboration\r\n\r\nRemoves a collaboration. Only the user who created the collaboration\r\ncan delete it.",
+				"summary": "Delete a collaboration",
+				"tags": [
+					"Collaborations"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the collaboration to delete",
+						"in": "path",
+						"name": "collaborationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/bookmarks": {
+			"get": {
+				"operationId": "GetBookmarks",
+				"responses": {
+					"200": {
+						"description": "Array of bookmarks with post details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/BookmarkResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all bookmarks for the authenticated user\r\n\r\nReturns a list of all bookmarks created by the authenticated user.\r\nEach bookmark includes the post details and author information.",
+				"summary": "Get user's bookmarks",
+				"tags": [
+					"Bookmarks"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "CreateBookmark",
+				"responses": {
+					"200": {
+						"description": "The created bookmark",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BookmarkResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create a bookmark for a post\r\n\r\nAllows the authenticated user to bookmark a post for later reference.\r\nThe post must exist and must not already be bookmarked by the user.",
+				"summary": "Create a bookmark",
+				"tags": [
+					"Bookmarks"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "The bookmark data containing the post ID to bookmark",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateBookmarkDto",
+								"description": "The bookmark data containing the post ID to bookmark"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/bookmarks/{postId}": {
+			"delete": {
+				"operationId": "DeleteBookmark",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Remove a bookmark\r\n\r\nDeletes a bookmark for a specific post. Only the user who created\r\nthe bookmark can remove it.",
+				"summary": "Delete a bookmark",
+				"tags": [
+					"Bookmarks"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the post to unbookmark",
+						"in": "path",
+						"name": "postId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		},
 		"/auth/signup": {
@@ -567,7 +1244,7 @@
 				"operationId": "Signup",
 				"responses": {
 					"200": {
-						"description": "Ok",
+						"description": "Authentication response with user, session tokens, and profile",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -577,18 +1254,21 @@
 						}
 					}
 				},
-				"description": "Sign up a new user\r\nCreates a new user account with email, password, and basic profile information",
+				"description": "Sign up a new user\r\n\r\nCreates a new user account with email, password, and basic profile information.\r\nThe username, email, and phone number must be unique. After successful signup,\r\nreturns authentication tokens and user profile.",
+				"summary": "Create a new user account",
 				"tags": [
 					"Authentication"
 				],
 				"security": [],
 				"parameters": [],
 				"requestBody": {
+					"description": "User registration data including email, password, username, and profile info",
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/SignupDto"
+								"$ref": "#/components/schemas/SignupDto",
+								"description": "User registration data including email, password, username, and profile info"
 							}
 						}
 					}
@@ -600,7 +1280,7 @@
 				"operationId": "Login",
 				"responses": {
 					"200": {
-						"description": "Ok",
+						"description": "Authentication response with user, session tokens, and profile",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -610,18 +1290,21 @@
 						}
 					}
 				},
-				"description": "Sign in an existing user\r\nAuthenticates a user with email and password",
+				"description": "Sign in an existing user\r\n\r\nAuthenticates a user with their email and password. Returns authentication\r\ntokens (access and refresh) along with user profile information.",
+				"summary": "Authenticate user",
 				"tags": [
 					"Authentication"
 				],
 				"security": [],
 				"parameters": [],
 				"requestBody": {
+					"description": "Login credentials (email and password)",
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/LoginDto"
+								"$ref": "#/components/schemas/LoginDto",
+								"description": "Login credentials (email and password)"
 							}
 						}
 					}
@@ -1336,176 +2019,6 @@
 				"parameters": [
 					{
 						"description": "The ID of the user to retrieve comments from",
-						"in": "path",
-						"name": "userId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/collaborations": {
-			"get": {
-				"operationId": "GetCollaborations",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{
-											"items": {},
-											"type": "array"
-										},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves a list of all collaborations.",
-				"tags": [
-					"Collaborations"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/collaborations/{userId}": {
-			"get": {
-				"operationId": "GetUserCollaborations",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves all collaborations for a user by their ID.",
-				"tags": [
-					"Collaborations"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"description": "The ID of the user to retrieve collaborations from",
-						"in": "path",
-						"name": "userId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/bookmarks": {
-			"get": {
-				"operationId": "GetBookmarks",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{
-											"items": {},
-											"type": "array"
-										},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves a list of all bookmarks.",
-				"tags": [
-					"Bookmarks"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/bookmarks/{userId}": {
-			"get": {
-				"operationId": "GetUserBookmarks",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves all bookmarks for a user by their ID.",
-				"tags": [
-					"Bookmarks"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"description": "The ID of the user to retrieve bookmarks from",
 						"in": "path",
 						"name": "userId",
 						"required": true,

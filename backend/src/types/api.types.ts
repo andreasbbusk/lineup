@@ -130,6 +130,27 @@ export interface Connection {
   recipient?: UserProfile;
 }
 
+// ==================== Collaboration Types ====================
+
+/**
+ * API response format for a user collaboration
+ * Represents a past collaboration between two users
+ */
+export interface CollaborationResponse {
+  id: string;
+  userId: string;
+  collaboratorId: string;
+  description?: string | null;
+  createdAt: string | null;
+  collaborator?: {
+    id: string;
+    username: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    avatarUrl?: string | null;
+  };
+}
+
 // ==================== Pagination ====================
 
 export interface PaginationQuery {

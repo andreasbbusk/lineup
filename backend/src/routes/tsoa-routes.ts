@@ -8,6 +8,10 @@ import { UsersController } from './../entities/users/users.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { PostsController } from './../entities/posts/posts.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { CollaborationsController } from './../entities/collaborations/collaborations.controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { BookmarksController } from './../entities/bookmarks/bookmarks.controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { AuthController } from './../entities/auth/auth.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { UploadsController } from './../controllers/upload.controller';
@@ -27,10 +31,6 @@ import { ConversationsController } from './../controllers/conversations.controll
 import { ConnectionsController } from './../controllers/connections.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { CommentsController } from './../controllers/comments.controller';
-// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { CollaborationsController } from './../controllers/collaborations.controller';
-// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { BookmarksController } from './../controllers/bookmarks.controller';
 import { expressAuthentication } from './../middleware/authentication';
 // @ts-ignore - no great way to install types from subpackage
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
@@ -83,6 +83,16 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "PostRow": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"updated_at":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["note"]},{"dataType":"enum","enums":["request"]},{"dataType":"enum","enums":["story"]}],"required":true},"title":{"dataType":"string","required":true},"search_vector":{"dataType":"any","required":true},"paid_opportunity":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"id":{"dataType":"string","required":true},"expires_at":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"description":{"dataType":"string","required":true},"created_at":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"author_id":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "PostResponse": {
+        "dataType": "refAlias",
+        "type": {"dataType":"intersection","subSchemas":[{"ref":"PostRow"},{"dataType":"nestedObjectLiteral","nestedProperties":{"author":{"dataType":"any"},"tagged_users":{"dataType":"array","array":{"dataType":"any"}},"media":{"dataType":"array","array":{"dataType":"any"}},"metadata":{"dataType":"array","array":{"dataType":"any"}}}}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "PostType": {
         "dataType": "refAlias",
         "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["note"]},{"dataType":"enum","enums":["request"]},{"dataType":"enum","enums":["story"]}],"validators":{}},
@@ -116,6 +126,57 @@ const models: TsoaRoute.Models = {
             "genres": {"dataType":"array","array":{"dataType":"string"}},
             "taggedUsers": {"dataType":"array","array":{"dataType":"string"}},
             "media": {"dataType":"array","array":{"dataType":"refObject","ref":"MediaItemDto"}},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CollaborationResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "userId": {"dataType":"string","required":true},
+            "collaboratorId": {"dataType":"string","required":true},
+            "description": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},
+            "createdAt": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
+            "collaborator": {"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Pick_CollaborationInsert.Exclude_keyofCollaborationInsert.user_id-or-created_at-or-id__": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"description":{"dataType":"string"},"collaborator_id":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CreateCollaborationDto": {
+        "dataType": "refObject",
+        "properties": {
+            "description": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},
+            "collaborator_id": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "BookmarkResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "postId": {"dataType":"string","required":true},
+            "userId": {"dataType":"string","required":true},
+            "createdAt": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
+            "post": {"dataType":"nestedObjectLiteral","nestedProperties":{"author":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"lastName":{"dataType":"string","required":true},"firstName":{"dataType":"string","required":true},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"type":{"dataType":"string","required":true},"description":{"dataType":"string","required":true},"title":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Pick_BookmarkInsert.Exclude_keyofBookmarkInsert.user_id-or-created_at__": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"post_id":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CreateBookmarkDto": {
+        "dataType": "refObject",
+        "properties": {
+            "post_id": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -280,6 +341,226 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'createPost',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsCollaborationsController_getCollaborations: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.get('/collaborations',
+            authenticateMiddleware([{"bearerAuth":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(CollaborationsController)),
+            ...(fetchMiddlewares<RequestHandler>(CollaborationsController.prototype.getCollaborations)),
+
+            async function CollaborationsController_getCollaborations(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsCollaborationsController_getCollaborations, request, response });
+
+                const controller = new CollaborationsController();
+
+              await templateService.apiHandler({
+                methodName: 'getCollaborations',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsCollaborationsController_getUserCollaborations: Record<string, TsoaRoute.ParameterSchema> = {
+                userId: {"in":"path","name":"userId","required":true,"dataType":"string"},
+        };
+        app.get('/collaborations/:userId',
+            ...(fetchMiddlewares<RequestHandler>(CollaborationsController)),
+            ...(fetchMiddlewares<RequestHandler>(CollaborationsController.prototype.getUserCollaborations)),
+
+            async function CollaborationsController_getUserCollaborations(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsCollaborationsController_getUserCollaborations, request, response });
+
+                const controller = new CollaborationsController();
+
+              await templateService.apiHandler({
+                methodName: 'getUserCollaborations',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsCollaborationsController_createCollaboration: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"ref":"CreateCollaborationDto"},
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.post('/collaborations',
+            authenticateMiddleware([{"bearerAuth":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(CollaborationsController)),
+            ...(fetchMiddlewares<RequestHandler>(CollaborationsController.prototype.createCollaboration)),
+
+            async function CollaborationsController_createCollaboration(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsCollaborationsController_createCollaboration, request, response });
+
+                const controller = new CollaborationsController();
+
+              await templateService.apiHandler({
+                methodName: 'createCollaboration',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsCollaborationsController_deleteCollaboration: Record<string, TsoaRoute.ParameterSchema> = {
+                collaborationId: {"in":"path","name":"collaborationId","required":true,"dataType":"string"},
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.delete('/collaborations/:collaborationId',
+            authenticateMiddleware([{"bearerAuth":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(CollaborationsController)),
+            ...(fetchMiddlewares<RequestHandler>(CollaborationsController.prototype.deleteCollaboration)),
+
+            async function CollaborationsController_deleteCollaboration(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsCollaborationsController_deleteCollaboration, request, response });
+
+                const controller = new CollaborationsController();
+
+              await templateService.apiHandler({
+                methodName: 'deleteCollaboration',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsBookmarksController_getBookmarks: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.get('/bookmarks',
+            authenticateMiddleware([{"bearerAuth":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(BookmarksController)),
+            ...(fetchMiddlewares<RequestHandler>(BookmarksController.prototype.getBookmarks)),
+
+            async function BookmarksController_getBookmarks(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsBookmarksController_getBookmarks, request, response });
+
+                const controller = new BookmarksController();
+
+              await templateService.apiHandler({
+                methodName: 'getBookmarks',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsBookmarksController_createBookmark: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"ref":"CreateBookmarkDto"},
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.post('/bookmarks',
+            authenticateMiddleware([{"bearerAuth":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(BookmarksController)),
+            ...(fetchMiddlewares<RequestHandler>(BookmarksController.prototype.createBookmark)),
+
+            async function BookmarksController_createBookmark(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsBookmarksController_createBookmark, request, response });
+
+                const controller = new BookmarksController();
+
+              await templateService.apiHandler({
+                methodName: 'createBookmark',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsBookmarksController_deleteBookmark: Record<string, TsoaRoute.ParameterSchema> = {
+                postId: {"in":"path","name":"postId","required":true,"dataType":"string"},
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.delete('/bookmarks/:postId',
+            authenticateMiddleware([{"bearerAuth":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(BookmarksController)),
+            ...(fetchMiddlewares<RequestHandler>(BookmarksController.prototype.deleteBookmark)),
+
+            async function BookmarksController_deleteBookmark(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsBookmarksController_deleteBookmark, request, response });
+
+                const controller = new BookmarksController();
+
+              await templateService.apiHandler({
+                methodName: 'deleteBookmark',
                 controller,
                 response,
                 next,
@@ -841,124 +1122,6 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'getUserComments',
-                controller,
-                response,
-                next,
-                validatedArgs,
-                successStatus: undefined,
-              });
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsCollaborationsController_getCollaborations: Record<string, TsoaRoute.ParameterSchema> = {
-        };
-        app.get('/collaborations',
-            ...(fetchMiddlewares<RequestHandler>(CollaborationsController)),
-            ...(fetchMiddlewares<RequestHandler>(CollaborationsController.prototype.getCollaborations)),
-
-            async function CollaborationsController_getCollaborations(request: ExRequest, response: ExResponse, next: any) {
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsCollaborationsController_getCollaborations, request, response });
-
-                const controller = new CollaborationsController();
-
-              await templateService.apiHandler({
-                methodName: 'getCollaborations',
-                controller,
-                response,
-                next,
-                validatedArgs,
-                successStatus: undefined,
-              });
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsCollaborationsController_getUserCollaborations: Record<string, TsoaRoute.ParameterSchema> = {
-                userId: {"in":"path","name":"userId","required":true,"dataType":"string"},
-        };
-        app.get('/collaborations/:userId',
-            ...(fetchMiddlewares<RequestHandler>(CollaborationsController)),
-            ...(fetchMiddlewares<RequestHandler>(CollaborationsController.prototype.getUserCollaborations)),
-
-            async function CollaborationsController_getUserCollaborations(request: ExRequest, response: ExResponse, next: any) {
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsCollaborationsController_getUserCollaborations, request, response });
-
-                const controller = new CollaborationsController();
-
-              await templateService.apiHandler({
-                methodName: 'getUserCollaborations',
-                controller,
-                response,
-                next,
-                validatedArgs,
-                successStatus: undefined,
-              });
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsBookmarksController_getBookmarks: Record<string, TsoaRoute.ParameterSchema> = {
-        };
-        app.get('/bookmarks',
-            ...(fetchMiddlewares<RequestHandler>(BookmarksController)),
-            ...(fetchMiddlewares<RequestHandler>(BookmarksController.prototype.getBookmarks)),
-
-            async function BookmarksController_getBookmarks(request: ExRequest, response: ExResponse, next: any) {
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsBookmarksController_getBookmarks, request, response });
-
-                const controller = new BookmarksController();
-
-              await templateService.apiHandler({
-                methodName: 'getBookmarks',
-                controller,
-                response,
-                next,
-                validatedArgs,
-                successStatus: undefined,
-              });
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsBookmarksController_getUserBookmarks: Record<string, TsoaRoute.ParameterSchema> = {
-                userId: {"in":"path","name":"userId","required":true,"dataType":"string"},
-        };
-        app.get('/bookmarks/:userId',
-            ...(fetchMiddlewares<RequestHandler>(BookmarksController)),
-            ...(fetchMiddlewares<RequestHandler>(BookmarksController.prototype.getUserBookmarks)),
-
-            async function BookmarksController_getUserBookmarks(request: ExRequest, response: ExResponse, next: any) {
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsBookmarksController_getUserBookmarks, request, response });
-
-                const controller = new BookmarksController();
-
-              await templateService.apiHandler({
-                methodName: 'getUserBookmarks',
                 controller,
                 response,
                 next,

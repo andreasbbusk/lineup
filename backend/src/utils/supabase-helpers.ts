@@ -33,6 +33,14 @@ export type BookmarkInsert =
 export type BookmarkUpdate =
   Database["public"]["Tables"]["bookmarks"]["Update"];
 
+// User Collaborations table types
+export type CollaborationRow =
+  Database["public"]["Tables"]["user_collaborations"]["Row"];
+export type CollaborationInsert =
+  Database["public"]["Tables"]["user_collaborations"]["Insert"];
+export type CollaborationUpdate =
+  Database["public"]["Tables"]["user_collaborations"]["Update"];
+
 // Enums
 export type PostType = Database["public"]["Enums"]["post_type"];
 export type MediaType = Database["public"]["Enums"]["media_type"];
