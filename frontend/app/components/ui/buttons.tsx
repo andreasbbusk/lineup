@@ -55,14 +55,15 @@ type buttonProps =
     };
 
 const iconPaths: Record<string, string> = {
-  "add-circle": "/icons/add-circle.svg",
-  plus: "/icons/plus.svg",
-  loading: "/icons/loading.svg",
-  check: "/icons/check.svg",
-  "chat-bubble": "/icons/chat-bubble.svg",
-  mic: "/icons/mic.svg",
-  "arrow-right": "/icons/arrow-right.svg",
-  "arrow-left": "/icons/arrow-left.svg",
+	"add-circle": "/icons/add-circle.svg",
+	plus: "/icons/plus.svg",
+	loading: "/icons/loading.svg",
+	check: "/icons/check.svg",
+	"chat-bubble": "/icons/chat-bubble.svg",
+	mic: "/icons/mic.svg",
+	"arrow-right": "/icons/arrow-right.svg",
+	"arrow-left": "/icons/arrow-left.svg",
+	send: "/icons/send-diagonal.svg",
 };
 
 const Button = (props: buttonProps) => {
