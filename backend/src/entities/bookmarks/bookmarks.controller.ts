@@ -1,4 +1,3 @@
-// src/entities/bookmarks/bookmarks.controller.ts
 import { Request as ExpressRequest } from "express";
 import {
   Controller,

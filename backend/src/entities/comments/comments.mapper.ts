@@ -1,4 +1,3 @@
-// src/entities/comments/comments.mapper.ts
 import { CommentRow } from "../../utils/supabase-helpers.js";
 import { CommentResponse } from "../../types/api.types.js";
 
@@ -49,4 +48,3 @@ export function mapCommentsToResponse(
 ): CommentResponse[] {
   return comments.map(mapCommentToResponse);
 }
-

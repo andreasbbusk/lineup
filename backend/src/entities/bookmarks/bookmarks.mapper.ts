@@ -1,4 +1,3 @@
-// src/entities/bookmarks/bookmarks.mapper.ts
 import { BookmarkRow } from "../../utils/supabase-helpers.js";
 import { BookmarkResponse } from "../../types/api.types.js";
 
@@ -70,4 +69,3 @@ export function mapBookmarksToResponse(
 ): BookmarkResponse[] {
   return bookmarks.map(mapBookmarkToResponse);
 }
-

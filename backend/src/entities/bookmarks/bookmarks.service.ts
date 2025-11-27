@@ -1,4 +1,3 @@
-// src/entities/bookmarks/bookmarks.service.ts
 import { createAuthenticatedClient } from "../../config/supabase.config.js";
 import { BookmarkInsert } from "../../utils/supabase-helpers.js";
 import { createHttpError } from "../../utils/error-handler.js";

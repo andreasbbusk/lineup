@@ -1,4 +1,3 @@
-// src/entities/collaborations/collaborations.dto.ts
 import { IsString, IsUUID, IsOptional, Length } from "class-validator";
 import { CollaborationInsert } from "../../utils/supabase-helpers.js";
 

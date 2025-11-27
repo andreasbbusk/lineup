@@ -1,4 +1,3 @@
-// src/entities/comments/comments.controller.ts
 import { Request as ExpressRequest } from "express";
 import {
   Controller,
@@ -153,4 +152,3 @@ export class CommentsController extends Controller {
     );
   }
 }
-

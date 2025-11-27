@@ -1,4 +1,3 @@
-// src/entities/comments/comments.dto.ts
 import { IsString, IsUUID, Length } from "class-validator";
 import { CommentInsert } from "../../utils/supabase-helpers.js";
 

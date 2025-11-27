@@ -1,5 +1,7 @@
-// src/entities/collaborations/collaborations.service.ts
-import { createAuthenticatedClient, supabase } from "../../config/supabase.config.js";
+import {
+  createAuthenticatedClient,
+  supabase,
+} from "../../config/supabase.config.js";
 import { CollaborationInsert } from "../../utils/supabase-helpers.js";
 import { createHttpError } from "../../utils/error-handler.js";
 import { mapCollaborationsToResponse } from "./collaborations.mapper.js";
@@ -104,11 +106,12 @@ export class CollaborationsService {
     }
 
     // Verify the collaborator exists
-    const { data: collaborator, error: collaboratorError } = await authedSupabase
-      .from("profiles")
-      .select("id")
-      .eq("id", collaboratorId)
-      .single();
+    const { data: collaborator, error: collaboratorError } =
+      await authedSupabase
+        .from("profiles")
+        .select("id")
+        .eq("id", collaboratorId)
+        .single();
 
     if (collaboratorError || !collaborator) {
       throw createHttpError({
@@ -219,4 +222,3 @@ export class CollaborationsService {
     }
   }
 }
-

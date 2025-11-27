@@ -1,8 +1,13 @@
-// src/entities/comments/comments.service.ts
-import { createAuthenticatedClient, supabase } from "../../config/supabase.config.js";
+import {
+  createAuthenticatedClient,
+  supabase,
+} from "../../config/supabase.config.js";
 import { CommentInsert, CommentUpdate } from "../../utils/supabase-helpers.js";
 import { createHttpError } from "../../utils/error-handler.js";
-import { mapCommentsToResponse, mapCommentToResponse } from "./comments.mapper.js";
+import {
+  mapCommentsToResponse,
+  mapCommentToResponse,
+} from "./comments.mapper.js";
 import { CommentResponse } from "../../types/api.types.js";
 import { CreateCommentDto, UpdateCommentDto } from "./comments.dto.js";
 
@@ -255,4 +260,3 @@ export class CommentsService {
     }
   }
 }
-

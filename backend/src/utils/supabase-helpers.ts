@@ -49,6 +49,22 @@ export type ConnectionRequestInsert =
 export type ConnectionRequestUpdate =
   Database["public"]["Tables"]["connection_requests"]["Update"];
 
+// Conversations table types
+export type ConversationRow =
+  Database["public"]["Tables"]["conversations"]["Row"];
+export type ConversationInsert =
+  Database["public"]["Tables"]["conversations"]["Insert"];
+export type ConversationUpdate =
+  Database["public"]["Tables"]["conversations"]["Update"];
+
+// Conversation Participants table types
+export type ConversationParticipantRow =
+  Database["public"]["Tables"]["conversation_participants"]["Row"];
+export type ConversationParticipantInsert =
+  Database["public"]["Tables"]["conversation_participants"]["Insert"];
+export type ConversationParticipantUpdate =
+  Database["public"]["Tables"]["conversation_participants"]["Update"];
+
 // Enums
 export type PostType = Database["public"]["Enums"]["post_type"];
 export type MediaType = Database["public"]["Enums"]["media_type"];

@@ -1,4 +1,3 @@
-// src/entities/collaborations/collaborations.mapper.ts
 import { CollaborationRow } from "../../utils/supabase-helpers.js";
 import { CollaborationResponse } from "../../types/api.types.js";
 
@@ -48,4 +47,3 @@ export function mapCollaborationsToResponse(
 ): CollaborationResponse[] {
   return collaborations.map(mapCollaborationToResponse);
 }
-

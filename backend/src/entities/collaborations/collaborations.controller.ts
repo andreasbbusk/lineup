@@ -1,4 +1,3 @@
-// src/entities/collaborations/collaborations.controller.ts
 import { Request as ExpressRequest } from "express";
 import {
   Controller,

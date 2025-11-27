@@ -189,6 +189,55 @@ export interface PaginatedResponse<T> {
   };
 }
 
+// ==================== Conversation Types ====================
+
+/**
+ * API response format for a conversation participant
+ */
+export interface ConversationParticipantResponse {
+  userId: string;
+  conversationId: string;
+  joinedAt: string | null;
+  leftAt?: string | null;
+  isAdmin: boolean | null;
+  lastReadMessageId?: string | null;
+  lastReadAt?: string | null;
+  notificationsEnabled: boolean | null;
+  isMuted: boolean | null;
+  user?: {
+    id: string;
+    username: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    avatarUrl?: string | null;
+  };
+}
+
+/**
+ * API response format for a conversation
+ * Represents a direct message or group conversation
+ */
+export interface ConversationResponse {
+  id: string;
+  type: "direct" | "group";
+  name?: string | null;
+  avatarUrl?: string | null;
+  createdBy: string;
+  createdAt: string | null;
+  updatedAt: string | null;
+  lastMessageId?: string | null;
+  lastMessagePreview?: string | null;
+  lastMessageAt?: string | null;
+  creator?: {
+    id: string;
+    username: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    avatarUrl?: string | null;
+  };
+  participants?: ConversationParticipantResponse[];
+}
+
 // ==================== Error Response ====================
 
 export interface ErrorResponse {
