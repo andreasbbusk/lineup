@@ -1,4 +1,4 @@
-// src/utils/mappers/metadata.mapper.ts
+// src/entities/metadata/metadata.mapper.ts
 import { MetadataItem } from "../../types/api.types.js";
 import { Database } from "../../types/supabase.js";
 

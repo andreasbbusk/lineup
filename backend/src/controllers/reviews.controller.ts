@@ -1,5 +1,5 @@
 import { Controller, Get, Route, Tags, Path } from "tsoa";
-import { supabase } from "../config/supabase.js";
+import { supabase } from "../config/supabase.config.js";
 
 @Route("reviews")
 @Tags("Reviews")

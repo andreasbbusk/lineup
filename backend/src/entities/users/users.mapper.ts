@@ -1,5 +1,5 @@
-// src/utils/mappers/profile.mapper.ts
-import { ProfileRow } from "../supabase-helpers.js";
+// src/entities/users/users.mapper.ts
+import { ProfileRow } from "../../utils/supabase-helpers.js";
 import { UserProfile } from "../../types/api.types.js";
 
 /**

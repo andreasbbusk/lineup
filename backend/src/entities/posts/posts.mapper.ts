@@ -1,17 +1,11 @@
-// src/utils/mappers/post.mapper.ts
-import { PostRow } from "../supabase-helpers.js";
+// src/entities/posts/posts.mapper.ts
+import { PostRow } from "../../utils/supabase-helpers.js";
+import { PostResponse } from "../../types/api.types.js";
 
 type SupabasePostWithRelations = PostRow & {
   metadata?: Array<{ metadata: any }>;
   media?: Array<{ media: any; display_order: number }>;
   tagged_users?: Array<{ user: any }>;
-  author?: any;
-};
-
-type PostResponse = PostRow & {
-  metadata?: any[];
-  media?: any[];
-  tagged_users?: any[];
   author?: any;
 };
 

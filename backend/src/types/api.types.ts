@@ -1,4 +1,7 @@
 // API Request and Response Types for LineUp
+// This file serves as the single source of truth for all API request/response contracts
+
+import { PostRow } from "../utils/supabase-helpers.js";
 
 // ==================== Auth Types ====================
 
@@ -65,6 +68,46 @@ export interface MetadataResponse {
   tags: MetadataItem[];
   genres: MetadataItem[];
   artists: MetadataItem[];
+}
+
+// ==================== Post Types ====================
+
+/**
+ * API response format for a post with flattened relations
+ * Based on PostRow with additional flattened metadata, media, tagged_users, and author
+ */
+export type PostResponse = PostRow & {
+  metadata?: any[];
+  media?: any[];
+  tagged_users?: any[];
+  author?: any;
+};
+
+// ==================== Bookmark Types ====================
+
+/**
+ * API response format for a bookmark
+ * Includes the bookmark details and optional post information with author
+ */
+export interface BookmarkResponse {
+  postId: string;
+  userId: string;
+  createdAt: string | null;
+  post?: {
+    id: string;
+    title: string;
+    description: string;
+    type: string;
+    location: string | null;
+    createdAt: string | null;
+    author?: {
+      id: string;
+      username: string;
+      firstName: string;
+      lastName: string;
+      avatarUrl: string | null;
+    };
+  };
 }
 
 // ==================== Connection Types ====================

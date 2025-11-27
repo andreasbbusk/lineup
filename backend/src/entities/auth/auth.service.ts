@@ -1,6 +1,5 @@
 // Authentication Service using Supabase Auth
 
-import { createClient } from "@supabase/supabase-js";
 import { Request as ExpressRequest } from "express";
 import {
   AuthResponse,
@@ -8,23 +7,16 @@ import {
   UserProfile,
 } from "../../types/api.types.js";
 import { ProfileRow, ProfileUpdate } from "../../utils/supabase-helpers.js";
-import { Database } from "../../types/supabase.js";
-import { mapProfileToAPI } from "../../utils/mappers/index.js";
+import { mapProfileToAPI } from "../users/users.mapper.js";
 import {
   createHttpError,
   handleSupabaseAuthError,
 } from "../../utils/error-handler.js";
+import { SignupDto } from "./auth.dto.js";
 import {
-  validateDto,
-  validatePhoneNumberLength,
-  validateYearOfBirth,
-} from "../../utils/validation.js";
-import { SignupDto, LoginDto } from "./auth.dto.js";
-import {
-  SUPABASE_ANON_KEY,
-  SUPABASE_URL,
   supabase,
-} from "../../config/supabase.js";
+  createAuthenticatedClient,
+} from "../../config/supabase.config.js";
 
 /**
  * Extract and validate user ID from request Bearer token
@@ -88,17 +80,7 @@ async function createUserProfile(
 ): Promise<ProfileRow> {
   // Use authenticated client if token is provided (for RLS)
   const client = accessToken
-    ? createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        global: {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-        auth: {
-          persistSession: false,
-          detectSessionInUrl: false,
-        },
-      })
+    ? createAuthenticatedClient(accessToken)
     : supabase;
 
   const { data: profile, error } = await client
@@ -135,31 +117,14 @@ async function createUserProfile(
  * Sign up a new user with Supabase Auth and create profile
  */
 export async function signUp(data: SignupDto): Promise<AuthResponse> {
-  // Validate input with class-validator
-  const validatedData = await validateDto(SignupDto, data);
-
-  // Additional custom validations
-  if (!validatePhoneNumberLength(validatedData.phoneNumber)) {
-    throw createHttpError({
-      message: "Phone number must be between 4 and 15 digits",
-      statusCode: 400,
-      code: "VALIDATION_ERROR",
-    });
-  }
-
-  if (!validateYearOfBirth(validatedData.yearOfBirth)) {
-    throw createHttpError({
-      message: "You must be at least 13 years old",
-      statusCode: 400,
-      code: "VALIDATION_ERROR",
-    });
-  }
+  // TSOA automatically validates the DTO via @Body() decorator
+  // All validation rules (phone length, year of birth, etc.) are handled by class-validator decorators
 
   // Check if username is already taken
   const { data: existingProfile, error: usernameCheckError } = await supabase
     .from("profiles")
     .select("username")
-    .eq("username", validatedData.username)
+    .eq("username", data.username)
     .single();
 
   if (existingProfile) {
@@ -174,8 +139,8 @@ export async function signUp(data: SignupDto): Promise<AuthResponse> {
   const { data: existingPhone, error: phoneCheckError } = await supabase
     .from("profiles")
     .select("id")
-    .eq("phone_country_code", validatedData.phoneCountryCode)
-    .eq("phone_number", validatedData.phoneNumber)
+    .eq("phone_country_code", data.phoneCountryCode)
+    .eq("phone_number", data.phoneNumber)
     .single();
 
   if (existingPhone) {
@@ -188,8 +153,8 @@ export async function signUp(data: SignupDto): Promise<AuthResponse> {
 
   // Sign up with Supabase Auth
   const { data: authData, error: authError } = await supabase.auth.signUp({
-    email: validatedData.email,
-    password: validatedData.password,
+    email: data.email,
+    password: data.password,
   });
 
   if (authError) {
@@ -210,8 +175,8 @@ export async function signUp(data: SignupDto): Promise<AuthResponse> {
   try {
     profile = await createUserProfile(
       authData.user.id,
-      validatedData.username,
-      validatedData,
+      data.username,
+      data,
       authData.session?.access_token
     );
   } catch (profileError: any) {
@@ -281,14 +246,12 @@ export async function signIn(
   email: string,
   password: string
 ): Promise<AuthResponse> {
-  // Validate input with class-validator
-  const validatedData = await validateDto(LoginDto, { email, password });
-
+  // TSOA automatically validates the DTO via @Body() decorator in the controller
   // Sign in with Supabase Auth
   const { data: authData, error: authError } =
     await supabase.auth.signInWithPassword({
-      email: validatedData.email,
-      password: validatedData.password,
+      email,
+      password,
     });
 
   if (authError) {
@@ -457,17 +420,7 @@ export async function updateUserProfile(
 }
 
 async function createAuthedSupabaseClient(token: string) {
-  const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    global: {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-    auth: {
-      persistSession: false,
-      detectSessionInUrl: false,
-    },
-  });
+  const client = createAuthenticatedClient(token);
 
   try {
     await client.auth.setSession({

@@ -1,16 +1,13 @@
 // src/entities/users/users.service.ts
-import { createClient } from "@supabase/supabase-js";
 import {
   supabase,
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY,
-} from "../../config/supabase.ts";
+  createAuthenticatedClient,
+} from "../../config/supabase.config.js";
 import { ProfileRow, ProfileUpdate } from "../../utils/supabase-helpers.ts";
-import { mapProfileToAPI } from "../../utils/mappers/index.ts";
+import { mapProfileToAPI } from "./users.mapper.js";
 import { UserProfile } from "../../types/api.types.js";
 import { UpdateProfileDto } from "./users.dto.js";
 import { createHttpError } from "../../utils/error-handler.ts";
-import { Database } from "../../types/supabase.ts";
 
 export class UsersService {
   /**
@@ -51,21 +48,7 @@ export class UsersService {
     token: string
   ): Promise<UserProfile> {
     // Create authenticated Supabase client for RLS
-    const authedSupabase = createClient<Database>(
-      SUPABASE_URL,
-      SUPABASE_ANON_KEY,
-      {
-        global: {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-        auth: {
-          persistSession: false,
-          detectSessionInUrl: false,
-        },
-      }
-    );
+    const authedSupabase = createAuthenticatedClient(token);
 
     // Verify the username belongs to the authenticated user
     const { data: profile, error: fetchError } = await authedSupabase

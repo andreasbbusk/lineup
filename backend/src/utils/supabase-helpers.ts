@@ -26,6 +26,13 @@ export type MediaRow = Database["public"]["Tables"]["media"]["Row"];
 export type MediaInsert = Database["public"]["Tables"]["media"]["Insert"];
 export type MediaUpdate = Database["public"]["Tables"]["media"]["Update"];
 
+// Bookmarks table types
+export type BookmarkRow = Database["public"]["Tables"]["bookmarks"]["Row"];
+export type BookmarkInsert =
+  Database["public"]["Tables"]["bookmarks"]["Insert"];
+export type BookmarkUpdate =
+  Database["public"]["Tables"]["bookmarks"]["Update"];
+
 // Enums
 export type PostType = Database["public"]["Enums"]["post_type"];
 export type MediaType = Database["public"]["Enums"]["media_type"];
