@@ -1,14 +1,5 @@
-// src/entities/feed/feed.controller.ts
 import { Request as ExpressRequest } from "express";
-import {
-  Controller,
-  Get,
-  Query,
-  Request,
-  Route,
-  Security,
-  Tags,
-} from "tsoa";
+import { Controller, Get, Query, Request, Route, Security, Tags } from "tsoa";
 import { extractUserId } from "../../entities/auth/auth.service.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
 import { FeedService } from "./feed.service.js";
@@ -51,7 +42,8 @@ export class FeedController extends Controller {
   > {
     return handleControllerRequest(this, async () => {
       const userId = await extractUserId(request!);
-      const token = request!.headers.authorization?.replace("Bearer ", "") || "";
+      const token =
+        request!.headers.authorization?.replace("Bearer ", "") || "";
 
       const feedComponent = component || "posts";
       const feedLimit = limit || 20;
@@ -75,4 +67,3 @@ export class FeedController extends Controller {
     });
   }
 }
-

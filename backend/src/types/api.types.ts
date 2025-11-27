@@ -250,6 +250,58 @@ export interface ConversationResponse {
   participants?: ConversationParticipantResponse[];
 }
 
+// ==================== Message Types ====================
+
+/**
+ * API response format for a message read receipt
+ */
+export interface MessageReadReceiptResponse {
+  messageId: string;
+  userId: string;
+  readAt: string | null;
+  user?: {
+    id: string;
+    username: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    avatarUrl?: string | null;
+  };
+}
+
+/**
+ * API response format for a message
+ * Represents a message in a conversation with sender info and optional reply
+ */
+export interface MessageResponse {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  content: string | null;
+  mediaIds?: string[] | null;
+  isEdited: boolean | null;
+  editedAt?: string | null;
+  isDeleted: boolean | null;
+  deletedAt?: string | null;
+  replyToMessageId?: string | null;
+  createdAt: string | null;
+  sentViaWebsocket: boolean | null;
+  sender?: {
+    id: string;
+    username: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    avatarUrl?: string | null;
+  };
+  replyTo?: MessageResponse | null;
+  readReceipts?: MessageReadReceiptResponse[];
+  media?: Array<{
+    id: string;
+    url: string;
+    thumbnailUrl?: string | null;
+    type: string;
+  }>;
+}
+
 // ==================== Error Response ====================
 
 export interface ErrorResponse {

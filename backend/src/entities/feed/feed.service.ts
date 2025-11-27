@@ -1,4 +1,3 @@
-// src/entities/feed/feed.service.ts
 import { createAuthenticatedClient } from "../../config/supabase.config.js";
 import { createHttpError } from "../../utils/error-handler.js";
 import { FeedPostResponse } from "../../types/api.types.js";

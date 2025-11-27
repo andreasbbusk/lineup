@@ -1,4 +1,3 @@
-// src/entities/feed/feed.dto.ts
 import { IsOptional, IsEnum, IsString, IsInt, Min, Max } from "class-validator";
 
 /**
