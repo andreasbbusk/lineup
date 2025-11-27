@@ -151,6 +151,28 @@ export interface CollaborationResponse {
   };
 }
 
+// ==================== Comment Types ====================
+
+/**
+ * API response format for a comment
+ * Represents a comment on a post with author information
+ */
+export interface CommentResponse {
+  id: string;
+  postId: string;
+  authorId: string;
+  content: string;
+  createdAt: string | null;
+  updatedAt: string | null;
+  author?: {
+    id: string;
+    username: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    avatarUrl?: string | null;
+  };
+}
+
 // ==================== Pagination ====================
 
 export interface PaginationQuery {

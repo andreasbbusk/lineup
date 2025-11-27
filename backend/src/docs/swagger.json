@@ -415,6 +415,127 @@
 					]
 				}
 			},
+			"CommentResponse": {
+				"description": "API response format for a comment\r\nRepresents a comment on a post with author information",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"postId": {
+						"type": "string"
+					},
+					"authorId": {
+						"type": "string"
+					},
+					"content": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"updatedAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"author": {
+						"properties": {
+							"avatarUrl": {
+								"type": "string",
+								"nullable": true
+							},
+							"lastName": {
+								"type": "string",
+								"nullable": true
+							},
+							"firstName": {
+								"type": "string",
+								"nullable": true
+							},
+							"username": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"username",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"postId",
+					"authorId",
+					"content",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Pick_CommentInsert.Exclude_keyofCommentInsert.author_id-or-created_at-or-updated_at-or-id__": {
+				"properties": {
+					"content": {
+						"type": "string"
+					},
+					"post_id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"content",
+					"post_id"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"CreateCommentDto": {
+				"description": "DTO for creating a comment\r\n\r\nUsed when creating a comment on a post. The author_id is automatically\r\nextracted from the authentication token.",
+				"properties": {
+					"content": {
+						"type": "string",
+						"description": "The comment content (1-1000 characters)",
+						"example": "Great post! Looking forward to collaborating."
+					},
+					"post_id": {
+						"type": "string",
+						"description": "The ID of the post to comment on (UUID format)",
+						"example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+					}
+				},
+				"required": [
+					"content",
+					"post_id"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"post_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+					"content": "Great post! Looking forward to collaborating."
+				}
+			},
+			"UpdateCommentDto": {
+				"description": "DTO for updating a comment\r\n\r\nUsed when updating an existing comment. Only the content can be updated.",
+				"properties": {
+					"content": {
+						"type": "string",
+						"description": "The updated comment content (1-1000 characters)",
+						"example": "Updated comment text"
+					}
+				},
+				"required": [
+					"content"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"content": "Updated comment text"
+				}
+			},
 			"CollaborationResponse": {
 				"description": "API response format for a user collaboration\r\nRepresents a past collaboration between two users",
 				"properties": {
@@ -1000,6 +1121,199 @@
 						}
 					}
 				}
+			}
+		},
+		"/comments/post/{postId}": {
+			"get": {
+				"operationId": "GetPostComments",
+				"responses": {
+					"200": {
+						"description": "Array of comments with author details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/CommentResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all comments for a post\r\n\r\nReturns all comments on a specific post, ordered by creation date (oldest first).\r\nEach comment includes the author's profile information.",
+				"summary": "Get comments for a post",
+				"tags": [
+					"Comments"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The UUID of the post to retrieve comments for",
+						"in": "path",
+						"name": "postId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/comments/user/{userId}": {
+			"get": {
+				"operationId": "GetUserComments",
+				"responses": {
+					"200": {
+						"description": "Array of comments with author details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/CommentResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all comments by a user\r\n\r\nReturns all comments created by a specific user, ordered by creation date (newest first).\r\nEach comment includes the author's profile information.",
+				"summary": "Get comments by user",
+				"tags": [
+					"Comments"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The UUID of the user to retrieve comments for",
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/comments": {
+			"post": {
+				"operationId": "CreateComment",
+				"responses": {
+					"200": {
+						"description": "The created comment with author details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CommentResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create a comment on a post\r\n\r\nAllows the authenticated user to create a comment on a post.\r\nThe post must exist and the comment content must be between 1 and 1000 characters.",
+				"summary": "Create a comment",
+				"tags": [
+					"Comments"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "Comment data including post ID and content",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateCommentDto",
+								"description": "Comment data including post ID and content"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/comments/{commentId}": {
+			"put": {
+				"operationId": "UpdateComment",
+				"responses": {
+					"200": {
+						"description": "The updated comment",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CommentResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Update a comment\r\n\r\nAllows the authenticated user to update their own comment.\r\nOnly the comment author can update their comment.",
+				"summary": "Update a comment",
+				"tags": [
+					"Comments"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the comment to update",
+						"in": "path",
+						"name": "commentId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "Updated comment content",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateCommentDto",
+								"description": "Updated comment content"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteComment",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Delete a comment\r\n\r\nRemoves a comment. Only the comment author can delete their own comment.",
+				"summary": "Delete a comment",
+				"tags": [
+					"Comments"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the comment to delete",
+						"in": "path",
+						"name": "commentId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		},
 		"/collaborations": {
@@ -1934,91 +2248,6 @@
 				"parameters": [
 					{
 						"description": "The ID of the user to retrieve connections from",
-						"in": "path",
-						"name": "userId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/comments": {
-			"get": {
-				"operationId": "GetComments",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{
-											"items": {},
-											"type": "array"
-										},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves a list of all comments.",
-				"tags": [
-					"Comments"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/comments/{userId}": {
-			"get": {
-				"operationId": "GetUserComments",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves all comments for a user by their ID.",
-				"tags": [
-					"Comments"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"description": "The ID of the user to retrieve comments from",
 						"in": "path",
 						"name": "userId",
 						"required": true,
