@@ -3,6 +3,7 @@ import { createHttpError } from "../../utils/error-handler.js";
 import { FeedPostResponse } from "../../types/api.types.js";
 import { mapPostToResponse } from "../posts/posts.mapper.js";
 import { PostRow } from "../../utils/supabase-helpers.js";
+import { mapPostsToFeedResponse, PostEngagementData } from "./feed.mapper.js";
 
 export class FeedService {
   /**
@@ -146,17 +147,23 @@ export class FeedService {
     });
 
     // Map posts to feed response format
-    const feedPosts: FeedPostResponse[] = postsToReturn.map((post) => {
-      const basePost = mapPostToResponse(post as PostRow & any);
-      return {
-        ...basePost,
+    const basePosts = postsToReturn.map((post) =>
+      mapPostToResponse(post as PostRow & any)
+    );
+
+    // Build engagement data map
+    const engagementMap = new Map<string, PostEngagementData>();
+    postsToReturn.forEach((post) => {
+      engagementMap.set(post.id, {
         likesCount: likesCountMap.get(post.id) || 0,
         commentsCount: commentsCountMap.get(post.id) || 0,
         bookmarksCount: bookmarksCountMap.get(post.id) || 0,
         hasLiked: hasLikedMap.get(post.id) || false,
         hasBookmarked: hasBookmarkedMap.get(post.id) || false,
-      };
+      });
     });
+
+    const feedPosts = mapPostsToFeedResponse(basePosts, engagementMap);
 
     return {
       posts: feedPosts,
@@ -234,16 +241,21 @@ export class FeedService {
     }
 
     // Map to feed response format (engagement data not critical for recommendations)
-    return recommendations.map((post) => {
-      const basePost = mapPostToResponse(post as PostRow & any);
-      return {
-        ...basePost,
+    const basePosts = recommendations.map((post) =>
+      mapPostToResponse(post as PostRow & any)
+    );
+
+    const engagementMap = new Map<string, PostEngagementData>();
+    recommendations.forEach((post) => {
+      engagementMap.set(post.id, {
         likesCount: 0,
         commentsCount: 0,
         bookmarksCount: 0,
         hasLiked: false,
         hasBookmarked: false,
-      };
+      });
     });
+
+    return mapPostsToFeedResponse(basePosts, engagementMap);
   }
 }

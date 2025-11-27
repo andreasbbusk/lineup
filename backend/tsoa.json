@@ -6,7 +6,7 @@
     "src/controllers/**/*.controller.ts"
   ],
   "spec": {
-    "outputDirectory": "src/docs",
+    "outputDirectory": "docs",
     "specVersion": 3,
     "x-enum-varnames": true,
     "name": "LineUp API",
@@ -24,6 +24,7 @@
   "routes": {
     "routesDir": "src/routes",
     "routesFileName": "tsoa-routes.ts",
-    "authenticationModule": "./src/middleware/authentication.ts"
+    "authenticationModule": "./src/middleware/authentication.ts",
+    "middlewareTemplate": "./templates/route.mustache"
   }
 }
