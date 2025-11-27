@@ -85,29 +85,28 @@ export function useUpdateProfileMutation() {
         lookingForData?.map((item) => item.looking_for_value) || [];
 
       // Remove snake_case fields and use only camelCase
-      const {
-        first_name,
-        last_name,
-        phone_country_code,
-        phone_number,
-        year_of_birth,
-        onboarding_completed,
-        user_type,
-        avatar_url,
-        about_me,
-        spotify_playlist_url,
-        theme_color,
-        blocked_users,
-        created_at,
-        updated_at,
-        search_vector,
-        ...cleanProfile
-      } = profile as any;
-
-      updateProfileStore({
-        ...cleanProfile,
+      const cleanProfile = {
+        id: profile.id,
+        username: profile.username,
+        firstName: profile.first_name,
+        lastName: profile.last_name,
+        phoneCountryCode: profile.phone_country_code,
+        phoneNumber: profile.phone_number,
+        yearOfBirth: profile.year_of_birth,
+        location: profile.location,
+        onboardingCompleted: profile.onboarding_completed,
+        userType: profile.user_type,
+        avatarUrl: profile.avatar_url,
+        bio: profile.bio,
+        aboutMe: profile.about_me,
+        spotifyPlaylistUrl: profile.spotify_playlist_url,
+        themeColor: profile.theme_color,
+        createdAt: profile.created_at,
+        updatedAt: profile.updated_at,
         lookingFor,
-      });
+      };
+
+      updateProfileStore(cleanProfile);
       resetOnboarding(); // Clear onboarding data from localStorage
       router.push("/");
     },
