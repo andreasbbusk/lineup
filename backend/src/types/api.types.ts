@@ -83,6 +83,18 @@ export type PostResponse = PostRow & {
   author?: any;
 };
 
+/**
+ * API response format for a post in the feed
+ * Extends PostResponse with engagement data and user interaction state
+ */
+export interface FeedPostResponse extends PostResponse {
+  likesCount?: number;
+  commentsCount?: number;
+  bookmarksCount?: number;
+  hasLiked?: boolean;
+  hasBookmarked?: boolean;
+}
+
 // ==================== Bookmark Types ====================
 
 /**
