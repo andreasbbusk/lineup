@@ -302,6 +302,36 @@ export interface MessageResponse {
   }>;
 }
 
+// ==================== Notification Types ====================
+
+/**
+ * API response format for a notification
+ * Represents a notification with actor information
+ */
+export interface NotificationResponse {
+  id: string;
+  recipientId: string;
+  actorId?: string | null;
+  type: string;
+  entityType?: string | null;
+  entityId?: string | null;
+  title: string;
+  body?: string | null;
+  actionUrl?: string | null;
+  isRead: boolean | null;
+  isArchived: boolean | null;
+  createdAt: string | null;
+  readAt?: string | null;
+  sentViaWebsocket: boolean | null;
+  actor?: {
+    id: string;
+    username: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    avatarUrl?: string | null;
+  };
+}
+
 // ==================== Error Response ====================
 
 export interface ErrorResponse {

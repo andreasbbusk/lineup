@@ -78,6 +78,14 @@ export type MessageReadReceiptInsert =
 export type MessageReadReceiptUpdate =
   Database["public"]["Tables"]["message_read_receipts"]["Update"];
 
+// Notifications table types
+export type NotificationRow =
+  Database["public"]["Tables"]["notifications"]["Row"];
+export type NotificationInsert =
+  Database["public"]["Tables"]["notifications"]["Insert"];
+export type NotificationUpdate =
+  Database["public"]["Tables"]["notifications"]["Update"];
+
 // Enums
 export type PostType = Database["public"]["Enums"]["post_type"];
 export type MediaType = Database["public"]["Enums"]["media_type"];
