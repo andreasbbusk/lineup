@@ -83,7 +83,7 @@ const Button = (props: buttonProps) => {
 		<button
 			className={`${variantStyles[props.variant]}${
 				props.glass ? " liquidGL" : ""
-			}`}
+			} flex-1`}
 			type={props.type}
 			onClick={props.onClick}>
 			<div className="content flex justify-center items-center gap-[0.5rem] w-full">
