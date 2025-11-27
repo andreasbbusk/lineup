@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useLoginMutation } from "@/app/lib/query/mutations/auth.mutations";
+import { ErrorMessage } from "@/app/components/ui/error-message";
 
 export function LoginWrapper() {
   const [email, setEmail] = useState("");
@@ -34,11 +35,7 @@ export function LoginWrapper() {
         </header>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="rounded-2xl border border-maroon bg-maroon/10 px-4 py-3 text-sm text-maroon">
-              {error.message}
-            </div>
-          )}
+          {error && <ErrorMessage message={error.message} />}
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">Email</label>

@@ -11,6 +11,7 @@ import {
   type SignupFormData,
 } from "@/app/lib/schemas/auth-schema";
 import { Button } from "@/app/components/ui/buttons";
+import { ErrorMessage } from "@/app/components/ui/error-message";
 
 export function OnboardingSignupStep() {
   const { data, updateData, markAccountCreated } = useOnboardingStore();
@@ -19,11 +20,12 @@ export function OnboardingSignupStep() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     mode: "onChange",
     defaultValues: {
+      username: data.username || "",
       email: data.email || "",
       password: "",
       confirmPassword: "",
@@ -41,7 +43,11 @@ export function OnboardingSignupStep() {
       { email: formData.email, password: formData.password },
       {
         onSuccess: () => {
-          updateData({ email: formData.email, password: undefined }); // Clear password after creation
+          updateData({
+            username: formData.username,
+            email: formData.email,
+            password: undefined,
+          }); // Clear password after creation
           markAccountCreated();
           nextStep();
         },
@@ -50,42 +56,50 @@ export function OnboardingSignupStep() {
   };
 
   return (
-    <div className="flex w-full flex-col items-center justify-center gap-6 sm:gap-[30px] max-w-lg">
+    <div className="flex w-full flex-col items-center justify-center gap-6 sm:gap-8 max-w-lg">
       <h1 className="text-xl font-bold leading-6 tracking-[0.18px] text-grey sm:text-2xl">
         Sign up
       </h1>
 
-      <div className="flex w-full flex-col items-center gap-5 sm:gap-[22px]">
-        <div className="flex w-full flex-col items-center gap-3 sm:gap-[15px]">
+      <div className="flex w-full flex-col items-center gap-5 sm:gap-6">
+        <div className="flex w-full flex-col items-center gap-3 sm:gap-4">
           <p className="px-2 text-center text-sm leading-normal tracking-[0.5px] text-black sm:text-base">
             By continuing you agree to LineUp! Terms of use and Privacy Policy
           </p>
 
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex w-full flex-col items-center gap-3 sm:gap-[15px]"
+            className="flex w-full flex-col items-center gap-3 sm:gap-4"
           >
-            {apiError && (
-              <div className="w-full rounded-lg border border-maroon bg-maroon/10 px-3 py-2 text-xs text-maroon sm:px-4 sm:py-3 sm:text-sm">
-                {apiError.message}
-              </div>
-            )}
+            {apiError && <ErrorMessage message={apiError.message} />}
+
+            <div className="w-full">
+              <input
+                type="text"
+                {...register("username")}
+                className={`w-full rounded-lg border px-3 py-2.5 text-sm leading-normal tracking-[0.5px] placeholder:text-input-placeholder sm:px-2.5 sm:py-2.5 sm:text-base ${
+                  errors.username
+                    ? "border-maroon bg-maroon/5"
+                    : "border-black/10"
+                }`}
+                placeholder="Choose a username"
+              />
+              {errors.username && (
+                <ErrorMessage message={errors.username.message || ""} />
+              )}
+            </div>
 
             <div className="w-full">
               <input
                 type="email"
                 {...register("email")}
-                className={`w-full rounded-lg border px-3 py-2.5 text-sm leading-normal tracking-[0.5px] placeholder:text-[#555555] sm:px-[10px] sm:py-[10px] sm:text-base ${
-                  errors.email
-                    ? "border-maroon bg-maroon/5"
-                    : "border-[rgba(0,0,0,0.1)]"
+                className={`w-full rounded-lg border px-3 py-2.5 text-sm leading-normal tracking-[0.5px] placeholder:text-input-placeholder sm:px-2.5 sm:py-2.5 sm:text-base ${
+                  errors.email ? "border-maroon bg-maroon/5" : "border-black/10"
                 }`}
                 placeholder="Enter your email"
               />
               {errors.email && (
-                <p className="mt-1 text-xs text-maroon">
-                  {errors.email.message}
-                </p>
+                <ErrorMessage message={errors.email.message || ""} />
               )}
             </div>
 
@@ -93,17 +107,15 @@ export function OnboardingSignupStep() {
               <input
                 type="password"
                 {...register("password")}
-                className={`w-full rounded-lg border px-3 py-2.5 text-sm leading-normal tracking-[0.5px] placeholder:text-[#555555] sm:px-[10px] sm:py-[10px] sm:text-base ${
+                className={`w-full rounded-lg border px-3 py-2.5 text-sm leading-normal tracking-[0.5px] placeholder:text-input-placeholder sm:px-2.5 sm:py-2.5 sm:text-base ${
                   errors.password
                     ? "border-maroon bg-maroon/5"
-                    : "border-[rgba(0,0,0,0.1)]"
+                    : "border-black/10"
                 }`}
                 placeholder="Enter your password"
               />
               {errors.password && (
-                <p className="mt-1 text-xs text-maroon">
-                  {errors.password.message}
-                </p>
+                <ErrorMessage message={errors.password.message || ""} />
               )}
             </div>
 
@@ -111,26 +123,24 @@ export function OnboardingSignupStep() {
               <input
                 type="password"
                 {...register("confirmPassword")}
-                className={`w-full rounded-lg border px-3 py-2.5 text-sm leading-normal tracking-[0.5px] placeholder:text-[#555555] sm:px-[10px] sm:py-[10px] sm:text-base ${
+                className={`w-full rounded-lg border px-3 py-2.5 text-sm leading-normal tracking-[0.5px] placeholder:text-input-placeholder sm:px-2.5 sm:py-2.5 sm:text-base ${
                   errors.confirmPassword
                     ? "border-maroon bg-maroon/5"
-                    : "border-[rgba(0,0,0,0.1)]"
+                    : "border-black/10"
                 }`}
                 placeholder="Repeat your password"
               />
               {errors.confirmPassword && (
-                <p className="mt-1 text-xs text-maroon">
-                  {errors.confirmPassword.message}
-                </p>
+                <ErrorMessage message={errors.confirmPassword.message || ""} />
               )}
             </div>
 
-            <div className="flex w-full flex-col items-center gap-2 sm:gap-[10px]">
+            <div className="flex w-full flex-col items-center gap-2 sm:gap-2.5">
               <Button type="submit" variant="primary" onClick={() => {}}>
                 {isPending ? "Creating account..." : "Continue"}
               </Button>
 
-              <p className="text-center text-sm leading-normal tracking-[0.5px] text-[#1e1e1e] sm:text-base">
+              <p className="text-center text-sm leading-normal tracking-[0.5px] text-text-secondary sm:text-base">
                 or
               </p>
             </div>
@@ -148,9 +158,9 @@ export function OnboardingSignupStep() {
         </div>
       </div>
 
-      <p className="w-full px-2 text-center text-sm leading-normal tracking-[0.5px] text-[#1e1e1e] sm:text-base">
+      <p className="w-full px-2 text-center text-sm leading-normal tracking-[0.5px] text-text-secondary sm:text-base">
         Already have an account?{" "}
-        <Link href="/login" className="text-[#007aff]">
+        <Link href="/login" className="text-link-blue">
           Log In
         </Link>
       </p>

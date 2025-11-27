@@ -4,6 +4,7 @@ import { useOnboardingNavigation } from "@/app/lib/hooks/useOnboardingNavigation
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { Button } from "@/app/components/ui/buttons";
 
 const SLIDES = [
   {
@@ -172,12 +173,11 @@ export function OnboardingConceptSlider() {
       </div>
 
       {/* Get started button */}
-      <button
-        onClick={nextStep}
-        className="bg-crocus-yellow px-5 py-2 rounded-full text-sm sm:text-base font-normal text-black hover:opacity-90 transition-opacity duration-200 mt-8"
-      >
-        Get started!
-      </button>
+      <div className="mt-8">
+        <Button type="button" variant="primary" onClick={nextStep}>
+          Get started!
+        </Button>
+      </div>
     </div>
   );
 }

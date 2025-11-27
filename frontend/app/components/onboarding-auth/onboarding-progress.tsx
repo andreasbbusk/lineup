@@ -12,9 +12,9 @@ export function OnboardingProgress() {
 
   return (
     <div className="fixed left-0 top-8 z-50 w-full bg-white px-6 pb-4 pt-6">
-      <div className="relative h-[6px] w-full rounded-[25px] bg-[#ededed]">
+      <div className="relative h-1.5 w-full rounded-[25px] bg-melting-glacier">
         <div
-          className="h-full rounded-[25px] bg-[#ffcf70] transition-all duration-300 ease-in-out"
+          className="h-full rounded-[25px] bg-crocus-yellow transition-all duration-300 ease-in-out"
           style={{ width: `${progress}%` }}
         />
       </div>

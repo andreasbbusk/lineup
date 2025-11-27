@@ -9,6 +9,11 @@ const PASSWORD_RULES = {
 
 export const signupSchema = z
   .object({
+    username: z
+      .string()
+      .min(3, "Username must be at least 3 characters")
+      .max(20, "Username must be at most 20 characters")
+      .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
     email: z
       .string()
       .min(1, "Email is required")
@@ -38,6 +43,10 @@ export const basicInfoSchema = z.object({
     .string()
     .min(1, "Last name is required")
     .max(50, "Last name is too long"),
+  countryCode: z
+    .string()
+    .min(1, "Country code is required")
+    .regex(/^\+\d{2,4}$/, "Invalid country code format"),
   phoneNumber: z
     .string()
     .min(1, "Phone number is required")

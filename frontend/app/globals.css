@@ -241,6 +241,12 @@
   --color-maroon: oklch(30% 0.12 30);
   --color-deep-aquamarine: oklch(52% 0.06 170);
 
+  /* Utility Colors */
+  --color-input-placeholder: oklch(40% 0 0); /* #555555 equivalent */
+  --color-text-secondary: oklch(20% 0 0); /* #1e1e1e equivalent */
+  --color-text-muted: oklch(30% 0 0); /* #404040 equivalent */
+  --color-link-blue: oklch(50% 0.15 250); /* #007aff equivalent */
+
   /* Opacity Scale */
   --opacity-100: 1;
   --opacity-80: 0.8;
@@ -292,4 +298,13 @@ h3,
 .body-regular {
   font-size: var(--font-body);
   font-weight: 400;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

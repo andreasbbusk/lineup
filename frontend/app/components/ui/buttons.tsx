@@ -91,7 +91,7 @@ const Button = (props: buttonProps) => {
       type={props.type}
       onClick={props.onClick}
     >
-      <div className="content flex justify-center items-center gap-[0.5rem] w-full">
+      <div className="content flex justify-center items-center gap-2 w-full">
         {props.icon ? (
           <Image
             src={iconPaths[props.icon]}
