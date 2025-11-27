@@ -354,6 +354,88 @@ export interface ReviewResponse {
   };
 }
 
+// ==================== Search Types ====================
+
+/**
+ * Search result for a user (from search_people)
+ */
+export interface UserSearchResult {
+  type: "user";
+  id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl?: string | null;
+  bio?: string | null;
+  location?: string | null;
+  genres?: any;
+  lookingFor?: string[];
+  isConnected: boolean;
+  relevance: number;
+}
+
+/**
+ * Search result for a collaboration request (from search_collaborations)
+ */
+export interface CollaborationSearchResult {
+  type: "collaboration";
+  id: string;
+  title: string;
+  description: string;
+  authorId: string;
+  authorUsername: string;
+  authorAvatarUrl?: string | null;
+  location?: string | null;
+  paidOpportunity: boolean;
+  genres?: any;
+  createdAt: string;
+  relevance: number;
+}
+
+/**
+ * Search result for metadata/tags (from search_tags)
+ */
+export interface TagSearchResult {
+  type: "tag" | "genre" | "artist";
+  id: string;
+  name: string;
+  usageCount: number;
+  relevance: number;
+}
+
+/**
+ * Search result for "For You" tab (from search_for_you)
+ * Polymorphic result that can be a user or collaboration
+ */
+export interface ForYouSearchResult {
+  type: "for_you";
+  entityType: "user" | "collaboration";
+  entityId: string;
+  title: string;
+  subtitle: string;
+  avatarUrl?: string | null;
+  matchReason: string;
+  additionalInfo?: any;
+  relevance: number;
+}
+
+/**
+ * Union type for all search results
+ */
+export type SearchResult =
+  | UserSearchResult
+  | CollaborationSearchResult
+  | TagSearchResult
+  | ForYouSearchResult;
+
+/**
+ * API response format for search results
+ */
+export interface SearchResponse {
+  results: SearchResult[];
+  total?: number;
+}
+
 // ==================== Error Response ====================
 
 export interface ErrorResponse {

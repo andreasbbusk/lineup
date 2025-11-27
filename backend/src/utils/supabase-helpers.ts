@@ -93,6 +93,14 @@ export type ReviewInsert =
 export type ReviewUpdate =
   Database["public"]["Tables"]["user_reviews"]["Update"];
 
+// Recent Searches table types
+export type RecentSearchRow =
+  Database["public"]["Tables"]["recent_searches"]["Row"];
+export type RecentSearchInsert =
+  Database["public"]["Tables"]["recent_searches"]["Insert"];
+export type RecentSearchUpdate =
+  Database["public"]["Tables"]["recent_searches"]["Update"];
+
 // Enums
 export type PostType = Database["public"]["Enums"]["post_type"];
 export type MediaType = Database["public"]["Enums"]["media_type"];
