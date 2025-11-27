@@ -15,14 +15,15 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.81.1",
     "@types/express": "^5.0.5",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "nodemon": "^3.1.11",
     "postgres": "^3.4.7",
     "swagger-ui-express": "^5.0.1",
     "tsoa": "^6.6.0",
-    "typescript": "^5.9.3",
-    "zod": "^4.1.13"
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
