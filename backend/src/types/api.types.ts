@@ -332,6 +332,28 @@ export interface NotificationResponse {
   };
 }
 
+// ==================== Review Types ====================
+
+/**
+ * API response format for a user review
+ * Represents a 5-star rating and review text for a user
+ */
+export interface ReviewResponse {
+  id: string;
+  userId: string;
+  reviewerId: string;
+  rating: number;
+  description?: string | null;
+  createdAt: string | null;
+  reviewer?: {
+    id: string;
+    username: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    avatarUrl?: string | null;
+  };
+}
+
 // ==================== Error Response ====================
 
 export interface ErrorResponse {

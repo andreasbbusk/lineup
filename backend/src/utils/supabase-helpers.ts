@@ -86,6 +86,13 @@ export type NotificationInsert =
 export type NotificationUpdate =
   Database["public"]["Tables"]["notifications"]["Update"];
 
+// User Reviews table types
+export type ReviewRow = Database["public"]["Tables"]["user_reviews"]["Row"];
+export type ReviewInsert =
+  Database["public"]["Tables"]["user_reviews"]["Insert"];
+export type ReviewUpdate =
+  Database["public"]["Tables"]["user_reviews"]["Update"];
+
 // Enums
 export type PostType = Database["public"]["Enums"]["post_type"];
 export type MediaType = Database["public"]["Enums"]["media_type"];
