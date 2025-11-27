@@ -1,5 +1,4 @@
 import express, { Request, Response, NextFunction } from "express";
-import { sql } from "./config/database.config.js";
 import { corsMiddleware } from "./middleware/cors.middleware.js";
 import swaggerUi from "swagger-ui-express";
 import { RegisterRoutes } from "./routes/tsoa-routes.js";
@@ -33,7 +32,6 @@ try {
 const apiRouter = express.Router();
 RegisterRoutes(apiRouter);
 app.use("/api", apiRouter);
-
 
 // Global error handler middleware (must be after routes)
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

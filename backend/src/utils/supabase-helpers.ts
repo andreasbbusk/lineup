@@ -41,6 +41,14 @@ export type CollaborationInsert =
 export type CollaborationUpdate =
   Database["public"]["Tables"]["user_collaborations"]["Update"];
 
+// Connection Requests table types
+export type ConnectionRequestRow =
+  Database["public"]["Tables"]["connection_requests"]["Row"];
+export type ConnectionRequestInsert =
+  Database["public"]["Tables"]["connection_requests"]["Insert"];
+export type ConnectionRequestUpdate =
+  Database["public"]["Tables"]["connection_requests"]["Update"];
+
 // Enums
 export type PostType = Database["public"]["Enums"]["post_type"];
 export type MediaType = Database["public"]["Enums"]["media_type"];
