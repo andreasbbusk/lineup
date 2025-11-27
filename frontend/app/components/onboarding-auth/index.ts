@@ -1,9 +1,9 @@
-export { OnboardingSplash } from "./onboarding-splash";
-export { OnboardingConceptSlider } from "./onboarding-concept-slider";
-export { OnboardingSignupStep } from "./onboarding-signup-step";
-export { OnboardingUserType } from "./onboarding-user-type";
-export { OnboardingBasicInfoForm } from "./onboarding-basic-info-form";
-export { OnboardingLookingFor } from "./onboarding-looking-for";
-export { OnboardingProgress } from "./onboarding-progress";
+export { OnboardingSplash } from "./splash-screen";
+export { OnboardingConceptSlider } from "./concept-slider";
+export { OnboardingSignupStep } from "./signup";
+export { OnboardingUserType } from "./user-type";
+export { OnboardingBasicInfoForm } from "./info-form";
+export { OnboardingLookingFor } from "./looking-for";
+export { OnboardingProgress } from "./progress-bar";
 export { OnboardingWrapper } from "./onboarding-wrapper";
 export { LoginWrapper } from "./login-wrapper";
