@@ -51,6 +51,7 @@ export interface ProfileUpdateRequest {
   phoneCountryCode?: number;
   phoneNumber?: number;
   onboardingCompleted?: boolean;
+  lookingFor?: string[];
 }
 
 // ==================== Metadata Types ====================

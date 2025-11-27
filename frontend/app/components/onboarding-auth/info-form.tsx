@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -14,7 +14,6 @@ import { Combobox } from "@/app/components/ui/combobox";
 import { NORDIC_CITIES as OPTIONS } from "@/app/lib/constants/onboarding";
 import { ErrorMessage } from "../ui/error-message";
 import { useOnboardingNavigation } from "@/app/lib/hooks/useOnboardingNavigation";
-import { checkPhoneAvailability } from "@/app/lib/utils/supabase-validation";
 
 interface CountryCodeDisplayProps {
   flag: string;
@@ -65,19 +64,11 @@ export function OnboardingBasicInfoForm() {
     onboarding.data.firstName && onboarding.data.lastName ? `${onboarding.data.firstName} ${onboarding.data.lastName}` : ""
   );
 
-  // State to track phone validation
-  const [phoneValidation, setPhoneValidation] = useState<{
-    checking: boolean;
-    available: boolean | null;
-    message: string;
-  }>({ checking: false, available: null, message: "" });
-
   const {
     register,
     handleSubmit,
     control,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<BasicInfoFormData>({
     resolver: zodResolver(basicInfoSchema),
@@ -91,36 +82,6 @@ export function OnboardingBasicInfoForm() {
       city: onboarding.data.location || "",
     },
   });
-
-  // Watch phone field for changes
-  const watchedPhone = watch("phoneNumber");
-  const watchedCountryCode = watch("countryCode");
-
-  // Debounced phone validation
-  useEffect(() => {
-    if (!watchedPhone || watchedPhone.length < 8) {
-      setPhoneValidation({ checking: false, available: null, message: "" });
-      return;
-    }
-
-    setPhoneValidation({
-      checking: true,
-      available: null,
-      message: "Checking availability...",
-    });
-
-    const timeoutId = setTimeout(async () => {
-      const result = await checkPhoneAvailability(watchedPhone, watchedCountryCode);
-      setPhoneValidation({
-        checking: false,
-        available: result.available,
-        message:
-          result.error || (result.available ? "Phone number is available" : "Phone number is already registered"),
-      });
-    }, 500); // 500ms debounce
-
-    return () => clearTimeout(timeoutId);
-  }, [watchedPhone, watchedCountryCode]);
 
   const onSubmit = (formData: BasicInfoFormData) => {
     updateOnboardingData({
@@ -222,29 +183,12 @@ export function OnboardingBasicInfoForm() {
                 type="tel"
                 placeholder="Phone number"
                 className={`flex rounded-lg border px-2.5 py-2 leading-normal tracking-[0.5px] placeholder:text-input-placeholder ${
-                  errors.phoneNumber || phoneValidation.available === false
-                    ? "border-maroon bg-maroon/5"
-                    : phoneValidation.available === true
-                    ? "border-green-500 bg-green-50"
-                    : "border-black/10"
+                  errors.phoneNumber ? "border-maroon bg-maroon/5" : "border-black/10"
                 }`}
               />
             </div>
             {errors.phoneNumber && (
               <ErrorMessage message={errors.phoneNumber.message || ""} />
-            )}
-            {!errors.phoneNumber && phoneValidation.message && (
-              <p
-                className={`mt-1 text-sm ${
-                  phoneValidation.checking
-                    ? "text-gray-500"
-                    : phoneValidation.available
-                    ? "text-green-600"
-                    : "text-maroon"
-                }`}
-              >
-                {phoneValidation.message}
-              </p>
             )}
           </div>
 
@@ -307,10 +251,6 @@ export function OnboardingBasicInfoForm() {
             variant="primary"
             onClick={() => {}}
             className="font-normal px-5 py-1!"
-            disabled={
-              phoneValidation.checking ||
-              phoneValidation.available === false
-            }
           >
             Continue
           </Button>

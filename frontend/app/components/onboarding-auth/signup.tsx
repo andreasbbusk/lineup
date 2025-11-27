@@ -6,17 +6,19 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useAppStore } from "@/app/lib/stores/app-store";
 import { useOnboardingNavigation } from "@/app/lib/hooks/useOnboardingNavigation";
-import { useSignupBasicMutation } from "@/app/lib/query/mutations/auth.mutations";
 import {
   signupSchema,
   type SignupFormData,
 } from "@/app/lib/schemas/auth-schema";
 import { Button } from "@/app/components/ui/buttons";
 import { ErrorMessage } from "@/app/components/ui/error-message";
-import { checkUsernameAvailability } from "@/app/lib/utils/supabase-validation";
+import {
+  checkUsernameAvailability,
+  checkEmailAvailability,
+} from "@/app/lib/api/endpoints/auth";
 
 export function OnboardingSignupStep() {
-  const { onboarding, updateOnboardingData, markAccountCreated } = useAppStore();
+  const { onboarding, updateOnboardingData } = useAppStore();
   const { nextStep } = useOnboardingNavigation();
 
   const [usernameValidation, setUsernameValidation] = useState<{
@@ -41,14 +43,9 @@ export function OnboardingSignupStep() {
     },
   });
 
-  const {
-    mutate: createAccount,
-    isPending,
-    error: apiError,
-  } = useSignupBasicMutation();
-
-  // Watch username field for changes
+  // Watch fields for changes
   const watchedUsername = watch("username");
+  const watchedEmail = watch("email");
 
   // Debounced username validation
   useEffect(() => {
@@ -64,37 +61,35 @@ export function OnboardingSignupStep() {
     });
 
     const timeoutId = setTimeout(async () => {
-      const result = await checkUsernameAvailability(watchedUsername);
-      setUsernameValidation({
-        checking: false,
-        available: result.available,
-        message:
-          result.error || (result.available ? "Username is available" : ""),
-      });
+      try {
+        const result = await checkUsernameAvailability(watchedUsername);
+        setUsernameValidation({
+          checking: false,
+          available: result.available,
+          message: result.available
+            ? "Username is available"
+            : "Username is already taken",
+        });
+      } catch {
+        setUsernameValidation({
+          checking: false,
+          available: null,
+          message: "Error checking username",
+        });
+      }
     }, 500); // 500ms debounce
 
     return () => clearTimeout(timeoutId);
   }, [watchedUsername]);
 
   const onSubmit = (formData: SignupFormData) => {
-    createAccount(
-      {
-        email: formData.email,
-        password: formData.password,
-        username: formData.username,
-      },
-      {
-        onSuccess: () => {
-          updateOnboardingData({
-            username: formData.username,
-            email: formData.email,
-            password: undefined,
-          }); // Clear password after creation
-          markAccountCreated();
-          nextStep();
-        },
-      }
-    );
+    // Just store data in Zustand - account will be created in step 5
+    updateOnboardingData({
+      username: formData.username,
+      email: formData.email,
+      password: formData.password, // Keep password for later signup
+    });
+    nextStep();
   };
 
   return (
@@ -113,8 +108,6 @@ export function OnboardingSignupStep() {
             onSubmit={handleSubmit(onSubmit)}
             className="flex w-full flex-col items-center gap-3 sm:gap-4"
           >
-            {apiError && <ErrorMessage message={apiError.message} />}
-
             <div className="w-full">
               <input
                 type="text"
@@ -151,7 +144,9 @@ export function OnboardingSignupStep() {
                 type="email"
                 {...register("email")}
                 className={`w-full rounded-lg border px-3 py-2.5 text-sm leading-normal tracking-[0.5px] placeholder:text-input-placeholder sm:px-2.5 sm:py-2.5 sm:text-base ${
-                  errors.email ? "border-maroon bg-maroon/5" : "border-black/10"
+                  errors.email
+                    ? "border-maroon bg-maroon/5"
+                    : "border-black/10"
                 }`}
                 placeholder="Enter your email"
               />
@@ -198,12 +193,11 @@ export function OnboardingSignupStep() {
                 variant="primary"
                 onClick={() => {}}
                 disabled={
-                  isPending ||
                   usernameValidation.available === false ||
                   usernameValidation.checking
                 }
               >
-                {isPending ? "Creating account..." : "Continue"}
+                Continue
               </Button>
 
               <p className="text-center text-sm leading-normal tracking-[0.5px] text-text-secondary sm:text-base">

@@ -126,6 +126,50 @@ export class UsersService {
       updateData.onboarding_completed = data.onboardingCompleted;
     }
 
+    // Handle lookingFor data if provided
+    if (data.lookingFor !== undefined) {
+      // Delete existing looking_for records
+      const { error: deleteError } = await authedSupabase
+        .from("user_looking_for")
+        .delete()
+        .eq("user_id", userId);
+
+      if (deleteError) {
+        throw createHttpError({
+          message: "Failed to update looking for preferences",
+          statusCode: 500,
+          code: "DATABASE_ERROR",
+          details: deleteError,
+        });
+      }
+
+      // Insert new looking_for records if array is not empty
+      if (data.lookingFor.length > 0) {
+        const lookingForRecords = data.lookingFor.map((item) => ({
+          user_id: userId,
+          looking_for_value: item as "connect" | "promote" | "find-band" | "find-services",
+        }));
+
+        const { error: insertError } = await authedSupabase
+          .from("user_looking_for")
+          .insert(lookingForRecords);
+
+        if (insertError) {
+          throw createHttpError({
+            message: "Failed to insert looking for preferences",
+            statusCode: 500,
+            code: "DATABASE_ERROR",
+            details: insertError,
+          });
+        }
+      }
+
+      // Set onboarding_completed to true if not already set
+      if (data.onboardingCompleted === undefined) {
+        updateData.onboarding_completed = true;
+      }
+    }
+
     // Update the profile
     const { data: updatedProfile, error: updateError } = await authedSupabase
       .from("profiles")

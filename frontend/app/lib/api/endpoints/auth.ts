@@ -9,6 +9,10 @@ import {
   UserProfile,
 } from "../../types/api-types";
 
+interface AvailabilityResponse {
+  available: boolean;
+}
+
 export async function signup(data: SignupRequest): Promise<AuthResponse> {
   return apiClient.post<AuthResponse>("/auth/signup", data);
 }
@@ -36,4 +40,30 @@ export async function getCurrentProfile(
   return apiClient.get<UserProfile>(`/users/${username}`, {
     requiresAuth: true,
   });
+}
+
+export async function checkUsernameAvailability(
+  username: string
+): Promise<AvailabilityResponse> {
+  if (!username?.trim()) {
+    return { available: false };
+  }
+
+  const params = new URLSearchParams({ username });
+  return apiClient.get<AvailabilityResponse>(
+    `/auth/check-username?${params.toString()}`
+  );
+}
+
+export async function checkEmailAvailability(
+  email: string
+): Promise<AvailabilityResponse> {
+  if (!email?.trim()) {
+    return { available: false };
+  }
+
+  const params = new URLSearchParams({ email });
+  return apiClient.get<AvailabilityResponse>(
+    `/auth/check-email?${params.toString()}`
+  );
 }

@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsBoolean,
   IsNumber,
+  IsArray,
   Length,
   Matches,
 } from "class-validator";
@@ -65,4 +66,9 @@ export class UpdateProfileDto implements ProfileUpdateRequest {
   @IsOptional()
   @IsBoolean()
   onboardingCompleted?: boolean;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  lookingFor?: string[];
 }

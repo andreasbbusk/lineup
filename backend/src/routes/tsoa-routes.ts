@@ -79,6 +79,7 @@ const models: TsoaRoute.Models = {
             "phoneCountryCode": {"dataType":"double"},
             "phoneNumber": {"dataType":"double"},
             "onboardingCompleted": {"dataType":"boolean"},
+            "lookingFor": {"dataType":"array","array":{"dataType":"string"}},
         },
         "additionalProperties": false,
     },
@@ -340,6 +341,66 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'login',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAuthController_checkUsername: Record<string, TsoaRoute.ParameterSchema> = {
+                username: {"in":"query","name":"username","required":true,"dataType":"string"},
+        };
+        app.get('/auth/check-username',
+            ...(fetchMiddlewares<RequestHandler>(AuthController)),
+            ...(fetchMiddlewares<RequestHandler>(AuthController.prototype.checkUsername)),
+
+            async function AuthController_checkUsername(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAuthController_checkUsername, request, response });
+
+                const controller = new AuthController();
+
+              await templateService.apiHandler({
+                methodName: 'checkUsername',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAuthController_checkEmail: Record<string, TsoaRoute.ParameterSchema> = {
+                email: {"in":"query","name":"email","required":true,"dataType":"string"},
+        };
+        app.get('/auth/check-email',
+            ...(fetchMiddlewares<RequestHandler>(AuthController)),
+            ...(fetchMiddlewares<RequestHandler>(AuthController.prototype.checkEmail)),
+
+            async function AuthController_checkEmail(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAuthController_checkEmail, request, response });
+
+                const controller = new AuthController();
+
+              await templateService.apiHandler({
+                methodName: 'checkEmail',
                 controller,
                 response,
                 next,
