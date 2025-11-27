@@ -78,7 +78,8 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"ProfileUpdateRequest": {
+			"UpdateProfileDto": {
+				"description": "DTO for updating user profile\r\nMatches ProfileUpdateRequest API format (camelCase)",
 				"properties": {
 					"firstName": {
 						"type": "string"
@@ -116,6 +117,255 @@
 						"type": "boolean"
 					}
 				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"PostType": {
+				"type": "string",
+				"enum": [
+					"note",
+					"request",
+					"story"
+				]
+			},
+			"MediaItemDto": {
+				"properties": {
+					"url": {
+						"type": "string"
+					},
+					"thumbnail_url": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"url",
+					"type"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Pick_PostInsert.Exclude_keyofPostInsert.id-or-author_id-or-created_at-or-updated_at-or-search_vector__": {
+				"properties": {
+					"description": {
+						"type": "string"
+					},
+					"expires_at": {
+						"type": "string"
+					},
+					"location": {
+						"type": "string"
+					},
+					"paid_opportunity": {
+						"type": "boolean"
+					},
+					"title": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string",
+						"enum": [
+							"note",
+							"request",
+							"story"
+						]
+					}
+				},
+				"required": [
+					"description",
+					"title",
+					"type"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"CreatePostBody": {
+				"properties": {
+					"description": {
+						"type": "string"
+					},
+					"expires_at": {
+						"type": "string",
+						"nullable": true
+					},
+					"location": {
+						"type": "string",
+						"nullable": true
+					},
+					"paid_opportunity": {
+						"type": "boolean",
+						"nullable": true
+					},
+					"title": {
+						"type": "string"
+					},
+					"type": {
+						"$ref": "#/components/schemas/PostType"
+					},
+					"tags": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"genres": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"taggedUsers": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"media": {
+						"items": {
+							"$ref": "#/components/schemas/MediaItemDto"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"description",
+					"title",
+					"type"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"AuthResponse": {
+				"properties": {
+					"user": {
+						"properties": {
+							"createdAt": {
+								"type": "string"
+							},
+							"email": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"createdAt",
+							"email",
+							"id"
+						],
+						"type": "object"
+					},
+					"session": {
+						"properties": {
+							"expiresAt": {
+								"type": "number",
+								"format": "double"
+							},
+							"expiresIn": {
+								"type": "number",
+								"format": "double"
+							},
+							"refreshToken": {
+								"type": "string"
+							},
+							"accessToken": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"expiresAt",
+							"expiresIn",
+							"refreshToken",
+							"accessToken"
+						],
+						"type": "object"
+					},
+					"profile": {
+						"$ref": "#/components/schemas/UserProfile"
+					}
+				},
+				"required": [
+					"user",
+					"session",
+					"profile"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"SignupDto": {
+				"description": "DTO for user signup\r\nValidates all required fields for creating a new user account",
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"username": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"phoneCountryCode": {
+						"type": "number",
+						"format": "double"
+					},
+					"phoneNumber": {
+						"type": "number",
+						"format": "double"
+					},
+					"yearOfBirth": {
+						"type": "number",
+						"format": "double"
+					},
+					"location": {
+						"type": "string"
+					},
+					"userType": {
+						"type": "string",
+						"enum": [
+							"musician",
+							"service_provider",
+							"other"
+						]
+					}
+				},
+				"required": [
+					"email",
+					"password",
+					"username",
+					"firstName",
+					"lastName",
+					"phoneCountryCode",
+					"phoneNumber",
+					"yearOfBirth",
+					"location",
+					"userType"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"LoginDto": {
+				"description": "DTO for user login",
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"email",
+					"password"
+				],
 				"type": "object",
 				"additionalProperties": false
 			},
@@ -213,7 +463,7 @@
 						}
 					}
 				},
-				"description": "Get user profile by username\r\nReturns public profile by default. If authenticated and viewing own profile, returns private fields.",
+				"description": "Get user profile by username\r\nReturns public profile by default. If authenticated and viewing own profile, returns private fields.\r\nAuthentication is optional - endpoint can be accessed without a token.",
 				"tags": [
 					"Users"
 				],
@@ -247,7 +497,7 @@
 						}
 					}
 				},
-				"description": "Update own profile (requires authentication)\r\nOnly the profile owner can update their own profile",
+				"description": "Update own profile (requires authentication)\r\nOnly the profile owner can update their own profile\r\nAuthentication is required - will throw 401 if not authenticated",
 				"tags": [
 					"Users"
 				],
@@ -271,7 +521,107 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/ProfileUpdateRequest"
+								"$ref": "#/components/schemas/UpdateProfileDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/posts": {
+			"post": {
+				"operationId": "CreatePost",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Posts"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreatePostBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/auth/signup": {
+			"post": {
+				"operationId": "Signup",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuthResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Sign up a new user\r\nCreates a new user account with email, password, and basic profile information",
+				"tags": [
+					"Authentication"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SignupDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/auth/login": {
+			"post": {
+				"operationId": "Login",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuthResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Sign in an existing user\r\nAuthenticates a user with email and password",
+				"tags": [
+					"Authentication"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/LoginDto"
 							}
 						}
 					}

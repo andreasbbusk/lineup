@@ -7,7 +7,6 @@ import {
   PostType,
   MediaType,
 } from "../../utils/supabase-helpers.js";
-import { Database } from "../../types/supabase.js";
 import { mapPostToResponse } from "../../utils/mappers/index.js";
 
 export class PostsService {

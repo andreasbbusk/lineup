@@ -5,26 +5,26 @@ import { Request as ExpressRequest } from "express";
 import {
   AuthResponse,
   ProfileUpdateRequest,
-  SignupRequest,
   UserProfile,
-} from "../types/api.types.js";
-import { ProfileRow } from "../utils/supabase-helpers.js";
-import { mapProfileToAPI } from "../utils/mappers/index.js";
+} from "../../types/api.types.js";
+import { ProfileRow, ProfileUpdate } from "../../utils/supabase-helpers.js";
+import { Database } from "../../types/supabase.js";
+import { mapProfileToAPI } from "../../utils/mappers/index.js";
 import {
   createHttpError,
   handleSupabaseAuthError,
-} from "../utils/error-handler.js";
+} from "../../utils/error-handler.js";
 import {
-  loginSchema,
-  profileUpdateSchema,
-  signupSchema,
-  handleValidationError,
-} from "../utils/validation.js";
+  validateDto,
+  validatePhoneNumberLength,
+  validateYearOfBirth,
+} from "../../utils/validation.js";
+import { SignupDto, LoginDto } from "./auth.dto.js";
 import {
   SUPABASE_ANON_KEY,
   SUPABASE_URL,
   supabase,
-} from "../config/supabase.js";
+} from "../../config/supabase.js";
 
 /**
  * Extract and validate user ID from request Bearer token
@@ -78,13 +78,30 @@ export function extractBearerToken(request: ExpressRequest): string {
 
 /**
  * Helper function to create user profile during signup
+ * Uses authenticated Supabase client to bypass RLS policies
  */
 async function createUserProfile(
   userId: string,
   username: string,
-  data: SignupRequest
+  data: SignupDto,
+  accessToken?: string
 ): Promise<ProfileRow> {
-  const { data: profile, error } = await supabase
+  // Use authenticated client if token is provided (for RLS)
+  const client = accessToken
+    ? createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        global: {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+        auth: {
+          persistSession: false,
+          detectSessionInUrl: false,
+        },
+      })
+    : supabase;
+
+  const { data: profile, error } = await client
     .from("profiles")
     .insert({
       id: userId,
@@ -102,23 +119,41 @@ async function createUserProfile(
     .single();
 
   if (error || !profile) {
+    console.error("Failed to create user profile:", error);
     throw createHttpError({
-      message: "Failed to create user profile",
+      message: error?.message || "Failed to create user profile",
       statusCode: 500,
       code: "DATABASE_ERROR",
+      details: error,
     });
   }
 
   return profile as ProfileRow;
 }
 
-
 /**
  * Sign up a new user with Supabase Auth and create profile
  */
-export async function signUp(data: SignupRequest): Promise<AuthResponse> {
-  // Validate input with Zod schema
-  const validatedData = handleValidationError(signupSchema.safeParse(data));
+export async function signUp(data: SignupDto): Promise<AuthResponse> {
+  // Validate input with class-validator
+  const validatedData = await validateDto(SignupDto, data);
+
+  // Additional custom validations
+  if (!validatePhoneNumberLength(validatedData.phoneNumber)) {
+    throw createHttpError({
+      message: "Phone number must be between 4 and 15 digits",
+      statusCode: 400,
+      code: "VALIDATION_ERROR",
+    });
+  }
+
+  if (!validateYearOfBirth(validatedData.yearOfBirth)) {
+    throw createHttpError({
+      message: "You must be at least 13 years old",
+      statusCode: 400,
+      code: "VALIDATION_ERROR",
+    });
+  }
 
   // Check if username is already taken
   const { data: existingProfile, error: usernameCheckError } = await supabase
@@ -130,6 +165,22 @@ export async function signUp(data: SignupRequest): Promise<AuthResponse> {
   if (existingProfile) {
     throw createHttpError({
       message: "Username is already taken",
+      statusCode: 409,
+      code: "CONFLICT",
+    });
+  }
+
+  // Check if phone number combination is already taken
+  const { data: existingPhone, error: phoneCheckError } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("phone_country_code", validatedData.phoneCountryCode)
+    .eq("phone_number", validatedData.phoneNumber)
+    .single();
+
+  if (existingPhone) {
+    throw createHttpError({
+      message: "An account with this phone number already exists",
       statusCode: 409,
       code: "CONFLICT",
     });
@@ -153,12 +204,37 @@ export async function signUp(data: SignupRequest): Promise<AuthResponse> {
     });
   }
 
-  // Create user profile
-  const profile = await createUserProfile(
-    authData.user.id,
-    validatedData.username,
-    validatedData
-  );
+  // Create user profile using authenticated session if available
+  // If profile creation fails, we need to clean up the auth user
+  let profile: ProfileRow;
+  try {
+    profile = await createUserProfile(
+      authData.user.id,
+      validatedData.username,
+      validatedData,
+      authData.session?.access_token
+    );
+  } catch (profileError: any) {
+    // Rollback: Delete the auth user if profile creation failed
+    console.error(
+      "Profile creation failed, cleaning up auth user:",
+      profileError
+    );
+    try {
+      // Use admin API to delete user (requires service role key)
+      // For now, we'll log the error - in production you'd want to use service role
+      await supabase.auth.admin
+        .deleteUser(authData.user.id)
+        .catch((deleteError) => {
+          console.error("Failed to cleanup auth user:", deleteError);
+          // Note: In production, you should use Supabase service role key for admin operations
+        });
+    } catch (cleanupError) {
+      console.error("Error during cleanup:", cleanupError);
+    }
+    // Re-throw the original profile creation error
+    throw profileError;
+  }
 
   // Note: Supabase may not return a session if email confirmation is required
   if (!authData.session) {
@@ -194,7 +270,7 @@ export async function signUp(data: SignupRequest): Promise<AuthResponse> {
       expiresIn: authData.session.expires_in || 3600,
       expiresAt: authData.session.expires_at || Date.now() / 1000 + 3600,
     },
-      profile: mapProfileToAPI(profile as ProfileRow),
+    profile: mapProfileToAPI(profile as ProfileRow),
   };
 }
 
@@ -205,10 +281,8 @@ export async function signIn(
   email: string,
   password: string
 ): Promise<AuthResponse> {
-  // Validate input with Zod schema
-  const validatedData = handleValidationError(
-    loginSchema.safeParse({ email, password })
-  );
+  // Validate input with class-validator
+  const validatedData = await validateDto(LoginDto, { email, password });
 
   // Sign in with Supabase Auth
   const { data: authData, error: authError } =
@@ -257,7 +331,7 @@ export async function signIn(
       expiresIn: authData.session.expires_in || 3600,
       expiresAt: authData.session.expires_at || Date.now() / 1000 + 3600,
     },
-      profile: mapProfileToAPI(profile as ProfileRow),
+    profile: mapProfileToAPI(profile as ProfileRow),
   };
 }
 
@@ -298,10 +372,9 @@ export async function updateUserProfile(
   data: ProfileUpdateRequest,
   token: string
 ): Promise<UserProfile> {
-  // Validate input with Zod schema
-  const validatedData = handleValidationError(
-    profileUpdateSchema.safeParse(data)
-  );
+  // Note: This function is deprecated in favor of UsersService.updateProfile
+  // Validation is handled by TSOA/class-validator in the controller
+  const validatedData = data;
 
   // Verify the username belongs to the authenticated user
   const authedSupabase = await createAuthedSupabaseClient(token);
@@ -329,7 +402,7 @@ export async function updateUserProfile(
   }
 
   // Prepare update data (map API format to database format)
-  const updateData: Partial<Profile> = {};
+  const updateData: ProfileUpdate = {};
   if (validatedData.firstName !== undefined) {
     updateData.first_name = validatedData.firstName;
   }

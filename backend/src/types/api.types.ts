@@ -2,24 +2,6 @@
 
 // ==================== Auth Types ====================
 
-export interface SignupRequest {
-  email: string;
-  password: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  phoneCountryCode: number;
-  phoneNumber: number;
-  yearOfBirth: number;
-  location: string;
-  userType: "musician" | "service_provider" | "other";
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
 export interface AuthResponse {
   user: {
     id: string;
@@ -72,7 +54,6 @@ export interface ProfileUpdateRequest {
 }
 
 // ==================== Metadata Types ====================
-
 export interface MetadataItem {
   id: string;
   type: "tag" | "genre" | "artist";

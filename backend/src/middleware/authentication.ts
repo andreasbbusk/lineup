@@ -1,5 +1,5 @@
 import type { Request } from "express";
-import { extractUserId } from "../services/auth.service.js";
+import { extractUserId } from "../entities/auth/auth.service.js";
 import { createHttpError } from "../utils/error-handler.js";
 
 interface AuthenticatedUser {
