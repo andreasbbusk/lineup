@@ -436,6 +436,26 @@ export interface SearchResponse {
   total?: number;
 }
 
+// ==================== Upload Types ====================
+
+/**
+ * API response format for a single uploaded file
+ */
+export interface UploadedFileResponse {
+  id: string;
+  url: string;
+  thumbnailUrl?: string | null;
+  type: "image" | "video";
+  createdAt: string | null;
+}
+
+/**
+ * API response format for batch file upload
+ */
+export interface UploadResponse {
+  files: UploadedFileResponse[];
+}
+
 // ==================== Error Response ====================
 
 export interface ErrorResponse {

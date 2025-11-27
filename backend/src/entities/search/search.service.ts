@@ -3,15 +3,15 @@ import {
   supabase,
 } from "../../config/supabase.config.js";
 import { createHttpError } from "../../utils/error-handler.js";
-import {
-  SearchResponse,
-  UserSearchResult,
-  CollaborationSearchResult,
-  TagSearchResult,
-  ForYouSearchResult,
-} from "../../types/api.types.js";
+import { SearchResponse } from "../../types/api.types.js";
 import { SearchQueryDto } from "./search.dto.js";
 import { LookingForType } from "../../utils/supabase-helpers.js";
+import {
+  mapForYouResultToResponse,
+  mapPeopleResultToResponse,
+  mapCollaborationResultToResponse,
+  mapTagResultToResponse,
+} from "./search.mapper.js";
 
 export class SearchService {
   /**
@@ -103,17 +103,7 @@ export class SearchService {
       });
     }
 
-    const results: ForYouSearchResult[] = (data || []).map((item: any) => ({
-      type: "for_you",
-      entityType: item.entity_type as "user" | "collaboration",
-      entityId: item.entity_id,
-      title: item.title,
-      subtitle: item.subtitle,
-      avatarUrl: item.avatar_url ?? undefined,
-      matchReason: item.match_reason,
-      additionalInfo: item.additional_info,
-      relevance: item.relevance,
-    }));
+    const results = (data || []).map(mapForYouResultToResponse);
 
     return { results };
   }
@@ -149,20 +139,7 @@ export class SearchService {
       });
     }
 
-    const results: UserSearchResult[] = (data || []).map((item: any) => ({
-      type: "user",
-      id: item.id,
-      username: item.username || "",
-      firstName: item.first_name || "",
-      lastName: item.last_name || "",
-      avatarUrl: item.avatar_url ?? undefined,
-      bio: item.bio ?? undefined,
-      location: item.location ?? undefined,
-      genres: item.genres,
-      lookingFor: item.looking_for || [],
-      isConnected: item.is_connected || false,
-      relevance: item.relevance,
-    }));
+    const results = (data || []).map(mapPeopleResultToResponse);
 
     return { results };
   }
@@ -198,22 +175,7 @@ export class SearchService {
       });
     }
 
-    const results: CollaborationSearchResult[] = (data || []).map(
-      (item: any) => ({
-        type: "collaboration",
-        id: item.id,
-        title: item.title || "",
-        description: item.description || "",
-        authorId: item.author_id,
-        authorUsername: item.author_username || "",
-        authorAvatarUrl: item.author_avatar_url ?? undefined,
-        location: item.location ?? undefined,
-        paidOpportunity: item.paid_opportunity || false,
-        genres: item.genres,
-        createdAt: item.created_at || new Date().toISOString(),
-        relevance: item.relevance,
-      })
-    );
+    const results = (data || []).map(mapCollaborationResultToResponse);
 
     return { results };
   }
@@ -242,13 +204,7 @@ export class SearchService {
       });
     }
 
-    const results: TagSearchResult[] = (data || []).map((item: any) => ({
-      type: item.type as "tag" | "genre" | "artist",
-      id: item.id,
-      name: item.name,
-      usageCount: item.usage_count || 0,
-      relevance: item.relevance,
-    }));
+    const results = (data || []).map(mapTagResultToResponse);
 
     return { results };
   }
