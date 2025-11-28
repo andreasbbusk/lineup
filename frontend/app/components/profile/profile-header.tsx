@@ -160,3 +160,18 @@ function ProfileHeader(props: ProfileHeaderProps) {
 }
 
 export { ProfileHeader };
+
+// example usage:
+// <ProfileHeader
+//     username="testuser"
+//     imgSrc="/avatars/cd5ba1b2b51aa23578ec39ca57088f729c806336.webp"
+//     color="blue"
+//     verified={true}
+//     bio="Singer-songwriter, guitarist"
+//     firstName="John"
+//     lastName="Doe"
+//     connections={150}
+//     notes={45}
+//     onClickConnect={() => console.log("Connect clicked")}
+//     onClickMessage={() => console.log("Message clicked")}
+// />

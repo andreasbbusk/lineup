@@ -170,3 +170,6 @@ function Popover(props: PopoverProps) {
 }
 
 export { Popover };
+
+// example usage:
+// <Popover variant="my-profile" className="absolute top-12 right-7" />
