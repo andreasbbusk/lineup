@@ -84,7 +84,7 @@ const Tabs = (props: TabsProps) => {
 							x2="0.499999"
 							y2="24.5"
 							stroke="#C9C9C9"
-							stroke-linecap="round"
+							strokeLinecap="round"
 						/>
 					</svg>
 					<button
@@ -115,7 +115,7 @@ const Tabs = (props: TabsProps) => {
 			</div>
 		);
 	} else {
-		// Create variant with 3 tabs
+		// Variant with 3 tabs
 		return (
 			<div>
 				<ul className="flex h-[2.25rem] px-[5.125rem] justify-center items-center gap-2">
