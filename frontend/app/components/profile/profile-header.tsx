@@ -1,7 +1,8 @@
-"use client";
+import { useState } from "react";
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import { Button } from "../ui/buttons";
+import { Popover } from "../ui/popover";
 
 type ProfileHeaderProps = {
 	/** Username of the profile */
@@ -30,6 +31,8 @@ type ProfileHeaderProps = {
 	onClickMessage?: () => void;
 };
 function ProfileHeader(props: ProfileHeaderProps) {
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
+
 	const colorClass = {
 		default: "1E1E1E",
 		grey: "575252",
@@ -43,9 +46,64 @@ function ProfileHeader(props: ProfileHeaderProps) {
 	return (
 		<div
 			className={
-				"text-[var(--color-white)] flex w-[23.3125rem] py-[1.5625rem] flex-col justify-center items-center gap-[0.9375rem] rounded-[2.8125rem] bg-[var(--profile-theme)]"
+				"relative text-[var(--color-white)] flex w-[23.3125rem] py-[1.5625rem] flex-col justify-center items-center gap-[0.9375rem] rounded-[2.8125rem] bg-[var(--profile-theme)]"
 			}
 			style={{ "--profile-theme": `#${colorClass}` } as CSSProperties}>
+			<span
+				onClick={() => setIsMenuOpen(!isMenuOpen)}
+				className="absolute top-[2.25rem] right-[1.75rem] flex w-[1.3125rem] items-center gap-[0.25rem] cursor-pointer">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="3"
+					height="3"
+					viewBox="0 0 3 3"
+					fill="none">
+					<circle
+						cx="1"
+						cy="1"
+						r="1"
+						transform="matrix(-1 0 0 1 2.5 0.5)"
+						fill="white"
+						stroke="white"
+					/>
+				</svg>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="3"
+					height="3"
+					viewBox="0 0 3 3"
+					fill="none">
+					<circle
+						cx="1"
+						cy="1"
+						r="1"
+						transform="matrix(-1 0 0 1 2.5 0.5)"
+						fill="white"
+						stroke="white"
+					/>
+				</svg>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="3"
+					height="3"
+					viewBox="0 0 3 3"
+					fill="none">
+					<circle
+						cx="1"
+						cy="1"
+						r="1"
+						transform="matrix(-1 0 0 1 2.5 0.5)"
+						fill="white"
+						stroke="white"
+					/>
+				</svg>
+			</span>
+			{isMenuOpen && (
+				<Popover
+					variant="my-profile"
+					className="absolute top-[3rem] right-[1.75rem]"
+				/>
+			)}
 			<div className="flex justify-center items-center self-stretch">
 				<div className="flex flex-col items-center flex-[1_0_0]">
 					<p>{props.connections ?? 0}</p>
