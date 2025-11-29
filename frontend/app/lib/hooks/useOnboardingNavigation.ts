@@ -7,7 +7,7 @@ import { useCallback } from "react";
 export function useOnboardingNavigation() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { onboarding, goToStep: setStoreStep } = useAppStore();
+  const { onboarding, go_to_step: setStoreStep } = useAppStore();
 
   // Get current step from URL or fallback to store
   const urlStep = searchParams.get("step");

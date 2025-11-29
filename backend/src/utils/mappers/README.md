@@ -10,7 +10,6 @@ Each entity has its own mapper file following the pattern: `{entity}.mapper.ts`
 mappers/
 ├── index.ts          # Centralized exports
 ├── post.mapper.ts    # Post entity mappings
-├── profile.mapper.ts # Profile entity mappings
 ├── metadata.mapper.ts # Metadata entity mappings
 └── README.md         # This file
 ```
@@ -22,7 +21,6 @@ Import mappers from the centralized index:
 ```typescript
 import {
   mapPostToResponse,
-  mapProfileToAPI,
   mapMetadataToAPI,
 } from "../../utils/mappers/index.js";
 ```
@@ -70,12 +68,15 @@ export * from "./comment.mapper.js";
 
 ## Mapping Patterns
 
-### Snake_case to camelCase
+### Note on Profile Mapping
 
-Database uses `snake_case`, API uses `camelCase`:
+Profile entities no longer require mapping since database types and API types both use `snake_case`. Profile data can be used directly from database queries.
 
-- `first_name` → `firstName`
-- `created_at` → `createdAt`
+### Snake_case to camelCase (for other entities)
+
+Some entities may still require transformation:
+
+- `created_at` → `createdAt` (if API uses camelCase)
 
 ### Nested Relations
 
@@ -87,7 +88,7 @@ Supabase returns nested relations that need flattening:
 
 Some fields are only included conditionally:
 
-- Private profile fields (phone, yearOfBirth) only for own profile
+- Private profile fields (phone_number, year_of_birth) only for own profile (handled at service layer, not in mappers)
 
 ## Best Practices
 

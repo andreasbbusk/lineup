@@ -7,123 +7,151 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
-			"UserProfile": {
+			"ProfileRow": {
 				"properties": {
-					"id": {
-						"type": "string"
+					"year_of_birth": {
+						"type": "number",
+						"format": "double"
 					},
 					"username": {
 						"type": "string"
 					},
-					"firstName": {
+					"user_type": {
 						"type": "string"
 					},
-					"lastName": {
-						"type": "string"
+					"updated_at": {
+						"type": "string",
+						"nullable": true
 					},
-					"avatarUrl": {
-						"type": "string"
+					"theme_color": {
+						"type": "string",
+						"nullable": true
 					},
-					"bio": {
-						"type": "string"
+					"spotify_playlist_url": {
+						"type": "string",
+						"nullable": true
 					},
-					"aboutMe": {
-						"type": "string"
-					},
-					"phoneCountryCode": {
+					"search_vector": {},
+					"phone_number": {
 						"type": "number",
 						"format": "double"
 					},
-					"phoneNumber": {
+					"phone_country_code": {
 						"type": "number",
 						"format": "double"
 					},
-					"yearOfBirth": {
-						"type": "number",
-						"format": "double"
+					"onboarding_completed": {
+						"type": "boolean",
+						"nullable": true
 					},
 					"location": {
 						"type": "string"
 					},
-					"userType": {
+					"last_name": {
 						"type": "string"
 					},
-					"themeColor": {
+					"id": {
 						"type": "string"
 					},
-					"spotifyPlaylistUrl": {
+					"first_name": {
 						"type": "string"
 					},
-					"onboardingCompleted": {
-						"type": "boolean"
+					"created_at": {
+						"type": "string",
+						"nullable": true
 					},
-					"createdAt": {
-						"type": "string"
+					"blocked_users": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array",
+						"nullable": true
 					},
-					"updatedAt": {
-						"type": "string"
+					"bio": {
+						"type": "string",
+						"nullable": true
+					},
+					"avatar_url": {
+						"type": "string",
+						"nullable": true
+					},
+					"about_me": {
+						"type": "string",
+						"nullable": true
 					}
 				},
 				"required": [
-					"id",
+					"year_of_birth",
 					"username",
-					"firstName",
-					"lastName",
+					"user_type",
+					"updated_at",
+					"theme_color",
+					"spotify_playlist_url",
+					"search_vector",
+					"phone_number",
+					"phone_country_code",
+					"onboarding_completed",
 					"location",
-					"userType",
-					"onboardingCompleted",
-					"createdAt",
-					"updatedAt"
+					"last_name",
+					"id",
+					"first_name",
+					"created_at",
+					"blocked_users",
+					"bio",
+					"avatar_url",
+					"about_me"
 				],
-				"type": "object",
-				"additionalProperties": false
+				"type": "object"
+			},
+			"UserProfile": {
+				"$ref": "#/components/schemas/ProfileRow"
 			},
 			"UpdateProfileDto": {
-				"description": "DTO for updating user profile\nMatches ProfileUpdateRequest API format (camelCase)",
+				"description": "DTO for updating user profile\nMatches ProfileUpdateRequest API format (snake_case)",
 				"properties": {
-					"firstName": {
+					"first_name": {
 						"type": "string"
 					},
-					"lastName": {
+					"last_name": {
 						"type": "string"
 					},
 					"bio": {
 						"type": "string"
 					},
-					"aboutMe": {
+					"about_me": {
 						"type": "string"
 					},
-					"avatarUrl": {
+					"avatar_url": {
 						"type": "string"
 					},
 					"location": {
 						"type": "string"
 					},
-					"themeColor": {
+					"theme_color": {
 						"type": "string"
 					},
-					"spotifyPlaylistUrl": {
+					"spotify_playlist_url": {
 						"type": "string"
 					},
-					"phoneCountryCode": {
+					"phone_country_code": {
 						"type": "number",
 						"format": "double"
 					},
-					"phoneNumber": {
+					"phone_number": {
 						"type": "number",
 						"format": "double"
 					},
-					"yearOfBirth": {
+					"year_of_birth": {
 						"type": "number",
 						"format": "double"
 					},
-					"userType": {
+					"user_type": {
 						"type": "string"
 					},
-					"onboardingCompleted": {
+					"onboarding_completed": {
 						"type": "boolean"
 					},
-					"lookingFor": {
+					"looking_for": {
 						"items": {
 							"type": "string"
 						},
@@ -256,28 +284,28 @@
 					"username": {
 						"type": "string"
 					},
-					"firstName": {
+					"first_name": {
 						"type": "string"
 					},
-					"lastName": {
+					"last_name": {
 						"type": "string"
 					},
-					"phoneCountryCode": {
+					"phone_country_code": {
 						"type": "number",
 						"format": "double"
 					},
-					"phoneNumber": {
+					"phone_number": {
 						"type": "number",
 						"format": "double"
 					},
-					"yearOfBirth": {
+					"year_of_birth": {
 						"type": "number",
 						"format": "double"
 					},
 					"location": {
 						"type": "string"
 					},
-					"userType": {
+					"user_type": {
 						"type": "string",
 						"enum": [
 							"musician",
@@ -288,13 +316,13 @@
 				},
 				"required": [
 					"username",
-					"firstName",
-					"lastName",
-					"phoneCountryCode",
-					"phoneNumber",
-					"yearOfBirth",
+					"first_name",
+					"last_name",
+					"phone_country_code",
+					"phone_number",
+					"year_of_birth",
 					"location",
-					"userType"
+					"user_type"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -315,7 +343,7 @@
 					"name": {
 						"type": "string"
 					},
-					"createdAt": {
+					"created_at": {
 						"type": "string"
 					}
 				},
@@ -323,7 +351,7 @@
 					"id",
 					"type",
 					"name",
-					"createdAt"
+					"created_at"
 				],
 				"type": "object",
 				"additionalProperties": false

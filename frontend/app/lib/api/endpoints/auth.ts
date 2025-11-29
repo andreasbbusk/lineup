@@ -10,7 +10,6 @@ import {
   UserProfile,
 } from "../../types/api-types";
 import { apiClient } from "../client";
-import { mapDatabaseProfile } from "@/app/lib/utils/profile-mapper";
 
 export async function signup(data: SignupRequest): Promise<AuthResponse> {
   return apiClient.post<AuthResponse>("/auth/signup", data);
@@ -117,20 +116,20 @@ export async function signInWithAuth(
     throw new Error("Failed to fetch user profile");
   }
 
-  // Map snake_case database profile to camelCase UserProfile
-  const profile = mapDatabaseProfile(profileData);
+  // Database profile already matches UserProfile format (snake_case)
+  const profile = profileData as UserProfile;
 
   return {
     user: {
       id: authData.user.id,
       email: authData.user.email!,
-      createdAt: authData.user.created_at,
+      created_at: authData.user.created_at,
     },
     session: {
-      accessToken: authData.session.access_token,
-      refreshToken: authData.session.refresh_token,
-      expiresIn: authData.session.expires_in || 3600,
-      expiresAt: authData.session.expires_at || Date.now() / 1000 + 3600,
+      access_token: authData.session.access_token,
+      refresh_token: authData.session.refresh_token,
+      expires_in: authData.session.expires_in || 3600,
+      expires_at: authData.session.expires_at || Date.now() / 1000 + 3600,
     },
     profile,
   };

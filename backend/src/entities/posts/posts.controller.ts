@@ -2,7 +2,7 @@
 import { Controller, Route, Tags, Post, Body, Request, Security } from "tsoa";
 import { Request as ExpressRequest } from "express";
 import { CreatePostBody } from "./posts.dto.js";
-import { extractUserId } from "../../entities/auth/auth.service.js";
+import { extractUserId } from "../../utils/auth-helpers.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
 import { PostsService } from "./posts.service.js";
 

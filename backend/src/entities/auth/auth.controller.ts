@@ -12,12 +12,9 @@ import {
 } from "tsoa";
 import { UserProfile } from "../../types/api.types.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
+import { extractBearerToken } from "../../utils/auth-helpers.js";
 import { CompleteProfileDto } from "./auth.dto.js";
-import {
-  checkUsernameAvailability,
-  completeProfile,
-  extractBearerToken,
-} from "./auth.service.js";
+import { checkUsernameAvailability, completeProfile } from "./auth.service.js";
 
 @Route("auth")
 @Tags("Authentication")

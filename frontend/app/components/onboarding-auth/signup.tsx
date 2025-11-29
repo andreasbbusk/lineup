@@ -18,7 +18,7 @@ import {
 } from "@/app/lib/api/endpoints/auth";
 
 export function OnboardingSignupStep() {
-  const { onboarding, updateOnboardingData, markAccountCreated } =
+  const { onboarding, update_onboarding_data, mark_account_created } =
     useAppStore();
   const { nextStep } = useOnboardingNavigation();
 
@@ -42,7 +42,7 @@ export function OnboardingSignupStep() {
       username: onboarding.data.username || "",
       email: onboarding.data.email || "",
       password: "",
-      confirmPassword: "",
+      confirm_password: "",
     },
   });
 
@@ -96,16 +96,16 @@ export function OnboardingSignupStep() {
       });
 
       if (result.session) {
-        const { setAuth } = useAppStore.getState();
-        setAuth(result.user, result.session.access_token, null);
+        const { set_auth } = useAppStore.getState();
+        set_auth(result.user, result.session.access_token, null);
       }
 
-      updateOnboardingData({
+      update_onboarding_data({
         username: formData.username,
         email: formData.email,
       });
 
-      markAccountCreated();
+      mark_account_created();
 
       setIsCreatingAccount(false);
       nextStep();
@@ -208,16 +208,16 @@ export function OnboardingSignupStep() {
             <div className="w-full">
               <input
                 type="password"
-                {...register("confirmPassword")}
+                {...register("confirm_password")}
                 className={`w-full rounded-lg border px-3 py-2.5 text-sm leading-normal tracking-[0.5px] placeholder:text-input-placeholder sm:px-2.5 sm:py-2.5 sm:text-base ${
-                  errors.confirmPassword
+                  errors.confirm_password
                     ? "border-maroon bg-maroon/5"
                     : "border-black/10"
                 }`}
                 placeholder="Repeat your password"
               />
-              {errors.confirmPassword && (
-                <ErrorMessage message={errors.confirmPassword.message || ""} />
+              {errors.confirm_password && (
+                <ErrorMessage message={errors.confirm_password.message || ""} />
               )}
             </div>
 

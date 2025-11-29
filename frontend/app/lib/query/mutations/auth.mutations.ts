@@ -11,56 +11,56 @@ import { useAppStore } from "../../stores/app-store";
 import { CompleteProfileRequest, SignupRequest } from "../../types/api-types";
 
 export function useSignupMutation() {
-  const setAuth = useAppStore((state) => state.setAuth);
+  const set_auth = useAppStore((state) => state.set_auth);
   const router = useRouter();
 
   return useMutation({
     mutationFn: (data: SignupRequest) => signup(data),
     onSuccess: (response) => {
-      setAuth(response.user, response.session.accessToken, response.profile);
+      set_auth(response.user, response.session.access_token, response.profile);
       router.push("/");
     },
   });
 }
 
 export function useSignupBasicMutation() {
-  const setAuth = useAppStore((state) => state.setAuth);
+  const set_auth = useAppStore((state) => state.set_auth);
 
   return useMutation({
     mutationFn: (data: SignupRequest) => signup(data),
     onSuccess: (response) => {
       // Store auth token but DON'T redirect - user continues to looking_for step
-      setAuth(response.user, response.session.accessToken, response.profile);
+      set_auth(response.user, response.session.access_token, response.profile);
     },
   });
 }
 
 export function useCompleteProfileMutation() {
-  const updateProfileStore = useAppStore((state) => state.updateProfile);
-  const resetOnboarding = useAppStore((state) => state.resetOnboarding);
+  const update_profile = useAppStore((state) => state.update_profile);
+  const reset_onboarding = useAppStore((state) => state.reset_onboarding);
   const router = useRouter();
 
   return useMutation({
     mutationFn: (data: CompleteProfileRequest) => completeProfile(data),
     onSuccess: (profile) => {
-      updateProfileStore(profile);
-      resetOnboarding(); // Clear onboarding data from localStorage
+      update_profile(profile);
+      reset_onboarding(); // Clear onboarding data from localStorage
       router.push("/");
     },
   });
 }
 
 export function useLoginMutation() {
-  const setAuth = useAppStore((state) => state.setAuth);
+  const set_auth = useAppStore((state) => state.set_auth);
   const router = useRouter();
 
   return useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) =>
       signInWithAuth(email, password),
     onSuccess: (response) => {
-      setAuth(response.user, response.session.accessToken, response.profile);
+      set_auth(response.user, response.session.access_token, response.profile);
 
-      if (!response.profile.onboardingCompleted) {
+      if (!response.profile.onboarding_completed) {
         router.push("/onboarding");
       } else {
         router.push("/");
