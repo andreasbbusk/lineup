@@ -14,13 +14,16 @@ import { Button } from "@/app/components/ui/buttons";
 import { ErrorMessage } from "@/app/components/ui/error-message";
 import {
   checkUsernameAvailability,
-  checkEmailAvailability,
+  signupWithAuth,
 } from "@/app/lib/api/endpoints/auth";
 
 export function OnboardingSignupStep() {
-  const { onboarding, updateOnboardingData } = useAppStore();
+  const { onboarding, update_onboarding_data, mark_account_created } =
+    useAppStore();
   const { nextStep } = useOnboardingNavigation();
 
+  const [signupError, setSignupError] = useState<string>("");
+  const [isCreatingAccount, setIsCreatingAccount] = useState<boolean>(false);
   const [usernameValidation, setUsernameValidation] = useState<{
     checking: boolean;
     available: boolean | null;
@@ -39,13 +42,12 @@ export function OnboardingSignupStep() {
       username: onboarding.data.username || "",
       email: onboarding.data.email || "",
       password: "",
-      confirmPassword: "",
+      confirm_password: "",
     },
   });
 
-  // Watch fields for changes
+  // Watch username for real-time validation
   const watchedUsername = watch("username");
-  const watchedEmail = watch("email");
 
   // Debounced username validation
   useEffect(() => {
@@ -82,14 +84,48 @@ export function OnboardingSignupStep() {
     return () => clearTimeout(timeoutId);
   }, [watchedUsername]);
 
-  const onSubmit = (formData: SignupFormData) => {
-    // Just store data in Zustand - account will be created in step 5
-    updateOnboardingData({
-      username: formData.username,
-      email: formData.email,
-      password: formData.password, // Keep password for later signup
-    });
-    nextStep();
+  const onSubmit = async (formData: SignupFormData) => {
+    setSignupError("");
+    setIsCreatingAccount(true);
+
+    try {
+      const result = await signupWithAuth({
+        email: formData.email,
+        password: formData.password,
+        username: formData.username,
+      });
+
+      if (result.session) {
+        const { set_auth } = useAppStore.getState();
+        set_auth(result.user, result.session.access_token, null);
+      }
+
+      update_onboarding_data({
+        username: formData.username,
+        email: formData.email,
+      });
+
+      mark_account_created();
+
+      setIsCreatingAccount(false);
+      nextStep();
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "An unexpected error occurred";
+
+      if (
+        errorMessage.includes("already registered") ||
+        errorMessage.includes("User already registered")
+      ) {
+        setSignupError(
+          "This email is already registered. Please log in instead."
+        );
+      } else {
+        setSignupError(errorMessage);
+      }
+
+      setIsCreatingAccount(false);
+    }
   };
 
   return (
@@ -144,9 +180,7 @@ export function OnboardingSignupStep() {
                 type="email"
                 {...register("email")}
                 className={`w-full rounded-lg border px-3 py-2.5 text-sm leading-normal tracking-[0.5px] placeholder:text-input-placeholder sm:px-2.5 sm:py-2.5 sm:text-base ${
-                  errors.email
-                    ? "border-maroon bg-maroon/5"
-                    : "border-black/10"
+                  errors.email ? "border-maroon bg-maroon/5" : "border-black/10"
                 }`}
                 placeholder="Enter your email"
               />
@@ -174,18 +208,24 @@ export function OnboardingSignupStep() {
             <div className="w-full">
               <input
                 type="password"
-                {...register("confirmPassword")}
+                {...register("confirm_password")}
                 className={`w-full rounded-lg border px-3 py-2.5 text-sm leading-normal tracking-[0.5px] placeholder:text-input-placeholder sm:px-2.5 sm:py-2.5 sm:text-base ${
-                  errors.confirmPassword
+                  errors.confirm_password
                     ? "border-maroon bg-maroon/5"
                     : "border-black/10"
                 }`}
                 placeholder="Repeat your password"
               />
-              {errors.confirmPassword && (
-                <ErrorMessage message={errors.confirmPassword.message || ""} />
+              {errors.confirm_password && (
+                <ErrorMessage message={errors.confirm_password.message || ""} />
               )}
             </div>
+
+            {signupError && (
+              <div className="w-full">
+                <ErrorMessage message={signupError} />
+              </div>
+            )}
 
             <div className="flex w-full flex-col items-center gap-2 sm:gap-2.5">
               <Button
@@ -194,10 +234,11 @@ export function OnboardingSignupStep() {
                 onClick={() => {}}
                 disabled={
                   usernameValidation.available === false ||
-                  usernameValidation.checking
+                  usernameValidation.checking ||
+                  isCreatingAccount
                 }
               >
-                Continue
+                {isCreatingAccount ? "Creating account..." : "Continue"}
               </Button>
 
               <p className="text-center text-sm leading-normal tracking-[0.5px] text-text-secondary sm:text-base">

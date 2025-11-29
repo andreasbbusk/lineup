@@ -7,116 +7,151 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
-			"UserProfile": {
+			"ProfileRow": {
 				"properties": {
-					"id": {
-						"type": "string"
+					"year_of_birth": {
+						"type": "number",
+						"format": "double"
 					},
 					"username": {
 						"type": "string"
 					},
-					"firstName": {
+					"user_type": {
 						"type": "string"
 					},
-					"lastName": {
-						"type": "string"
+					"updated_at": {
+						"type": "string",
+						"nullable": true
 					},
-					"avatarUrl": {
-						"type": "string"
+					"theme_color": {
+						"type": "string",
+						"nullable": true
 					},
-					"bio": {
-						"type": "string"
+					"spotify_playlist_url": {
+						"type": "string",
+						"nullable": true
 					},
-					"aboutMe": {
-						"type": "string"
-					},
-					"phoneCountryCode": {
+					"search_vector": {},
+					"phone_number": {
 						"type": "number",
 						"format": "double"
 					},
-					"phoneNumber": {
+					"phone_country_code": {
 						"type": "number",
 						"format": "double"
 					},
-					"yearOfBirth": {
-						"type": "number",
-						"format": "double"
+					"onboarding_completed": {
+						"type": "boolean",
+						"nullable": true
 					},
 					"location": {
 						"type": "string"
 					},
-					"userType": {
+					"last_name": {
 						"type": "string"
 					},
-					"themeColor": {
+					"id": {
 						"type": "string"
 					},
-					"spotifyPlaylistUrl": {
+					"first_name": {
 						"type": "string"
 					},
-					"onboardingCompleted": {
-						"type": "boolean"
+					"created_at": {
+						"type": "string",
+						"nullable": true
 					},
-					"createdAt": {
-						"type": "string"
+					"blocked_users": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array",
+						"nullable": true
 					},
-					"updatedAt": {
-						"type": "string"
+					"bio": {
+						"type": "string",
+						"nullable": true
+					},
+					"avatar_url": {
+						"type": "string",
+						"nullable": true
+					},
+					"about_me": {
+						"type": "string",
+						"nullable": true
 					}
 				},
 				"required": [
-					"id",
+					"year_of_birth",
 					"username",
-					"firstName",
-					"lastName",
+					"user_type",
+					"updated_at",
+					"theme_color",
+					"spotify_playlist_url",
+					"search_vector",
+					"phone_number",
+					"phone_country_code",
+					"onboarding_completed",
 					"location",
-					"userType",
-					"onboardingCompleted",
-					"createdAt",
-					"updatedAt"
+					"last_name",
+					"id",
+					"first_name",
+					"created_at",
+					"blocked_users",
+					"bio",
+					"avatar_url",
+					"about_me"
 				],
-				"type": "object",
-				"additionalProperties": false
+				"type": "object"
+			},
+			"UserProfile": {
+				"$ref": "#/components/schemas/ProfileRow"
 			},
 			"UpdateProfileDto": {
-				"description": "DTO for updating user profile\nMatches ProfileUpdateRequest API format (camelCase)",
+				"description": "DTO for updating user profile\nMatches ProfileUpdateRequest API format (snake_case)",
 				"properties": {
-					"firstName": {
+					"first_name": {
 						"type": "string"
 					},
-					"lastName": {
+					"last_name": {
 						"type": "string"
 					},
 					"bio": {
 						"type": "string"
 					},
-					"aboutMe": {
+					"about_me": {
 						"type": "string"
 					},
-					"avatarUrl": {
+					"avatar_url": {
 						"type": "string"
 					},
 					"location": {
 						"type": "string"
 					},
-					"themeColor": {
+					"theme_color": {
 						"type": "string"
 					},
-					"spotifyPlaylistUrl": {
+					"spotify_playlist_url": {
 						"type": "string"
 					},
-					"phoneCountryCode": {
+					"phone_country_code": {
 						"type": "number",
 						"format": "double"
 					},
-					"phoneNumber": {
+					"phone_number": {
 						"type": "number",
 						"format": "double"
 					},
-					"onboardingCompleted": {
+					"year_of_birth": {
+						"type": "number",
+						"format": "double"
+					},
+					"user_type": {
+						"type": "string"
+					},
+					"onboarding_completed": {
 						"type": "boolean"
 					},
-					"lookingFor": {
+					"looking_for": {
 						"items": {
 							"type": "string"
 						},
@@ -243,98 +278,34 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"AuthResponse": {
+			"CompleteProfileDto": {
+				"description": "DTO for completing profile after Auth account creation\nUsed when Supabase Auth account already exists but profile needs to be created",
 				"properties": {
-					"user": {
-						"properties": {
-							"createdAt": {
-								"type": "string"
-							},
-							"email": {
-								"type": "string"
-							},
-							"id": {
-								"type": "string"
-							}
-						},
-						"required": [
-							"createdAt",
-							"email",
-							"id"
-						],
-						"type": "object"
-					},
-					"session": {
-						"properties": {
-							"expiresAt": {
-								"type": "number",
-								"format": "double"
-							},
-							"expiresIn": {
-								"type": "number",
-								"format": "double"
-							},
-							"refreshToken": {
-								"type": "string"
-							},
-							"accessToken": {
-								"type": "string"
-							}
-						},
-						"required": [
-							"expiresAt",
-							"expiresIn",
-							"refreshToken",
-							"accessToken"
-						],
-						"type": "object"
-					},
-					"profile": {
-						"$ref": "#/components/schemas/UserProfile"
-					}
-				},
-				"required": [
-					"user",
-					"session",
-					"profile"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"SignupDto": {
-				"description": "DTO for user signup\nValidates all required fields for creating a new user account",
-				"properties": {
-					"email": {
-						"type": "string"
-					},
-					"password": {
-						"type": "string"
-					},
 					"username": {
 						"type": "string"
 					},
-					"firstName": {
+					"first_name": {
 						"type": "string"
 					},
-					"lastName": {
+					"last_name": {
 						"type": "string"
 					},
-					"phoneCountryCode": {
+					"phone_country_code": {
 						"type": "number",
 						"format": "double"
 					},
-					"phoneNumber": {
+					"phone_number": {
 						"type": "number",
 						"format": "double"
 					},
-					"yearOfBirth": {
+					"year_of_birth": {
 						"type": "number",
 						"format": "double"
 					},
 					"location": {
 						"type": "string"
 					},
-					"userType": {
+					"user_type": {
 						"type": "string",
 						"enum": [
 							"musician",
@@ -344,33 +315,14 @@
 					}
 				},
 				"required": [
-					"email",
-					"password",
 					"username",
-					"firstName",
-					"lastName",
-					"phoneCountryCode",
-					"phoneNumber",
-					"yearOfBirth",
+					"first_name",
+					"last_name",
+					"phone_country_code",
+					"phone_number",
+					"year_of_birth",
 					"location",
-					"userType"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"LoginDto": {
-				"description": "DTO for user login",
-				"properties": {
-					"email": {
-						"type": "string"
-					},
-					"password": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"email",
-					"password"
+					"user_type"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -391,7 +343,7 @@
 					"name": {
 						"type": "string"
 					},
-					"createdAt": {
+					"created_at": {
 						"type": "string"
 					}
 				},
@@ -399,7 +351,7 @@
 					"id",
 					"type",
 					"name",
-					"createdAt"
+					"created_at"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -568,66 +520,37 @@
 				}
 			}
 		},
-		"/auth/signup": {
+		"/auth/complete-profile": {
 			"post": {
-				"operationId": "Signup",
+				"operationId": "CompleteUserProfile",
 				"responses": {
 					"200": {
 						"description": "Ok",
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/AuthResponse"
+									"$ref": "#/components/schemas/UserProfile"
 								}
 							}
 						}
 					}
 				},
-				"description": "Sign up a new user\nCreates a new user account with email, password, and basic profile information",
+				"description": "Complete user profile after Supabase Auth account creation\nUsed in onboarding flow where Auth account is created first, then profile is completed later",
 				"tags": [
 					"Authentication"
 				],
-				"security": [],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
 				"parameters": [],
 				"requestBody": {
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/SignupDto"
-							}
-						}
-					}
-				}
-			}
-		},
-		"/auth/login": {
-			"post": {
-				"operationId": "Login",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/AuthResponse"
-								}
-							}
-						}
-					}
-				},
-				"description": "Sign in an existing user\nAuthenticates a user with email and password",
-				"tags": [
-					"Authentication"
-				],
-				"security": [],
-				"parameters": [],
-				"requestBody": {
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/LoginDto"
+								"$ref": "#/components/schemas/CompleteProfileDto"
 							}
 						}
 					}
@@ -666,46 +589,6 @@
 					{
 						"in": "query",
 						"name": "username",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/auth/check-email": {
-			"get": {
-				"operationId": "CheckEmail",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"properties": {
-										"available": {
-											"type": "boolean"
-										}
-									},
-									"required": [
-										"available"
-									],
-									"type": "object"
-								}
-							}
-						}
-					}
-				},
-				"description": "Check if an email is available\nReturns availability status for real-time validation",
-				"tags": [
-					"Authentication"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "query",
-						"name": "email",
 						"required": true,
 						"schema": {
 							"type": "string"

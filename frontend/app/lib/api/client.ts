@@ -3,7 +3,6 @@ import { ErrorResponse } from "../types/api-types";
 
 interface RequestOptions {
   headers?: Record<string, string>;
-  requiresAuth?: boolean;
 }
 
 class ApiError extends Error {
@@ -23,19 +22,19 @@ class ApiClient {
 
   constructor() {
     this.baseUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001/api";
+      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
   }
 
   private async request<T>(
     endpoint: string,
     options: RequestInit & RequestOptions = {}
   ): Promise<T> {
-    const { headers = {}, requiresAuth = false, ...fetchOptions } = options;
+    const { headers = {}, ...fetchOptions } = options;
 
     // Add auth header if required or if token exists
-    const accessToken = useAppStore.getState().accessToken;
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
+    const access_token = useAppStore.getState().access_token;
+    if (access_token) {
+      headers["Authorization"] = `Bearer ${access_token}`;
     }
 
     // Always send JSON
@@ -91,7 +90,7 @@ class ApiClient {
 
     if (response.status === 401) {
       // Unauthorized - clear auth and show message
-      useAppStore.getState().clearAuth();
+      useAppStore.getState().clear_auth();
       userMessage = "Your session has expired. Please sign in again.";
     } else if (response.status === 409 && errorData.code === "CONFLICT") {
       userMessage = "This email or username is already in use.";

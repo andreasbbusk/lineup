@@ -1,21 +1,21 @@
-// src/entities/users/users.service.ts
 import { createClient } from "@supabase/supabase-js";
 import {
   supabase,
-  SUPABASE_URL,
   SUPABASE_ANON_KEY,
-} from "../../config/supabase.ts";
-import { ProfileRow, ProfileUpdate } from "../../utils/supabase-helpers.ts";
-import { mapProfileToAPI } from "../../utils/mappers/index.ts";
+  SUPABASE_URL,
+} from "../../config/supabase.js";
 import { UserProfile } from "../../types/api.types.js";
+import { Database } from "../../types/supabase.js";
+import { createHttpError } from "../../utils/error-handler.js";
+import { ProfileUpdate } from "../../utils/supabase-helpers.js";
 import { UpdateProfileDto } from "./users.dto.js";
-import { createHttpError } from "../../utils/error-handler.ts";
-import { Database } from "../../types/supabase.ts";
 
 export class UsersService {
   /**
    * Get user profile by username
    * Returns public profile by default. If authenticated and viewing own profile, returns private fields.
+   * @param username Username to fetch
+   * @param authenticatedUserId Optional ID of the currently authenticated user
    */
   async getUserByUsername(
     username: string,
@@ -35,14 +35,28 @@ export class UsersService {
       });
     }
 
-    // Include private fields only if viewing own profile
     const isOwnProfile = authenticatedUserId === profile.id;
-    return mapProfileToAPI(profile as ProfileRow, isOwnProfile);
+
+    if (!isOwnProfile) {
+      // Strip private sensitive info for public viewing
+      const publicProfile = { ...profile };
+      // TypeScript cast to 'any' to delete optional properties
+      delete (publicProfile as any).phone_number;
+      delete (publicProfile as any).phone_country_code;
+      delete (publicProfile as any).year_of_birth;
+      return publicProfile as UserProfile;
+    }
+
+    return profile as UserProfile;
   }
 
   /**
    * Update user profile
    * Only the profile owner can update their own profile
+   * @param username Username of profile to update
+   * @param userId ID of the authenticated user
+   * @param data Data to update
+   * @param token Bearer token for RLS
    */
   async updateProfile(
     username: string,
@@ -50,24 +64,15 @@ export class UsersService {
     data: UpdateProfileDto,
     token: string
   ): Promise<UserProfile> {
-    // Create authenticated Supabase client for RLS
     const authedSupabase = createClient<Database>(
       SUPABASE_URL,
       SUPABASE_ANON_KEY,
       {
-        global: {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-        auth: {
-          persistSession: false,
-          detectSessionInUrl: false,
-        },
+        global: { headers: { Authorization: `Bearer ${token}` } },
+        auth: { persistSession: false, detectSessionInUrl: false },
       }
     );
 
-    // Verify the username belongs to the authenticated user
     const { data: profile, error: fetchError } = await authedSupabase
       .from("profiles")
       .select("id, username")
@@ -90,45 +95,14 @@ export class UsersService {
       });
     }
 
-    // Map API format (camelCase) to database format (snake_case)
-    const updateData: ProfileUpdate = {};
-    if (data.firstName !== undefined) {
-      updateData.first_name = data.firstName;
-    }
-    if (data.lastName !== undefined) {
-      updateData.last_name = data.lastName;
-    }
-    if (data.bio !== undefined) {
-      updateData.bio = data.bio;
-    }
-    if (data.aboutMe !== undefined) {
-      updateData.about_me = data.aboutMe;
-    }
-    if (data.avatarUrl !== undefined) {
-      updateData.avatar_url = data.avatarUrl;
-    }
-    if (data.location !== undefined) {
-      updateData.location = data.location;
-    }
-    if (data.themeColor !== undefined) {
-      updateData.theme_color = data.themeColor;
-    }
-    if (data.spotifyPlaylistUrl !== undefined) {
-      updateData.spotify_playlist_url = data.spotifyPlaylistUrl;
-    }
-    if (data.phoneCountryCode !== undefined) {
-      updateData.phone_country_code = data.phoneCountryCode;
-    }
-    if (data.phoneNumber !== undefined) {
-      updateData.phone_number = data.phoneNumber;
-    }
-    if (data.onboardingCompleted !== undefined) {
-      updateData.onboarding_completed = data.onboardingCompleted;
-    }
+    // Separate looking_for (relational data) from profile fields
+    const { looking_for, ...profileData } = data;
 
-    // Handle lookingFor data if provided
-    if (data.lookingFor !== undefined) {
-      // Delete existing looking_for records
+    // Direct assignment since types match (excluding looking_for)
+    const updateData: ProfileUpdate = profileData as ProfileUpdate;
+
+    // Handle looking_for updates
+    if (looking_for !== undefined) {
       const { error: deleteError } = await authedSupabase
         .from("user_looking_for")
         .delete()
@@ -143,11 +117,14 @@ export class UsersService {
         });
       }
 
-      // Insert new looking_for records if array is not empty
-      if (data.lookingFor.length > 0) {
-        const lookingForRecords = data.lookingFor.map((item) => ({
+      if (looking_for.length > 0) {
+        const lookingForRecords = looking_for.map((item) => ({
           user_id: userId,
-          looking_for_value: item as "connect" | "promote" | "find-band" | "find-services",
+          looking_for_value: item as
+            | "connect"
+            | "promote"
+            | "find-band"
+            | "find-services",
         }));
 
         const { error: insertError } = await authedSupabase
@@ -164,13 +141,11 @@ export class UsersService {
         }
       }
 
-      // Set onboarding_completed to true if not already set
-      if (data.onboardingCompleted === undefined) {
+      if (profileData.onboarding_completed === undefined) {
         updateData.onboarding_completed = true;
       }
     }
 
-    // Update the profile
     const { data: updatedProfile, error: updateError } = await authedSupabase
       .from("profiles")
       .update(updateData)
@@ -186,6 +161,6 @@ export class UsersService {
       });
     }
 
-    return mapProfileToAPI(updatedProfile as ProfileRow);
+    return updatedProfile as UserProfile;
   }
 }

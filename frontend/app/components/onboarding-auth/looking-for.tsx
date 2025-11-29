@@ -3,12 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/app/lib/stores/app-store";
-import { useSignupBasicMutation } from "@/app/lib/query/mutations/auth.mutations";
+import { useCompleteProfileMutation } from "@/app/lib/query/mutations/auth.mutations";
 import { useUpdateProfileMutation } from "@/app/lib/query/mutations/profile.mutations";
 import { Button } from "@/app/components/ui/buttons";
 import { CheckboxCircle } from "@/app/components/ui/checkbox-circle";
 import { ErrorMessage } from "@/app/components/ui/error-message";
-import { SignupRequest } from "@/app/lib/types/api-types";
 
 const OPTIONS = [
   { id: "connect", label: "Connect to fellow musicians" },
@@ -19,25 +18,20 @@ const OPTIONS = [
 
 export function OnboardingLookingFor() {
   const router = useRouter();
-  const { onboarding, updateOnboardingData, user, markAccountCreated } = useAppStore();
+  const { onboarding, update_onboarding_data } = useAppStore();
   const [error, setError] = useState<Error | null>(null);
 
-  const {
-    mutate: createAccount,
-    isPending: isCreatingAccount,
-  } = useSignupBasicMutation();
+  const { mutate: completeProfile, isPending: isCompletingProfile } =
+    useCompleteProfileMutation();
+  const { mutate: updateProfile, isPending: isUpdatingProfile } =
+    useUpdateProfileMutation();
 
-  const {
-    mutate: updateProfile,
-    isPending: isUpdatingProfile,
-  } = useUpdateProfileMutation();
-
-  const isPending = isCreatingAccount || isUpdatingProfile;
+  const isPending = isCompletingProfile || isUpdatingProfile;
 
   const toggleOption = (id: string) => {
-    const current = onboarding.data.lookingFor || [];
-    updateOnboardingData({
-      lookingFor: current.includes(id)
+    const current = onboarding.data.looking_for || [];
+    update_onboarding_data({
+      looking_for: current.includes(id)
         ? current.filter((i: string) => i !== id)
         : [...current, id],
     });
@@ -46,82 +40,88 @@ export function OnboardingLookingFor() {
   const handleSubmit = () => {
     setError(null);
 
-    // Validate we have all required data
-    if (!onboarding.data.email || !onboarding.data.password || !onboarding.data.username) {
-      setError(new Error("Missing required account information. Please go back and complete all steps."));
+    // Validate that username exists
+    if (!onboarding.data.username) {
+      setError(
+        new Error("Missing username. Please restart the signup process.")
+      );
       return;
     }
 
-    if (!onboarding.data.firstName || !onboarding.data.lastName || !onboarding.data.phoneNumber) {
-      setError(new Error("Missing required profile information. Please go back and complete all steps."));
+    // Validate we have all required profile data
+    if (
+      !onboarding.data.first_name ||
+      !onboarding.data.last_name ||
+      !onboarding.data.phone_number ||
+      !onboarding.data.year_of_birth ||
+      !onboarding.data.location
+    ) {
+      setError(
+        new Error(
+          "Missing required profile information. Please go back and complete previous steps."
+        )
+      );
       return;
     }
 
-    // Step 1: Create account with all data if not already created
-    if (!onboarding.data.accountCreated) {
-      const signupData: SignupRequest = {
-        email: onboarding.data.email,
-        password: onboarding.data.password,
+    const phone_country_code = parseInt(
+      (onboarding.data.phone_country_code ?? "").replace("+", ""),
+      10
+    );
+    const phone_number = parseInt(onboarding.data.phone_number ?? "", 10);
+
+    if (Number.isNaN(phone_country_code) || Number.isNaN(phone_number)) {
+      setError(
+        new Error("Invalid phone details. Please review your phone number.")
+      );
+      return;
+    }
+
+    // First, complete the profile with all required data
+    completeProfile(
+      {
         username: onboarding.data.username,
-        firstName: onboarding.data.firstName,
-        lastName: onboarding.data.lastName,
-        phoneCountryCode: Number(onboarding.data.phoneCountryCode!.replace("+", "")),
-        phoneNumber: Number(onboarding.data.phoneNumber),
-        yearOfBirth: onboarding.data.yearOfBirth!,
-        location: onboarding.data.location!,
-        userType: onboarding.data.userType || "musician",
-      };
-
-      createAccount(signupData, {
-        onSuccess: (response) => {
-          markAccountCreated();
-
-          // Step 2: Update looking_for preferences
-          updateProfile({
-            username: response.profile.username,
-            data: {
-              lookingFor: onboarding.data.lookingFor,
-              onboardingCompleted: true,
-            },
-          }, {
-            onSuccess: () => {
-              router.push("/");
-            },
-            onError: (err) => {
-              // Account created but looking_for failed - that's ok, user can add later
-              console.error("Failed to update looking_for preferences:", err);
-              setError(new Error("Account created! You can add your preferences later in your profile."));
-              // Still redirect to home after showing message
-              setTimeout(() => router.push("/"), 2000);
-            },
-          });
-        },
-        onError: (err) => {
-          setError(err as Error);
-        },
-      });
-    } else {
-      // Account already created, just update looking_for
-      if (!user?.id || !onboarding.data.username) {
-        setError(new Error("Authentication error. Please try logging in again."));
-        return;
-      }
-
-      updateProfile({
-        username: onboarding.data.username,
-        data: {
-          lookingFor: onboarding.data.lookingFor,
-          onboardingCompleted: true,
-        },
-      }, {
+        first_name: onboarding.data.first_name,
+        last_name: onboarding.data.last_name,
+        phone_country_code,
+        phone_number,
+        year_of_birth: onboarding.data.year_of_birth,
+        location: onboarding.data.location,
+        user_type: onboarding.data.user_type || "musician",
+      },
+      {
         onSuccess: () => {
-          router.push("/");
+          // Then update with looking_for preferences and onboarding_completed flag
+          updateProfile(
+            {
+              username: onboarding.data.username!,
+              data: {
+                looking_for: onboarding.data.looking_for,
+                onboarding_completed: true,
+              },
+            },
+            {
+              onSuccess: () => {
+                router.push("/");
+              },
+              onError: (err) => {
+                // Profile created but preferences update failed - that's ok
+                console.error("Failed to update preferences:", err);
+                setError(
+                  new Error(
+                    "Profile created! You can add your preferences later."
+                  )
+                );
+                setTimeout(() => router.push("/"), 2000);
+              },
+            }
+          );
         },
         onError: (err) => {
           setError(err as Error);
         },
-      });
-    }
+      }
+    );
   };
 
   return (
@@ -135,7 +135,8 @@ export function OnboardingLookingFor() {
         {/* Options */}
         <div className="flex w-full flex-col gap-4">
           {OPTIONS.map((option) => {
-            const isSelected = onboarding.data.lookingFor?.includes(option.id) ?? false;
+            const isSelected =
+              onboarding.data.looking_for?.includes(option.id) ?? false;
             return (
               <button
                 key={option.id}

@@ -7,8 +7,8 @@ import { ProfileUpdateRequest } from "../../types/api-types";
 import { updateProfile } from "../../api/endpoints/auth";
 
 export function useUpdateProfileMutation() {
-  const updateProfileStore = useAppStore((state) => state.updateProfile);
-  const resetOnboarding = useAppStore((state) => state.resetOnboarding);
+  const update_profile = useAppStore((state) => state.update_profile);
+  const reset_onboarding = useAppStore((state) => state.reset_onboarding);
   const router = useRouter();
 
   return useMutation({
@@ -23,8 +23,8 @@ export function useUpdateProfileMutation() {
       return updateProfile(username, data);
     },
     onSuccess: (profile) => {
-      updateProfileStore(profile);
-      resetOnboarding(); // Clear onboarding data from localStorage
+      update_profile(profile);
+      reset_onboarding(); // Clear onboarding data from localStorage
       router.push("/");
     },
   });
