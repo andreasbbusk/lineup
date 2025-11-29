@@ -1,59 +1,45 @@
 // API Request and Response Types for LineUp
 
+import { ProfileRow } from "../utils/supabase-helpers.js";
+
+// ==================== Profile Types ====================
+
+// UserProfile is now exactly the same as the database row
+// This ensures the API type is always perfectly in sync with the database schema
+export type UserProfile = ProfileRow;
+
 // ==================== Auth Types ====================
 
 export interface AuthResponse {
   user: {
     id: string;
     email: string;
-    createdAt: string;
+    created_at: string;
   };
   session: {
-    accessToken: string;
-    refreshToken: string;
-    expiresIn: number;
-    expiresAt: number;
+    access_token: string;
+    refresh_token: string;
+    expires_in: number;
+    expires_at: number;
   };
   profile: UserProfile;
 }
 
-// ==================== Profile Types ====================
-
-export interface UserProfile {
-  id: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  avatarUrl?: string;
-  bio?: string;
-  aboutMe?: string;
-  phoneCountryCode?: number; // Only included for own profile
-  phoneNumber?: number; // Only included for own profile
-  yearOfBirth?: number; // Only included for own profile
-  location: string;
-  userType: string;
-  themeColor?: string;
-  spotifyPlaylistUrl?: string;
-  onboardingCompleted: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface ProfileUpdateRequest {
-  firstName?: string;
-  lastName?: string;
+  first_name?: string;
+  last_name?: string;
   bio?: string;
-  aboutMe?: string;
-  avatarUrl?: string;
+  about_me?: string;
+  avatar_url?: string;
   location?: string;
-  themeColor?: string;
-  spotifyPlaylistUrl?: string;
-  phoneCountryCode?: number;
-  phoneNumber?: number;
-  yearOfBirth?: number;
-  userType?: string;
-  onboardingCompleted?: boolean;
-  lookingFor?: string[];
+  theme_color?: string;
+  spotify_playlist_url?: string;
+  phone_country_code?: number;
+  phone_number?: number;
+  year_of_birth?: number;
+  user_type?: string;
+  onboarding_completed?: boolean;
+  looking_for?: string[];
 }
 
 // ==================== Metadata Types ====================
@@ -61,7 +47,7 @@ export interface MetadataItem {
   id: string;
   type: "tag" | "genre" | "artist";
   name: string;
-  createdAt: string;
+  created_at: string;
 }
 
 export interface MetadataResponse {
@@ -81,11 +67,11 @@ export type LookingForType =
 
 export interface Connection {
   id: string;
-  requesterId: string;
-  recipientId: string;
+  requester_id: string;
+  recipient_id: string;
   status: ConnectionStatus;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
   requester?: UserProfile;
   recipient?: UserProfile;
 }
@@ -100,8 +86,8 @@ export interface PaginationQuery {
 export interface PaginatedResponse<T> {
   data: T[];
   pagination: {
-    nextCursor?: string;
-    hasMore: boolean;
+    next_cursor?: string;
+    has_more: boolean;
     total?: number;
   };
 }

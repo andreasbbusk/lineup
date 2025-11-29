@@ -23,21 +23,27 @@ const USER_TYPES = [
 ];
 
 export function OnboardingUserType() {
-  const { onboarding, updateOnboardingData } = useAppStore();
+  const { onboarding, update_onboarding_data } = useAppStore();
   const { nextStep } = useOnboardingNavigation();
   const [selectedType, setSelectedType] = useState<string | null>(
-    onboarding.data.userType || null
+    onboarding.data.user_type || null
   );
 
   const handleSelect = (value: "musician" | "service_provider") => {
     setSelectedType(value);
-    updateOnboardingData({ userType: value });
+    update_onboarding_data({ user_type: value });
   };
 
   return (
     <div className="flex w-full max-w-[260px] flex-col items-center gap-16">
       {/* Logo */}
-        <Image src={LOGO_ICON} alt="LineUp logo" width={70} height={70} className="object-contain" />
+      <Image
+        src={LOGO_ICON}
+        alt="LineUp logo"
+        width={70}
+        height={70}
+        className="object-contain"
+      />
 
       {/* Options */}
       <div className="flex w-full flex-col gap-8">
@@ -49,9 +55,7 @@ export function OnboardingUserType() {
               onClick={() => !isDisabled && handleSelect(type.value)}
               disabled={isDisabled}
               className={`flex w-full flex-col items-center gap-5 rounded-[25px] border p-5 transition ${
-                selectedType === type.value
-                  ? "border-grey"
-                  : "border-black/10"
+                selectedType === type.value ? "border-grey" : "border-black/10"
               } ${isDisabled ? "cursor-not-allowed opacity-50" : ""}`}
             >
               <h3 className="text-center text-xl font-bold leading-[19px] tracking-[0.5px] text-text-muted">

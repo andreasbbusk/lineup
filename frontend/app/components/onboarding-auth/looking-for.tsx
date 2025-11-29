@@ -18,7 +18,7 @@ const OPTIONS = [
 
 export function OnboardingLookingFor() {
   const router = useRouter();
-  const { onboarding, updateOnboardingData } = useAppStore();
+  const { onboarding, update_onboarding_data } = useAppStore();
   const [error, setError] = useState<Error | null>(null);
 
   const { mutate: completeProfile, isPending: isCompletingProfile } =
@@ -29,9 +29,9 @@ export function OnboardingLookingFor() {
   const isPending = isCompletingProfile || isUpdatingProfile;
 
   const toggleOption = (id: string) => {
-    const current = onboarding.data.lookingFor || [];
-    updateOnboardingData({
-      lookingFor: current.includes(id)
+    const current = onboarding.data.looking_for || [];
+    update_onboarding_data({
+      looking_for: current.includes(id)
         ? current.filter((i: string) => i !== id)
         : [...current, id],
     });
@@ -50,10 +50,10 @@ export function OnboardingLookingFor() {
 
     // Validate we have all required profile data
     if (
-      !onboarding.data.firstName ||
-      !onboarding.data.lastName ||
-      !onboarding.data.phoneNumber ||
-      !onboarding.data.yearOfBirth ||
+      !onboarding.data.first_name ||
+      !onboarding.data.last_name ||
+      !onboarding.data.phone_number ||
+      !onboarding.data.year_of_birth ||
       !onboarding.data.location
     ) {
       setError(
@@ -64,13 +64,13 @@ export function OnboardingLookingFor() {
       return;
     }
 
-    const phoneCountryCode = parseInt(
-      (onboarding.data.phoneCountryCode ?? "").replace("+", ""),
+    const phone_country_code = parseInt(
+      (onboarding.data.phone_country_code ?? "").replace("+", ""),
       10
     );
-    const phoneNumber = parseInt(onboarding.data.phoneNumber ?? "", 10);
+    const phone_number = parseInt(onboarding.data.phone_number ?? "", 10);
 
-    if (Number.isNaN(phoneCountryCode) || Number.isNaN(phoneNumber)) {
+    if (Number.isNaN(phone_country_code) || Number.isNaN(phone_number)) {
       setError(
         new Error("Invalid phone details. Please review your phone number.")
       );
@@ -81,23 +81,23 @@ export function OnboardingLookingFor() {
     completeProfile(
       {
         username: onboarding.data.username,
-        firstName: onboarding.data.firstName,
-        lastName: onboarding.data.lastName,
-        phoneCountryCode,
-        phoneNumber,
-        yearOfBirth: onboarding.data.yearOfBirth,
+        first_name: onboarding.data.first_name,
+        last_name: onboarding.data.last_name,
+        phone_country_code,
+        phone_number,
+        year_of_birth: onboarding.data.year_of_birth,
         location: onboarding.data.location,
-        userType: onboarding.data.userType || "musician",
+        user_type: onboarding.data.user_type || "musician",
       },
       {
         onSuccess: () => {
-          // Then update with lookingFor preferences and onboardingCompleted flag
+          // Then update with looking_for preferences and onboarding_completed flag
           updateProfile(
             {
               username: onboarding.data.username!,
               data: {
-                lookingFor: onboarding.data.lookingFor,
-                onboardingCompleted: true,
+                looking_for: onboarding.data.looking_for,
+                onboarding_completed: true,
               },
             },
             {
@@ -136,7 +136,7 @@ export function OnboardingLookingFor() {
         <div className="flex w-full flex-col gap-4">
           {OPTIONS.map((option) => {
             const isSelected =
-              onboarding.data.lookingFor?.includes(option.id) ?? false;
+              onboarding.data.looking_for?.includes(option.id) ?? false;
             return (
               <button
                 key={option.id}

@@ -11,11 +11,11 @@ import {
   Security,
   Tags,
 } from "tsoa";
-import { extractUserId } from "../../entities/auth/auth.service.js";
 import { UserProfile } from "../../types/api.types.js";
+import { extractBearerToken, extractUserId } from "../../utils/auth-helpers.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
-import { UsersService } from "./users.service.js";
 import { UpdateProfileDto } from "./users.dto.js";
+import { UsersService } from "./users.service.js";
 
 @Route("users")
 @Tags("Users")
@@ -65,12 +65,8 @@ export class UsersController extends Controller {
       // Authentication is required - extractUserId will throw if not authenticated
       const userId = await extractUserId(request);
 
-      // Get token from authorization header
-      const authHeader = request.headers.authorization;
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        throw new Error("Authorization token is required");
-      }
-      const token = authHeader.replace("Bearer ", "");
+      // Extract token from authorization header
+      const token = extractBearerToken(request);
 
       return this.usersService.updateProfile(username, userId, body, token);
     });

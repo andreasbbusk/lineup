@@ -6,13 +6,13 @@ export interface SignupRequest {
   email: string;
   password: string;
   username: string;
-  firstName: string;
-  lastName: string;
-  phoneCountryCode: number;
-  phoneNumber: number;
-  yearOfBirth: number;
+  first_name: string;
+  last_name: string;
+  phone_country_code: number;
+  phone_number: number;
+  year_of_birth: number;
   location: string;
-  userType: "musician" | "service_provider" | "other";
+  user_type: "musician" | "service_provider" | "other";
 }
 
 export interface LoginRequest {
@@ -24,13 +24,13 @@ export interface AuthResponse {
   user: {
     id: string;
     email: string;
-    createdAt: string;
+    created_at: string;
   };
   session: {
-    accessToken: string;
-    refreshToken: string;
-    expiresIn: number;
-    expiresAt: number;
+    access_token: string;
+    refresh_token: string;
+    expires_in: number;
+    expires_at: number;
   };
   profile: UserProfile;
 }
@@ -50,49 +50,49 @@ export interface AvailabilityResponse {
 export interface UserProfile {
   id: string;
   username: string;
-  firstName: string;
-  lastName: string;
-  avatarUrl?: string;
+  first_name: string;
+  last_name: string;
+  avatar_url?: string;
   bio?: string;
-  aboutMe?: string;
-  phoneCountryCode?: number; // Only included for own profile
-  phoneNumber?: number; // Only included for own profile
-  yearOfBirth?: number; // Only included for own profile
+  about_me?: string;
+  phone_country_code?: number; // Only included for own profile
+  phone_number?: number; // Only included for own profile
+  year_of_birth?: number; // Only included for own profile
   location: string;
-  userType: string;
-  themeColor?: string;
-  spotifyPlaylistUrl?: string;
-  onboardingCompleted: boolean;
-  createdAt: string;
-  updatedAt: string;
+  user_type: string;
+  theme_color?: string;
+  spotify_playlist_url?: string;
+  onboarding_completed: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ProfileUpdateRequest {
-  firstName?: string;
-  lastName?: string;
+  first_name?: string;
+  last_name?: string;
   bio?: string;
-  aboutMe?: string;
-  avatarUrl?: string;
+  about_me?: string;
+  avatar_url?: string;
   location?: string;
-  themeColor?: string;
-  spotifyPlaylistUrl?: string;
-  phoneCountryCode?: number;
-  phoneNumber?: number;
-  yearOfBirth?: number;
-  onboardingCompleted?: boolean;
-  userType?: string;
-  lookingFor?: string[];
+  theme_color?: string;
+  spotify_playlist_url?: string;
+  phone_country_code?: number;
+  phone_number?: number;
+  year_of_birth?: number;
+  onboarding_completed?: boolean;
+  user_type?: string;
+  looking_for?: string[];
 }
 
 export interface CompleteProfileRequest {
   username: string;
-  firstName: string;
-  lastName: string;
-  phoneCountryCode: number;
-  phoneNumber: number;
-  yearOfBirth: number;
+  first_name: string;
+  last_name: string;
+  phone_country_code: number;
+  phone_number: number;
+  year_of_birth: number;
   location: string;
-  userType: "musician" | "service_provider" | "other";
+  user_type: "musician" | "service_provider" | "other";
 }
 
 // ==================== Looking For Types ====================

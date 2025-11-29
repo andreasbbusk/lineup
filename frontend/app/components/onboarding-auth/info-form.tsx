@@ -56,12 +56,14 @@ const COUNTRY_CODES = [
 ];
 
 export function OnboardingBasicInfoForm() {
-  const { onboarding, updateOnboardingData } = useAppStore();
+  const { onboarding, update_onboarding_data } = useAppStore();
   const { nextStep } = useOnboardingNavigation();
 
   // State to track the full name input
   const [fullName, setFullName] = useState(
-    onboarding.data.firstName && onboarding.data.lastName ? `${onboarding.data.firstName} ${onboarding.data.lastName}` : ""
+    onboarding.data.first_name && onboarding.data.last_name
+      ? `${onboarding.data.first_name} ${onboarding.data.last_name}`
+      : ""
   );
 
   const {
@@ -74,22 +76,22 @@ export function OnboardingBasicInfoForm() {
     resolver: zodResolver(basicInfoSchema),
     mode: "onChange",
     defaultValues: {
-      firstName: onboarding.data.firstName || "",
-      lastName: onboarding.data.lastName || "",
-      countryCode: onboarding.data.phoneCountryCode || "+45",
-      phoneNumber: onboarding.data.phoneNumber || "",
-      yearOfBirth: onboarding.data.yearOfBirth?.toString() || "",
+      first_name: onboarding.data.first_name || "",
+      last_name: onboarding.data.last_name || "",
+      country_code: onboarding.data.phone_country_code || "+45",
+      phone_number: onboarding.data.phone_number || "",
+      year_of_birth: onboarding.data.year_of_birth?.toString() || "",
       city: onboarding.data.location || "",
     },
   });
 
   const onSubmit = (formData: BasicInfoFormData) => {
-    updateOnboardingData({
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      phoneCountryCode: formData.countryCode,
-      phoneNumber: formData.phoneNumber,
-      yearOfBirth: Number(formData.yearOfBirth),
+    update_onboarding_data({
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      phone_country_code: formData.country_code,
+      phone_number: formData.phone_number,
+      year_of_birth: Number(formData.year_of_birth),
       location: formData.city,
     });
     nextStep();
@@ -120,7 +122,7 @@ export function OnboardingBasicInfoForm() {
               value={fullName}
               placeholder="Enter your full name"
               className={`w-full rounded-lg border px-2.5 py-2.5 text-base leading-normal tracking-[0.5px] placeholder:text-input-placeholder ${
-                errors.firstName || errors.lastName
+                errors.first_name || errors.last_name
                   ? "border-maroon bg-maroon/5"
                   : "border-black/10"
               }`}
@@ -131,26 +133,28 @@ export function OnboardingBasicInfoForm() {
                 const nameParts = value.trim().split(/\s+/);
 
                 if (nameParts.length >= 2) {
-                  // First word is firstName, rest is lastName
-                  const firstName = nameParts[0];
-                  const lastName = nameParts.slice(1).join(" ");
-                  setValue("firstName", firstName, { shouldValidate: true });
-                  setValue("lastName", lastName, { shouldValidate: true });
+                  // First word is first_name, rest is last_name
+                  const first_name = nameParts[0];
+                  const last_name = nameParts.slice(1).join(" ");
+                  setValue("first_name", first_name, { shouldValidate: true });
+                  setValue("last_name", last_name, { shouldValidate: true });
                 } else if (nameParts.length === 1 && nameParts[0]) {
-                  // Only one word entered - set as firstName
-                  setValue("firstName", nameParts[0], { shouldValidate: true });
-                  setValue("lastName", "", { shouldValidate: true });
+                  // Only one word entered - set as first_name
+                  setValue("first_name", nameParts[0], {
+                    shouldValidate: true,
+                  });
+                  setValue("last_name", "", { shouldValidate: true });
                 } else {
                   // Empty input
-                  setValue("firstName", "", { shouldValidate: true });
-                  setValue("lastName", "", { shouldValidate: true });
+                  setValue("first_name", "", { shouldValidate: true });
+                  setValue("last_name", "", { shouldValidate: true });
                 }
               }}
             />
-            {(errors.firstName || errors.lastName) && (
+            {(errors.first_name || errors.last_name) && (
               <ErrorMessage
                 message={
-                  errors.firstName?.message || errors.lastName?.message || ""
+                  errors.first_name?.message || errors.last_name?.message || ""
                 }
               />
             )}
@@ -163,7 +167,7 @@ export function OnboardingBasicInfoForm() {
             </label>
             <div className="flex gap-3">
               <Controller
-                name="countryCode"
+                name="country_code"
                 control={control}
                 render={({ field }) => (
                   <CustomSelect
@@ -179,16 +183,18 @@ export function OnboardingBasicInfoForm() {
                 )}
               />
               <input
-                {...register("phoneNumber")}
+                {...register("phone_number")}
                 type="tel"
                 placeholder="Phone number"
                 className={`flex rounded-lg border px-2.5 py-2 leading-normal tracking-[0.5px] placeholder:text-input-placeholder ${
-                  errors.phoneNumber ? "border-maroon bg-maroon/5" : "border-black/10"
+                  errors.phone_number
+                    ? "border-maroon bg-maroon/5"
+                    : "border-black/10"
                 }`}
               />
             </div>
-            {errors.phoneNumber && (
-              <ErrorMessage message={errors.phoneNumber.message || ""} />
+            {errors.phone_number && (
+              <ErrorMessage message={errors.phone_number.message || ""} />
             )}
           </div>
 
@@ -198,7 +204,7 @@ export function OnboardingBasicInfoForm() {
               Year of birth
             </label>
             <Controller
-              name="yearOfBirth"
+              name="year_of_birth"
               control={control}
               render={({ field }) => (
                 <CustomSelect
@@ -212,12 +218,12 @@ export function OnboardingBasicInfoForm() {
                     label: year.toString(),
                   }))}
                   placeholder="Enter your year of birth"
-                  error={!!errors.yearOfBirth}
+                  error={!!errors.year_of_birth}
                 />
               )}
             />
-            {errors.yearOfBirth && (
-              <ErrorMessage message={errors.yearOfBirth.message || ""} />
+            {errors.year_of_birth && (
+              <ErrorMessage message={errors.year_of_birth.message || ""} />
             )}
           </div>
 
