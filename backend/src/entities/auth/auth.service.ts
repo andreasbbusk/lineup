@@ -19,7 +19,7 @@ import {
   validatePhoneNumberLength,
   validateYearOfBirth,
 } from "../../utils/validation.js";
-import { SignupDto, LoginDto } from "./auth.dto.js";
+import { SignupDto, CompleteProfileDto } from "./auth.dto.js";
 import {
   SUPABASE_ANON_KEY,
   SUPABASE_URL,
@@ -83,7 +83,7 @@ export function extractBearerToken(request: ExpressRequest): string {
 async function createUserProfile(
   userId: string,
   username: string,
-  data: SignupDto,
+  data: SignupDto | CompleteProfileDto,
   accessToken?: string
 ): Promise<ProfileRow> {
   // Use authenticated client if token is provided (for RLS)
@@ -101,20 +101,26 @@ async function createUserProfile(
       })
     : supabase;
 
+  // Use UPSERT to update existing profile created by trigger or insert if not exists
   const { data: profile, error } = await client
     .from("profiles")
-    .insert({
-      id: userId,
-      username,
-      first_name: data.firstName,
-      last_name: data.lastName,
-      phone_country_code: data.phoneCountryCode,
-      phone_number: data.phoneNumber,
-      year_of_birth: data.yearOfBirth,
-      location: data.location,
-      user_type: data.userType,
-      onboarding_completed: false,
-    })
+    .upsert(
+      {
+        id: userId,
+        username,
+        first_name: data.firstName,
+        last_name: data.lastName,
+        phone_country_code: data.phoneCountryCode,
+        phone_number: data.phoneNumber,
+        year_of_birth: data.yearOfBirth,
+        location: data.location,
+        user_type: data.userType,
+        onboarding_completed: false,
+      },
+      {
+        onConflict: "id",
+      }
+    )
     .select()
     .single();
 
@@ -275,64 +281,87 @@ export async function signUp(data: SignupDto): Promise<AuthResponse> {
 }
 
 /**
- * Sign in a user with email and password
+ * Complete user profile after Supabase Auth account was created
+ * This is used when Auth account is created separately (e.g., in onboarding flow)
  */
-export async function signIn(
-  email: string,
-  password: string
-): Promise<AuthResponse> {
+export async function completeProfile(
+  data: CompleteProfileDto,
+  token: string
+): Promise<UserProfile> {
   // Validate input with class-validator
-  const validatedData = await validateDto(LoginDto, { email, password });
+  const validatedData = await validateDto(CompleteProfileDto, data);
 
-  // Sign in with Supabase Auth
-  const { data: authData, error: authError } =
-    await supabase.auth.signInWithPassword({
-      email: validatedData.email,
-      password: validatedData.password,
+  // Additional custom validations
+  if (!validatePhoneNumberLength(validatedData.phoneNumber)) {
+    throw createHttpError({
+      message: "Phone number must be between 4 and 15 digits",
+      statusCode: 400,
+      code: "VALIDATION_ERROR",
     });
-
-  if (authError) {
-    handleSupabaseAuthError(authError);
   }
 
-  if (!authData.user || !authData.session) {
+  if (!validateYearOfBirth(validatedData.yearOfBirth)) {
     throw createHttpError({
-      message: "Invalid email or password",
+      message: "You must be at least 13 years old",
+      statusCode: 400,
+      code: "VALIDATION_ERROR",
+    });
+  }
+
+  // Get the authenticated user from the token
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser(token);
+
+  if (authError || !user) {
+    throw createHttpError({
+      message: "Invalid or expired authentication token",
       statusCode: 401,
       code: "UNAUTHORIZED",
     });
   }
 
-  // Fetch user profile
-  const { data: profile, error: profileError } = await supabase
+  // Check if username is already taken by another user
+  const { data: existingUsername } = await supabase
     .from("profiles")
-    .select("*")
-    .eq("id", authData.user.id)
-    .single();
+    .select("id, username")
+    .eq("username", validatedData.username)
+    .maybeSingle();
 
-  if (profileError || !profile) {
+  if (existingUsername && existingUsername.id !== user.id) {
     throw createHttpError({
-      message: "Failed to fetch user profile",
-      statusCode: 500,
-      code: "DATABASE_ERROR",
+      message: "Username is already taken",
+      statusCode: 409,
+      code: "CONFLICT",
     });
   }
 
-  // Return auth response
-  return {
-    user: {
-      id: authData.user.id,
-      email: authData.user.email!,
-      createdAt: authData.user.created_at,
-    },
-    session: {
-      accessToken: authData.session.access_token,
-      refreshToken: authData.session.refresh_token,
-      expiresIn: authData.session.expires_in || 3600,
-      expiresAt: authData.session.expires_at || Date.now() / 1000 + 3600,
-    },
-    profile: mapProfileToAPI(profile as ProfileRow),
-  };
+  // Check if phone number combination is already taken by another user
+  const { data: existingPhone } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("phone_country_code", validatedData.phoneCountryCode)
+    .eq("phone_number", validatedData.phoneNumber)
+    .maybeSingle();
+
+  if (existingPhone && existingPhone.id !== user.id) {
+    throw createHttpError({
+      message: "An account with this phone number already exists",
+      statusCode: 409,
+      code: "CONFLICT",
+    });
+  }
+
+  // Create or update the profile (will update if trigger already created it)
+  const profile = await createUserProfile(
+    user.id,
+    validatedData.username,
+    validatedData,
+    token
+  );
+
+  return mapProfileToAPI(profile as ProfileRow);
 }
 
 /**
@@ -353,32 +382,6 @@ export async function checkUsernameAvailability(
     .maybeSingle();
 
   return { available: !existingProfile };
-}
-
-/**
- * Check if email is available
- */
-export async function checkEmailAvailability(
-  email: string
-): Promise<{ available: boolean }> {
-  // Basic validation
-  if (!email || !email.includes("@")) {
-    return { available: false };
-  }
-
-  // Check in Supabase Auth - we need to query auth.users
-  // Since we can't directly query auth.users, we check if we can find a profile with this email
-  // This works because email is unique in Supabase Auth and we create profiles for all users
-  const { data: existingProfile } = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("id", "") // We'll use a different approach
-    .maybeSingle();
-
-  // Better approach: try to get user by email using admin API
-  // For now, we'll return true and let the actual signup handle email validation
-  // This is because Supabase doesn't expose email lookup in the regular API
-  return { available: true };
 }
 
 /**
@@ -478,6 +481,15 @@ export async function updateUserProfile(
   }
   if (validatedData.phoneNumber !== undefined) {
     updateData.phone_number = validatedData.phoneNumber;
+  }
+  if (validatedData.yearOfBirth !== undefined) {
+    updateData.year_of_birth = validatedData.yearOfBirth;
+  }
+  if (validatedData.userType !== undefined) {
+    updateData.user_type = validatedData.userType as
+      | "musician"
+      | "service_provider"
+      | "other";
   }
   if (validatedData.onboardingCompleted !== undefined) {
     updateData.onboarding_completed = validatedData.onboardingCompleted;

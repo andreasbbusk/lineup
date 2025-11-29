@@ -113,6 +113,13 @@
 						"type": "number",
 						"format": "double"
 					},
+					"yearOfBirth": {
+						"type": "number",
+						"format": "double"
+					},
+					"userType": {
+						"type": "string"
+					},
 					"onboardingCompleted": {
 						"type": "boolean"
 					},
@@ -243,73 +250,9 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"AuthResponse": {
+			"CompleteProfileDto": {
+				"description": "DTO for completing profile after Auth account creation\nUsed when Supabase Auth account already exists but profile needs to be created",
 				"properties": {
-					"user": {
-						"properties": {
-							"createdAt": {
-								"type": "string"
-							},
-							"email": {
-								"type": "string"
-							},
-							"id": {
-								"type": "string"
-							}
-						},
-						"required": [
-							"createdAt",
-							"email",
-							"id"
-						],
-						"type": "object"
-					},
-					"session": {
-						"properties": {
-							"expiresAt": {
-								"type": "number",
-								"format": "double"
-							},
-							"expiresIn": {
-								"type": "number",
-								"format": "double"
-							},
-							"refreshToken": {
-								"type": "string"
-							},
-							"accessToken": {
-								"type": "string"
-							}
-						},
-						"required": [
-							"expiresAt",
-							"expiresIn",
-							"refreshToken",
-							"accessToken"
-						],
-						"type": "object"
-					},
-					"profile": {
-						"$ref": "#/components/schemas/UserProfile"
-					}
-				},
-				"required": [
-					"user",
-					"session",
-					"profile"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"SignupDto": {
-				"description": "DTO for user signup\nValidates all required fields for creating a new user account",
-				"properties": {
-					"email": {
-						"type": "string"
-					},
-					"password": {
-						"type": "string"
-					},
 					"username": {
 						"type": "string"
 					},
@@ -344,8 +287,6 @@
 					}
 				},
 				"required": [
-					"email",
-					"password",
 					"username",
 					"firstName",
 					"lastName",
@@ -354,23 +295,6 @@
 					"yearOfBirth",
 					"location",
 					"userType"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"LoginDto": {
-				"description": "DTO for user login",
-				"properties": {
-					"email": {
-						"type": "string"
-					},
-					"password": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"email",
-					"password"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -568,66 +492,37 @@
 				}
 			}
 		},
-		"/auth/signup": {
+		"/auth/complete-profile": {
 			"post": {
-				"operationId": "Signup",
+				"operationId": "CompleteUserProfile",
 				"responses": {
 					"200": {
 						"description": "Ok",
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/AuthResponse"
+									"$ref": "#/components/schemas/UserProfile"
 								}
 							}
 						}
 					}
 				},
-				"description": "Sign up a new user\nCreates a new user account with email, password, and basic profile information",
+				"description": "Complete user profile after Supabase Auth account creation\nUsed in onboarding flow where Auth account is created first, then profile is completed later",
 				"tags": [
 					"Authentication"
 				],
-				"security": [],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
 				"parameters": [],
 				"requestBody": {
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/SignupDto"
-							}
-						}
-					}
-				}
-			}
-		},
-		"/auth/login": {
-			"post": {
-				"operationId": "Login",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/AuthResponse"
-								}
-							}
-						}
-					}
-				},
-				"description": "Sign in an existing user\nAuthenticates a user with email and password",
-				"tags": [
-					"Authentication"
-				],
-				"security": [],
-				"parameters": [],
-				"requestBody": {
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/LoginDto"
+								"$ref": "#/components/schemas/CompleteProfileDto"
 							}
 						}
 					}
@@ -666,46 +561,6 @@
 					{
 						"in": "query",
 						"name": "username",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/auth/check-email": {
-			"get": {
-				"operationId": "CheckEmail",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"properties": {
-										"available": {
-											"type": "boolean"
-										}
-									},
-									"required": [
-										"available"
-									],
-									"type": "object"
-								}
-							}
-						}
-					}
-				},
-				"description": "Check if an email is available\nReturns availability status for real-time validation",
-				"tags": [
-					"Authentication"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "query",
-						"name": "email",
 						"required": true,
 						"schema": {
 							"type": "string"

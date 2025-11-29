@@ -3,12 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/app/lib/stores/app-store";
-import { useSignupBasicMutation } from "@/app/lib/query/mutations/auth.mutations";
+import { useCompleteProfileMutation } from "@/app/lib/query/mutations/auth.mutations";
 import { useUpdateProfileMutation } from "@/app/lib/query/mutations/profile.mutations";
 import { Button } from "@/app/components/ui/buttons";
 import { CheckboxCircle } from "@/app/components/ui/checkbox-circle";
 import { ErrorMessage } from "@/app/components/ui/error-message";
-import { SignupRequest } from "@/app/lib/types/api-types";
 
 const OPTIONS = [
   { id: "connect", label: "Connect to fellow musicians" },
@@ -19,17 +18,15 @@ const OPTIONS = [
 
 export function OnboardingLookingFor() {
   const router = useRouter();
-  const { onboarding, updateOnboardingData, user, markAccountCreated } =
-    useAppStore();
+  const { onboarding, updateOnboardingData } = useAppStore();
   const [error, setError] = useState<Error | null>(null);
 
-  const { mutate: createAccount, isPending: isCreatingAccount } =
-    useSignupBasicMutation();
-
+  const { mutate: completeProfile, isPending: isCompletingProfile } =
+    useCompleteProfileMutation();
   const { mutate: updateProfile, isPending: isUpdatingProfile } =
     useUpdateProfileMutation();
 
-  const isPending = isCreatingAccount || isUpdatingProfile;
+  const isPending = isCompletingProfile || isUpdatingProfile;
 
   const toggleOption = (id: string) => {
     const current = onboarding.data.lookingFor || [];
@@ -43,28 +40,25 @@ export function OnboardingLookingFor() {
   const handleSubmit = () => {
     setError(null);
 
-    // Validate we have all required data
-    if (
-      !onboarding.data.email ||
-      !onboarding.data.password ||
-      !onboarding.data.username
-    ) {
+    // Validate that username exists
+    if (!onboarding.data.username) {
       setError(
-        new Error(
-          "Missing required account information. Please go back and complete all steps."
-        )
+        new Error("Missing username. Please restart the signup process.")
       );
       return;
     }
 
+    // Validate we have all required profile data
     if (
       !onboarding.data.firstName ||
       !onboarding.data.lastName ||
-      !onboarding.data.phoneNumber
+      !onboarding.data.phoneNumber ||
+      !onboarding.data.yearOfBirth ||
+      !onboarding.data.location
     ) {
       setError(
         new Error(
-          "Missing required profile information. Please go back and complete all steps."
+          "Missing required profile information. Please go back and complete previous steps."
         )
       );
       return;
@@ -83,29 +77,24 @@ export function OnboardingLookingFor() {
       return;
     }
 
-    // Step 1: Create account with all data if not already created
-    if (!onboarding.data.accountCreated) {
-      const signupData: SignupRequest = {
-        email: onboarding.data.email,
-        password: onboarding.data.password,
+    // First, complete the profile with all required data
+    completeProfile(
+      {
         username: onboarding.data.username,
         firstName: onboarding.data.firstName,
         lastName: onboarding.data.lastName,
         phoneCountryCode,
         phoneNumber,
-        yearOfBirth: onboarding.data.yearOfBirth!,
-        location: onboarding.data.location!,
+        yearOfBirth: onboarding.data.yearOfBirth,
+        location: onboarding.data.location,
         userType: onboarding.data.userType || "musician",
-      };
-
-      createAccount(signupData, {
-        onSuccess: (response) => {
-          markAccountCreated();
-
-          // Step 2: Update looking_for preferences
+      },
+      {
+        onSuccess: () => {
+          // Then update with lookingFor preferences and onboardingCompleted flag
           updateProfile(
             {
-              username: response.profile.username,
+              username: onboarding.data.username!,
               data: {
                 lookingFor: onboarding.data.lookingFor,
                 onboardingCompleted: true,
@@ -116,14 +105,13 @@ export function OnboardingLookingFor() {
                 router.push("/");
               },
               onError: (err) => {
-                // Account created but looking_for failed - that's ok, user can add later
-                console.error("Failed to update looking_for preferences:", err);
+                // Profile created but preferences update failed - that's ok
+                console.error("Failed to update preferences:", err);
                 setError(
                   new Error(
-                    "Account created! You can add your preferences later in your profile."
+                    "Profile created! You can add your preferences later."
                   )
                 );
-                // Still redirect to home after showing message
                 setTimeout(() => router.push("/"), 2000);
               },
             }
@@ -132,34 +120,8 @@ export function OnboardingLookingFor() {
         onError: (err) => {
           setError(err as Error);
         },
-      });
-    } else {
-      // Account already created, just update looking_for
-      if (!user?.id || !onboarding.data.username) {
-        setError(
-          new Error("Authentication error. Please try logging in again.")
-        );
-        return;
       }
-
-      updateProfile(
-        {
-          username: onboarding.data.username,
-          data: {
-            lookingFor: onboarding.data.lookingFor,
-            onboardingCompleted: true,
-          },
-        },
-        {
-          onSuccess: () => {
-            router.push("/");
-          },
-          onError: (err) => {
-            setError(err as Error);
-          },
-        }
-      );
-    }
+    );
   };
 
   return (

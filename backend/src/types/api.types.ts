@@ -50,6 +50,8 @@ export interface ProfileUpdateRequest {
   spotifyPlaylistUrl?: string;
   phoneCountryCode?: number;
   phoneNumber?: number;
+  yearOfBirth?: number;
+  userType?: string;
   onboardingCompleted?: boolean;
   lookingFor?: string[];
 }

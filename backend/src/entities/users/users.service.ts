@@ -122,6 +122,12 @@ export class UsersService {
     if (data.phoneNumber !== undefined) {
       updateData.phone_number = data.phoneNumber;
     }
+    if (data.yearOfBirth !== undefined) {
+      updateData.year_of_birth = data.yearOfBirth;
+    }
+    if (data.userType !== undefined) {
+      updateData.user_type = data.userType as "musician" | "service_provider" | "other";
+    }
     if (data.onboardingCompleted !== undefined) {
       updateData.onboarding_completed = data.onboardingCompleted;
     }

@@ -64,6 +64,14 @@ export class UpdateProfileDto implements ProfileUpdateRequest {
   phoneNumber?: number;
 
   @IsOptional()
+  @IsNumber()
+  yearOfBirth?: number;
+
+  @IsOptional()
+  @IsString()
+  userType?: string;
+
+  @IsOptional()
   @IsBoolean()
   onboardingCompleted?: boolean;
 

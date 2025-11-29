@@ -2,9 +2,13 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { login, signup } from "../../api/endpoints/auth";
+import {
+  completeProfile,
+  signInWithAuth,
+  signup,
+} from "../../api/endpoints/auth";
 import { useAppStore } from "../../stores/app-store";
-import { SignupRequest } from "../../types/api-types";
+import { CompleteProfileRequest, SignupRequest } from "../../types/api-types";
 
 export function useSignupMutation() {
   const setAuth = useAppStore((state) => state.setAuth);
@@ -31,13 +35,28 @@ export function useSignupBasicMutation() {
   });
 }
 
+export function useCompleteProfileMutation() {
+  const updateProfileStore = useAppStore((state) => state.updateProfile);
+  const resetOnboarding = useAppStore((state) => state.resetOnboarding);
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (data: CompleteProfileRequest) => completeProfile(data),
+    onSuccess: (profile) => {
+      updateProfileStore(profile);
+      resetOnboarding(); // Clear onboarding data from localStorage
+      router.push("/");
+    },
+  });
+}
+
 export function useLoginMutation() {
   const setAuth = useAppStore((state) => state.setAuth);
   const router = useRouter();
 
   return useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) =>
-      login(email, password),
+      signInWithAuth(email, password),
     onSuccess: (response) => {
       setAuth(response.user, response.session.accessToken, response.profile);
 

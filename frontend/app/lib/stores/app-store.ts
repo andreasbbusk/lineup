@@ -5,7 +5,6 @@ import { UserProfile } from "../types/api-types";
 // Onboarding data interface
 interface OnboardingData {
   email: string;
-  password: string;
   username: string;
   firstName: string;
   lastName: string;
@@ -36,7 +35,7 @@ interface AppStore {
   setAuth: (
     user: { id: string; email: string },
     accessToken: string,
-    profile: UserProfile
+    profile: UserProfile | null
   ) => void;
   clearAuth: () => void;
   updateProfile: (profile: UserProfile) => void;
@@ -139,7 +138,15 @@ export const useAppStore = create<AppStore>()(
     }),
     {
       name: "lineup_app_store",
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() =>
+        typeof window !== "undefined"
+          ? localStorage
+          : {
+              getItem: () => null,
+              setItem: () => {},
+              removeItem: () => {},
+            }
+      ),
     }
   )
 );

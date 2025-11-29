@@ -35,6 +35,16 @@ export interface AuthResponse {
   profile: UserProfile;
 }
 
+export interface SignupWithAuthRequest {
+  email: string;
+  password: string;
+  username: string;
+}
+
+export interface AvailabilityResponse {
+  available: boolean;
+}
+
 // ==================== Profile Types ====================
 
 export interface UserProfile {
@@ -72,6 +82,17 @@ export interface ProfileUpdateRequest {
   onboardingCompleted?: boolean;
   userType?: string;
   lookingFor?: string[];
+}
+
+export interface CompleteProfileRequest {
+  username: string;
+  firstName: string;
+  lastName: string;
+  phoneCountryCode: number;
+  phoneNumber: number;
+  yearOfBirth: number;
+  location: string;
+  userType: "musician" | "service_provider" | "other";
 }
 
 // ==================== Looking For Types ====================
