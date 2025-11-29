@@ -13,7 +13,7 @@ interface OnboardingData {
   phoneNumber: string;
   yearOfBirth: number;
   location: string;
-  userType: "musician" | "service_provider";
+  userType: "musician" | "service_provider" | "other";
   lookingFor: string[];
   accountCreated?: boolean;
 }

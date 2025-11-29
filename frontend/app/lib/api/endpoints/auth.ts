@@ -29,17 +29,13 @@ export async function updateProfile(
   username: string,
   data: ProfileUpdateRequest
 ): Promise<UserProfile> {
-  return apiClient.put<UserProfile>(`/users/${username}`, data, {
-    requiresAuth: true,
-  });
+  return apiClient.put<UserProfile>(`/users/${username}`, data);
 }
 
 export async function getCurrentProfile(
   username: string
 ): Promise<UserProfile> {
-  return apiClient.get<UserProfile>(`/users/${username}`, {
-    requiresAuth: true,
-  });
+  return apiClient.get<UserProfile>(`/users/${username}`);
 }
 
 export async function checkUsernameAvailability(

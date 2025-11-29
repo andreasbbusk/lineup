@@ -19,18 +19,15 @@ const OPTIONS = [
 
 export function OnboardingLookingFor() {
   const router = useRouter();
-  const { onboarding, updateOnboardingData, user, markAccountCreated } = useAppStore();
+  const { onboarding, updateOnboardingData, user, markAccountCreated } =
+    useAppStore();
   const [error, setError] = useState<Error | null>(null);
 
-  const {
-    mutate: createAccount,
-    isPending: isCreatingAccount,
-  } = useSignupBasicMutation();
+  const { mutate: createAccount, isPending: isCreatingAccount } =
+    useSignupBasicMutation();
 
-  const {
-    mutate: updateProfile,
-    isPending: isUpdatingProfile,
-  } = useUpdateProfileMutation();
+  const { mutate: updateProfile, isPending: isUpdatingProfile } =
+    useUpdateProfileMutation();
 
   const isPending = isCreatingAccount || isUpdatingProfile;
 
@@ -47,13 +44,42 @@ export function OnboardingLookingFor() {
     setError(null);
 
     // Validate we have all required data
-    if (!onboarding.data.email || !onboarding.data.password || !onboarding.data.username) {
-      setError(new Error("Missing required account information. Please go back and complete all steps."));
+    if (
+      !onboarding.data.email ||
+      !onboarding.data.password ||
+      !onboarding.data.username
+    ) {
+      setError(
+        new Error(
+          "Missing required account information. Please go back and complete all steps."
+        )
+      );
       return;
     }
 
-    if (!onboarding.data.firstName || !onboarding.data.lastName || !onboarding.data.phoneNumber) {
-      setError(new Error("Missing required profile information. Please go back and complete all steps."));
+    if (
+      !onboarding.data.firstName ||
+      !onboarding.data.lastName ||
+      !onboarding.data.phoneNumber
+    ) {
+      setError(
+        new Error(
+          "Missing required profile information. Please go back and complete all steps."
+        )
+      );
+      return;
+    }
+
+    const phoneCountryCode = parseInt(
+      (onboarding.data.phoneCountryCode ?? "").replace("+", ""),
+      10
+    );
+    const phoneNumber = parseInt(onboarding.data.phoneNumber ?? "", 10);
+
+    if (Number.isNaN(phoneCountryCode) || Number.isNaN(phoneNumber)) {
+      setError(
+        new Error("Invalid phone details. Please review your phone number.")
+      );
       return;
     }
 
@@ -65,8 +91,8 @@ export function OnboardingLookingFor() {
         username: onboarding.data.username,
         firstName: onboarding.data.firstName,
         lastName: onboarding.data.lastName,
-        phoneCountryCode: Number(onboarding.data.phoneCountryCode!.replace("+", "")),
-        phoneNumber: Number(onboarding.data.phoneNumber),
+        phoneCountryCode,
+        phoneNumber,
         yearOfBirth: onboarding.data.yearOfBirth!,
         location: onboarding.data.location!,
         userType: onboarding.data.userType || "musician",
@@ -77,24 +103,31 @@ export function OnboardingLookingFor() {
           markAccountCreated();
 
           // Step 2: Update looking_for preferences
-          updateProfile({
-            username: response.profile.username,
-            data: {
-              lookingFor: onboarding.data.lookingFor,
-              onboardingCompleted: true,
+          updateProfile(
+            {
+              username: response.profile.username,
+              data: {
+                lookingFor: onboarding.data.lookingFor,
+                onboardingCompleted: true,
+              },
             },
-          }, {
-            onSuccess: () => {
-              router.push("/");
-            },
-            onError: (err) => {
-              // Account created but looking_for failed - that's ok, user can add later
-              console.error("Failed to update looking_for preferences:", err);
-              setError(new Error("Account created! You can add your preferences later in your profile."));
-              // Still redirect to home after showing message
-              setTimeout(() => router.push("/"), 2000);
-            },
-          });
+            {
+              onSuccess: () => {
+                router.push("/");
+              },
+              onError: (err) => {
+                // Account created but looking_for failed - that's ok, user can add later
+                console.error("Failed to update looking_for preferences:", err);
+                setError(
+                  new Error(
+                    "Account created! You can add your preferences later in your profile."
+                  )
+                );
+                // Still redirect to home after showing message
+                setTimeout(() => router.push("/"), 2000);
+              },
+            }
+          );
         },
         onError: (err) => {
           setError(err as Error);
@@ -103,24 +136,29 @@ export function OnboardingLookingFor() {
     } else {
       // Account already created, just update looking_for
       if (!user?.id || !onboarding.data.username) {
-        setError(new Error("Authentication error. Please try logging in again."));
+        setError(
+          new Error("Authentication error. Please try logging in again.")
+        );
         return;
       }
 
-      updateProfile({
-        username: onboarding.data.username,
-        data: {
-          lookingFor: onboarding.data.lookingFor,
-          onboardingCompleted: true,
+      updateProfile(
+        {
+          username: onboarding.data.username,
+          data: {
+            lookingFor: onboarding.data.lookingFor,
+            onboardingCompleted: true,
+          },
         },
-      }, {
-        onSuccess: () => {
-          router.push("/");
-        },
-        onError: (err) => {
-          setError(err as Error);
-        },
-      });
+        {
+          onSuccess: () => {
+            router.push("/");
+          },
+          onError: (err) => {
+            setError(err as Error);
+          },
+        }
+      );
     }
   };
 
@@ -135,7 +173,8 @@ export function OnboardingLookingFor() {
         {/* Options */}
         <div className="flex w-full flex-col gap-4">
           {OPTIONS.map((option) => {
-            const isSelected = onboarding.data.lookingFor?.includes(option.id) ?? false;
+            const isSelected =
+              onboarding.data.lookingFor?.includes(option.id) ?? false;
             return (
               <button
                 key={option.id}

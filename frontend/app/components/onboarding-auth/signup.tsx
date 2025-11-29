@@ -12,10 +12,7 @@ import {
 } from "@/app/lib/schemas/auth-schema";
 import { Button } from "@/app/components/ui/buttons";
 import { ErrorMessage } from "@/app/components/ui/error-message";
-import {
-  checkUsernameAvailability,
-  checkEmailAvailability,
-} from "@/app/lib/api/endpoints/auth";
+import { checkUsernameAvailability } from "@/app/lib/api/endpoints/auth";
 
 export function OnboardingSignupStep() {
   const { onboarding, updateOnboardingData } = useAppStore();
@@ -43,9 +40,8 @@ export function OnboardingSignupStep() {
     },
   });
 
-  // Watch fields for changes
+  // Watch username for real-time validation
   const watchedUsername = watch("username");
-  const watchedEmail = watch("email");
 
   // Debounced username validation
   useEffect(() => {

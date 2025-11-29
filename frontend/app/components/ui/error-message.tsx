@@ -7,7 +7,7 @@ interface ErrorMessageProps {
 
 export function ErrorMessage({ message, className = "" }: ErrorMessageProps) {
   return (
-    <div className={`w-full text-xs text-maroon sm:text-sm ${className}`}>
+    <div className={`w-full py-2 text-xs text-maroon sm:text-sm ${className}`}>
       {message}
     </div>
   );
