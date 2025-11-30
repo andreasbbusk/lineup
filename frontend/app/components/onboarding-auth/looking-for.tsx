@@ -23,7 +23,7 @@ export function OnboardingLookingFor() {
   } = useOnboardingSubmission();
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-white px-4">
+    <div className="flex flex-col items-center justify-center bg-white px-4">
       <div className="flex w-full flex-col gap-10">
         <h3 className="text-lg font-semibold leading-[19px] tracking-[0.5px] text-black">
           I am looking to
