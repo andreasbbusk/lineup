@@ -5,26 +5,25 @@ import { UserProfile } from "../types/api-types";
 // Onboarding data interface
 interface OnboardingData {
   email: string;
-  password: string;
   username: string;
-  firstName: string;
-  lastName: string;
-  phoneCountryCode: string;
-  phoneNumber: string;
-  yearOfBirth: number;
+  first_name: string;
+  last_name: string;
+  phone_country_code: number;
+  phone_number: number;
+  year_of_birth: number;
   location: string;
-  userType: "musician" | "service_provider";
-  lookingFor: string[];
-  accountCreated?: boolean;
+  user_type: "musician" | "service_provider" | "other";
+  looking_for: string[];
+  account_created?: boolean;
 }
 
 // Combined store interface
 interface AppStore {
   // Auth state
   user: { id: string; email: string } | null;
-  accessToken: string | null;
+  access_token: string | null;
   profile: UserProfile | null;
-  isAuthenticated: boolean;
+  is_authenticated: boolean;
 
   // Onboarding state
   onboarding: {
@@ -33,21 +32,21 @@ interface AppStore {
   };
 
   // Auth actions
-  setAuth: (
+  set_auth: (
     user: { id: string; email: string },
-    accessToken: string,
-    profile: UserProfile
+    access_token: string,
+    profile: UserProfile | null
   ) => void;
-  clearAuth: () => void;
-  updateProfile: (profile: UserProfile) => void;
+  clear_auth: () => void;
+  update_profile: (profile: UserProfile) => void;
 
   // Onboarding actions
-  nextStep: () => void;
-  prevStep: () => void;
-  goToStep: (step: number) => void;
-  updateOnboardingData: (partial: Partial<OnboardingData>) => void;
-  resetOnboarding: () => void;
-  markAccountCreated: () => void;
+  next_step: () => void;
+  prev_step: () => void;
+  go_to_step: (step: number) => void;
+  update_onboarding_data: (partial: Partial<OnboardingData>) => void;
+  reset_onboarding: () => void;
+  mark_account_created: () => void;
 }
 
 export const useAppStore = create<AppStore>()(
@@ -55,41 +54,41 @@ export const useAppStore = create<AppStore>()(
     (set) => ({
       // Auth initial state
       user: null,
-      accessToken: null,
+      access_token: null,
       profile: null,
-      isAuthenticated: false,
+      is_authenticated: false,
 
       // Onboarding initial state
       onboarding: {
         step: 0,
-        data: { userType: "musician", lookingFor: [] },
+        data: { user_type: "musician", looking_for: [] },
       },
 
       // Auth actions
-      setAuth: (user, accessToken, profile) => {
+      set_auth: (user, access_token, profile) => {
         set({
           user,
-          accessToken,
+          access_token,
           profile,
-          isAuthenticated: true,
+          is_authenticated: true,
         });
       },
 
-      clearAuth: () => {
+      clear_auth: () => {
         set({
           user: null,
-          accessToken: null,
+          access_token: null,
           profile: null,
-          isAuthenticated: false,
+          is_authenticated: false,
         });
       },
 
-      updateProfile: (profile) => {
+      update_profile: (profile) => {
         set({ profile });
       },
 
       // Onboarding actions
-      nextStep: () =>
+      next_step: () =>
         set((state) => ({
           onboarding: {
             ...state.onboarding,
@@ -97,7 +96,7 @@ export const useAppStore = create<AppStore>()(
           },
         })),
 
-      prevStep: () =>
+      prev_step: () =>
         set((state) => ({
           onboarding: {
             ...state.onboarding,
@@ -105,7 +104,7 @@ export const useAppStore = create<AppStore>()(
           },
         })),
 
-      goToStep: (step) =>
+      go_to_step: (step) =>
         set((state) => ({
           onboarding: {
             ...state.onboarding,
@@ -113,7 +112,7 @@ export const useAppStore = create<AppStore>()(
           },
         })),
 
-      updateOnboardingData: (partial) =>
+      update_onboarding_data: (partial) =>
         set((state) => ({
           onboarding: {
             ...state.onboarding,
@@ -121,25 +120,33 @@ export const useAppStore = create<AppStore>()(
           },
         })),
 
-      resetOnboarding: () =>
+      reset_onboarding: () =>
         set({
           onboarding: {
             step: 0,
-            data: { userType: "musician", lookingFor: [] },
+            data: { user_type: "musician", looking_for: [] },
           },
         }),
 
-      markAccountCreated: () =>
+      mark_account_created: () =>
         set((state) => ({
           onboarding: {
             ...state.onboarding,
-            data: { ...state.onboarding.data, accountCreated: true },
+            data: { ...state.onboarding.data, account_created: true },
           },
         })),
     }),
     {
       name: "lineup_app_store",
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() =>
+        typeof window !== "undefined"
+          ? localStorage
+          : {
+              getItem: () => null,
+              setItem: () => {},
+              removeItem: () => {},
+            }
+      ),
     }
   )
 );
@@ -151,11 +158,11 @@ export const useOnboardingStore = () => {
   return {
     step: store.onboarding.step,
     data: store.onboarding.data,
-    nextStep: store.nextStep,
-    prevStep: store.prevStep,
-    goToStep: store.goToStep,
-    updateData: store.updateOnboardingData,
-    reset: store.resetOnboarding,
-    markAccountCreated: store.markAccountCreated,
+    nextStep: store.next_step,
+    prevStep: store.prev_step,
+    goToStep: store.go_to_step,
+    updateData: store.update_onboarding_data,
+    reset: store.reset_onboarding,
+    markAccountCreated: store.mark_account_created,
   };
 };

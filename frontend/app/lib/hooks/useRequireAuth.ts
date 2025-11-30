@@ -1,18 +1,32 @@
 "use client";
 
-import { useEffect } from "react";
+// Hook for later use in protected routes
+// Will likely be refactored later to use Next.js's proxy
+
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "../stores/app-store";
 
 export function useRequireAuth() {
   const router = useRouter();
-  const isAuthenticated = useAppStore((state) => state.isAuthenticated);
+  const is_authenticated = useAppStore((state) => state.is_authenticated);
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login");
-    }
-  }, [isAuthenticated, router]);
+    // Allow the store to hydrate from localStorage first
+    const timer = setTimeout(() => {
+      if (!is_authenticated) {
+        router.push("/login");
+      } else {
+        setIsChecking(false);
+      }
+    }, 100); // Small delay to let Zustand persist middleware load
 
-  return { isAuthenticated };
+    return () => clearTimeout(timer);
+  }, [is_authenticated, router]);
+
+  return {
+    isAuthenticated: is_authenticated,
+    isLoading: isChecking,
+  };
 }

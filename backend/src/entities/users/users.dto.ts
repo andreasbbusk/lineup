@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsBoolean,
   IsNumber,
+  IsArray,
   Length,
   Matches,
 } from "class-validator";
@@ -11,18 +12,18 @@ import { ProfileUpdateRequest } from "../../types/api.types.js";
 
 /**
  * DTO for updating user profile
- * Matches ProfileUpdateRequest API format (camelCase)
+ * Matches ProfileUpdateRequest API format (snake_case)
  */
 export class UpdateProfileDto implements ProfileUpdateRequest {
   @IsOptional()
   @IsString()
   @Length(1, 50)
-  firstName?: string;
+  first_name?: string;
 
   @IsOptional()
   @IsString()
   @Length(1, 50)
-  lastName?: string;
+  last_name?: string;
 
   @IsOptional()
   @IsString()
@@ -32,11 +33,11 @@ export class UpdateProfileDto implements ProfileUpdateRequest {
   @IsOptional()
   @IsString()
   @Length(0, 500)
-  aboutMe?: string;
+  about_me?: string;
 
   @IsOptional()
   @IsString()
-  avatarUrl?: string;
+  avatar_url?: string;
 
   @IsOptional()
   @IsString()
@@ -48,21 +49,34 @@ export class UpdateProfileDto implements ProfileUpdateRequest {
   @Matches(/^#[0-9A-Fa-f]{6}$/, {
     message: "Theme color must be a valid hex color (e.g., #FF5733)",
   })
-  themeColor?: string;
+  theme_color?: string;
 
   @IsOptional()
   @IsString()
-  spotifyPlaylistUrl?: string;
+  spotify_playlist_url?: string;
 
   @IsOptional()
   @IsNumber()
-  phoneCountryCode?: number;
+  phone_country_code?: number;
 
   @IsOptional()
   @IsNumber()
-  phoneNumber?: number;
+  phone_number?: number;
+
+  @IsOptional()
+  @IsNumber()
+  year_of_birth?: number;
+
+  @IsOptional()
+  @IsString()
+  user_type?: string;
 
   @IsOptional()
   @IsBoolean()
-  onboardingCompleted?: boolean;
+  onboarding_completed?: boolean;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  looking_for?: string[];
 }

@@ -3,7 +3,7 @@
 import { useOnboardingNavigation } from "@/app/lib/hooks/useOnboardingNavigation";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/app/components/ui/buttons";
 
 const SLIDES = [
@@ -21,158 +21,129 @@ const SLIDES = [
   },
 ];
 
+const SWIPE_THRESHOLD = 50; // Minimum pixels to trigger swipe
+
 export function OnboardingConceptSlider() {
   const { nextStep } = useOnboardingNavigation();
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [prevSlide, setPrevSlide] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [direction, setDirection] = useState<"left" | "right">("right");
-  const [showNewSlide, setShowNewSlide] = useState(true); // Start true to show first slide
-  const transitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null
-  );
 
-  const handleSlideChange = (newIndex: number) => {
-    if (newIndex === currentSlide) return;
-
-    if (transitionTimeoutRef.current) {
-      clearTimeout(transitionTimeoutRef.current);
-      transitionTimeoutRef.current = null;
-    }
-
-    const newDirection = newIndex > currentSlide ? "right" : "left";
-    setDirection(newDirection);
-    setPrevSlide(currentSlide);
-    setIsTransitioning(true);
-    setShowNewSlide(false);
-    setCurrentSlide(newIndex);
-
-    // Show new slide with initial position, then trigger transition
-    requestAnimationFrame(() => {
-      setShowNewSlide(true);
-    });
-
-    // Clean up after animation
-    transitionTimeoutRef.current = setTimeout(() => {
-      setIsTransitioning(false);
-      setShowNewSlide(false);
-      transitionTimeoutRef.current = null;
-    }, 500);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (transitionTimeoutRef.current) {
-        clearTimeout(transitionTimeoutRef.current);
-      }
-    };
-  }, []);
+  // Touch/swipe handling
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
 
   const goToNext = () => {
-    if (currentSlide < SLIDES.length - 1) {
-      handleSlideChange(currentSlide + 1);
-    }
+    setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
   };
 
   const goToPrev = () => {
-    if (currentSlide > 0) {
-      handleSlideChange(currentSlide - 1);
+    setCurrentSlide((prev) => (prev - 1 + SLIDES.length) % SLIDES.length);
+  };
+
+  // Touch handlers for mobile swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchEndX.current = null; // Reset end position
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    // If user just tapped (no move), ignore
+    if (touchStartX.current === null || touchEndX.current === null) {
+      touchStartX.current = null;
+      return;
     }
+
+    const diff = touchStartX.current - touchEndX.current;
+
+    if (Math.abs(diff) > SWIPE_THRESHOLD) {
+      if (diff > 0) {
+        goToNext(); // Swiped left, go to next
+      } else {
+        goToPrev(); // Swiped right, go to previous
+      }
+    }
+
+    // Reset refs
+    touchStartX.current = null;
+    touchEndX.current = null;
   };
 
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center bg-white px-4">
-      {/* Carousel container */}
-      <div className="flex items-center justify-center gap-4 sm:gap-8 mb-8 sm:mb-12 w-full max-w-md">
-        {/* Left arrow */}
+      {/* Carousel */}
+      <div className="mb-8 flex w-full max-w-md items-center justify-center gap-4 sm:mb-12 sm:gap-8">
+        {/* Left Arrow */}
         <button
           onClick={goToPrev}
-          disabled={currentSlide === 0}
-          className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-black disabled:opacity-30 shrink-0 transition-opacity"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-black transition-all hover:bg-gray-50 active:scale-90 sm:h-10 sm:w-10"
           aria-label="Previous slide"
         >
-          <ChevronLeftIcon className="w-6 h-6" />
+          <ChevronLeftIcon className="h-6 w-6" />
         </button>
 
-        {/* Slide content with transition */}
-        <div className="relative w-full max-w-[240px] sm:max-w-[280px] h-[220px] sm:h-[260px] overflow-hidden">
-          {/* Previous slide - sliding out */}
-          {isTransitioning && (
-            <div
-              className={`absolute inset-0 flex flex-col items-center gap-2 transition-transform duration-500 ease-in-out ${
-                direction === "right" ? "-translate-x-full" : "translate-x-full"
-              }`}
-            >
-              <div className="relative h-[160px] sm:h-[200px] w-full flex items-center justify-center mb-2">
-                <Image
-                  src={SLIDES[prevSlide].image}
-                  alt={SLIDES[prevSlide].title}
-                  fill
-                  className="object-contain"
-                />
-              </div>
-              <h2 className="text-lg sm:text-xl font-bold text-black text-center whitespace-pre-wrap">
-                {SLIDES[prevSlide].title}
-              </h2>
-            </div>
-          )}
-
-          {/* Current slide - sliding in */}
+        {/* Slides Container */}
+        <div
+          className="relative h-[220px] w-full max-w-[240px] touch-pan-y overflow-hidden sm:h-[260px] sm:max-w-[280px]"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           <div
-            className={`absolute inset-0 flex flex-col items-center gap-2 ${
-              isTransitioning ? "transition-transform duration-500 ease-in-out" : ""
-            } ${
-              !isTransitioning
-                ? "translate-x-0"
-                : showNewSlide
-                ? "translate-x-0"
-                : direction === "right"
-                ? "translate-x-full"
-                : "-translate-x-full"
-            }`}
+            className="flex h-full transition-transform duration-500 ease-in-out"
+            style={{ transform: `translateX(-${currentSlide * 100}%)` }}
           >
-            <div className="relative h-[160px] sm:h-[200px] w-full flex items-center justify-center mb-2">
-              <Image
-                src={SLIDES[currentSlide].image}
-                alt={SLIDES[currentSlide].title}
-                fill
-                className="object-contain"
-                priority={currentSlide === 0}
-              />
-            </div>
-            <h2 className="text-lg sm:text-xl font-bold text-black text-center whitespace-pre-wrap">
-              {SLIDES[currentSlide].title}
-            </h2>
+            {SLIDES.map((slide, index) => (
+              <div
+                key={index}
+                className="flex min-w-full flex-col items-center gap-2"
+              >
+                <div className="relative mb-2 flex h-[160px] w-full items-center justify-center sm:h-[200px]">
+                  <Image
+                    src={slide.image}
+                    alt={slide.title}
+                    fill
+                    className="pointer-events-none object-contain"
+                    priority={index === 0}
+                    draggable={false}
+                  />
+                </div>
+                <h2 className="whitespace-pre-wrap text-center text-lg font-bold text-black sm:text-xl">
+                  {slide.title}
+                </h2>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Right arrow */}
+        {/* Right Arrow */}
         <button
           onClick={goToNext}
-          disabled={currentSlide === SLIDES.length - 1}
-          className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-black disabled:opacity-30 shrink-0 transition-opacity"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-black transition-all hover:bg-gray-50 active:scale-90 sm:h-10 sm:w-10"
           aria-label="Next slide"
         >
-          <ChevronRightIcon className="w-6 h-6" />
+          <ChevronRightIcon className="h-6 w-6" />
         </button>
       </div>
 
-      {/* Pagination dots */}
-      <div className="flex gap-2 mb-6 sm:mb-8">
+      {/* Pagination Dots */}
+      <div className="mb-6 flex gap-2 sm:mb-8">
         {SLIDES.map((_, index) => (
           <button
             key={index}
-            onClick={() => handleSlideChange(index)}
-            disabled={isTransitioning}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
+            onClick={() => setCurrentSlide(index)}
+            className={`h-1.5 rounded-full transition-all duration-300 active:scale-90 ${
               index === currentSlide ? "w-4 bg-black" : "w-1.5 bg-gray-300"
             }`}
             aria-label={`Go to slide ${index + 1}`}
+            aria-current={index === currentSlide ? "true" : "false"}
           />
         ))}
       </div>
 
-      {/* Get started button */}
+      {/* Get Started Button */}
       <div className="mt-8">
         <Button type="button" variant="primary" onClick={nextStep}>
           Get started!

@@ -1,29 +1,50 @@
-import { Controller, Post, Route, Tags, Body } from "tsoa";
-import { signUp, signIn } from "./auth.service.js";
-import { SignupDto, LoginDto } from "./auth.dto.js";
-import { AuthResponse } from "../../types/api.types.js";
+import { Request as ExpressRequest } from "express";
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Request,
+  Route,
+  Security,
+  Tags,
+} from "tsoa";
+import { UserProfile } from "../../types/api.types.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
+import { extractBearerToken } from "../../utils/auth-helpers.js";
+import { CompleteProfileDto } from "./auth.dto.js";
+import { checkUsernameAvailability, completeProfile } from "./auth.service.js";
 
 @Route("auth")
 @Tags("Authentication")
 export class AuthController extends Controller {
   /**
-   * Sign up a new user
-   * Creates a new user account with email, password, and basic profile information
+   * Complete user profile after Supabase Auth account creation
+   * Used in onboarding flow where Auth account is created first, then profile is completed later
    */
-  @Post("/signup")
-  public async signup(@Body() body: SignupDto): Promise<AuthResponse> {
-    return handleControllerRequest(this, () => signUp(body), 201);
+  @Security("bearerAuth")
+  @Post("/complete-profile")
+  public async completeUserProfile(
+    @Request() request: ExpressRequest,
+    @Body() body: CompleteProfileDto
+  ): Promise<UserProfile> {
+    return handleControllerRequest(this, async () => {
+      const token = extractBearerToken(request);
+      return completeProfile(body, token);
+    });
   }
 
   /**
-   * Sign in an existing user
-   * Authenticates a user with email and password
+   * Check if a username is available
+   * Returns availability status for real-time validation
    */
-  @Post("/login")
-  public async login(@Body() body: LoginDto): Promise<AuthResponse> {
+  @Get("/check-username")
+  public async checkUsername(
+    @Query() username: string
+  ): Promise<{ available: boolean }> {
     return handleControllerRequest(this, () =>
-      signIn(body.email, body.password)
+      checkUsernameAvailability(username)
     );
   }
 }

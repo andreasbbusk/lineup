@@ -41,44 +41,33 @@ const expressAuthenticationRecasted = expressAuthentication as (req: ExRequest, 
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
+    "ProfileRow": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"year_of_birth":{"dataType":"double","required":true},"username":{"dataType":"string","required":true},"user_type":{"dataType":"string","required":true},"updated_at":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"theme_color":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"spotify_playlist_url":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"search_vector":{"dataType":"any","required":true},"phone_number":{"dataType":"double","required":true},"phone_country_code":{"dataType":"double","required":true},"onboarding_completed":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"location":{"dataType":"string","required":true},"last_name":{"dataType":"string","required":true},"id":{"dataType":"string","required":true},"first_name":{"dataType":"string","required":true},"created_at":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"blocked_users":{"dataType":"union","subSchemas":[{"dataType":"array","array":{"dataType":"string"}},{"dataType":"enum","enums":[null]}],"required":true},"bio":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"avatar_url":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"about_me":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "UserProfile": {
-        "dataType": "refObject",
-        "properties": {
-            "id": {"dataType":"string","required":true},
-            "username": {"dataType":"string","required":true},
-            "firstName": {"dataType":"string","required":true},
-            "lastName": {"dataType":"string","required":true},
-            "avatarUrl": {"dataType":"string"},
-            "bio": {"dataType":"string"},
-            "aboutMe": {"dataType":"string"},
-            "phoneCountryCode": {"dataType":"double"},
-            "phoneNumber": {"dataType":"double"},
-            "yearOfBirth": {"dataType":"double"},
-            "location": {"dataType":"string","required":true},
-            "userType": {"dataType":"string","required":true},
-            "themeColor": {"dataType":"string"},
-            "spotifyPlaylistUrl": {"dataType":"string"},
-            "onboardingCompleted": {"dataType":"boolean","required":true},
-            "createdAt": {"dataType":"string","required":true},
-            "updatedAt": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
+        "dataType": "refAlias",
+        "type": {"ref":"ProfileRow","validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "UpdateProfileDto": {
         "dataType": "refObject",
         "properties": {
-            "firstName": {"dataType":"string"},
-            "lastName": {"dataType":"string"},
+            "first_name": {"dataType":"string"},
+            "last_name": {"dataType":"string"},
             "bio": {"dataType":"string"},
-            "aboutMe": {"dataType":"string"},
-            "avatarUrl": {"dataType":"string"},
+            "about_me": {"dataType":"string"},
+            "avatar_url": {"dataType":"string"},
             "location": {"dataType":"string"},
-            "themeColor": {"dataType":"string"},
-            "spotifyPlaylistUrl": {"dataType":"string"},
-            "phoneCountryCode": {"dataType":"double"},
-            "phoneNumber": {"dataType":"double"},
-            "onboardingCompleted": {"dataType":"boolean"},
+            "theme_color": {"dataType":"string"},
+            "spotify_playlist_url": {"dataType":"string"},
+            "phone_country_code": {"dataType":"double"},
+            "phone_number": {"dataType":"double"},
+            "year_of_birth": {"dataType":"double"},
+            "user_type": {"dataType":"string"},
+            "onboarding_completed": {"dataType":"boolean"},
+            "looking_for": {"dataType":"array","array":{"dataType":"string"}},
         },
         "additionalProperties": false,
     },
@@ -120,38 +109,17 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "AuthResponse": {
+    "CompleteProfileDto": {
         "dataType": "refObject",
         "properties": {
-            "user": {"dataType":"nestedObjectLiteral","nestedProperties":{"createdAt":{"dataType":"string","required":true},"email":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}},"required":true},
-            "session": {"dataType":"nestedObjectLiteral","nestedProperties":{"expiresAt":{"dataType":"double","required":true},"expiresIn":{"dataType":"double","required":true},"refreshToken":{"dataType":"string","required":true},"accessToken":{"dataType":"string","required":true}},"required":true},
-            "profile": {"ref":"UserProfile","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "SignupDto": {
-        "dataType": "refObject",
-        "properties": {
-            "email": {"dataType":"string","required":true},
-            "password": {"dataType":"string","required":true},
             "username": {"dataType":"string","required":true},
-            "firstName": {"dataType":"string","required":true},
-            "lastName": {"dataType":"string","required":true},
-            "phoneCountryCode": {"dataType":"double","required":true},
-            "phoneNumber": {"dataType":"double","required":true},
-            "yearOfBirth": {"dataType":"double","required":true},
+            "first_name": {"dataType":"string","required":true},
+            "last_name": {"dataType":"string","required":true},
+            "phone_country_code": {"dataType":"double","required":true},
+            "phone_number": {"dataType":"double","required":true},
+            "year_of_birth": {"dataType":"double","required":true},
             "location": {"dataType":"string","required":true},
-            "userType": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["musician"]},{"dataType":"enum","enums":["service_provider"]},{"dataType":"enum","enums":["other"]}],"required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "LoginDto": {
-        "dataType": "refObject",
-        "properties": {
-            "email": {"dataType":"string","required":true},
-            "password": {"dataType":"string","required":true},
+            "user_type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["musician"]},{"dataType":"enum","enums":["service_provider"]},{"dataType":"enum","enums":["other"]}],"required":true},
         },
         "additionalProperties": false,
     },
@@ -162,7 +130,7 @@ const models: TsoaRoute.Models = {
             "id": {"dataType":"string","required":true},
             "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["tag"]},{"dataType":"enum","enums":["genre"]},{"dataType":"enum","enums":["artist"]}],"required":true},
             "name": {"dataType":"string","required":true},
-            "createdAt": {"dataType":"string","required":true},
+            "created_at": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -291,25 +259,27 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsAuthController_signup: Record<string, TsoaRoute.ParameterSchema> = {
-                body: {"in":"body","name":"body","required":true,"ref":"SignupDto"},
+        const argsAuthController_completeUserProfile: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+                body: {"in":"body","name":"body","required":true,"ref":"CompleteProfileDto"},
         };
-        app.post('/auth/signup',
+        app.post('/auth/complete-profile',
+            authenticateMiddleware([{"bearerAuth":[]}]),
             ...(fetchMiddlewares<RequestHandler>(AuthController)),
-            ...(fetchMiddlewares<RequestHandler>(AuthController.prototype.signup)),
+            ...(fetchMiddlewares<RequestHandler>(AuthController.prototype.completeUserProfile)),
 
-            async function AuthController_signup(request: ExRequest, response: ExResponse, next: any) {
+            async function AuthController_completeUserProfile(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsAuthController_signup, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsAuthController_completeUserProfile, request, response });
 
                 const controller = new AuthController();
 
               await templateService.apiHandler({
-                methodName: 'signup',
+                methodName: 'completeUserProfile',
                 controller,
                 response,
                 next,
@@ -321,25 +291,25 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsAuthController_login: Record<string, TsoaRoute.ParameterSchema> = {
-                body: {"in":"body","name":"body","required":true,"ref":"LoginDto"},
+        const argsAuthController_checkUsername: Record<string, TsoaRoute.ParameterSchema> = {
+                username: {"in":"query","name":"username","required":true,"dataType":"string"},
         };
-        app.post('/auth/login',
+        app.get('/auth/check-username',
             ...(fetchMiddlewares<RequestHandler>(AuthController)),
-            ...(fetchMiddlewares<RequestHandler>(AuthController.prototype.login)),
+            ...(fetchMiddlewares<RequestHandler>(AuthController.prototype.checkUsername)),
 
-            async function AuthController_login(request: ExRequest, response: ExResponse, next: any) {
+            async function AuthController_checkUsername(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsAuthController_login, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsAuthController_checkUsername, request, response });
 
                 const controller = new AuthController();
 
               await templateService.apiHandler({
-                methodName: 'login',
+                methodName: 'checkUsername',
                 controller,
                 response,
                 next,

@@ -2,93 +2,141 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useLoginMutation } from "@/app/lib/query/mutations/auth.mutations";
 import { ErrorMessage } from "@/app/components/ui/error-message";
+import { loginSchema, type LoginFormData } from "@/app/lib/schemas/auth-schema";
+import { Button } from "../ui/buttons";
 
 export function LoginWrapper() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    mode: "onChange",
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
   const { mutate: login, isPending, error } = useLoginMutation();
 
-  const emailIsValid = /\S+@\S+\.\S+/.test(email);
-  const canSubmit = emailIsValid && password.length > 0;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (canSubmit) {
-      login({ email, password });
-    }
+  const onSubmit = (data: LoginFormData) => {
+    login({ email: data.email, password: data.password });
   };
 
   return (
-    <main className="space-y-10">
-      <section className="space-y-6">
-        <header className="space-y-2 text-center">
-          <p className="text-sm uppercase tracking-widest text-grey">
-            Welcome back
-          </p>
-          <h1 className="text-h1 font-semibold text-foreground">Sign in</h1>
-          <p className="text-body text-grey">
-            Access your messages, posts and collaborations.
-          </p>
-        </header>
+    <div className="flex w-full max-w-lg flex-col items-center justify-center gap-6 sm:gap-8">
+      <h1 className="text-xl font-bold leading-6 tracking-[0.18px] text-grey sm:text-2xl">
+        Login
+      </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && <ErrorMessage message={error.message} />}
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex w-full max-w-65 flex-col gap-3 sm:gap-4"
+      >
+        {/* Global Error Message */}
+        {error && <ErrorMessage message={error.message} />}
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-2xl border border-light-grey bg-light-grey/50 px-4 py-3 text-sm outline-none focus:border-blackberry-harvest"
-              placeholder="name@example.com"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-2xl border border-light-grey bg-light-grey/50 px-4 py-3 text-sm outline-none focus:border-blackberry-harvest"
-              placeholder="••••••••"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={!canSubmit || isPending}
-            className="w-full rounded-2xl bg-blackberry-harvest py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
-          >
-            {isPending ? "Signing in..." : "Sign in"}
-          </button>
-
-          <Link
-            href="#"
-            className="block text-center text-sm font-medium text-grey transition hover:text-foreground"
-          >
-            Forgot password?
-          </Link>
-        </form>
-
-        <div className="text-center text-sm text-grey">
-          Don&apos;t have an account?{" "}
-          <Link
-            href="/onboarding"
-            className="font-semibold text-blackberry-harvest transition hover:opacity-80"
-          >
-            Create profile
-          </Link>
+        {/* Email Field */}
+        <div>
+          <input
+            id="email"
+            type="email"
+            {...register("email")}
+            className={`w-full rounded-lg border px-3 py-2.5 text-sm placeholder:text-input-placeholder sm:text-base ${
+              errors.email ? "border-maroon bg-maroon/5" : "border-black/10"
+            }`}
+            placeholder="Enter your email"
+            disabled={isPending}
+            autoComplete="email"
+          />
+          {errors.email && (
+            <ErrorMessage message={errors.email.message || ""} />
+          )}
         </div>
-      </section>
-    </main>
+
+        {/* Password Field */}
+        <div>
+          <div className="relative">
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              {...register("password")}
+              className={`w-full rounded-lg border px-3 py-2.5 pr-10 text-sm placeholder:text-input-placeholder sm:text-base ${
+                errors.password
+                  ? "border-maroon bg-maroon/5"
+                  : "border-black/10"
+              }`}
+              placeholder="Enter your password"
+              disabled={isPending}
+              autoComplete="current-password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-grey transition-colors hover:text-black"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              tabIndex={-1}
+            >
+              {showPassword ? (
+                <EyeOffIcon className="h-5 w-5" />
+              ) : (
+                <EyeIcon className="h-5 w-5" />
+              )}
+            </button>
+          </div>
+          {errors.password && (
+            <ErrorMessage message={errors.password.message || ""} />
+          )}
+        </div>
+
+        {/* Submit Button */}
+        <Button
+          type="submit"
+          variant="primary"
+          disabled={!isValid || isPending}
+          className="mx-auto w-full max-w-28 rounded-full bg-yellow px-6 py-2 text-sm font-medium text-black transition-all hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
+          onClick={() => {}}
+        >
+          {isPending ? "Signing in..." : "Sign in"}
+        </Button>
+
+        <p className="text-center text-sm text-text-secondary sm:text-base">
+          or
+        </p>
+
+        {/* OAuth Buttons */}
+        <button
+          type="button"
+          disabled
+          className="mx-auto w-full max-w-48 rounded-full border border-black/20 bg-white py-2 text-sm font-medium text-black transition-all hover:bg-gray-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
+        >
+          Login with Google
+        </button>
+
+        <button
+          type="button"
+          disabled
+          className="mx-auto w-full max-w-48 rounded-full border border-black/20 bg-white py-2 text-sm font-medium text-black transition-all hover:bg-gray-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
+        >
+          Login with AppleID
+        </button>
+      </form>
+
+      <p className="w-full px-2 text-center text-sm text-text-secondary sm:text-base">
+        Don&apos;t have an account?{" "}
+        <Link href="/onboarding" className="text-link-blue hover:underline">
+          Sign Up
+        </Link>
+      </p>
+    </div>
   );
 }

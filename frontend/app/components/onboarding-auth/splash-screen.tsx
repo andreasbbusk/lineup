@@ -5,34 +5,47 @@ import { useOnboardingNavigation } from "@/app/lib/hooks/useOnboardingNavigation
 import Image from "next/image";
 
 const LOGO_URL = "/logos/big_logos/Frame 155.svg";
+const DISPLAY_DURATION = 2000; // How long to show splash
+const EXIT_ANIMATION_DURATION = 500; // Fade out duration
 
 export function OnboardingSplash() {
   const { nextStep } = useOnboardingNavigation();
   const [isExiting, setIsExiting] = useState(false);
 
-  const handleExit = () => {
-    setIsExiting(true);
-    setTimeout(() => {
-      nextStep();
-    }, 500); // Match animation duration
-  };
-
   useEffect(() => {
-    const timer = setTimeout(() => {
-      handleExit();
-    }, 2000);
+    // Start exit animation after display duration
+    const exitTimer = setTimeout(() => {
+      setIsExiting(true);
+    }, DISPLAY_DURATION);
 
-    return () => clearTimeout(timer);
-  }, []);
+    // Navigate after exit animation completes
+    const navigationTimer = setTimeout(() => {
+      nextStep();
+    }, DISPLAY_DURATION + EXIT_ANIMATION_DURATION);
+
+    // Cleanup both timers if component unmounts
+    return () => {
+      clearTimeout(exitTimer);
+      clearTimeout(navigationTimer);
+    };
+  }, [nextStep]);
 
   return (
-    <div className="fixed w-full h-full bg-crocus-yellow inset-0 flex items-center justify-center">
+    <div className="fixed inset-0 flex h-full w-full items-center justify-center bg-crocus-yellow">
       <div
-        className={`transition-all duration-500 ease-in-out ${
-          isExiting ? "opacity-0 scale-120" : "opacity-100 scale-100"
+        className={`transition-all duration-500 ease-in-out motion-reduce:transition-none ${
+          isExiting
+            ? "scale-110 opacity-0"
+            : "scale-100 opacity-100"
         }`}
       >
-        <Image src={LOGO_URL} width={250} height={80} alt="LineUp Logo" />
+        <Image
+          src={LOGO_URL}
+          width={250}
+          height={80}
+          alt="LineUp Logo"
+          priority // Load immediately (above the fold)
+        />
       </div>
     </div>
   );

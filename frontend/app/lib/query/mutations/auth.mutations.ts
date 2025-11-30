@@ -2,93 +2,34 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { login, signup } from "../../api/endpoints/auth";
+import { completeProfile, signInWithAuth } from "../../api/endpoints/auth";
 import { useAppStore } from "../../stores/app-store";
-import { SignupRequest, UserProfile } from "../../types/api-types";
-import { supabase } from "../../supabase/client";
+import { CompleteProfileRequest } from "../../types/api-types";
 
-export function useSignupMutation() {
-  const setAuth = useAppStore((state) => state.setAuth);
-  const router = useRouter();
+export function useCompleteProfileMutation() {
+  const update_profile = useAppStore((state) => state.update_profile);
 
   return useMutation({
-    mutationFn: (data: SignupRequest) => signup(data),
-    onSuccess: (response) => {
-      setAuth(response.user, response.session.accessToken, response.profile);
-      router.push("/");
-    },
-  });
-}
-
-export function useSignupBasicMutation() {
-  const setAuth = useAppStore((state) => state.setAuth);
-
-  return useMutation({
-    mutationFn: async ({
-      email,
-      password,
-      username,
-    }: {
-      email: string;
-      password: string;
-      username: string;
-    }) => {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            username: username,
-          },
-        },
-      });
-
-      if (error) throw error;
-      if (!data.user || !data.session) throw new Error("Signup failed");
-
-      return { user: data.user, session: data.session };
-    },
-    onSuccess: ({ user, session }) => {
-      // Store auth token but DON'T redirect - user continues onboarding
-      // Use the username from user metadata
-      const username =
-        user.user_metadata?.username || user.email!.split("@")[0];
-
-      const minimalProfile = {
-        id: user.id,
-        email: user.email!,
-        username: username,
-        onboardingCompleted: false,
-        createdAt: user.created_at,
-        updatedAt: user.updated_at || user.created_at,
-        // Add other required fields with defaults
-        firstName: "",
-        lastName: "",
-        location: "",
-        userType: "",
-      };
-
-      setAuth(
-        { id: user.id, email: user.email! },
-        session.access_token,
-        minimalProfile as unknown as UserProfile
-      );
+    mutationFn: (data: CompleteProfileRequest) => completeProfile(data),
+    onSuccess: (profile) => {
+      update_profile(profile);
     },
   });
 }
 
 export function useLoginMutation() {
-  const setAuth = useAppStore((state) => state.setAuth);
+  const set_auth = useAppStore((state) => state.set_auth);
   const router = useRouter();
 
   return useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) =>
-      login(email, password),
+      signInWithAuth(email, password),
     onSuccess: (response) => {
-      setAuth(response.user, response.session.accessToken, response.profile);
+      set_auth(response.user, response.session.access_token, response.profile);
 
-      if (!response.profile.onboardingCompleted) {
-        router.push("/onboarding");
+      // Smart redirect based on onboarding status
+      if (!response.profile.onboarding_completed) {
+        router.push("/onboarding?step=2");
       } else {
         router.push("/");
       }

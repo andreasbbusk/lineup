@@ -1,6 +1,7 @@
+// frontend/app/components/onboarding-auth/info-form.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -14,7 +15,6 @@ import { Combobox } from "@/app/components/ui/combobox";
 import { NORDIC_CITIES as OPTIONS } from "@/app/lib/constants/onboarding";
 import { ErrorMessage } from "../ui/error-message";
 import { useOnboardingNavigation } from "@/app/lib/hooks/useOnboardingNavigation";
-import { checkPhoneAvailability } from "@/app/lib/utils/supabase-validation";
 
 interface CountryCodeDisplayProps {
   flag: string;
@@ -57,139 +57,88 @@ const COUNTRY_CODES = [
 ];
 
 export function OnboardingBasicInfoForm() {
-  const { onboarding, updateOnboardingData } = useAppStore();
+  const { onboarding, update_onboarding_data } = useAppStore();
   const { nextStep } = useOnboardingNavigation();
 
-  // State to track the full name input
   const [fullName, setFullName] = useState(
-    onboarding.data.firstName && onboarding.data.lastName ? `${onboarding.data.firstName} ${onboarding.data.lastName}` : ""
+    [onboarding.data.first_name, onboarding.data.last_name]
+      .filter(Boolean)
+      .join(" ")
   );
-
-  // State to track phone validation
-  const [phoneValidation, setPhoneValidation] = useState<{
-    checking: boolean;
-    available: boolean | null;
-    message: string;
-  }>({ checking: false, available: null, message: "" });
 
   const {
     register,
     handleSubmit,
     control,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<BasicInfoFormData>({
     resolver: zodResolver(basicInfoSchema),
     mode: "onChange",
     defaultValues: {
-      firstName: onboarding.data.firstName || "",
-      lastName: onboarding.data.lastName || "",
-      countryCode: onboarding.data.phoneCountryCode || "+45",
-      phoneNumber: onboarding.data.phoneNumber || "",
-      yearOfBirth: onboarding.data.yearOfBirth?.toString() || "",
-      city: onboarding.data.location || "",
+      first_name: onboarding.data.first_name || "",
+      last_name: onboarding.data.last_name || "",
+      country_code: onboarding.data.phone_country_code
+        ? `+${onboarding.data.phone_country_code}`
+        : "+45",
+      phone_number: onboarding.data.phone_number?.toString() || "",
+      year_of_birth: onboarding.data.year_of_birth?.toString() || "",
+      location: onboarding.data.location || "",
     },
   });
 
-  // Watch phone field for changes
-  const watchedPhone = watch("phoneNumber");
-  const watchedCountryCode = watch("countryCode");
-
-  // Debounced phone validation
-  useEffect(() => {
-    if (!watchedPhone || watchedPhone.length < 8) {
-      setPhoneValidation({ checking: false, available: null, message: "" });
-      return;
-    }
-
-    setPhoneValidation({
-      checking: true,
-      available: null,
-      message: "Checking availability...",
-    });
-
-    const timeoutId = setTimeout(async () => {
-      const result = await checkPhoneAvailability(watchedPhone, watchedCountryCode);
-      setPhoneValidation({
-        checking: false,
-        available: result.available,
-        message:
-          result.error || (result.available ? "Phone number is available" : "Phone number is already registered"),
-      });
-    }, 500); // 500ms debounce
-
-    return () => clearTimeout(timeoutId);
-  }, [watchedPhone, watchedCountryCode]);
-
   const onSubmit = (formData: BasicInfoFormData) => {
-    updateOnboardingData({
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      phoneCountryCode: formData.countryCode,
-      phoneNumber: formData.phoneNumber,
-      yearOfBirth: Number(formData.yearOfBirth),
-      location: formData.city,
+    update_onboarding_data({
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      phone_country_code: parseInt(formData.country_code.replace("+", ""), 10),
+      phone_number: parseInt(formData.phone_number, 10),
+      year_of_birth: Number(formData.year_of_birth),
+      location: formData.location,
     });
     nextStep();
   };
 
+  const handleNameChange = (value: string) => {
+    setFullName(value);
+    const nameParts = value.trim().split(/\s+/);
+
+    if (nameParts.length >= 2) {
+      setValue("first_name", nameParts[0], { shouldValidate: true });
+      setValue("last_name", nameParts.slice(1).join(" "), {
+        shouldValidate: true,
+      });
+    } else {
+      setValue("first_name", value.trim(), { shouldValidate: true });
+      setValue("last_name", "", { shouldValidate: true });
+    }
+  };
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-white px-4">
-      <form
-        onSubmit={handleSubmit(
-          (data) => {
-            console.log("Form submitted successfully", data);
-            onSubmit(data);
-          },
-          (errors) => {
-            console.log("Form validation errors", errors);
-          }
-        )}
-        className="w-full"
-      >
+    <div className="flex flex-col items-center justify-center bg-white px-4">
+
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full">
         <div className="flex flex-col gap-8">
           {/* Full Name */}
           <div className="flex flex-col gap-4">
-            <label className="text-lg font-semibold leading-[19px] tracking-[0.5px] text-black">
+            <label className="text-lg font-semibold text-black">
               Full name
             </label>
             <input
               type="text"
               value={fullName}
               placeholder="Enter your full name"
-              className={`w-full rounded-lg border px-2.5 py-2.5 text-base leading-normal tracking-[0.5px] placeholder:text-input-placeholder ${
-                errors.firstName || errors.lastName
+              className={`w-full rounded-lg border px-2.5 py-2.5 text-base ${
+                errors.first_name || errors.last_name
                   ? "border-maroon bg-maroon/5"
                   : "border-black/10"
               }`}
-              onChange={(e) => {
-                const value = e.target.value;
-                setFullName(value);
-
-                const nameParts = value.trim().split(/\s+/);
-
-                if (nameParts.length >= 2) {
-                  // First word is firstName, rest is lastName
-                  const firstName = nameParts[0];
-                  const lastName = nameParts.slice(1).join(" ");
-                  setValue("firstName", firstName, { shouldValidate: true });
-                  setValue("lastName", lastName, { shouldValidate: true });
-                } else if (nameParts.length === 1 && nameParts[0]) {
-                  // Only one word entered - set as firstName
-                  setValue("firstName", nameParts[0], { shouldValidate: true });
-                  setValue("lastName", "", { shouldValidate: true });
-                } else {
-                  // Empty input
-                  setValue("firstName", "", { shouldValidate: true });
-                  setValue("lastName", "", { shouldValidate: true });
-                }
-              }}
+              onChange={(e) => handleNameChange(e.target.value)}
             />
-            {(errors.firstName || errors.lastName) && (
+            {(errors.first_name || errors.last_name) && (
               <ErrorMessage
                 message={
-                  errors.firstName?.message || errors.lastName?.message || ""
+                  errors.first_name?.message || errors.last_name?.message || ""
                 }
               />
             )}
@@ -197,64 +146,45 @@ export function OnboardingBasicInfoForm() {
 
           {/* Phone Number */}
           <div className="flex flex-col gap-4">
-            <label className="text-lg font-semibold leading-[19px] tracking-[0.5px] text-black">
+            <label className="text-lg font-semibold text-black">
               Phone number
             </label>
             <div className="flex gap-3">
               <Controller
-                name="countryCode"
+                name="country_code"
                 control={control}
                 render={({ field }) => (
                   <CustomSelect
                     value={field.value}
                     onAction={field.onChange}
-                    options={COUNTRY_CODES.map((country) => ({
-                      value: country.value,
-                      label: country.label,
-                      display: country.display,
-                    }))}
+                    options={COUNTRY_CODES}
                     triggerWidth="w-fit gap-1!"
                   />
                 )}
               />
               <input
-                {...register("phoneNumber")}
+                {...register("phone_number")}
                 type="tel"
                 placeholder="Phone number"
-                className={`flex rounded-lg border px-2.5 py-2 leading-normal tracking-[0.5px] placeholder:text-input-placeholder ${
-                  errors.phoneNumber || phoneValidation.available === false
+                className={`flex rounded-lg border px-2.5 py-2 ${
+                  errors.phone_number
                     ? "border-maroon bg-maroon/5"
-                    : phoneValidation.available === true
-                    ? "border-green-500 bg-green-50"
                     : "border-black/10"
                 }`}
               />
             </div>
-            {errors.phoneNumber && (
-              <ErrorMessage message={errors.phoneNumber.message || ""} />
-            )}
-            {!errors.phoneNumber && phoneValidation.message && (
-              <p
-                className={`mt-1 text-sm ${
-                  phoneValidation.checking
-                    ? "text-gray-500"
-                    : phoneValidation.available
-                    ? "text-green-600"
-                    : "text-maroon"
-                }`}
-              >
-                {phoneValidation.message}
-              </p>
+            {errors.phone_number && (
+              <ErrorMessage message={errors.phone_number.message || ""} />
             )}
           </div>
 
           {/* Year of Birth */}
           <div className="flex flex-col gap-4">
-            <label className="text-lg font-semibold leading-[19px] tracking-[0.5px] text-black">
+            <label className="text-lg font-semibold text-black">
               Year of birth
             </label>
             <Controller
-              name="yearOfBirth"
+              name="year_of_birth"
               control={control}
               render={({ field }) => (
                 <CustomSelect
@@ -268,35 +198,35 @@ export function OnboardingBasicInfoForm() {
                     label: year.toString(),
                   }))}
                   placeholder="Enter your year of birth"
-                  error={!!errors.yearOfBirth}
+                  error={!!errors.year_of_birth}
                 />
               )}
             />
-            {errors.yearOfBirth && (
-              <ErrorMessage message={errors.yearOfBirth.message || ""} />
+            {errors.year_of_birth && (
+              <ErrorMessage message={errors.year_of_birth.message || ""} />
             )}
           </div>
 
-          {/* Where do you live? */}
+          {/* Location */}
           <div className="flex flex-col gap-4">
-            <label className="text-lg font-semibold leading-[19px] tracking-[0.5px] text-black">
+            <label className="text-lg font-semibold text-black">
               Where do you live?
             </label>
             <Controller
-              name="city"
+              name="location"
               control={control}
               render={({ field }) => (
                 <Combobox
                   value={field.value}
                   onAction={field.onChange}
                   options={OPTIONS}
-                  placeholder="Enter your city"
-                  error={!!errors.city}
+                  placeholder="Enter your location"
+                  error={!!errors.location}
                 />
               )}
             />
-            {errors.city && (
-              <ErrorMessage message={errors.city.message || ""} />
+            {errors.location && (
+              <ErrorMessage message={errors.location.message || ""} />
             )}
           </div>
         </div>
@@ -307,10 +237,6 @@ export function OnboardingBasicInfoForm() {
             variant="primary"
             onClick={() => {}}
             className="font-normal px-5 py-1!"
-            disabled={
-              phoneValidation.checking ||
-              phoneValidation.available === false
-            }
           >
             Continue
           </Button>
