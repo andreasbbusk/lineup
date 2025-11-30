@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useOnboardingNavigation } from "@/app/lib/hooks/useOnboardingNavigation";
 import Image from "next/image";
 
-const LOGO_URL = "/logos/big_logos/Frame 155.svg";
+const LOGO_URL = "/logos/big_logos/no-bg.svg";
 const DISPLAY_DURATION = 2000; // How long to show splash
 const EXIT_ANIMATION_DURATION = 500; // Fade out duration
 

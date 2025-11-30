@@ -4,7 +4,6 @@ import {
   SUPABASE_URL,
   supabase,
 } from "../../config/supabase.js";
-import { UserProfile } from "../../types/api.types.js";
 import { Database } from "../../types/supabase.js";
 import { createHttpError } from "../../utils/error-handler.js";
 import { ProfileRow } from "../../utils/supabase-helpers.js";
@@ -68,86 +67,6 @@ async function createUserProfile(
 // --- Core Auth Functions ---
 
 /**
- * Complete user profile after Supabase Auth account was created
- * @param data Profile completion data
- * @param token Bearer token for authentication
- * @returns The created user profile
- */
-export async function completeProfile(
-  data: CompleteProfileDto,
-  token: string
-): Promise<UserProfile> {
-  const validatedData = await validateDto(CompleteProfileDto, data);
-
-  if (!validatePhoneNumberLength(validatedData.phone_number)) {
-    throw createHttpError({
-      message: "Phone number must be between 4 and 15 digits",
-      statusCode: 400,
-      code: "VALIDATION_ERROR",
-    });
-  }
-
-  if (!validateYearOfBirth(validatedData.year_of_birth)) {
-    throw createHttpError({
-      message: "You must be at least 13 years old",
-      statusCode: 400,
-      code: "VALIDATION_ERROR",
-    });
-  }
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser(token);
-
-  if (authError || !user) {
-    throw createHttpError({
-      message: "Invalid or expired authentication token",
-      statusCode: 401,
-      code: "UNAUTHORIZED",
-    });
-  }
-
-  const { data: existingUsername } = await supabase
-    .from("profiles")
-    .select("id, username")
-    .eq("username", validatedData.username)
-    .maybeSingle();
-
-  if (existingUsername && existingUsername.id !== user.id) {
-    throw createHttpError({
-      message: "Username is already taken",
-      statusCode: 409,
-      code: "CONFLICT",
-    });
-  }
-
-  const { data: existingPhone } = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("phone_country_code", validatedData.phone_country_code)
-    .eq("phone_number", validatedData.phone_number)
-    .maybeSingle();
-
-  if (existingPhone && existingPhone.id !== user.id) {
-    throw createHttpError({
-      message: "An account with this phone number already exists",
-      statusCode: 409,
-      code: "CONFLICT",
-    });
-  }
-
-  const profile = await createUserProfile(
-    user.id,
-    validatedData.username,
-    validatedData,
-    token
-  );
-
-  return profile as UserProfile;
-}
-
-/**
  * Check if username is available
  * @param username Username to check
  * @returns Object containing available boolean
@@ -167,3 +86,6 @@ export async function checkUsernameAvailability(
 
   return { available: !existingProfile };
 }
+
+// Export createUserProfile for use in onboarding Step 2
+export { createUserProfile };

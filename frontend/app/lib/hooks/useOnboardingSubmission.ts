@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/app/lib/stores/app-store";
-import { useCompleteProfileMutation } from "@/app/lib/query/mutations/auth.mutations";
 import { useUpdateProfileMutation } from "@/app/lib/query/mutations/profile.mutations";
 
 export function useOnboardingSubmission() {
@@ -11,12 +10,8 @@ export function useOnboardingSubmission() {
     useAppStore();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const { mutateAsync: completeProfile, isPending: isCompleting } =
-    useCompleteProfileMutation();
-  const { mutateAsync: updateProfile, isPending: isUpdating } =
+  const { mutateAsync: updateProfile, isPending } =
     useUpdateProfileMutation();
-
-  const isPending = isCompleting || isUpdating;
 
   const toggleOption = (id: string) => {
     const current = onboarding.data.looking_for || [];
@@ -52,24 +47,18 @@ export function useOnboardingSubmission() {
     }
 
     try {
-      // Step 1: Complete Profile
-      await completeProfile({
-        username: data.username,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        phone_country_code: data.phone_country_code,
-        phone_number: data.phone_number,
-        year_of_birth: data.year_of_birth,
-        location: data.location,
-        user_type: data.user_type || "musician",
-      });
-
-      // Step 2: Update Preferences
+      // Single call to updateProfile with all onboarding data
       await updateProfile({
         username: data.username,
         data: {
-          looking_for: data.looking_for,
-          onboarding_completed: true,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          phone_country_code: data.phone_country_code,
+          phone_number: data.phone_number,
+          year_of_birth: data.year_of_birth,
+          location: data.location,
+          user_type: data.user_type || "musician",
+          looking_for: data.looking_for || [],
         },
       });
 

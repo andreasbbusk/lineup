@@ -6,7 +6,7 @@ import { Button } from "@/app/components/ui/buttons";
 import { CheckboxCircle } from "@/app/components/ui/checkbox-circle";
 import Image from "next/image";
 
-const LOGO_ICON = "/logos/small_logos/Frame 152.svg";
+const LOGO_ICON = "/logos/small_logos/white-and-yellow.svg";
 
 const USER_TYPES = [
   {
