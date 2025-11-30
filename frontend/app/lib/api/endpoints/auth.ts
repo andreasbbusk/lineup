@@ -2,7 +2,6 @@ import { supabase } from "../../supabase/client";
 import {
   AuthResponse,
   AvailabilityResponse,
-  CompleteProfileRequest,
   SignupWithAuthRequest,
   UserProfile,
 } from "../../types/api-types";
@@ -103,10 +102,4 @@ export async function checkUsernameAvailability(
   return apiClient.get<AvailabilityResponse>(
     `/auth/check-username?${params.toString()}`
   );
-}
-
-export async function completeProfile(
-  data: CompleteProfileRequest
-): Promise<UserProfile> {
-  return apiClient.post<UserProfile>("/auth/complete-profile", data);
 }

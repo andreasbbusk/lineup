@@ -278,55 +278,6 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"CompleteProfileDto": {
-				"description": "DTO for completing profile after Auth account creation\nUsed when Supabase Auth account already exists but profile needs to be created",
-				"properties": {
-					"username": {
-						"type": "string"
-					},
-					"first_name": {
-						"type": "string"
-					},
-					"last_name": {
-						"type": "string"
-					},
-					"phone_country_code": {
-						"type": "number",
-						"format": "double"
-					},
-					"phone_number": {
-						"type": "number",
-						"format": "double"
-					},
-					"year_of_birth": {
-						"type": "number",
-						"format": "double"
-					},
-					"location": {
-						"type": "string"
-					},
-					"user_type": {
-						"type": "string",
-						"enum": [
-							"musician",
-							"service_provider",
-							"other"
-						]
-					}
-				},
-				"required": [
-					"username",
-					"first_name",
-					"last_name",
-					"phone_country_code",
-					"phone_number",
-					"year_of_birth",
-					"location",
-					"user_type"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
 			"MetadataItem": {
 				"properties": {
 					"id": {
@@ -514,43 +465,6 @@
 						"application/json": {
 							"schema": {
 								"$ref": "#/components/schemas/CreatePostBody"
-							}
-						}
-					}
-				}
-			}
-		},
-		"/auth/complete-profile": {
-			"post": {
-				"operationId": "CompleteUserProfile",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/UserProfile"
-								}
-							}
-						}
-					}
-				},
-				"description": "Complete user profile after Supabase Auth account creation\nUsed in onboarding flow where Auth account is created first, then profile is completed later",
-				"tags": [
-					"Authentication"
-				],
-				"security": [
-					{
-						"bearerAuth": []
-					}
-				],
-				"parameters": [],
-				"requestBody": {
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/CompleteProfileDto"
 							}
 						}
 					}

@@ -70,17 +70,6 @@ export interface ProfileUpdateRequest {
   looking_for?: string[];
 }
 
-export interface CompleteProfileRequest {
-  username: string;
-  first_name: string;
-  last_name: string;
-  phone_country_code: number;
-  phone_number: number;
-  year_of_birth: number;
-  location: string;
-  user_type: "musician" | "service_provider" | "other";
-}
-
 // ==================== Looking For Types ====================
 
 export type LookingForType =
