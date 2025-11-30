@@ -3,57 +3,12 @@ import {
   AuthResponse,
   AvailabilityResponse,
   CompleteProfileRequest,
-  LoginRequest,
-  ProfileUpdateRequest,
-  SignupRequest,
   SignupWithAuthRequest,
   UserProfile,
 } from "../../types/api-types";
-import { apiClient } from "../client";
+import { apiClient, ApiError } from "../client";
 
-export async function signup(data: SignupRequest): Promise<AuthResponse> {
-  return apiClient.post<AuthResponse>("/auth/signup", data);
-}
-
-export async function login(
-  email: string,
-  password: string
-): Promise<AuthResponse> {
-  const loginData: LoginRequest = { email, password };
-  return apiClient.post<AuthResponse>("/auth/login", loginData);
-}
-
-export async function completeProfile(
-  data: CompleteProfileRequest
-): Promise<UserProfile> {
-  return apiClient.post<UserProfile>("/auth/complete-profile", data);
-}
-
-export async function updateProfile(
-  username: string,
-  data: ProfileUpdateRequest
-): Promise<UserProfile> {
-  return apiClient.put<UserProfile>(`/users/${username}`, data);
-}
-
-export async function getCurrentProfile(
-  username: string
-): Promise<UserProfile> {
-  return apiClient.get<UserProfile>(`/users/${username}`);
-}
-
-export async function checkUsernameAvailability(
-  username: string
-): Promise<AvailabilityResponse> {
-  if (!username?.trim()) {
-    return { available: false };
-  }
-
-  const params = new URLSearchParams({ username });
-  return apiClient.get<AvailabilityResponse>(
-    `/auth/check-username?${params.toString()}`
-  );
-}
+// --- Supabase Client-Side Auth ---
 
 export async function signupWithAuth(data: SignupWithAuthRequest): Promise<{
   user: { id: string; email: string };
@@ -63,18 +18,16 @@ export async function signupWithAuth(data: SignupWithAuthRequest): Promise<{
     email: data.email,
     password: data.password,
     options: {
-      data: {
-        username: data.username,
-      },
+      data: { username: data.username },
     },
   });
 
   if (error) {
-    throw new Error(error.message);
+    throw new ApiError(400, "SIGNUP_FAILED", error.message);
   }
 
   if (!authData.user) {
-    throw new Error("Failed to create account");
+    throw new ApiError(500, "USER_CREATION_FAILED", "Failed to create account");
   }
 
   return {
@@ -98,14 +51,13 @@ export async function signInWithAuth(
   });
 
   if (error) {
-    throw new Error(error.message);
+    throw new ApiError(401, "LOGIN_FAILED", error.message);
   }
 
   if (!authData.user || !authData.session) {
-    throw new Error("Invalid email or password");
+    throw new ApiError(401, "LOGIN_FAILED", "Invalid email or password");
   }
 
-  // Fetch user profile
   const { data: profileData, error: profileError } = await supabase
     .from("profiles")
     .select("*")
@@ -113,10 +65,13 @@ export async function signInWithAuth(
     .single();
 
   if (profileError || !profileData) {
-    throw new Error("Failed to fetch user profile");
+    throw new ApiError(
+      500,
+      "PROFILE_FETCH_FAILED",
+      "Failed to fetch user profile"
+    );
   }
 
-  // Database profile already matches UserProfile format (snake_case)
   const profile = profileData as UserProfile;
 
   return {
@@ -133,4 +88,25 @@ export async function signInWithAuth(
     },
     profile,
   };
+}
+
+// --- Backend Auth Endpoints ---
+
+export async function checkUsernameAvailability(
+  username: string
+): Promise<AvailabilityResponse> {
+  if (!username?.trim()) {
+    return { available: false };
+  }
+
+  const params = new URLSearchParams({ username });
+  return apiClient.get<AvailabilityResponse>(
+    `/auth/check-username?${params.toString()}`
+  );
+}
+
+export async function completeProfile(
+  data: CompleteProfileRequest
+): Promise<UserProfile> {
+  return apiClient.post<UserProfile>("/auth/complete-profile", data);
 }

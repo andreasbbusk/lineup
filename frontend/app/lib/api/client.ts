@@ -5,7 +5,7 @@ interface RequestOptions {
   headers?: Record<string, string>;
 }
 
-class ApiError extends Error {
+export class ApiError extends Error {
   constructor(
     public statusCode: number,
     public code: string,
@@ -31,13 +31,11 @@ class ApiClient {
   ): Promise<T> {
     const { headers = {}, ...fetchOptions } = options;
 
-    // Add auth header if required or if token exists
     const access_token = useAppStore.getState().access_token;
     if (access_token) {
       headers["Authorization"] = `Bearer ${access_token}`;
     }
 
-    // Always send JSON
     headers["Content-Type"] = "application/json";
 
     const url = `${this.baseUrl}${endpoint}`;
@@ -48,12 +46,10 @@ class ApiClient {
         headers,
       });
 
-      // Handle non-OK responses
       if (!response.ok) {
         await this.handleErrorResponse(response);
       }
 
-      // Parse JSON response
       const data = await response.json();
       return data as T;
     } catch (error) {
@@ -61,7 +57,6 @@ class ApiClient {
         throw error;
       }
 
-      // Network or parsing error
       throw new ApiError(
         0,
         "NETWORK_ERROR",
@@ -77,7 +72,6 @@ class ApiClient {
     try {
       errorData = await response.json();
     } catch {
-      // Couldn't parse error response
       throw new ApiError(
         response.status,
         "UNKNOWN_ERROR",
@@ -85,11 +79,9 @@ class ApiClient {
       );
     }
 
-    // Map common errors to English messages
     let userMessage = errorData.error;
 
     if (response.status === 401) {
-      // Unauthorized - clear auth and show message
       useAppStore.getState().clear_auth();
       userMessage = "Your session has expired. Please sign in again.";
     } else if (response.status === 409 && errorData.code === "CONFLICT") {
@@ -109,10 +101,7 @@ class ApiClient {
   }
 
   async get<T>(endpoint: string, options?: RequestOptions): Promise<T> {
-    return this.request<T>(endpoint, {
-      method: "GET",
-      ...options,
-    });
+    return this.request<T>(endpoint, { method: "GET", ...options });
   }
 
   async post<T>(
@@ -140,13 +129,8 @@ class ApiClient {
   }
 
   async delete<T>(endpoint: string, options?: RequestOptions): Promise<T> {
-    return this.request<T>(endpoint, {
-      method: "DELETE",
-      ...options,
-    });
+    return this.request<T>(endpoint, { method: "DELETE", ...options });
   }
 }
 
-// Export singleton instance
 export const apiClient = new ApiClient();
-export { ApiError };

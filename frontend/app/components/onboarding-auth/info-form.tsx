@@ -1,3 +1,4 @@
+// frontend/app/components/onboarding-auth/info-form.tsx
 "use client";
 
 import { useState } from "react";
@@ -59,11 +60,10 @@ export function OnboardingBasicInfoForm() {
   const { onboarding, update_onboarding_data } = useAppStore();
   const { nextStep } = useOnboardingNavigation();
 
-  // State to track the full name input
   const [fullName, setFullName] = useState(
-    onboarding.data.first_name && onboarding.data.last_name
-      ? `${onboarding.data.first_name} ${onboarding.data.last_name}`
-      : ""
+    [onboarding.data.first_name, onboarding.data.last_name]
+      .filter(Boolean)
+      .join(" ")
   );
 
   const {
@@ -78,10 +78,12 @@ export function OnboardingBasicInfoForm() {
     defaultValues: {
       first_name: onboarding.data.first_name || "",
       last_name: onboarding.data.last_name || "",
-      country_code: onboarding.data.phone_country_code || "+45",
-      phone_number: onboarding.data.phone_number || "",
+      country_code: onboarding.data.phone_country_code
+        ? `+${onboarding.data.phone_country_code}`
+        : "+45",
+      phone_number: onboarding.data.phone_number?.toString() || "",
       year_of_birth: onboarding.data.year_of_birth?.toString() || "",
-      city: onboarding.data.location || "",
+      location: onboarding.data.location || "",
     },
   });
 
@@ -89,67 +91,49 @@ export function OnboardingBasicInfoForm() {
     update_onboarding_data({
       first_name: formData.first_name,
       last_name: formData.last_name,
-      phone_country_code: formData.country_code,
-      phone_number: formData.phone_number,
+      phone_country_code: parseInt(formData.country_code.replace("+", ""), 10),
+      phone_number: parseInt(formData.phone_number, 10),
       year_of_birth: Number(formData.year_of_birth),
-      location: formData.city,
+      location: formData.location,
     });
     nextStep();
   };
 
+  const handleNameChange = (value: string) => {
+    setFullName(value);
+    const nameParts = value.trim().split(/\s+/);
+
+    if (nameParts.length >= 2) {
+      setValue("first_name", nameParts[0], { shouldValidate: true });
+      setValue("last_name", nameParts.slice(1).join(" "), {
+        shouldValidate: true,
+      });
+    } else {
+      setValue("first_name", value.trim(), { shouldValidate: true });
+      setValue("last_name", "", { shouldValidate: true });
+    }
+  };
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-white px-4">
-      <form
-        onSubmit={handleSubmit(
-          (data) => {
-            console.log("Form submitted successfully", data);
-            onSubmit(data);
-          },
-          (errors) => {
-            console.log("Form validation errors", errors);
-          }
-        )}
-        className="w-full"
-      >
+    <div className="flex flex-col items-center justify-center bg-white px-4">
+
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full">
         <div className="flex flex-col gap-8">
           {/* Full Name */}
           <div className="flex flex-col gap-4">
-            <label className="text-lg font-semibold leading-[19px] tracking-[0.5px] text-black">
+            <label className="text-lg font-semibold text-black">
               Full name
             </label>
             <input
               type="text"
               value={fullName}
               placeholder="Enter your full name"
-              className={`w-full rounded-lg border px-2.5 py-2.5 text-base leading-normal tracking-[0.5px] placeholder:text-input-placeholder ${
+              className={`w-full rounded-lg border px-2.5 py-2.5 text-base ${
                 errors.first_name || errors.last_name
                   ? "border-maroon bg-maroon/5"
                   : "border-black/10"
               }`}
-              onChange={(e) => {
-                const value = e.target.value;
-                setFullName(value);
-
-                const nameParts = value.trim().split(/\s+/);
-
-                if (nameParts.length >= 2) {
-                  // First word is first_name, rest is last_name
-                  const first_name = nameParts[0];
-                  const last_name = nameParts.slice(1).join(" ");
-                  setValue("first_name", first_name, { shouldValidate: true });
-                  setValue("last_name", last_name, { shouldValidate: true });
-                } else if (nameParts.length === 1 && nameParts[0]) {
-                  // Only one word entered - set as first_name
-                  setValue("first_name", nameParts[0], {
-                    shouldValidate: true,
-                  });
-                  setValue("last_name", "", { shouldValidate: true });
-                } else {
-                  // Empty input
-                  setValue("first_name", "", { shouldValidate: true });
-                  setValue("last_name", "", { shouldValidate: true });
-                }
-              }}
+              onChange={(e) => handleNameChange(e.target.value)}
             />
             {(errors.first_name || errors.last_name) && (
               <ErrorMessage
@@ -162,7 +146,7 @@ export function OnboardingBasicInfoForm() {
 
           {/* Phone Number */}
           <div className="flex flex-col gap-4">
-            <label className="text-lg font-semibold leading-[19px] tracking-[0.5px] text-black">
+            <label className="text-lg font-semibold text-black">
               Phone number
             </label>
             <div className="flex gap-3">
@@ -173,11 +157,7 @@ export function OnboardingBasicInfoForm() {
                   <CustomSelect
                     value={field.value}
                     onAction={field.onChange}
-                    options={COUNTRY_CODES.map((country) => ({
-                      value: country.value,
-                      label: country.label,
-                      display: country.display,
-                    }))}
+                    options={COUNTRY_CODES}
                     triggerWidth="w-fit gap-1!"
                   />
                 )}
@@ -186,7 +166,7 @@ export function OnboardingBasicInfoForm() {
                 {...register("phone_number")}
                 type="tel"
                 placeholder="Phone number"
-                className={`flex rounded-lg border px-2.5 py-2 leading-normal tracking-[0.5px] placeholder:text-input-placeholder ${
+                className={`flex rounded-lg border px-2.5 py-2 ${
                   errors.phone_number
                     ? "border-maroon bg-maroon/5"
                     : "border-black/10"
@@ -200,7 +180,7 @@ export function OnboardingBasicInfoForm() {
 
           {/* Year of Birth */}
           <div className="flex flex-col gap-4">
-            <label className="text-lg font-semibold leading-[19px] tracking-[0.5px] text-black">
+            <label className="text-lg font-semibold text-black">
               Year of birth
             </label>
             <Controller
@@ -227,26 +207,26 @@ export function OnboardingBasicInfoForm() {
             )}
           </div>
 
-          {/* Where do you live? */}
+          {/* Location */}
           <div className="flex flex-col gap-4">
-            <label className="text-lg font-semibold leading-[19px] tracking-[0.5px] text-black">
+            <label className="text-lg font-semibold text-black">
               Where do you live?
             </label>
             <Controller
-              name="city"
+              name="location"
               control={control}
               render={({ field }) => (
                 <Combobox
                   value={field.value}
                   onAction={field.onChange}
                   options={OPTIONS}
-                  placeholder="Enter your city"
-                  error={!!errors.city}
+                  placeholder="Enter your location"
+                  error={!!errors.location}
                 />
               )}
             />
-            {errors.city && (
-              <ErrorMessage message={errors.city.message || ""} />
+            {errors.location && (
+              <ErrorMessage message={errors.location.message || ""} />
             )}
           </div>
         </div>

@@ -2,23 +2,7 @@
 
 // ==================== Auth Types ====================
 
-export interface SignupRequest {
-  email: string;
-  password: string;
-  username: string;
-  first_name: string;
-  last_name: string;
-  phone_country_code: number;
-  phone_number: number;
-  year_of_birth: number;
-  location: string;
-  user_type: "musician" | "service_provider" | "other";
-}
 
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
 
 export interface AuthResponse {
   user: {
@@ -55,9 +39,9 @@ export interface UserProfile {
   avatar_url?: string;
   bio?: string;
   about_me?: string;
-  phone_country_code?: number; // Only included for own profile
-  phone_number?: number; // Only included for own profile
-  year_of_birth?: number; // Only included for own profile
+  phone_country_code?: number;
+  phone_number?: number;
+  year_of_birth?: number;
   location: string;
   user_type: string;
   theme_color?: string;
@@ -65,6 +49,8 @@ export interface UserProfile {
   onboarding_completed: boolean;
   created_at: string;
   updated_at: string;
+  blocked_users?: string[]; // Array of UUIDs
+  search_vector?: unknown;  // tsvector from Postgres (usually ignored in frontend)
 }
 
 export interface ProfileUpdateRequest {
@@ -110,4 +96,52 @@ export interface ErrorResponse {
   code: string;
   details?: unknown;
   timestamp: string;
+}
+
+// ==================== Onboarding Types ====================
+
+export interface OnboardingData {
+  email: string;
+  username: string;
+  first_name: string;
+  last_name: string;
+  phone_country_code: string;
+  phone_number: string;
+  year_of_birth: number;
+  location: string;
+  user_type: "musician" | "service_provider" | "other";
+  looking_for: string[];
+  account_created?: boolean;
+}
+
+// Combined store interface
+export interface AppStore {
+  // Auth state
+  user: { id: string; email: string } | null;
+  access_token: string | null;
+  profile: UserProfile | null;
+  is_authenticated: boolean;
+
+  // Onboarding state
+  onboarding: {
+    step: number;
+    data: Partial<OnboardingData>;
+  };
+
+  // Auth actions
+  set_auth: (
+    user: { id: string; email: string },
+    access_token: string,
+    profile: UserProfile | null
+  ) => void;
+  clear_auth: () => void;
+  update_profile: (profile: UserProfile) => void;
+
+  // Onboarding actions
+  next_step: () => void;
+  prev_step: () => void;
+  go_to_step: (step: number) => void;
+  update_onboarding_data: (partial: Partial<OnboardingData>) => void;
+  reset_onboarding: () => void;
+  mark_account_created: () => void;
 }

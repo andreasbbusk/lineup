@@ -2,20 +2,29 @@
 
 import { useOnboardingNavigation } from "@/app/lib/hooks/useOnboardingNavigation";
 
+const PROGRESS_START_STEP = 2;
+const TOTAL_STEPS_WITH_PROGRESS = 4;
+
 export function OnboardingProgress() {
   const { step } = useOnboardingNavigation();
 
-  // Calculate progress percentage (steps 2-5 = 4 total steps)
-  const totalSteps = 4;
-  const currentStep = Math.max(0, step - 1); // steps start at 2, so subtract 1
-  const progress = Math.min(100, (currentStep / totalSteps) * 100);
+  const currentProgressStep = Math.max(0, step - PROGRESS_START_STEP);
+  const progress = Math.min(
+    100,
+    (currentProgressStep / TOTAL_STEPS_WITH_PROGRESS) * 100
+  );
 
   return (
-    <div className="fixed left-0 top-8 z-50 w-full bg-white px-6 pb-4 pt-6">
-      <div className="relative h-1.5 w-full rounded-[25px] bg-melting-glacier">
+    <div className="sticky top-0 z-50 w-full px-6 pb-4 pt-6">
+      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-melting-glacier">
         <div
-          className="h-full rounded-[25px] bg-crocus-yellow transition-all duration-300 ease-in-out"
+          className="h-full rounded-full bg-crocus-yellow transition-all duration-300 ease-out"
           style={{ width: `${progress}%` }}
+          role="progressbar"
+          aria-valuenow={progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`Onboarding progress: ${Math.round(progress)}%`}
         />
       </div>
     </div>

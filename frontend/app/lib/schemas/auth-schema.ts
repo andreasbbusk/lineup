@@ -1,3 +1,4 @@
+// frontend/app/lib/schemas/auth-schema.ts
 import { z } from "zod";
 
 const PASSWORD_RULES = {
@@ -7,6 +8,15 @@ const PASSWORD_RULES = {
   requireLowercase: true,
 };
 
+// Login Schema
+export const loginSchema = z.object({
+  email: z.string().min(1, "Email is required").email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
+export type LoginFormData = z.infer<typeof loginSchema>;
+
+// Signup Schema
 export const signupSchema = z
   .object({
     username: z
@@ -37,6 +47,7 @@ export const signupSchema = z
 
 export type SignupFormData = z.infer<typeof signupSchema>;
 
+// Basic Info Schema
 export const basicInfoSchema = z.object({
   first_name: z
     .string()
@@ -54,7 +65,8 @@ export const basicInfoSchema = z.object({
     .string()
     .min(1, "Phone number is required")
     .regex(/^\d+$/, "Phone number must contain only digits")
-    .min(8, "Phone number must be at least 8 digits"),
+    .min(4, "Phone number must be at least 4 digits")
+    .max(15, "Phone number must be at most 15 digits"),
   year_of_birth: z
     .string()
     .min(1, "Year of birth is required")
@@ -62,13 +74,16 @@ export const basicInfoSchema = z.object({
     .refine(
       (year) => {
         const currentYear = new Date().getFullYear();
-        const birthYear = parseInt(year);
+        const birthYear = parseInt(year, 10);
         const age = currentYear - birthYear;
         return age >= 13 && age <= 120;
       },
       { message: "You must be at least 13 years old" }
     ),
-  city: z.string().min(1, "City is required").max(100, "City name is too long"),
+  location: z
+    .string()
+    .min(1, "Location is required")
+    .max(100, "Location is too long"),
 });
 
 export type BasicInfoFormData = z.infer<typeof basicInfoSchema>;
