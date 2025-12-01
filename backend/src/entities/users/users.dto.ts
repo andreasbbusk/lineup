@@ -28,6 +28,18 @@ import { ProfileUpdateRequest } from "../../types/api.types.js";
  */
 export class UpdateProfileDto implements ProfileUpdateRequest {
   /**
+   * Username (3-30 characters, only for initial profile creation)
+   * @example "johndoe"
+   */
+  @IsOptional()
+  @IsString()
+  @Length(3, 30)
+  @Matches(/^[a-zA-Z0-9_]+$/, {
+    message: "Username must contain only letters, numbers, and underscores",
+  })
+  username?: string;
+
+  /**
    * First name (1-50 characters)
    * @example "John"
    */

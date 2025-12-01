@@ -13,7 +13,7 @@ import {
   Security,
   Tags,
 } from "tsoa";
-import { extractUserId } from "../../entities/auth/auth.service.js";
+import { extractUserId } from "../../utils/auth-helpers.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
 import { MessagesService } from "./messages.service.js";
 import { CreateMessageDto, UpdateMessageDto } from "./messages.dto.js";

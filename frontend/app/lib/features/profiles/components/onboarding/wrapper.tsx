@@ -44,7 +44,7 @@ export function OnboardingWrapper() {
     if (!isMounted) return;
 
     // SCENARIO: User is fully done -> Kick to Home
-    if (is_authenticated && profile?.onboarding_completed) {
+    if (is_authenticated && profile?.onboardingCompleted) {
       router.replace("/");
       return;
     }
@@ -83,7 +83,7 @@ export function OnboardingWrapper() {
   }
 
   // Don't render if we are about to redirect
-  if (is_authenticated && profile?.onboarding_completed) return null;
+  if (is_authenticated && profile?.onboardingCompleted) return null;
 
   const Component = STEP_COMPONENTS[step as keyof typeof STEP_COMPONENTS];
 

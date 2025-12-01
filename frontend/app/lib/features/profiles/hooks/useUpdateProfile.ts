@@ -2,8 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { useAppStore } from "../../../stores/app-store";
-import { ProfileUpdateRequest } from "../types";
-import { updateUserProfile } from "../api";
+import { updateUserProfile, ProfileUpdateRequest } from "../api";
 
 export function useUpdateProfile() {
   const update_profile = useAppStore((state) => state.update_profile);

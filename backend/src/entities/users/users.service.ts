@@ -1,16 +1,13 @@
 // src/entities/users/users.service.ts
 import {
-  supabase,
   createAuthenticatedClient,
+  supabase,
 } from "../../config/supabase.config.js";
-import { ProfileRow, ProfileUpdate } from "../../utils/supabase-helpers.ts";
-import { mapProfileToAPI } from "./users.mapper.js";
 import { UserProfile } from "../../types/api.types.js";
-import { Database } from "../../types/supabase.js";
 import { createHttpError } from "../../utils/error-handler.js";
-import { ProfileUpdate } from "../../utils/supabase-helpers.js";
+import { ProfileRow, ProfileUpdate } from "../../utils/supabase-helpers.js";
 import { UpdateProfileDto } from "./users.dto.js";
-import { createHttpError } from "../../utils/error-handler.ts";
+import { mapProfileToAPI } from "./users.mapper.js";
 
 export class UsersService {
   /**
@@ -39,26 +36,17 @@ export class UsersService {
 
     const isOwnProfile = authenticatedUserId === profile.id;
 
-    if (!isOwnProfile) {
-      // Strip private sensitive info for public viewing
-      const publicProfile = { ...profile };
-      // TypeScript cast to 'any' to delete optional properties
-      delete (publicProfile as any).phone_number;
-      delete (publicProfile as any).phone_country_code;
-      delete (publicProfile as any).year_of_birth;
-      return publicProfile as UserProfile;
-    }
-
-    return profile as UserProfile;
+    // Use mapper to convert database format to API format
+    return mapProfileToAPI(profile as ProfileRow, isOwnProfile);
   }
 
   /**
-   * Update user profile
+   * Update user profile (also handles initial profile creation)
    * Only the profile owner can update their own profile
    * @param username Username of profile to update
-   * @param userId ID of the authenticated user
-   * @param data Data to update
-   * @param token Bearer token for RLS
+   * @param userId ID of the authenticated user (from JWT)
+   * @param data Data to update (or create initial profile)
+   * @param token Bearer token for RLS bypass
    */
   async updateProfile(
     username: string,
@@ -66,24 +54,18 @@ export class UsersService {
     data: UpdateProfileDto,
     token: string
   ): Promise<UserProfile> {
-    // Create authenticated Supabase client for RLS
+    // Create authenticated Supabase client with user's token
     const authedSupabase = createAuthenticatedClient(token);
 
+    // Check if profile exists (use maybeSingle - doesn't throw if not found)
     const { data: profile, error: fetchError } = await authedSupabase
       .from("profiles")
       .select("id, username")
       .eq("username", username)
-      .single();
+      .maybeSingle();
 
-    if (fetchError || !profile) {
-      throw createHttpError({
-        message: "User not found",
-        statusCode: 404,
-        code: "NOT_FOUND",
-      });
-    }
-
-    if (profile.id !== userId) {
+    // For updates: verify ownership
+    if (profile && profile.id !== userId) {
       throw createHttpError({
         message: "You can only update your own profile",
         statusCode: 403,
@@ -91,14 +73,55 @@ export class UsersService {
       });
     }
 
-    // Separate looking_for (relational data) from profile fields
-    const { looking_for, ...profileData } = data;
+    // For creation: username in path must match data or be the user's ID
+    if (!profile && username !== userId) {
+      throw createHttpError({
+        message: "Username mismatch during profile creation",
+        statusCode: 400,
+        code: "BAD_REQUEST",
+      });
+    }
 
-    // Direct assignment since types match (excluding looking_for)
-    const updateData: ProfileUpdate = profileData as ProfileUpdate;
+    // Separate lookingFor (relational data) from profile fields
+    const { lookingFor, ...profileData } = data;
 
-    // Handle looking_for updates
-    if (looking_for !== undefined) {
+    // Build update/insert data - convert camelCase to snake_case
+    // Only include defined fields
+    const updateData: ProfileUpdate = {
+      id: userId, // Ensure ID is set for upsert
+    };
+
+    if (profileData.username !== undefined)
+      updateData.username = profileData.username;
+    if (profileData.firstName !== undefined)
+      updateData.first_name = profileData.firstName;
+    if (profileData.lastName !== undefined)
+      updateData.last_name = profileData.lastName;
+    if (profileData.bio !== undefined) updateData.bio = profileData.bio;
+    if (profileData.aboutMe !== undefined)
+      updateData.about_me = profileData.aboutMe;
+    if (profileData.avatarUrl !== undefined)
+      updateData.avatar_url = profileData.avatarUrl;
+    if (profileData.location !== undefined)
+      updateData.location = profileData.location;
+    if (profileData.themeColor !== undefined)
+      updateData.theme_color = profileData.themeColor;
+    if (profileData.spotifyPlaylistUrl !== undefined)
+      updateData.spotify_playlist_url = profileData.spotifyPlaylistUrl;
+    if (profileData.phoneCountryCode !== undefined)
+      updateData.phone_country_code = profileData.phoneCountryCode;
+    if (profileData.phoneNumber !== undefined)
+      updateData.phone_number = profileData.phoneNumber;
+    if (profileData.yearOfBirth !== undefined)
+      updateData.year_of_birth = profileData.yearOfBirth;
+    if (profileData.userType !== undefined)
+      updateData.user_type = profileData.userType;
+    if (profileData.onboardingCompleted !== undefined)
+      updateData.onboarding_completed = profileData.onboardingCompleted;
+
+    // Handle lookingFor updates (if provided)
+    if (lookingFor !== undefined) {
+      // Delete existing preferences
       const { error: deleteError } = await authedSupabase
         .from("user_looking_for")
         .delete()
@@ -113,8 +136,9 @@ export class UsersService {
         });
       }
 
-      if (looking_for.length > 0) {
-        const lookingForRecords = looking_for.map((item) => ({
+      // Insert new preferences
+      if (lookingFor.length > 0) {
+        const lookingForRecords = lookingFor.map((item: string) => ({
           user_id: userId,
           looking_for_value: item as
             | "connect"
@@ -137,26 +161,30 @@ export class UsersService {
         }
       }
 
-      if (profileData.onboarding_completed === undefined) {
+      // Mark onboarding complete if not explicitly set
+      if (profileData.onboardingCompleted === undefined) {
         updateData.onboarding_completed = true;
       }
     }
 
+    // Upsert profile (insert if new, update if exists)
     const { data: updatedProfile, error: updateError } = await authedSupabase
       .from("profiles")
-      .update(updateData)
-      .eq("id", userId)
+      .upsert(updateData as any, { onConflict: "id" })
       .select()
       .single();
 
     if (updateError || !updatedProfile) {
       throw createHttpError({
-        message: "Failed to update profile",
+        message: profile
+          ? "Failed to update profile"
+          : "Failed to create profile",
         statusCode: 500,
         code: "DATABASE_ERROR",
+        details: updateError,
       });
     }
 
-    return updatedProfile as UserProfile;
+    return mapProfileToAPI(updatedProfile as ProfileRow);
   }
 }

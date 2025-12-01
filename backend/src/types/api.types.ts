@@ -91,6 +91,7 @@ export interface AuthResponse {
  * }
  */
 export interface ProfileUpdateRequest {
+  username?: string;
   firstName?: string;
   lastName?: string;
   bio?: string;

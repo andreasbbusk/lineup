@@ -11,7 +11,7 @@ import {
   FormField,
   Request,
 } from "tsoa";
-import { extractUserId } from "../../entities/auth/auth.service.js";
+import { extractUserId } from "../../utils/auth-helpers.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
 import { UploadService } from "./upload.service.js";
 import { UploadResponse } from "../../types/api.types.js";

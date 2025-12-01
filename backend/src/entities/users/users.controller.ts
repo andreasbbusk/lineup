@@ -4,6 +4,7 @@ import {
   Body,
   Controller,
   Get,
+  Header,
   Path,
   Put,
   Request,
@@ -11,9 +12,10 @@ import {
   Security,
   Tags,
 } from "tsoa";
+import { supabase } from "../../config/supabase.config.js";
 import { UserProfile } from "../../types/api.types.js";
-import { extractBearerToken, extractUserId } from "../../utils/auth-helpers.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
+import { createHttpError } from "../../utils/error-handler.js";
 import { UpdateProfileDto } from "./users.dto.js";
 import { UsersService } from "./users.service.js";
 
@@ -40,15 +42,19 @@ export class UsersController extends Controller {
   @Get("{username}")
   public async getUser(
     @Path() username: string,
-    @Request() request: ExpressRequest
+    @Header("Authorization") authorization?: string
   ): Promise<UserProfile> {
     return handleControllerRequest(this, async () => {
       let authenticatedUserId: string | undefined;
 
-      const authHeader = request.headers.authorization;
-      if (authHeader && authHeader.startsWith("Bearer ")) {
+      if (authorization && authorization.startsWith("Bearer ")) {
         try {
-          authenticatedUserId = await extractUserId(request);
+          const token = authorization.substring(7);
+          // Extract userId from token using Supabase
+          const { data: { user }, error } = await supabase.auth.getUser(token);
+          if (!error && user) {
+            authenticatedUserId = user.id;
+          }
         } catch (error) {
           authenticatedUserId = undefined;
         }
@@ -78,16 +84,31 @@ export class UsersController extends Controller {
   public async updateProfile(
     @Path() username: string,
     @Body() body: UpdateProfileDto,
-    @Request() request: ExpressRequest
+    @Header("Authorization") authorization?: string
   ): Promise<UserProfile> {
     return handleControllerRequest(this, async () => {
-      // Authentication is required - extractUserId will throw if not authenticated
-      const userId = await extractUserId(request);
+      // Extract and validate token
+      if (!authorization || !authorization.startsWith("Bearer ")) {
+        throw createHttpError({
+          message: "No authorization token provided",
+          statusCode: 401,
+          code: "UNAUTHORIZED",
+        });
+      }
 
-      // Extract token from authorization header
-      const token = extractBearerToken(request);
+      const token = authorization.substring(7);
 
-      return this.usersService.updateProfile(username, userId, body, token);
+      // Validate token and get user ID
+      const { data: { user }, error } = await supabase.auth.getUser(token);
+      if (error || !user) {
+        throw createHttpError({
+          message: "Invalid or expired token",
+          statusCode: 401,
+          code: "UNAUTHORIZED",
+        });
+      }
+
+      return this.usersService.updateProfile(username, user.id, body, token);
     });
   }
 }

@@ -1,6 +1,6 @@
 import { Request as ExpressRequest } from "express";
 import { Controller, Get, Query, Request, Route, Tags } from "tsoa";
-import { extractUserId } from "../../entities/auth/auth.service.js";
+import { extractUserId } from "../../utils/auth-helpers.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
 import { SearchService } from "./search.service.js";
 import { SearchQueryDto } from "./search.dto.js";

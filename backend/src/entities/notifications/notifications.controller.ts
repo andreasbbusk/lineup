@@ -12,7 +12,7 @@ import {
   Security,
   Tags,
 } from "tsoa";
-import { extractUserId } from "../../entities/auth/auth.service.js";
+import { extractUserId } from "../../utils/auth-helpers.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
 import { NotificationsService } from "./notifications.service.js";
 import { UpdateNotificationDto } from "./notifications.dto.js";

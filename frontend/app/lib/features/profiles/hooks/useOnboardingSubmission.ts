@@ -25,8 +25,14 @@ export function useOnboardingSubmission() {
   const submitOnboarding = async () => {
     setSubmitError(null);
     const data = onboarding.data;
+    const userId = useAppStore.getState().user?.id;
 
     // Validation
+    if (!userId) {
+      setSubmitError("User ID not found. Please restart the signup process.");
+      return;
+    }
+
     if (!data.username) {
       setSubmitError("Missing username. Please restart the signup process.");
       return;
@@ -47,19 +53,27 @@ export function useOnboardingSubmission() {
     }
 
     try {
-      // Single call to updateProfile with all onboarding data
-      await updateProfile({
+      const profileData = {
         username: data.username,
-        data: {
-          first_name: data.first_name,
-          last_name: data.last_name,
-          phone_country_code: data.phone_country_code.toString(),
-          phone_number: data.phone_number.toString(),
-          year_of_birth: data.year_of_birth,
-          location: data.location,
-          user_type: data.user_type || "musician",
-          looking_for: data.looking_for || [],
-        },
+        firstName: data.first_name,
+        lastName: data.last_name,
+        phoneCountryCode: Number(data.phone_country_code),
+        phoneNumber: Number(data.phone_number),
+        yearOfBirth: data.year_of_birth,
+        location: data.location,
+        userType: data.user_type || "musician",
+        lookingFor: data.looking_for || [],
+      };
+
+      console.log("🟢 Submitting onboarding with:", {
+        userId,
+        username: data.username,
+        profileData,
+      });
+
+      await updateProfile({
+        username: userId,
+        data: profileData,
       });
 
       reset_onboarding();

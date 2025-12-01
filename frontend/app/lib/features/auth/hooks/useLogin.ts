@@ -14,10 +14,10 @@ export function useLogin() {
     mutationFn: ({ email, password }: { email: string; password: string }) =>
       signInWithAuth(email, password),
     onSuccess: (response) => {
-      set_auth(response.user, response.session.access_token, response.profile as UserProfile);
+      set_auth(response.user, response.session.accessToken, response.profile as UserProfile);
 
       // Smart redirect based on onboarding status
-      if (!response.profile.onboarding_completed) {
+      if (!response.profile.onboardingCompleted) {
         router.push("/onboarding?step=3");
       } else {
         router.push("/");

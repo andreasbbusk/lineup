@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate:types": "openapi-typescript ../backend/src/docs/swagger.json -o app/lib/types/api.d.ts",
+    "types": "npm run generate:types"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -28,6 +30,8 @@
     "baseline-browser-mapping": "^2.8.32",
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
+    "openapi-fetch": "^0.15.0",
+    "openapi-typescript": "^7.10.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

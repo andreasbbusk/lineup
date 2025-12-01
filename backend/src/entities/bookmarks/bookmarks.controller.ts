@@ -11,7 +11,7 @@ import {
   Security,
   Tags,
 } from "tsoa";
-import { extractUserId } from "../../entities/auth/auth.service.js";
+import { extractUserId } from "../../utils/auth-helpers.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
 import { BookmarksService } from "./bookmarks.service.js";
 import { CreateBookmarkDto } from "./bookmarks.dto.js";

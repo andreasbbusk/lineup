@@ -1,6 +1,6 @@
 import { Request as ExpressRequest } from "express";
 import { Controller, Get, Query, Request, Route, Security, Tags } from "tsoa";
-import { extractUserId } from "../../entities/auth/auth.service.js";
+import { extractUserId } from "../../utils/auth-helpers.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
 import { FeedService } from "./feed.service.js";
 import { FeedPostResponse } from "../../types/api.types.js";
