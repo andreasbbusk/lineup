@@ -278,6 +278,38 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"PaginatedResponse_any_": {
+				"properties": {
+					"data": {
+						"items": {},
+						"type": "array"
+					},
+					"pagination": {
+						"properties": {
+							"total": {
+								"type": "number",
+								"format": "double"
+							},
+							"has_more": {
+								"type": "boolean"
+							},
+							"next_cursor": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"has_more"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"data",
+					"pagination"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"MetadataItem": {
 				"properties": {
 					"id": {
@@ -469,6 +501,161 @@
 						}
 					}
 				}
+			},
+			"get": {
+				"operationId": "GetPosts",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PaginatedResponse_any_"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get a list of posts with optional filters and pagination\nSupports filtering by type, author, location, genres, tags, and paid opportunities",
+				"tags": [
+					"Posts"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "type",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"enum": [
+								"note",
+								"request",
+								"story"
+							]
+						}
+					},
+					{
+						"in": "query",
+						"name": "authorId",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "cursor",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "includeEngagement",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					},
+					{
+						"in": "query",
+						"name": "includeMedia",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					},
+					{
+						"in": "query",
+						"name": "genreIds",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "tags",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "location",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "paidOnly",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					}
+				]
+			}
+		},
+		"/posts/{id}": {
+			"get": {
+				"operationId": "GetPostById",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"description": "Get a single post by ID with full details\nOptionally includes comments and engagement data",
+				"tags": [
+					"Posts"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "includeComments",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					},
+					{
+						"in": "query",
+						"name": "commentsLimit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
 			}
 		},
 		"/auth/check-username": {

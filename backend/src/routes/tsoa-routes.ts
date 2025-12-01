@@ -109,6 +109,15 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "PaginatedResponse_any_": {
+        "dataType": "refObject",
+        "properties": {
+            "data": {"dataType":"array","array":{"dataType":"any"},"required":true},
+            "pagination": {"dataType":"nestedObjectLiteral","nestedProperties":{"total":{"dataType":"double"},"has_more":{"dataType":"boolean","required":true},"next_cursor":{"dataType":"string"}},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "MetadataItem": {
         "dataType": "refObject",
         "properties": {
@@ -233,6 +242,77 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'createPost',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsPostsController_getPosts: Record<string, TsoaRoute.ParameterSchema> = {
+                type: {"in":"query","name":"type","dataType":"union","subSchemas":[{"dataType":"enum","enums":["note"]},{"dataType":"enum","enums":["request"]},{"dataType":"enum","enums":["story"]}]},
+                authorId: {"in":"query","name":"authorId","dataType":"string"},
+                cursor: {"in":"query","name":"cursor","dataType":"string"},
+                limit: {"in":"query","name":"limit","dataType":"double"},
+                includeEngagement: {"in":"query","name":"includeEngagement","dataType":"boolean"},
+                includeMedia: {"in":"query","name":"includeMedia","dataType":"boolean"},
+                genreIds: {"in":"query","name":"genreIds","dataType":"string"},
+                tags: {"in":"query","name":"tags","dataType":"string"},
+                location: {"in":"query","name":"location","dataType":"string"},
+                paidOnly: {"in":"query","name":"paidOnly","dataType":"boolean"},
+        };
+        app.get('/posts',
+            ...(fetchMiddlewares<RequestHandler>(PostsController)),
+            ...(fetchMiddlewares<RequestHandler>(PostsController.prototype.getPosts)),
+
+            async function PostsController_getPosts(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsPostsController_getPosts, request, response });
+
+                const controller = new PostsController();
+
+              await templateService.apiHandler({
+                methodName: 'getPosts',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsPostsController_getPostById: Record<string, TsoaRoute.ParameterSchema> = {
+                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+                includeComments: {"in":"query","name":"includeComments","dataType":"boolean"},
+                commentsLimit: {"in":"query","name":"commentsLimit","dataType":"double"},
+        };
+        app.get('/posts/:id',
+            ...(fetchMiddlewares<RequestHandler>(PostsController)),
+            ...(fetchMiddlewares<RequestHandler>(PostsController.prototype.getPostById)),
+
+            async function PostsController_getPostById(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsPostsController_getPostById, request, response });
+
+                const controller = new PostsController();
+
+              await templateService.apiHandler({
+                methodName: 'getPostById',
                 controller,
                 response,
                 next,

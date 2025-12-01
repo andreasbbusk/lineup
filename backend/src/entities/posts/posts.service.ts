@@ -8,6 +8,7 @@ import {
   MediaType,
 } from "../../utils/supabase-helpers.js";
 import { mapPostToResponse } from "../../utils/mappers/index.js";
+import { PaginatedResponse } from "../../types/api.types.js";
 
 export class PostsService {
   /**
@@ -221,5 +222,201 @@ export class PostsService {
 
     // Transform the response to match expected format
     return mapPostToResponse(completePost);
+  }
+
+  /**
+   * Get a list of posts with filters and pagination
+   * Handles all the filtering logic and returns paginated results
+   */
+  async getPosts(filters: {
+    type?: "note" | "request" | "story";
+    authorId?: string;
+    cursor?: string;
+    limit: number;
+    includeEngagement?: boolean;
+    includeMedia?: boolean;
+    genreIds?: string[];
+    tags?: string[];
+    location?: string;
+    paidOnly?: boolean;
+  }): Promise<
+    PaginatedResponse<
+      PostRow & {
+        metadata?: any[];
+        media?: any[];
+        tagged_users?: any[];
+        author?: any;
+      }
+    >
+  > {
+    const {
+      type,
+      authorId,
+      cursor,
+      limit,
+      includeEngagement,
+      includeMedia,
+      genreIds,
+      tags,
+      location,
+      paidOnly,
+    } = filters;
+
+    // Build the base query
+    let query = supabase
+      .from("posts")
+      .select(
+        `
+        *,
+        author:profiles!posts_author_id_fkey(id, username, first_name, last_name, avatar_url),
+        metadata:post_metadata(
+          metadata:metadata(id, name, type)
+        ),
+        media:post_media(
+          display_order,
+          media:media(id, url, thumbnail_url, type)
+        ),
+        tagged_users:post_tagged_users(
+          user:profiles!post_tagged_users_user_id_fkey(id, username, first_name, last_name, avatar_url)
+        )
+      `
+      )
+      .order("created_at", { ascending: false });
+
+    // Apply filters
+    if (type) {
+      query = query.eq("type", type);
+    }
+
+    if (authorId) {
+      query = query.eq("author_id", authorId);
+    }
+
+    if (location) {
+      query = query.ilike("location", `%${location}%`);
+    }
+
+    if (paidOnly !== undefined) {
+      query = query.eq("paid_opportunity", paidOnly);
+    }
+
+    // Handle cursor-based pagination
+    if (cursor) {
+      query = query.lt("created_at", cursor);
+    }
+
+    // Apply limit (fetch one extra to check if there's more)
+    query = query.limit(limit + 1);
+
+    const { data: posts, error } = await query;
+
+    if (error) {
+      throw new Error(`Failed to fetch posts: ${error.message}`);
+    }
+
+    if (!posts) {
+      return {
+        data: [],
+        pagination: {
+          has_more: false,
+        },
+      };
+    }
+
+    // Check if there's more data
+    const hasMore = posts.length > limit;
+    const actualPosts = hasMore ? posts.slice(0, limit) : posts;
+
+    // Get the next cursor (created_at of the last post)
+    const nextCursor =
+      hasMore && actualPosts.length > 0
+        ? actualPosts[actualPosts.length - 1].created_at
+        : undefined;
+
+    // Map posts to response format
+    const mappedPosts = actualPosts.map((post) => mapPostToResponse(post));
+
+    return {
+      data: mappedPosts,
+      pagination: {
+        next_cursor: nextCursor,
+        has_more: hasMore,
+      },
+    };
+  }
+
+  /**
+   * Get a single post by ID with all its relations
+   * Optionally includes comments if requested
+   */
+  async getPostById(
+    postId: string,
+    options: {
+      includeComments?: boolean;
+      commentsLimit?: number;
+    }
+  ): Promise<
+    PostRow & {
+      metadata?: any[];
+      media?: any[];
+      tagged_users?: any[];
+      author?: any;
+      comments?: any[];
+    }
+  > {
+    // Build the base query with all relations
+    let query = supabase
+      .from("posts")
+      .select(
+        `
+        *,
+        author:profiles!posts_author_id_fkey(id, username, first_name, last_name, avatar_url),
+        metadata:post_metadata(
+          metadata:metadata(id, name, type)
+        ),
+        media:post_media(
+          display_order,
+          media:media(id, url, thumbnail_url, type)
+        ),
+        tagged_users:post_tagged_users(
+          user:profiles!post_tagged_users_user_id_fkey(id, username, first_name, last_name, avatar_url)
+        )
+      `
+      )
+      .eq("id", postId)
+      .single();
+
+    const { data: post, error } = await query;
+
+    if (error || !post) {
+      throw new Error(`Post not found: ${error?.message || "Unknown error"}`);
+    }
+
+    // Map the post to response format
+    const mappedPost = mapPostToResponse(post);
+
+    // Optionally include comments
+    if (options.includeComments) {
+      const { data: comments, error: commentsError } = await supabase
+        .from("comments")
+        .select(
+          `
+          *,
+          author:profiles!comments_author_id_fkey(id, username, first_name, last_name, avatar_url)
+        `
+        )
+        .eq("post_id", postId)
+        .order("created_at", { ascending: false })
+        .limit(options.commentsLimit ?? 10);
+
+      if (!commentsError && comments) {
+        return {
+          ...mappedPost,
+          comments: comments,
+        };
+      }
+    }
+
+    return mappedPost;
   }
 }

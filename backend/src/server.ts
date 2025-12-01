@@ -4,9 +4,12 @@ import { corsMiddleware } from "./middleware/cors.middleware.js";
 import swaggerUi from "swagger-ui-express";
 import { RegisterRoutes } from "./routes/tsoa-routes.js";
 import { buildErrorResponse } from "./utils/error-handler.js";
+import multer from "multer";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { UploadService } from "./controllers/upload.service.js";
+import { extractUserId } from "./utils/auth-helpers.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,6 +22,14 @@ const PORT = process.env.PORT || 3001;
 app.use(corsMiddleware);
 app.use(express.json());
 
+// Configure multer for file uploads (memory storage for Supabase)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB max file size
+  },
+});
+
 // Swagger UI
 try {
   const swaggerDocument = JSON.parse(
@@ -29,8 +40,36 @@ try {
   console.error("Unable to load swagger.json", err);
 }
 
-// TSOA Routes (all routes are prefixed with /api in tsoa.json)
+// Custom upload route (handled before TSOA since TSOA doesn't handle file uploads well)
 const apiRouter = express.Router();
+
+// POST /api/upload - Upload media files
+apiRouter.post(
+  "/upload",
+  upload.array("files", 4), // Max 4 files, field name is "files"
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Extract user ID from auth token
+      const userId = await extractUserId(req);
+
+      // Get uploaded files
+      const files = req.files as Express.Multer.File[];
+      if (!files || files.length === 0) {
+        return res.status(400).json({ error: "No files provided" });
+      }
+
+      // Upload files using the upload service
+      const uploadService = new UploadService();
+      const result = await uploadService.uploadFiles(files, userId);
+
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// TSOA Routes (all routes are prefixed with /api in tsoa.json)
 RegisterRoutes(apiRouter);
 app.use("/api", apiRouter);
 
