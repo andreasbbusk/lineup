@@ -1,7 +1,7 @@
 // frontend/app/components/onboarding-auth/onboarding-back-button.tsx
 "use client";
 
-import { useOnboardingNavigation } from "@/app/lib/hooks/useOnboardingNavigation";
+import { useOnboardingNavigation } from "@/app/lib/features/profiles";
 import { ArrowLeftIcon } from "lucide-react";
 
 interface OnboardingBackButtonProps {

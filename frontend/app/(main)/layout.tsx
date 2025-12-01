@@ -5,7 +5,7 @@ const NAV_LINKS = [
   { href: "/", label: "Feed" },
   { href: "/search", label: "Søg" },
   { href: "/create", label: "Opret" },
-  { href: "/messages", label: "Beskeder" },
+  { href: "/chats", label: "Beskeder" },
   { href: "/profile", label: "Profil" },
 ];
 

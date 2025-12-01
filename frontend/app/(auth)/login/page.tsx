@@ -1,5 +1,5 @@
-import { LoginWrapper } from "@/app/components/onboarding-auth";
+import { LoginForm } from "@/app/lib/features/auth";
 
 export default function Page() {
-  return <LoginWrapper />;
+  return <LoginForm />;
 }
