@@ -31,30 +31,21 @@ export async function updateUserProfile(
   username: string,
   updates: ProfileUpdateRequest
 ): Promise<UserProfile> {
-  console.log("🔵 updateUserProfile called with:", { username, updates });
 
-  const result = await apiClient.PUT("/users/{username}", {
+  const { data, error, response } = await apiClient.PUT("/users/{username}", {
     params: {
       path: { username },
     },
     body: updates,
   });
 
-  console.log("🔵 API Response:", {
-    data: result.data,
-    error: result.error,
-    response: result.response,
-    status: result.response?.status,
-    statusText: result.response?.statusText,
-  });
-
-  if (result.error) {
-    handleApiError(result.error, result.response);
+  if (error) {
+    handleApiError(error, response);
   }
 
-  if (!result.data) {
+  if (!data) {
     throw new Error("No data returned from API");
   }
 
-  return result.data;
+  return data;
 }

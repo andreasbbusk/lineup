@@ -20,7 +20,7 @@ app.use(express.json());
 
 // Swagger UI
 try {
-  const swaggerPath = path.join(__dirname, "..", "docs", "swagger.json");
+  const swaggerPath = path.join(__dirname, "docs", "swagger.json");
   const swaggerDocument = JSON.parse(fs.readFileSync(swaggerPath, "utf8"));
   app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 } catch (err) {

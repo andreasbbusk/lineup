@@ -29,7 +29,7 @@ export function OnboardingWrapper() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { step } = useOnboardingNavigation();
-  const { profile, is_authenticated } = useAppStore();
+  const { profile, isAuthenticated } = useAppStore();
   const [isMounted, setIsMounted] = useState(false);
 
   // ✅ Wait for client-side mount
@@ -44,7 +44,7 @@ export function OnboardingWrapper() {
     if (!isMounted) return;
 
     // SCENARIO: User is fully done -> Kick to Home
-    if (is_authenticated && profile?.onboardingCompleted) {
+    if (isAuthenticated && profile?.onboardingCompleted) {
       router.replace("/");
       return;
     }
@@ -52,24 +52,24 @@ export function OnboardingWrapper() {
     const urlStep = parseInt(searchParams.get("step") || "0", 10);
 
     // SCENARIO: Guest trying to access Auth-only steps (3, 4, 5)
-    if (!is_authenticated && urlStep > 2) {
+    if (!isAuthenticated && urlStep > 2) {
       router.replace("/onboarding?step=2");
       return;
     }
 
     // SCENARIO: Logged-in user trying to see Splash/Signup (0, 1, 2)
-    if (is_authenticated && urlStep < 3) {
+    if (isAuthenticated && urlStep < 3) {
       router.replace("/onboarding?step=3");
       return;
     }
 
     // SCENARIO: Invalid step number
     if (urlStep < MIN_STEP || urlStep > MAX_STEP) {
-      const fallback = is_authenticated ? 3 : 0;
+      const fallback = isAuthenticated ? 3 : 0;
       router.replace(`/onboarding?step=${fallback}`);
     }
 
-  }, [isMounted, is_authenticated, profile, router, searchParams]);
+  }, [isMounted, isAuthenticated, profile, router, searchParams]);
 
   // 3. RENDER GUARDS
   
@@ -83,7 +83,7 @@ export function OnboardingWrapper() {
   }
 
   // Don't render if we are about to redirect
-  if (is_authenticated && profile?.onboardingCompleted) return null;
+  if (isAuthenticated && profile?.onboardingCompleted) return null;
 
   const Component = STEP_COMPONENTS[step as keyof typeof STEP_COMPONENTS];
 

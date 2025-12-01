@@ -866,10 +866,8 @@ export interface components {
             avatarUrl: string | null;
             bio: string | null;
             aboutMe: string | null;
-            /** Format: double */
-            phoneCountryCode?: number;
-            /** Format: double */
-            phoneNumber?: number;
+            phoneCountryCode?: string;
+            phoneNumber?: string;
             /** Format: double */
             yearOfBirth?: number;
             location: string;
@@ -880,6 +878,8 @@ export interface components {
             createdAt: string | null;
             updatedAt: string | null;
         };
+        /** @enum {string} */
+        LookingForType: "connect" | "promote" | "find-band" | "find-services";
         /**
          * @description DTO for updating user profile
          *
@@ -941,17 +941,15 @@ export interface components {
              */
             spotifyPlaylistUrl?: string;
             /**
-             * Format: double
              * @description Phone country code (1-999)
              * @example 1
              */
-            phoneCountryCode?: number;
+            phoneCountryCode?: string;
             /**
-             * Format: double
-             * @description Phone number (4-15 digits)
+             * @description Phone number (4-15 digits, stored as bigint)
              * @example 1234567890
              */
-            phoneNumber?: number;
+            phoneNumber?: string;
             /**
              * Format: double
              * @description Year of birth
@@ -975,7 +973,7 @@ export interface components {
              *       "find-band"
              *     ]
              */
-            lookingFor?: string[];
+            lookingFor?: components["schemas"]["LookingForType"][];
         };
         /**
          * @description API response format for a single uploaded file
@@ -2078,7 +2076,9 @@ export interface operations {
     GetUser: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                Authorization?: string;
+            };
             path: {
                 /** @description The username of the user to retrieve */
                 username: string;
@@ -2101,7 +2101,9 @@ export interface operations {
     UpdateProfile: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                Authorization?: string;
+            };
             path: {
                 /** @description The username of the profile to update (must match authenticated user) */
                 username: string;

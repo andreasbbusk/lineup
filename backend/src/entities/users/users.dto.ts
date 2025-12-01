@@ -3,12 +3,17 @@ import {
   IsString,
   IsOptional,
   IsBoolean,
-  IsNumber,
+  IsInt,
   IsArray,
+  IsEnum,
+  Min,
+  Max,
   Length,
   Matches,
 } from "class-validator";
+import { Type } from "class-transformer";
 import { ProfileUpdateRequest } from "../../types/api.types.js";
+import { LookingForType } from "../../utils/supabase-helpers.js";
 
 /**
  * DTO for updating user profile
@@ -116,15 +121,21 @@ export class UpdateProfileDto implements ProfileUpdateRequest {
    * @example 1
    */
   @IsOptional()
-  @IsNumber()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(999)
   phoneCountryCode?: number;
 
   /**
-   * Phone number (4-15 digits)
+   * Phone number (4-15 digits, stored as bigint)
    * @example 1234567890
    */
   @IsOptional()
-  @IsNumber()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1000, { message: "Phone number must be at least 4 digits" })
+  @Max(999999999999999, { message: "Phone number must be at most 15 digits" })
   phoneNumber?: number;
 
   /**
@@ -132,7 +143,12 @@ export class UpdateProfileDto implements ProfileUpdateRequest {
    * @example 1990
    */
   @IsOptional()
-  @IsNumber()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1900)
+  @Max(new Date().getFullYear() - 13, {
+    message: "You must be at least 13 years old",
+  })
   yearOfBirth?: number;
 
   /**
@@ -157,6 +173,6 @@ export class UpdateProfileDto implements ProfileUpdateRequest {
    */
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  lookingFor?: string[];
+  @IsEnum(["connect", "promote", "find-band", "find-services"], { each: true })
+  lookingFor?: LookingForType[];
 }

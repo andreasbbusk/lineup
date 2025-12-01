@@ -14,7 +14,7 @@ export const apiClient = createClient<paths>({
 // Middleware to add auth token
 apiClient.use({
   async onRequest({ request }) {
-    const token = useAppStore.getState().access_token;
+    const token = useAppStore.getState().accessToken;
     if (token) {
       request.headers.set("Authorization", `Bearer ${token}`);
     }
@@ -36,9 +36,12 @@ export class ApiError extends Error {
 }
 
 // Helper to handle error responses consistently
-export function handleApiError(error: ErrorResponse, response?: Response): never {
+export function handleApiError(
+  error: ErrorResponse,
+  response?: Response
+): never {
   if (response?.status === 401) {
-    useAppStore.getState().clear_auth();
+    useAppStore.getState().clearAuth();
     throw new ApiError(
       401,
       "UNAUTHORIZED",

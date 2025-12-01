@@ -24,13 +24,13 @@ const USER_TYPES = [
 ];
 
 export function OnboardingUserTypeStep() {
-  const { onboarding, update_onboarding_data } = useAppStore();
+  const { onboarding, updateOnboardingData } = useAppStore();
   const { nextStep } = useOnboardingNavigation();
 
-  const selectedType = onboarding.data.user_type;
+  const selectedType = onboarding.data.userType;
 
   const handleSelect = (value: "musician" | "service_provider") => {
-    update_onboarding_data({ user_type: value });
+    updateOnboardingData({ userType: value });
   };
 
   const canContinue = !!selectedType;

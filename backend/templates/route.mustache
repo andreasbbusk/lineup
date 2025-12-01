@@ -20,8 +20,19 @@ function authenticateMiddleware(security: TsoaRoute.Security[]): RequestHandler 
     return async (req: ExRequest, res: ExResponse, next: any) => {
         try {
             for (const securityGroup of security) {
-                for (const securityName in securityGroup) {
-                    await expressAuthenticationRecasted(req, securityName, securityGroup[securityName], res);
+                // Handle both array and object security groups
+                if (Array.isArray(securityGroup)) {
+                    // If it's an array, iterate over elements (each element is an object with security names)
+                    for (const securityObj of securityGroup) {
+                        for (const securityName of Object.keys(securityObj)) {
+                            await expressAuthenticationRecasted(req, securityName, securityObj[securityName], res);
+                        }
+                    }
+                } else {
+                    // If it's an object, iterate over keys directly
+                    for (const securityName of Object.keys(securityGroup)) {
+                        await expressAuthenticationRecasted(req, securityName, securityGroup[securityName], res);
+                    }
                 }
             }
             next();

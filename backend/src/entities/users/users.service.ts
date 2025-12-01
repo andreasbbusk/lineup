@@ -41,11 +41,11 @@ export class UsersService {
   }
 
   /**
-   * Update user profile (also handles initial profile creation)
+   * Update user profile
    * Only the profile owner can update their own profile
    * @param username Username of profile to update
    * @param userId ID of the authenticated user (from JWT)
-   * @param data Data to update (or create initial profile)
+   * @param data Data to update
    * @param token Bearer token for RLS bypass
    */
   async updateProfile(
@@ -57,15 +57,23 @@ export class UsersService {
     // Create authenticated Supabase client with user's token
     const authedSupabase = createAuthenticatedClient(token);
 
-    // Check if profile exists (use maybeSingle - doesn't throw if not found)
+    // Check if profile exists - use single() to throw if not found
     const { data: profile, error: fetchError } = await authedSupabase
       .from("profiles")
       .select("id, username")
       .eq("username", username)
-      .maybeSingle();
+      .single();
 
-    // For updates: verify ownership
-    if (profile && profile.id !== userId) {
+    if (fetchError || !profile) {
+      throw createHttpError({
+        message: "User not found",
+        statusCode: 404,
+        code: "NOT_FOUND",
+      });
+    }
+
+    // Verify ownership - user can only update their own profile
+    if (profile.id !== userId) {
       throw createHttpError({
         message: "You can only update your own profile",
         statusCode: 403,
@@ -73,23 +81,12 @@ export class UsersService {
       });
     }
 
-    // For creation: username in path must match data or be the user's ID
-    if (!profile && username !== userId) {
-      throw createHttpError({
-        message: "Username mismatch during profile creation",
-        statusCode: 400,
-        code: "BAD_REQUEST",
-      });
-    }
-
     // Separate lookingFor (relational data) from profile fields
     const { lookingFor, ...profileData } = data;
 
-    // Build update/insert data - convert camelCase to snake_case
+    // Build update data - convert camelCase to snake_case
     // Only include defined fields
-    const updateData: ProfileUpdate = {
-      id: userId, // Ensure ID is set for upsert
-    };
+    const updateData: ProfileUpdate = {};
 
     if (profileData.username !== undefined)
       updateData.username = profileData.username;
@@ -167,18 +164,17 @@ export class UsersService {
       }
     }
 
-    // Upsert profile (insert if new, update if exists)
+    // Update profile (not upsert - this is an update endpoint)
     const { data: updatedProfile, error: updateError } = await authedSupabase
       .from("profiles")
-      .upsert(updateData as any, { onConflict: "id" })
+      .update(updateData)
+      .eq("id", userId)
       .select()
       .single();
 
     if (updateError || !updatedProfile) {
       throw createHttpError({
-        message: profile
-          ? "Failed to update profile"
-          : "Failed to create profile",
+        message: "Failed to update profile",
         statusCode: 500,
         code: "DATABASE_ERROR",
         details: updateError,

@@ -32,7 +32,7 @@ export interface AuthResponse {
  */
 export async function signupWithAuth(data: SignupWithAuthRequest): Promise<{
   user: { id: string; email: string };
-  session: { access_token: string } | null;
+  session: { accessToken: string } | null;
 }> {
   const { data: authData, error } = await supabase.auth.signUp({
     email: data.email,
@@ -56,7 +56,7 @@ export async function signupWithAuth(data: SignupWithAuthRequest): Promise<{
       email: authData.user.email!,
     },
     session: authData.session
-      ? { access_token: authData.session.access_token }
+      ? { accessToken: authData.session.access_token }
       : null,
   };
 }
@@ -125,11 +125,14 @@ export async function checkUsernameAvailability(
     return { available: false };
   }
 
-  const { data, error, response } = await apiClient.GET("/auth/check-username", {
-    params: {
-      query: { username },
-    },
-  });
+  const { data, error, response } = await apiClient.GET(
+    "/auth/check-username",
+    {
+      params: {
+        query: { username },
+      },
+    }
+  );
 
   if (error) {
     handleApiError(error, response);

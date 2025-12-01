@@ -104,6 +104,15 @@
 					"createdAt": "2024-01-15T10:30:00Z"
 				}
 			},
+			"LookingForType": {
+				"type": "string",
+				"enum": [
+					"connect",
+					"promote",
+					"find-band",
+					"find-services"
+				]
+			},
 			"UpdateProfileDto": {
 				"description": "DTO for updating user profile\n\nUsed to update user profile information. All fields are optional - only\nprovided fields will be updated. The user_id is automatically extracted\nfrom the authentication token.",
 				"properties": {
@@ -161,7 +170,7 @@
 					"phoneNumber": {
 						"type": "number",
 						"format": "double",
-						"description": "Phone number (4-15 digits)",
+						"description": "Phone number (4-15 digits, stored as bigint)",
 						"example": 1234567890
 					},
 					"yearOfBirth": {
@@ -182,7 +191,7 @@
 					},
 					"lookingFor": {
 						"items": {
-							"type": "string"
+							"$ref": "#/components/schemas/LookingForType"
 						},
 						"type": "array",
 						"description": "Types of connections user is looking for",
