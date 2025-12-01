@@ -51,9 +51,9 @@ export function mapBookmarkToResponse(
       result.post.author = {
         id: bookmark.post.author.id,
         username: bookmark.post.author.username,
-        firstName: bookmark.post.author.first_name,
-        lastName: bookmark.post.author.last_name,
-        avatarUrl: bookmark.post.author.avatar_url,
+        firstName: bookmark.post.author.first_name ?? null,
+        lastName: bookmark.post.author.last_name ?? null,
+        avatarUrl: bookmark.post.author.avatar_url ?? null,
       };
     }
   }

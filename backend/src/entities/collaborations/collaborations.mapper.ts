@@ -31,9 +31,9 @@ export function mapCollaborationToResponse(
       ? {
           id: collaboration.collaborator.id,
           username: collaboration.collaborator.username,
-          firstName: collaboration.collaborator.first_name,
-          lastName: collaboration.collaborator.last_name,
-          avatarUrl: collaboration.collaborator.avatar_url,
+          firstName: collaboration.collaborator.first_name ?? null,
+          lastName: collaboration.collaborator.last_name ?? null,
+          avatarUrl: collaboration.collaborator.avatar_url ?? null,
         }
       : undefined,
   };

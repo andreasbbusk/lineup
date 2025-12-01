@@ -94,7 +94,7 @@ export class CommentsService {
     const { data: post, error: postError } = await authedSupabase
       .from("posts")
       .select("id")
-      .eq("id", data.post_id)
+      .eq("id", data.postId)
       .single();
 
     if (postError || !post) {
@@ -107,7 +107,7 @@ export class CommentsService {
 
     // Create the comment
     const commentInsert: CommentInsert = {
-      post_id: data.post_id,
+      post_id: data.postId,
       author_id: userId,
       content: data.content.trim(),
     };

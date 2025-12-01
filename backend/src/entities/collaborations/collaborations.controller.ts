@@ -104,7 +104,7 @@ export class CollaborationsController extends Controller {
 
         return this.collaborationsService.createCollaboration(
           userId,
-          body.collaborator_id,
+          body.collaboratorId,
           body.description,
           token
         );

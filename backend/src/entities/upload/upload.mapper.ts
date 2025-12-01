@@ -9,7 +9,7 @@ export function mapMediaToResponse(media: MediaRow): UploadedFileResponse {
   return {
     id: media.id,
     url: media.url,
-    thumbnailUrl: media.thumbnail_url ?? undefined,
+    thumbnailUrl: media.thumbnail_url ?? null,
     type: media.type,
     createdAt: media.created_at,
   };

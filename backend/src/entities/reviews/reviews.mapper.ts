@@ -26,9 +26,9 @@ function mapPartialProfileToUser(profile: PartialProfile) {
   return {
     id: profile.id,
     username: profile.username,
-    firstName: profile.first_name ?? undefined,
-    lastName: profile.last_name ?? undefined,
-    avatarUrl: profile.avatar_url ?? undefined,
+    firstName: profile.first_name ?? null,
+    lastName: profile.last_name ?? null,
+    avatarUrl: profile.avatar_url ?? null,
   };
 }
 
@@ -44,7 +44,7 @@ export function mapReviewToResponse(
     userId: review.user_id,
     reviewerId: review.reviewer_id,
     rating: review.rating,
-    description: review.description ?? undefined,
+    description: review.description ?? null,
     createdAt: review.created_at,
     reviewer: review.reviewer
       ? mapPartialProfileToUser(review.reviewer)

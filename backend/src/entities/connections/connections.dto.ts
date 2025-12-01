@@ -10,7 +10,7 @@ import { ConnectionStatus } from "../../types/api.types.js";
  *
  * @example
  * {
- *   "recipient_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+ *   "recipientId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
  * }
  */
 export class CreateConnectionRequestDto
@@ -26,7 +26,7 @@ export class CreateConnectionRequestDto
    */
   @IsUUID(4, { message: "Recipient ID must be a valid UUID" })
   @IsString({ message: "Recipient ID is required" })
-  recipient_id!: string;
+  recipientId!: string;
 }
 
 /**

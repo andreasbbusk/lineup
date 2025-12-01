@@ -17,7 +17,7 @@ import { PostInsert, PostType } from "../../utils/supabase-helpers.js";
  * @example
  * {
  *   "url": "https://example.com/image.jpg",
- *   "thumbnail_url": "https://example.com/thumb.jpg",
+ *   "thumbnailUrl": "https://example.com/thumb.jpg",
  *   "type": "image"
  * }
  */
@@ -35,7 +35,7 @@ export class MediaItemDto {
    */
   @IsOptional()
   @IsString()
-  thumbnail_url?: string;
+  thumbnailUrl?: string;
 
   /**
    * Media type: "image" or "video"
@@ -52,7 +52,7 @@ export class MediaItemDto {
  * automatically extracted from the authentication token.
  *
  * For "note" posts, you can include tags.
- * For "request" posts, you can include genres and paid_opportunity flag.
+ * For "request" posts, you can include genres and paidOpportunity flag.
  * All post types can include media attachments and tagged users.
  *
  * @example
@@ -109,7 +109,7 @@ export class CreatePostBody
    */
   @IsOptional()
   @IsBoolean()
-  paid_opportunity?: boolean | null;
+  paidOpportunity?: boolean | null;
 
   /**
    * Optional expiration date/time (ISO 8601 format)
@@ -117,7 +117,7 @@ export class CreatePostBody
    */
   @IsOptional()
   @IsString()
-  expires_at?: string | null;
+  expiresAt?: string | null;
 
   /**
    * Tags for "note" type posts

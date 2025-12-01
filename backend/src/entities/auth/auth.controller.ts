@@ -1,6 +1,8 @@
-import { Controller, Get, Query, Route, Tags } from "tsoa";
+import { Body, Controller, Post, Route, Tags } from "tsoa";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
-import { checkUsernameAvailability } from "./auth.service.js";
+import { signUp, signIn } from "./auth.service.js";
+import { SignupDto, LoginDto } from "./auth.dto.js";
+import { AuthResponse } from "../../types/api.types.js";
 
 @Route("auth")
 @Tags("Authentication")
@@ -38,7 +40,7 @@ export class AuthController extends Controller {
   @Post("/login")
   public async login(@Body() body: LoginDto): Promise<AuthResponse> {
     return handleControllerRequest(this, () =>
-      checkUsernameAvailability(username)
+      signIn(body.email, body.password)
     );
   }
 }

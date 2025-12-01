@@ -22,8 +22,8 @@ import { ConversationType } from "../../utils/supabase-helpers.js";
  * {
  *   "type": "group",
  *   "name": "Band Practice",
- *   "avatar_url": "https://example.com/avatar.jpg",
- *   "participant_ids": ["user-id-1", "user-id-2"]
+ *   "avatarUrl": "https://example.com/avatar.jpg",
+ *   "participantIds": ["user-id-1", "user-id-2"]
  * }
  */
 export class CreateConversationDto
@@ -65,7 +65,7 @@ export class CreateConversationDto
    */
   @IsOptional()
   @IsString()
-  avatar_url?: string | null;
+  avatarUrl?: string | null;
 
   /**
    * Array of user IDs to add as participants (excluding the creator)
@@ -79,7 +79,7 @@ export class CreateConversationDto
     message: "Each participant ID must be a valid UUID",
   })
   @IsString({ each: true })
-  participant_ids!: string[];
+  participantIds!: string[];
 }
 
 /**
@@ -91,7 +91,7 @@ export class CreateConversationDto
  * @example
  * {
  *   "name": "Updated Group Name",
- *   "avatar_url": "https://example.com/new-avatar.jpg"
+ *   "avatarUrl": "https://example.com/new-avatar.jpg"
  * }
  */
 export class UpdateConversationDto {
@@ -112,5 +112,5 @@ export class UpdateConversationDto {
    */
   @IsOptional()
   @IsString()
-  avatar_url?: string | null;
+  avatarUrl?: string | null;
 }

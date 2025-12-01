@@ -34,7 +34,7 @@ export class UpdateProfileDto implements ProfileUpdateRequest {
   @IsOptional()
   @IsString()
   @Length(1, 50)
-  first_name?: string;
+  firstName?: string;
 
   /**
    * Last name (1-50 characters)
@@ -43,7 +43,7 @@ export class UpdateProfileDto implements ProfileUpdateRequest {
   @IsOptional()
   @IsString()
   @Length(1, 50)
-  last_name?: string;
+  lastName?: string;
 
   /**
    * Short bio (max 100 characters)
@@ -61,7 +61,7 @@ export class UpdateProfileDto implements ProfileUpdateRequest {
   @IsOptional()
   @IsString()
   @Length(0, 500)
-  about_me?: string;
+  aboutMe?: string;
 
   /**
    * URL to user's avatar image
@@ -69,7 +69,7 @@ export class UpdateProfileDto implements ProfileUpdateRequest {
    */
   @IsOptional()
   @IsString()
-  avatar_url?: string;
+  avatarUrl?: string;
 
   /**
    * User's location (1-100 characters)
@@ -89,7 +89,7 @@ export class UpdateProfileDto implements ProfileUpdateRequest {
   @Matches(/^#[0-9A-Fa-f]{6}$/, {
     message: "Theme color must be a valid hex color (e.g., #FF5733)",
   })
-  theme_color?: string;
+  themeColor?: string;
 
   /**
    * URL to Spotify playlist
@@ -116,15 +116,35 @@ export class UpdateProfileDto implements ProfileUpdateRequest {
   phoneNumber?: number;
 
   /**
+   * Year of birth
+   * @example 1990
+   */
+  @IsOptional()
+  @IsNumber()
+  yearOfBirth?: number;
+
+  /**
+   * User type: "musician", "service_provider", or "other"
+   * @example "musician"
+   */
+  @IsOptional()
+  @IsString()
+  userType?: string;
+
+  /**
    * Whether user has completed onboarding
    * @example true
    */
   @IsOptional()
   @IsBoolean()
-  onboarding_completed?: boolean;
+  onboardingCompleted?: boolean;
 
+  /**
+   * Types of connections user is looking for
+   * @example ["connect", "find-band"]
+   */
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  looking_for?: string[];
+  lookingFor?: string[];
 }

@@ -9,7 +9,7 @@ import { BookmarkInsert } from "../../utils/supabase-helpers.js";
  *
  * @example
  * {
- *   "post_id": "123e4567-e89b-12d3-a456-426614174000"
+ *   "postId": "123e4567-e89b-12d3-a456-426614174000"
  * }
  */
 export class CreateBookmarkDto
@@ -21,5 +21,5 @@ export class CreateBookmarkDto
    */
   @IsUUID(4, { message: "Post ID must be a valid UUID" })
   @IsString({ message: "Post ID is required" })
-  post_id!: string;
+  postId!: string;
 }

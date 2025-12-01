@@ -10,8 +10,8 @@ import { MessageInsert } from "../../utils/supabase-helpers.js";
  * @example
  * {
  *   "content": "Hey, how are you?",
- *   "media_ids": ["media-id-1", "media-id-2"],
- *   "reply_to_message_id": "message-id-to-reply-to"
+ *   "mediaIds": ["media-id-1", "media-id-2"],
+ *   "replyToMessageId": "message-id-to-reply-to"
  * }
  */
 export class CreateMessageDto
@@ -49,7 +49,7 @@ export class CreateMessageDto
   @IsArray()
   @IsUUID(4, { each: true, message: "Each media ID must be a valid UUID" })
   @IsString({ each: true })
-  media_ids?: string[] | null;
+  mediaIds?: string[] | null;
 
   /**
    * Optional ID of the message this is replying to
@@ -58,7 +58,7 @@ export class CreateMessageDto
   @IsOptional()
   @IsUUID(4, { message: "Reply to message ID must be a valid UUID" })
   @IsString()
-  reply_to_message_id?: string | null;
+  replyToMessageId?: string | null;
 }
 
 /**

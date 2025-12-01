@@ -16,16 +16,16 @@ export function mapProfileToAPI(
     username: profile.username,
     firstName: profile.first_name,
     lastName: profile.last_name,
-    avatarUrl: profile.avatar_url ?? undefined,
-    bio: profile.bio ?? undefined,
-    aboutMe: profile.about_me ?? undefined,
+    avatarUrl: profile.avatar_url ?? null,
+    bio: profile.bio ?? null,
+    aboutMe: profile.about_me ?? null,
     location: profile.location,
     userType: profile.user_type,
-    themeColor: profile.theme_color ?? undefined,
-    spotifyPlaylistUrl: profile.spotify_playlist_url ?? undefined,
+    themeColor: profile.theme_color ?? null,
+    spotifyPlaylistUrl: profile.spotify_playlist_url ?? null,
     onboardingCompleted: profile.onboarding_completed ?? false,
-    createdAt: profile.created_at ?? new Date().toISOString(),
-    updatedAt: profile.updated_at ?? new Date().toISOString(),
+    createdAt: profile.created_at ?? null,
+    updatedAt: profile.updated_at ?? null,
   };
 
   // Include private fields only for own profile
@@ -41,4 +41,3 @@ export function mapProfileToAPI(
   // Public profile (no phone, no yearOfBirth)
   return baseProfile;
 }
-

@@ -173,8 +173,8 @@ export class MessagesService {
   ): Promise<MessageResponse> {
     const authedSupabase = createAuthenticatedClient(token);
 
-    // Validate that content or media_ids is provided
-    if (!data.content && (!data.media_ids || data.media_ids.length === 0)) {
+    // Validate that content or mediaIds is provided
+    if (!data.content && (!data.mediaIds || data.mediaIds.length === 0)) {
       throw createHttpError({
         message: "Message must have content or media",
         statusCode: 400,
@@ -199,12 +199,12 @@ export class MessagesService {
       });
     }
 
-    // Verify reply_to_message_id exists and is in the same conversation
-    if (data.reply_to_message_id) {
+    // Verify replyToMessageId exists and is in the same conversation
+    if (data.replyToMessageId) {
       const { data: replyMessage } = await authedSupabase
         .from("messages")
         .select("conversation_id")
-        .eq("id", data.reply_to_message_id)
+        .eq("id", data.replyToMessageId)
         .eq("conversation_id", conversationId)
         .single();
 
@@ -222,8 +222,8 @@ export class MessagesService {
       conversation_id: conversationId,
       sender_id: userId,
       content: data.content ?? null,
-      media_ids: data.media_ids ?? null,
-      reply_to_message_id: data.reply_to_message_id ?? null,
+      media_ids: data.mediaIds ?? null,
+      reply_to_message_id: data.replyToMessageId ?? null,
     };
 
     const { data: newMessage, error } = await authedSupabase

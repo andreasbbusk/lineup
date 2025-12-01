@@ -1,4 +1,5 @@
 import {
+  IsEmail,
   IsEnum,
   IsNumber,
   IsString,
@@ -93,7 +94,7 @@ export class SignupDto {
   @IsNumber({}, { message: "Country code is required" })
   @Min(1, { message: "Invalid country code" })
   @Max(999, { message: "Invalid country code" })
-  phone_country_code!: number;
+  phoneCountryCode!: number;
 
   /**
    * Phone number (4-15 digits)
@@ -102,7 +103,7 @@ export class SignupDto {
   @IsNumber({}, { message: "Phone number is required" })
   @Min(1000, { message: "Phone number must be at least 4 digits" })
   @Max(999999999999999, { message: "Phone number must be at most 15 digits" })
-  phone_number!: number;
+  phoneNumber!: number;
 
   /**
    * Year of birth (must be 13+ years old)
@@ -113,13 +114,13 @@ export class SignupDto {
     const currentYear = new Date().getFullYear();
     const minYear = 1900;
     const maxYear = currentYear - 13;
-    return o.year_of_birth >= minYear && o.year_of_birth <= maxYear;
+    return o.yearOfBirth >= minYear && o.yearOfBirth <= maxYear;
   })
   @Min(1900, { message: "Year of birth must be after 1900" })
   @Max(new Date().getFullYear() - 13, {
     message: "You must be at least 13 years old",
   })
-  year_of_birth!: number;
+  yearOfBirth!: number;
 
   /**
    * User's location (1-100 characters)

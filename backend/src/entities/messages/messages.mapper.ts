@@ -47,9 +47,9 @@ function mapPartialProfileToUser(profile: PartialProfile) {
   return {
     id: profile.id,
     username: profile.username,
-    firstName: profile.first_name ?? undefined,
-    lastName: profile.last_name ?? undefined,
-    avatarUrl: profile.avatar_url ?? undefined,
+    firstName: profile.first_name ?? null,
+    lastName: profile.last_name ?? null,
+    avatarUrl: profile.avatar_url ?? null,
   };
 }
 
@@ -82,12 +82,12 @@ export function mapMessageToResponse(
     conversationId: message.conversation_id,
     senderId: message.sender_id,
     content: message.content,
-    mediaIds: message.media_ids ?? undefined,
+    mediaIds: message.media_ids ?? null,
     isEdited: message.is_edited,
-    editedAt: message.edited_at ?? undefined,
+    editedAt: message.edited_at ?? null,
     isDeleted: message.is_deleted,
-    deletedAt: message.deleted_at ?? undefined,
-    replyToMessageId: message.reply_to_message_id ?? undefined,
+    deletedAt: message.deleted_at ?? null,
+    replyToMessageId: message.reply_to_message_id ?? null,
     createdAt: message.created_at,
     sentViaWebsocket: message.sent_via_websocket,
     sender: message.sender
@@ -103,7 +103,7 @@ export function mapMessageToResponse(
       ? message.media.map((m) => ({
           id: m.id,
           url: m.url,
-          thumbnailUrl: m.thumbnail_url ?? undefined,
+          thumbnailUrl: m.thumbnail_url ?? null,
           type: m.type,
         }))
       : undefined,

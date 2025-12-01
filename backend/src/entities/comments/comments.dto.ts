@@ -9,7 +9,7 @@ import { CommentInsert } from "../../utils/supabase-helpers.js";
  *
  * @example
  * {
- *   "post_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+ *   "postId": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
  *   "content": "Great post! Looking forward to collaborating."
  * }
  */
@@ -23,7 +23,7 @@ export class CreateCommentDto
    */
   @IsUUID(4, { message: "Post ID must be a valid UUID" })
   @IsString({ message: "Post ID is required" })
-  post_id!: string;
+  postId!: string;
 
   /**
    * The comment content (1-1000 characters)

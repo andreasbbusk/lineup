@@ -8,6 +8,7 @@
 		"responses": {},
 		"schemas": {
 			"UserProfile": {
+				"description": "API response format for user profile",
 				"properties": {
 					"id": {
 						"type": "string"
@@ -22,13 +23,16 @@
 						"type": "string"
 					},
 					"avatarUrl": {
-						"type": "string"
+						"type": "string",
+						"nullable": true
 					},
 					"bio": {
-						"type": "string"
+						"type": "string",
+						"nullable": true
 					},
 					"aboutMe": {
-						"type": "string"
+						"type": "string",
+						"nullable": true
 					},
 					"phoneCountryCode": {
 						"type": "number",
@@ -49,19 +53,24 @@
 						"type": "string"
 					},
 					"themeColor": {
-						"type": "string"
+						"type": "string",
+						"nullable": true
 					},
 					"spotifyPlaylistUrl": {
-						"type": "string"
+						"type": "string",
+						"nullable": true
 					},
 					"onboardingCompleted": {
-						"type": "boolean"
+						"type": "boolean",
+						"nullable": true
 					},
 					"createdAt": {
-						"type": "string"
+						"type": "string",
+						"nullable": true
 					},
 					"updatedAt": {
-						"type": "string"
+						"type": "string",
+						"nullable": true
 					}
 				},
 				"required": [
@@ -69,14 +78,31 @@
 					"username",
 					"firstName",
 					"lastName",
+					"avatarUrl",
+					"bio",
+					"aboutMe",
 					"location",
 					"userType",
+					"themeColor",
+					"spotifyPlaylistUrl",
 					"onboardingCompleted",
 					"createdAt",
 					"updatedAt"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"id": "123e4567-e89b-12d3-a456-426614174000",
+					"username": "johndoe",
+					"firstName": "John",
+					"lastName": "Doe",
+					"avatarUrl": "https://example.com/avatar.jpg",
+					"bio": "Musician and producer",
+					"location": "New York, NY",
+					"userType": "musician",
+					"onboardingCompleted": true,
+					"createdAt": "2024-01-15T10:30:00Z"
+				}
 			},
 			"UpdateProfileDto": {
 				"description": "DTO for updating user profile\r\n\r\nUsed to update user profile information. All fields are optional - only\r\nprovided fields will be updated. The user_id is automatically extracted\r\nfrom the authentication token.",
@@ -133,10 +159,32 @@
 						"description": "Phone number (4-15 digits)",
 						"example": 1234567890
 					},
+					"yearOfBirth": {
+						"type": "number",
+						"format": "double",
+						"description": "Year of birth",
+						"example": 1990
+					},
+					"userType": {
+						"type": "string",
+						"description": "User type: \"musician\", \"service_provider\", or \"other\"",
+						"example": "musician"
+					},
 					"onboardingCompleted": {
 						"type": "boolean",
 						"description": "Whether user has completed onboarding",
 						"example": true
+					},
+					"lookingFor": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array",
+						"description": "Types of connections user is looking for",
+						"example": [
+							"connect",
+							"find-band"
+						]
 					}
 				},
 				"type": "object",
@@ -181,7 +229,14 @@
 					"createdAt"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"id": "media-123",
+					"url": "https://storage.supabase.co/.../image.jpg",
+					"thumbnailUrl": "https://storage.supabase.co/.../thumb.jpg",
+					"type": "image",
+					"createdAt": "2024-01-20T15:30:00Z"
+				}
 			},
 			"UploadResponse": {
 				"description": "API response format for batch file upload",
@@ -197,7 +252,25 @@
 					"files"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"files": [
+						{
+							"id": "media-123",
+							"url": "https://storage.supabase.co/.../image1.jpg",
+							"thumbnailUrl": null,
+							"type": "image",
+							"createdAt": "2024-01-20T15:30:00Z"
+						},
+						{
+							"id": "media-124",
+							"url": "https://storage.supabase.co/.../image2.jpg",
+							"thumbnailUrl": null,
+							"type": "image",
+							"createdAt": "2024-01-20T15:30:00Z"
+						}
+					]
+				}
 			},
 			"UserSearchResult": {
 				"description": "Search result for a user (from search_people)",
@@ -258,7 +331,27 @@
 					"relevance"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"type": "user",
+					"id": "user-123",
+					"username": "johndoe",
+					"firstName": "John",
+					"lastName": "Doe",
+					"avatarUrl": "https://...",
+					"bio": "Musician and producer",
+					"location": "New York, NY",
+					"genres": [
+						"rock",
+						"indie"
+					],
+					"lookingFor": [
+						"connect",
+						"find-band"
+					],
+					"isConnected": false,
+					"relevance": 0.95
+				}
 			},
 			"CollaborationSearchResult": {
 				"description": "Search result for a collaboration request (from search_collaborations)",
@@ -317,7 +410,24 @@
 					"relevance"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"type": "collaboration",
+					"id": "post-123",
+					"title": "Looking for Drummer",
+					"description": "Rock band seeking experienced drummer",
+					"authorId": "user-456",
+					"authorUsername": "janedoe",
+					"authorAvatarUrl": "https://...",
+					"location": "Los Angeles, CA",
+					"paidOpportunity": true,
+					"genres": [
+						"rock",
+						"alternative"
+					],
+					"createdAt": "2024-01-20T12:00:00Z",
+					"relevance": 0.88
+				}
 			},
 			"TagSearchResult": {
 				"description": "Search result for metadata/tags (from search_tags)",
@@ -353,7 +463,14 @@
 					"relevance"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"type": "tag",
+					"id": "tag-123",
+					"name": "indie-rock",
+					"usageCount": 42,
+					"relevance": 0.75
+				}
 			},
 			"ForYouSearchResult": {
 				"description": "Search result for \"For You\" tab (from search_for_you)\r\nPolymorphic result that can be a user or collaboration",
@@ -404,7 +521,23 @@
 					"relevance"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"type": "for_you",
+					"entityType": "user",
+					"entityId": "user-123",
+					"title": "John Doe",
+					"subtitle": "Musician • New York, NY",
+					"avatarUrl": "https://...",
+					"matchReason": "Similar genres and location",
+					"additionalInfo": {
+						"genres": [
+							"rock",
+							"indie"
+						]
+					},
+					"relevance": 0.92
+				}
 			},
 			"SearchResult": {
 				"anyOf": [
@@ -503,7 +636,22 @@
 					"createdAt"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"id": "review-123",
+					"userId": "user-456",
+					"reviewerId": "user-123",
+					"rating": 5,
+					"description": "Excellent collaborator, very professional!",
+					"createdAt": "2024-01-20T15:30:00Z",
+					"reviewer": {
+						"id": "user-123",
+						"username": "johndoe",
+						"firstName": "John",
+						"lastName": "Doe",
+						"avatarUrl": "https://..."
+					}
+				}
 			},
 			"Pick_ReviewInsert.Exclude_keyofReviewInsert.reviewer_id-or-user_id-or-created_at-or-id__": {
 				"properties": {
@@ -570,11 +718,11 @@
 					"description": "Updated review description"
 				}
 			},
-			"PostRow": {
+			"PostResponse": {
+				"description": "API response format for a post with flattened relations\r\nThis is the camelCase version of PostRow (database format)\r\nThe mapper transforms PostRow (snake_case) → PostResponse (camelCase)",
 				"properties": {
-					"updated_at": {
-						"type": "string",
-						"nullable": true
+					"id": {
+						"type": "string"
 					},
 					"type": {
 						"type": "string",
@@ -587,73 +735,166 @@
 					"title": {
 						"type": "string"
 					},
-					"search_vector": {},
-					"paid_opportunity": {
-						"type": "boolean",
+					"description": {
+						"type": "string"
+					},
+					"authorId": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"updatedAt": {
+						"type": "string",
 						"nullable": true
 					},
 					"location": {
 						"type": "string",
 						"nullable": true
 					},
-					"id": {
-						"type": "string"
+					"paidOpportunity": {
+						"type": "boolean",
+						"nullable": true
 					},
-					"expires_at": {
+					"expiresAt": {
 						"type": "string",
 						"nullable": true
 					},
-					"description": {
-						"type": "string"
+					"metadata": {
+						"items": {
+							"properties": {
+								"type": {
+									"type": "string",
+									"enum": [
+										"tag",
+										"genre",
+										"artist"
+									]
+								},
+								"name": {
+									"type": "string"
+								},
+								"id": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"type",
+								"name",
+								"id"
+							],
+							"type": "object"
+						},
+						"type": "array"
 					},
-					"created_at": {
-						"type": "string",
-						"nullable": true
+					"media": {
+						"items": {
+							"properties": {
+								"displayOrder": {
+									"type": "number",
+									"format": "double"
+								},
+								"type": {
+									"type": "string",
+									"enum": [
+										"image",
+										"video"
+									]
+								},
+								"thumbnailUrl": {
+									"type": "string",
+									"nullable": true
+								},
+								"url": {
+									"type": "string"
+								},
+								"id": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"displayOrder",
+								"type",
+								"url",
+								"id"
+							],
+							"type": "object"
+						},
+						"type": "array"
 					},
-					"author_id": {
-						"type": "string"
+					"taggedUsers": {
+						"items": {
+							"properties": {
+								"avatarUrl": {
+									"type": "string",
+									"nullable": true
+								},
+								"lastName": {
+									"type": "string",
+									"nullable": true
+								},
+								"firstName": {
+									"type": "string",
+									"nullable": true
+								},
+								"username": {
+									"type": "string"
+								},
+								"id": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"username",
+								"id"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"author": {
+						"properties": {
+							"avatarUrl": {
+								"type": "string",
+								"nullable": true
+							},
+							"lastName": {
+								"type": "string",
+								"nullable": true
+							},
+							"firstName": {
+								"type": "string",
+								"nullable": true
+							},
+							"username": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"username",
+							"id"
+						],
+						"type": "object"
 					}
 				},
 				"required": [
-					"updated_at",
+					"id",
 					"type",
 					"title",
-					"search_vector",
-					"paid_opportunity",
-					"location",
-					"id",
-					"expires_at",
 					"description",
-					"created_at",
-					"author_id"
+					"authorId",
+					"createdAt",
+					"updatedAt",
+					"location",
+					"paidOpportunity",
+					"expiresAt"
 				],
-				"type": "object"
-			},
-			"PostResponse": {
-				"allOf": [
-					{
-						"$ref": "#/components/schemas/PostRow"
-					},
-					{
-						"properties": {
-							"author": {},
-							"tagged_users": {
-								"items": {},
-								"type": "array"
-							},
-							"media": {
-								"items": {},
-								"type": "array"
-							},
-							"metadata": {
-								"items": {},
-								"type": "array"
-							}
-						},
-						"type": "object"
-					}
-				],
-				"description": "API response format for a post with flattened relations\r\nBased on PostRow with additional flattened metadata, media, tagged_users, and author"
+				"type": "object",
+				"additionalProperties": false
 			},
 			"PostType": {
 				"type": "string",
@@ -671,7 +912,7 @@
 						"description": "URL to the media file",
 						"example": "https://example.com/image.jpg"
 					},
-					"thumbnail_url": {
+					"thumbnailUrl": {
 						"type": "string",
 						"description": "Optional thumbnail URL for the media",
 						"example": "https://example.com/thumb.jpg"
@@ -690,7 +931,7 @@
 				"additionalProperties": false,
 				"example": {
 					"url": "https://example.com/image.jpg",
-					"thumbnail_url": "https://example.com/thumb.jpg",
+					"thumbnailUrl": "https://example.com/thumb.jpg",
 					"type": "image"
 				}
 			},
@@ -729,7 +970,7 @@
 				"description": "From T, pick a set of properties whose keys are in the union K"
 			},
 			"CreatePostBody": {
-				"description": "DTO for creating a new post\r\n\r\nUsed when creating a post (note, request, or story). The author_id is\r\nautomatically extracted from the authentication token.\r\n\r\nFor \"note\" posts, you can include tags.\r\nFor \"request\" posts, you can include genres and paid_opportunity flag.\r\nAll post types can include media attachments and tagged users.",
+				"description": "DTO for creating a new post\r\n\r\nUsed when creating a post (note, request, or story). The author_id is\r\nautomatically extracted from the authentication token.\r\n\r\nFor \"note\" posts, you can include tags.\r\nFor \"request\" posts, you can include genres and paidOpportunity flag.\r\nAll post types can include media attachments and tagged users.",
 				"properties": {
 					"description": {
 						"type": "string",
@@ -737,10 +978,7 @@
 						"example": "I'm looking for an experienced drummer to join our band..."
 					},
 					"expires_at": {
-						"type": "string",
-						"nullable": true,
-						"description": "Optional expiration date/time (ISO 8601 format)",
-						"example": "2024-12-31T23:59:59Z"
+						"type": "string"
 					},
 					"location": {
 						"type": "string",
@@ -749,10 +987,7 @@
 						"example": "New York, NY"
 					},
 					"paid_opportunity": {
-						"type": "boolean",
-						"nullable": true,
-						"description": "Whether this is a paid opportunity (only for \"request\" type posts)",
-						"example": true
+						"type": "boolean"
 					},
 					"title": {
 						"type": "string",
@@ -763,6 +998,18 @@
 						"$ref": "#/components/schemas/PostType",
 						"description": "Post type: \"note\", \"request\", or \"story\"",
 						"example": "note"
+					},
+					"paidOpportunity": {
+						"type": "boolean",
+						"nullable": true,
+						"description": "Whether this is a paid opportunity (only for \"request\" type posts)",
+						"example": true
+					},
+					"expiresAt": {
+						"type": "string",
+						"nullable": true,
+						"description": "Optional expiration date/time (ISO 8601 format)",
+						"example": "2024-12-31T23:59:59Z"
 					},
 					"tags": {
 						"items": {
@@ -951,6 +1198,7 @@
 				}
 			},
 			"MetadataItem": {
+				"description": "API response format for metadata item",
 				"properties": {
 					"id": {
 						"type": "string"
@@ -967,7 +1215,8 @@
 						"type": "string"
 					},
 					"createdAt": {
-						"type": "string"
+						"type": "string",
+						"nullable": true
 					}
 				},
 				"required": [
@@ -977,9 +1226,16 @@
 					"createdAt"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"id": "abc123",
+					"type": "tag",
+					"name": "indie-rock",
+					"createdAt": "2024-01-15T10:30:00Z"
+				}
 			},
 			"MetadataResponse": {
+				"description": "API response format for metadata endpoint\r\nReturns all available tags, genres, and artists organized by type",
 				"properties": {
 					"tags": {
 						"items": {
@@ -1006,7 +1262,33 @@
 					"artists"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"tags": [
+						{
+							"id": "1",
+							"type": "tag",
+							"name": "indie",
+							"createdAt": "2024-01-15T10:30:00Z"
+						}
+					],
+					"genres": [
+						{
+							"id": "2",
+							"type": "genre",
+							"name": "Rock",
+							"createdAt": "2024-01-15T10:30:00Z"
+						}
+					],
+					"artists": [
+						{
+							"id": "3",
+							"type": "artist",
+							"name": "The Beatles",
+							"createdAt": "2024-01-15T10:30:00Z"
+						}
+					]
+				}
 			},
 			"MessageResponse": {
 				"description": "API response format for a message\r\nRepresents a message in a conversation with sender info and optional reply",
@@ -1187,7 +1469,19 @@
 					"readAt"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"messageId": "msg-789",
+					"userId": "user-456",
+					"readAt": "2024-01-20T16:05:00Z",
+					"user": {
+						"id": "user-456",
+						"username": "janedoe",
+						"firstName": "Jane",
+						"lastName": "Doe",
+						"avatarUrl": "https://..."
+					}
+				}
 			},
 			"Pick_MessageInsert.Exclude_keyofMessageInsert.sender_id-or-conversation_id-or-created_at-or-id-or-is_edited-or-edited_at-or-is_deleted-or-deleted_at-or-sent_via_websocket__": {
 				"properties": {
@@ -1220,6 +1514,15 @@
 						"items": {
 							"type": "string"
 						},
+						"type": "array"
+					},
+					"reply_to_message_id": {
+						"type": "string"
+					},
+					"mediaIds": {
+						"items": {
+							"type": "string"
+						},
 						"type": "array",
 						"nullable": true,
 						"description": "Array of media IDs to attach to the message",
@@ -1228,7 +1531,7 @@
 							"media-id-2"
 						]
 					},
-					"reply_to_message_id": {
+					"replyToMessageId": {
 						"type": "string",
 						"nullable": true,
 						"description": "Optional ID of the message this is replying to",
@@ -1239,11 +1542,11 @@
 				"additionalProperties": false,
 				"example": {
 					"content": "Hey, how are you?",
-					"media_ids": [
+					"mediaIds": [
 						"media-id-1",
 						"media-id-2"
 					],
-					"reply_to_message_id": "message-id-to-reply-to"
+					"replyToMessageId": "message-id-to-reply-to"
 				}
 			},
 			"UpdateMessageDto": {
@@ -1267,6 +1570,165 @@
 			"FeedPostResponse": {
 				"description": "API response format for a post in the feed\r\nExtends PostResponse with engagement data and user interaction state",
 				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string",
+						"enum": [
+							"note",
+							"request",
+							"story"
+						]
+					},
+					"title": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"authorId": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"updatedAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"location": {
+						"type": "string",
+						"nullable": true
+					},
+					"paidOpportunity": {
+						"type": "boolean",
+						"nullable": true
+					},
+					"expiresAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"metadata": {
+						"items": {
+							"properties": {
+								"type": {
+									"type": "string",
+									"enum": [
+										"tag",
+										"genre",
+										"artist"
+									]
+								},
+								"name": {
+									"type": "string"
+								},
+								"id": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"type",
+								"name",
+								"id"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"media": {
+						"items": {
+							"properties": {
+								"displayOrder": {
+									"type": "number",
+									"format": "double"
+								},
+								"type": {
+									"type": "string",
+									"enum": [
+										"image",
+										"video"
+									]
+								},
+								"thumbnailUrl": {
+									"type": "string",
+									"nullable": true
+								},
+								"url": {
+									"type": "string"
+								},
+								"id": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"displayOrder",
+								"type",
+								"url",
+								"id"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"taggedUsers": {
+						"items": {
+							"properties": {
+								"avatarUrl": {
+									"type": "string",
+									"nullable": true
+								},
+								"lastName": {
+									"type": "string",
+									"nullable": true
+								},
+								"firstName": {
+									"type": "string",
+									"nullable": true
+								},
+								"username": {
+									"type": "string"
+								},
+								"id": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"username",
+								"id"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"author": {
+						"properties": {
+							"avatarUrl": {
+								"type": "string",
+								"nullable": true
+							},
+							"lastName": {
+								"type": "string",
+								"nullable": true
+							},
+							"firstName": {
+								"type": "string",
+								"nullable": true
+							},
+							"username": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"username",
+							"id"
+						],
+						"type": "object"
+					},
 					"likesCount": {
 						"type": "number",
 						"format": "double"
@@ -1286,6 +1748,18 @@
 						"type": "boolean"
 					}
 				},
+				"required": [
+					"id",
+					"type",
+					"title",
+					"description",
+					"authorId",
+					"createdAt",
+					"updatedAt",
+					"location",
+					"paidOpportunity",
+					"expiresAt"
+				],
 				"type": "object",
 				"additionalProperties": false
 			},
@@ -1491,10 +1965,7 @@
 						"example": "group"
 					},
 					"avatar_url": {
-						"type": "string",
-						"nullable": true,
-						"description": "Optional avatar URL for group conversations",
-						"example": "https://example.com/avatar.jpg"
+						"type": "string"
 					},
 					"name": {
 						"type": "string",
@@ -1502,7 +1973,13 @@
 						"description": "Optional name for the conversation (required for groups)",
 						"example": "Band Practice"
 					},
-					"participant_ids": {
+					"avatarUrl": {
+						"type": "string",
+						"nullable": true,
+						"description": "Optional avatar URL for group conversations",
+						"example": "https://example.com/avatar.jpg"
+					},
+					"participantIds": {
 						"items": {
 							"type": "string"
 						},
@@ -1516,15 +1993,15 @@
 				},
 				"required": [
 					"type",
-					"participant_ids"
+					"participantIds"
 				],
 				"type": "object",
 				"additionalProperties": false,
 				"example": {
 					"type": "group",
 					"name": "Band Practice",
-					"avatar_url": "https://example.com/avatar.jpg",
-					"participant_ids": [
+					"avatarUrl": "https://example.com/avatar.jpg",
+					"participantIds": [
 						"user-id-1",
 						"user-id-2"
 					]
@@ -1539,7 +2016,7 @@
 						"description": "Updated name for the conversation",
 						"example": "Updated Group Name"
 					},
-					"avatar_url": {
+					"avatarUrl": {
 						"type": "string",
 						"nullable": true,
 						"description": "Updated avatar URL for the conversation",
@@ -1550,7 +2027,7 @@
 				"additionalProperties": false,
 				"example": {
 					"name": "Updated Group Name",
-					"avatar_url": "https://example.com/new-avatar.jpg"
+					"avatarUrl": "https://example.com/new-avatar.jpg"
 				}
 			},
 			"ConnectionStatus": {
@@ -1559,9 +2036,11 @@
 					"pending",
 					"accepted",
 					"rejected"
-				]
+				],
+				"description": "Status of a connection request between two users"
 			},
 			"Connection": {
+				"description": "API response format for a connection request\r\nRepresents a connection request between two users with requester/recipient profiles",
 				"properties": {
 					"id": {
 						"type": "string"
@@ -1576,10 +2055,12 @@
 						"$ref": "#/components/schemas/ConnectionStatus"
 					},
 					"createdAt": {
-						"type": "string"
+						"type": "string",
+						"nullable": true
 					},
 					"updatedAt": {
-						"type": "string"
+						"type": "string",
+						"nullable": true
 					},
 					"requester": {
 						"$ref": "#/components/schemas/UserProfile"
@@ -1615,18 +2096,22 @@
 				"description": "DTO for creating a connection request\r\n\r\nUsed when sending a connection request to another user.\r\nThe requester_id is automatically extracted from the authentication token.",
 				"properties": {
 					"recipient_id": {
+						"type": "string"
+					},
+					"recipientId": {
 						"type": "string",
 						"description": "The ID of the user to send the connection request to (UUID format)",
 						"example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
 					}
 				},
 				"required": [
-					"recipient_id"
+					"recipient_id",
+					"recipientId"
 				],
 				"type": "object",
 				"additionalProperties": false,
 				"example": {
-					"recipient_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+					"recipientId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
 				}
 			},
 			"UpdateConnectionRequestDto": {
@@ -1707,7 +2192,22 @@
 					"updatedAt"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"id": "comment-123",
+					"postId": "post-123",
+					"authorId": "user-456",
+					"content": "Great track! Love the production.",
+					"createdAt": "2024-01-20T16:00:00Z",
+					"updatedAt": "2024-01-20T16:00:00Z",
+					"author": {
+						"id": "user-456",
+						"username": "janedoe",
+						"firstName": "Jane",
+						"lastName": "Doe",
+						"avatarUrl": "https://..."
+					}
+				}
 			},
 			"Pick_CommentInsert.Exclude_keyofCommentInsert.author_id-or-created_at-or-updated_at-or-id__": {
 				"properties": {
@@ -1734,6 +2234,9 @@
 						"example": "Great post! Looking forward to collaborating."
 					},
 					"post_id": {
+						"type": "string"
+					},
+					"postId": {
 						"type": "string",
 						"description": "The ID of the post to comment on (UUID format)",
 						"example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
@@ -1741,12 +2244,13 @@
 				},
 				"required": [
 					"content",
-					"post_id"
+					"post_id",
+					"postId"
 				],
 				"type": "object",
 				"additionalProperties": false,
 				"example": {
-					"post_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+					"postId": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
 					"content": "Great post! Looking forward to collaborating."
 				}
 			},
@@ -1823,7 +2327,21 @@
 					"createdAt"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"id": "collab-123",
+					"userId": "user-123",
+					"collaboratorId": "user-456",
+					"description": "Worked together on album production",
+					"createdAt": "2024-01-20T15:30:00Z",
+					"collaborator": {
+						"id": "user-456",
+						"username": "janedoe",
+						"firstName": "Jane",
+						"lastName": "Doe",
+						"avatarUrl": "https://..."
+					}
+				}
 			},
 			"Pick_CollaborationInsert.Exclude_keyofCollaborationInsert.user_id-or-created_at-or-id__": {
 				"properties": {
@@ -1850,18 +2368,22 @@
 						"example": "Worked together on a jazz album in 2023"
 					},
 					"collaborator_id": {
+						"type": "string"
+					},
+					"collaboratorId": {
 						"type": "string",
 						"description": "The ID of the user you collaborated with (UUID format)",
 						"example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
 					}
 				},
 				"required": [
-					"collaborator_id"
+					"collaborator_id",
+					"collaboratorId"
 				],
 				"type": "object",
 				"additionalProperties": false,
 				"example": {
-					"collaborator_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+					"collaboratorId": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
 					"description": "Worked together on a jazz album in 2023"
 				}
 			},
@@ -1946,7 +2468,27 @@
 					"createdAt"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"postId": "post-123",
+					"userId": "user-456",
+					"createdAt": "2024-01-20T15:30:00Z",
+					"post": {
+						"id": "post-123",
+						"title": "New Song Release",
+						"description": "Check it out!",
+						"type": "note",
+						"location": null,
+						"createdAt": "2024-01-20T12:00:00Z",
+						"author": {
+							"id": "user-123",
+							"username": "johndoe",
+							"firstName": "John",
+							"lastName": "Doe",
+							"avatarUrl": "https://..."
+						}
+					}
+				}
 			},
 			"Pick_BookmarkInsert.Exclude_keyofBookmarkInsert.user_id-or-created_at__": {
 				"properties": {
@@ -1964,21 +2506,26 @@
 				"description": "DTO for creating a bookmark\r\n\r\nUsed when a user wants to bookmark a post for later reference.\r\nThe user_id is automatically extracted from the authentication token.",
 				"properties": {
 					"post_id": {
+						"type": "string"
+					},
+					"postId": {
 						"type": "string",
 						"description": "The UUID of the post to bookmark",
 						"example": "123e4567-e89b-12d3-a456-426614174000"
 					}
 				},
 				"required": [
-					"post_id"
+					"post_id",
+					"postId"
 				],
 				"type": "object",
 				"additionalProperties": false,
 				"example": {
-					"post_id": "123e4567-e89b-12d3-a456-426614174000"
+					"postId": "123e4567-e89b-12d3-a456-426614174000"
 				}
 			},
 			"AuthResponse": {
+				"description": "API response format for authentication (signup/login)\r\nReturns user information, session tokens, and profile data",
 				"properties": {
 					"user": {
 						"properties": {

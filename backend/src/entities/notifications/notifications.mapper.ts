@@ -26,9 +26,9 @@ function mapPartialProfileToUser(profile: PartialProfile) {
   return {
     id: profile.id,
     username: profile.username,
-    firstName: profile.first_name ?? undefined,
-    lastName: profile.last_name ?? undefined,
-    avatarUrl: profile.avatar_url ?? undefined,
+    firstName: profile.first_name ?? null,
+    lastName: profile.last_name ?? null,
+    avatarUrl: profile.avatar_url ?? null,
   };
 }
 
@@ -42,17 +42,17 @@ export function mapNotificationToResponse(
   return {
     id: notification.id,
     recipientId: notification.recipient_id,
-    actorId: notification.actor_id ?? undefined,
+    actorId: notification.actor_id ?? null,
     type: notification.type,
-    entityType: notification.entity_type ?? undefined,
-    entityId: notification.entity_id ?? undefined,
+    entityType: notification.entity_type ?? null,
+    entityId: notification.entity_id ?? null,
     title: notification.title,
-    body: notification.body ?? undefined,
-    actionUrl: notification.action_url ?? undefined,
+    body: notification.body ?? null,
+    actionUrl: notification.action_url ?? null,
     isRead: notification.is_read,
     isArchived: null, // Field not in current database schema - maybe implement later if needed?
     createdAt: notification.created_at,
-    readAt: notification.read_at ?? undefined,
+    readAt: notification.read_at ?? null,
     sentViaWebsocket: notification.sent_via_websocket,
     actor: notification.actor
       ? mapPartialProfileToUser(notification.actor)

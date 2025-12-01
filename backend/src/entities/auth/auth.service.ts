@@ -75,7 +75,7 @@ export function extractBearerToken(request: ExpressRequest): string {
 async function createUserProfile(
   user_id: string,
   username: string,
-  data: CompleteProfileDto,
+  data: SignupDto,
   accessToken?: string
 ): Promise<ProfileRow> {
   const client = accessToken
@@ -88,13 +88,13 @@ async function createUserProfile(
       {
         id: user_id,
         username,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        phone_country_code: data.phone_country_code,
-        phone_number: data.phone_number,
-        year_of_birth: data.year_of_birth,
+        first_name: data.firstName,
+        last_name: data.lastName,
+        phone_country_code: data.phoneCountryCode,
+        phone_number: data.phoneNumber,
+        year_of_birth: data.yearOfBirth,
         location: data.location,
-        user_type: data.user_type,
+        user_type: data.userType,
         onboarding_completed: false,
       },
       { onConflict: "id" }
@@ -369,7 +369,7 @@ export async function updateUserProfile(
     });
   }
 
-  // Prepare update data (map API format to database format)
+  // Prepare update data (map camelCase API format to snake_case database format)
   const updateData: ProfileUpdate = {};
   if (validatedData.firstName !== undefined) {
     updateData.first_name = validatedData.firstName;
@@ -401,9 +401,17 @@ export async function updateUserProfile(
   if (validatedData.phoneNumber !== undefined) {
     updateData.phone_number = validatedData.phoneNumber;
   }
+  if (validatedData.yearOfBirth !== undefined) {
+    updateData.year_of_birth = validatedData.yearOfBirth;
+  }
+  if (validatedData.userType !== undefined) {
+    updateData.user_type = validatedData.userType;
+  }
   if (validatedData.onboardingCompleted !== undefined) {
     updateData.onboarding_completed = validatedData.onboardingCompleted;
   }
+  // Note: lookingFor is handled separately via user_looking_for junction table
+  // and is not part of the profiles table update
 
   // Update the profile
   const { data: updatedProfile, error: updateError } = await authedSupabase

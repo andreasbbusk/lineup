@@ -71,7 +71,7 @@ export class BookmarksController extends Controller {
 
         return this.bookmarksService.createBookmark(
           userId,
-          body.post_id,
+          body.postId,
           token
         );
       },

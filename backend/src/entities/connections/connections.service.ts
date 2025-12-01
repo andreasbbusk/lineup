@@ -203,7 +203,7 @@ export class ConnectionsService {
     const authedSupabase = createAuthenticatedClient(token);
 
     // Validate that user is not sending request to themselves
-    if (userId === data.recipient_id) {
+    if (userId === data.recipientId) {
       throw createHttpError({
         message: "You cannot send a connection request to yourself",
         statusCode: 400,
@@ -215,7 +215,7 @@ export class ConnectionsService {
     const { data: recipient, error: recipientError } = await authedSupabase
       .from("profiles")
       .select("id")
-      .eq("id", data.recipient_id)
+      .eq("id", data.recipientId)
       .single();
 
     if (recipientError || !recipient) {
@@ -231,7 +231,7 @@ export class ConnectionsService {
       .from("connection_requests")
       .select("id, status")
       .or(
-        `and(requester_id.eq.${userId},recipient_id.eq.${data.recipient_id}),and(requester_id.eq.${data.recipient_id},recipient_id.eq.${userId})`
+        `and(requester_id.eq.${userId},recipient_id.eq.${data.recipientId}),and(requester_id.eq.${data.recipientId},recipient_id.eq.${userId})`
       )
       .single();
 
@@ -253,7 +253,7 @@ export class ConnectionsService {
     // Create the connection request
     const requestInsert: ConnectionRequestInsert = {
       requester_id: userId,
-      recipient_id: data.recipient_id,
+      recipient_id: data.recipientId,
       status: "pending",
     };
 

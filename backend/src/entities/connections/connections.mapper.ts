@@ -37,16 +37,16 @@ function mapPartialProfileToUserProfile(profile: PartialProfile) {
     username: profile.username,
     firstName: profile.first_name,
     lastName: profile.last_name,
-    avatarUrl: profile.avatar_url ?? undefined,
-    bio: profile.bio ?? undefined,
-    aboutMe: undefined, // Not selected in query
+    avatarUrl: profile.avatar_url ?? null,
+    bio: profile.bio ?? null,
+    aboutMe: null, // Not selected in query
     location: profile.location,
     userType: profile.user_type,
-    themeColor: profile.theme_color ?? undefined,
-    spotifyPlaylistUrl: profile.spotify_playlist_url ?? undefined,
+    themeColor: profile.theme_color ?? null,
+    spotifyPlaylistUrl: profile.spotify_playlist_url ?? null,
     onboardingCompleted: profile.onboarding_completed ?? false,
-    createdAt: profile.created_at ?? new Date().toISOString(),
-    updatedAt: profile.updated_at ?? new Date().toISOString(),
+    createdAt: profile.created_at ?? null,
+    updatedAt: profile.updated_at ?? null,
   };
 }
 
@@ -62,8 +62,8 @@ export function mapConnectionRequestToResponse(
     requesterId: connectionRequest.requester_id,
     recipientId: connectionRequest.recipient_id,
     status: connectionRequest.status as ConnectionStatus,
-    createdAt: connectionRequest.created_at ?? new Date().toISOString(),
-    updatedAt: connectionRequest.updated_at ?? new Date().toISOString(),
+    createdAt: connectionRequest.created_at ?? null,
+    updatedAt: connectionRequest.updated_at ?? null,
     requester: connectionRequest.requester
       ? mapPartialProfileToUserProfile(connectionRequest.requester)
       : undefined,

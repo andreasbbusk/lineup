@@ -10,23 +10,50 @@ type SupabasePostWithRelations = PostRow & {
 };
 
 /**
- * Maps Supabase post response with nested relations to flattened API response format
+ * Maps Supabase post response (snake_case) to API response format (camelCase)
+ * Transforms database format to API contract format
  */
 export function mapPostToResponse(post: SupabasePostWithRelations): PostResponse {
   return {
-    ...post,
+    id: post.id,
+    type: post.type,
+    title: post.title,
+    description: post.description,
+    authorId: post.author_id,
+    createdAt: post.created_at ?? null,
+    updatedAt: post.updated_at ?? null,
+    location: post.location ?? null,
+    paidOpportunity: post.paid_opportunity ?? null,
+    expiresAt: post.expires_at ?? null,
     metadata:
       post.metadata?.map((pm) => pm.metadata).filter(Boolean) || [],
     media:
       post.media
         ?.map((pm) => ({
-          ...pm.media,
-          display_order: pm.display_order,
+          id: pm.media.id,
+          url: pm.media.url,
+          thumbnailUrl: pm.media.thumbnail_url ?? null,
+          type: pm.media.type,
+          displayOrder: pm.display_order,
         }))
-        .sort((a, b) => a.display_order - b.display_order) || [],
-    tagged_users:
-      post.tagged_users?.map((tu) => tu.user).filter(Boolean) || [],
-    author: post.author,
+        .sort((a, b) => a.displayOrder - b.displayOrder) || [],
+    taggedUsers:
+      post.tagged_users?.map((tu) => ({
+        id: tu.user.id,
+        username: tu.user.username,
+        firstName: tu.user.first_name ?? null,
+        lastName: tu.user.last_name ?? null,
+        avatarUrl: tu.user.avatar_url ?? null,
+      })) || [],
+    author: post.author
+      ? {
+          id: post.author.id,
+          username: post.author.username,
+          firstName: post.author.first_name ?? null,
+          lastName: post.author.last_name ?? null,
+          avatarUrl: post.author.avatar_url ?? null,
+        }
+      : undefined,
   };
 }
 

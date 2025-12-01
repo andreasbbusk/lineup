@@ -40,9 +40,9 @@ function mapPartialProfileToUser(profile: PartialProfile) {
   return {
     id: profile.id,
     username: profile.username,
-    firstName: profile.first_name ?? undefined,
-    lastName: profile.last_name ?? undefined,
-    avatarUrl: profile.avatar_url ?? undefined,
+    firstName: profile.first_name ?? null,
+    lastName: profile.last_name ?? null,
+    avatarUrl: profile.avatar_url ?? null,
   };
 }
 
@@ -56,10 +56,10 @@ function mapParticipantToResponse(
     userId: participant.user_id,
     conversationId: participant.conversation_id,
     joinedAt: participant.joined_at,
-    leftAt: participant.left_at ?? undefined,
+    leftAt: participant.left_at ?? null,
     isAdmin: participant.is_admin,
-    lastReadMessageId: participant.last_read_message_id ?? undefined,
-    lastReadAt: participant.last_read_at ?? undefined,
+    lastReadMessageId: participant.last_read_message_id ?? null,
+    lastReadAt: participant.last_read_at ?? null,
     notificationsEnabled: participant.notifications_enabled,
     isMuted: participant.is_muted,
     user: participant.user
@@ -83,9 +83,9 @@ export function mapConversationToResponse(
     createdBy: conversation.created_by,
     createdAt: conversation.created_at,
     updatedAt: conversation.updated_at,
-    lastMessageId: conversation.last_message_id ?? undefined,
-    lastMessagePreview: conversation.last_message_preview ?? undefined,
-    lastMessageAt: conversation.last_message_at ?? undefined,
+    lastMessageId: conversation.last_message_id ?? null,
+    lastMessagePreview: conversation.last_message_preview ?? null,
+    lastMessageAt: conversation.last_message_at ?? null,
     creator: conversation.creator
       ? mapPartialProfileToUser(conversation.creator)
       : undefined,

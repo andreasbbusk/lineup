@@ -32,9 +32,9 @@ export function mapCommentToResponse(
       ? {
           id: comment.author.id,
           username: comment.author.username,
-          firstName: comment.author.first_name,
-          lastName: comment.author.last_name,
-          avatarUrl: comment.author.avatar_url,
+          firstName: comment.author.first_name ?? null,
+          lastName: comment.author.last_name ?? null,
+          avatarUrl: comment.author.avatar_url ?? null,
         }
       : undefined,
   };

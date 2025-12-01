@@ -9,7 +9,7 @@ import { CollaborationInsert } from "../../utils/supabase-helpers.js";
  *
  * @example
  * {
- *   "collaborator_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+ *   "collaboratorId": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
  *   "description": "Worked together on a jazz album in 2023"
  * }
  */
@@ -22,7 +22,7 @@ export class CreateCollaborationDto
    */
   @IsUUID(4, { message: "Collaborator ID must be a valid UUID" })
   @IsString({ message: "Collaborator ID is required" })
-  collaborator_id!: string;
+  collaboratorId!: string;
 
   /**
    * Optional description of the collaboration (max 200 characters)

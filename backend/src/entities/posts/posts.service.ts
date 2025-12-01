@@ -21,7 +21,8 @@ export class PostsService {
       tags,
       genres,
       location,
-      paid_opportunity,
+      paidOpportunity,
+      expiresAt,
       taggedUsers,
       media,
     } = postData;
@@ -33,7 +34,8 @@ export class PostsService {
       title: title.trim(),
       description: description.trim(),
       location: location ?? null,
-      paid_opportunity: type === "request" ? paid_opportunity ?? false : null,
+      paid_opportunity: type === "request" ? paidOpportunity ?? false : null,
+      expires_at: expiresAt ?? null,
     };
 
     const { data: newPost, error: postError } = await supabase
@@ -156,7 +158,7 @@ export class PostsService {
           .from("media")
           .insert({
             url: item.url,
-            thumbnail_url: item.thumbnail_url ?? null,
+            thumbnail_url: item.thumbnailUrl ?? null,
             type: item.type as MediaType,
           })
           .select("id")

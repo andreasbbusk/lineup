@@ -181,8 +181,8 @@ export class ConversationsService {
     }
 
     // Validate participant count
-    const totalParticipants = data.participant_ids.length + 1; // +1 for creator
-    if (data.type === "direct" && data.participant_ids.length !== 1) {
+    const totalParticipants = data.participantIds.length + 1; // +1 for creator
+    if (data.type === "direct" && data.participantIds.length !== 1) {
       throw createHttpError({
         message: "Direct conversations must have exactly one other participant",
         statusCode: 400,
@@ -198,7 +198,7 @@ export class ConversationsService {
     }
 
     // Validate that user is not adding themselves
-    if (data.participant_ids.includes(userId)) {
+    if (data.participantIds.includes(userId)) {
       throw createHttpError({
         message: "You cannot add yourself as a participant",
         statusCode: 400,
@@ -211,12 +211,12 @@ export class ConversationsService {
       await authedSupabase
         .from("profiles")
         .select("id")
-        .in("id", data.participant_ids);
+        .in("id", data.participantIds);
 
     if (
       participantsError ||
       !participants ||
-      participants.length !== data.participant_ids.length
+      participants.length !== data.participantIds.length
     ) {
       throw createHttpError({
         message: "One or more participants not found",
@@ -229,7 +229,7 @@ export class ConversationsService {
     const conversationInsert: ConversationInsert = {
       type: data.type,
       name: data.name ?? null,
-      avatar_url: data.avatar_url ?? null,
+      avatar_url: data.avatarUrl ?? null,
       created_by: userId,
     };
 
@@ -258,7 +258,7 @@ export class ConversationsService {
     // Add other participants
     const participantInserts: ConversationParticipantInsert[] = [
       creatorParticipant,
-      ...data.participant_ids.map((participantId) => ({
+      ...data.participantIds.map((participantId) => ({
         conversation_id: conversation.id,
         user_id: participantId,
         is_admin: false,
@@ -354,8 +354,8 @@ export class ConversationsService {
     if (data.name !== undefined) {
       updateData.name = data.name;
     }
-    if (data.avatar_url !== undefined) {
-      updateData.avatar_url = data.avatar_url;
+    if (data.avatarUrl !== undefined) {
+      updateData.avatar_url = data.avatarUrl;
     }
 
     const { error: updateError } = await authedSupabase
