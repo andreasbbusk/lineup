@@ -119,6 +119,10 @@ const models: TsoaRoute.Models = {
     "LoginDto": {"dataType":"refObject","properties":{"email":{"dataType":"string","required":true},"password":{"dataType":"string","required":true}},"additionalProperties":false},
 };
 
+const templateService = new ExpressTemplateService(models, {
+    noImplicitAdditionalProperties: 'throw-on-extras',
+});
+
 export function RegisterRoutes(app: Router,opts?:{multer?:ReturnType<typeof multer>}) {
 
     // ###########################################################################################################
