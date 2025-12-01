@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "tsoa": "tsoa spec-and-routes",
+    "build": "npm run tsoa",
     "start": "nodemon",
     "dev": "nodemon"
   },
