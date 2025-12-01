@@ -24,8 +24,17 @@ export class UsersController extends Controller {
 
   /**
    * Get user profile by username
-   * Returns public profile by default. If authenticated and viewing own profile, returns private fields.
-   * Authentication is optional - endpoint can be accessed without a token.
+   *
+   * Retrieves a user's profile information. Returns public profile data by default.
+   * If authenticated and viewing your own profile, returns additional private fields
+   * such as phone number, year of birth, etc.
+   *
+   * Authentication is optional - endpoint can be accessed without a token for public profiles.
+   *
+   * @summary Get user profile
+   * @param username The username of the user to retrieve
+   * @returns User profile (public or private based on authentication)
+   * @throws 404 if user not found
    */
   @Security("bearerAuth")
   @Get("{username}")
@@ -50,9 +59,19 @@ export class UsersController extends Controller {
   }
 
   /**
-   * Update own profile (requires authentication)
-   * Only the profile owner can update their own profile
-   * Authentication is required - will throw 401 if not authenticated
+   * Update own profile
+   *
+   * Updates the authenticated user's profile information. Only the profile owner
+   * can update their own profile. All fields in the request body are optional -
+   * only provided fields will be updated.
+   *
+   * @summary Update user profile
+   * @param username The username of the profile to update (must match authenticated user)
+   * @param body The profile fields to update (all optional)
+   * @returns Updated user profile
+   * @throws 401 if not authenticated
+   * @throws 403 if trying to update another user's profile
+   * @throws 404 if user not found
    */
   @Security("bearerAuth")
   @Put("{username}")

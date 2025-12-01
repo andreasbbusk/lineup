@@ -1,14 +1,16 @@
-import { createClient } from "@supabase/supabase-js";
+// src/entities/users/users.service.ts
 import {
   supabase,
-  SUPABASE_ANON_KEY,
-  SUPABASE_URL,
-} from "../../config/supabase.js";
+  createAuthenticatedClient,
+} from "../../config/supabase.config.js";
+import { ProfileRow, ProfileUpdate } from "../../utils/supabase-helpers.ts";
+import { mapProfileToAPI } from "./users.mapper.js";
 import { UserProfile } from "../../types/api.types.js";
 import { Database } from "../../types/supabase.js";
 import { createHttpError } from "../../utils/error-handler.js";
 import { ProfileUpdate } from "../../utils/supabase-helpers.js";
 import { UpdateProfileDto } from "./users.dto.js";
+import { createHttpError } from "../../utils/error-handler.ts";
 
 export class UsersService {
   /**
@@ -64,14 +66,8 @@ export class UsersService {
     data: UpdateProfileDto,
     token: string
   ): Promise<UserProfile> {
-    const authedSupabase = createClient<Database>(
-      SUPABASE_URL,
-      SUPABASE_ANON_KEY,
-      {
-        global: { headers: { Authorization: `Bearer ${token}` } },
-        auth: { persistSession: false, detectSessionInUrl: false },
-      }
-    );
+    // Create authenticated Supabase client for RLS
+    const authedSupabase = createAuthenticatedClient(token);
 
     const { data: profile, error: fetchError } = await authedSupabase
       .from("profiles")
