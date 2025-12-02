@@ -1,16 +1,14 @@
 import {
-  ConversationRow,
-  ConversationParticipantRow,
-} from "../../utils/supabase-helpers.js";
-import {
   ConversationResponse,
   ConversationParticipantResponse,
 } from "../../types/api.types.js";
 
 /**
- * Partial profile structure returned by Supabase select queries
+ * Internal types for documentation and IDE autocomplete.
+ * These describe the expected shape of Supabase query results,
+ * but functions accept 'any' for flexibility with dynamic queries.
  */
-type PartialProfile = {
+type Profile = {
   id: string;
   username: string;
   first_name: string | null;
@@ -18,63 +16,49 @@ type PartialProfile = {
   avatar_url: string | null;
 };
 
-/**
- * Supabase conversation participant response with nested user relation
- */
-type SupabaseParticipantWithRelations = ConversationParticipantRow & {
-  user?: PartialProfile;
+type Participant = {
+  user_id: string;
+  conversation_id: string;
+  joined_at: string;
+  left_at: string | null;
+  is_admin: boolean;
+  last_read_message_id: string | null;
+  last_read_at: string | null;
+  notifications_enabled: boolean;
+  is_muted: boolean;
+  unread_count?: number;
+  user?: Profile;
 };
 
-/**
- * Supabase conversation response with nested creator and participants relations
- */
-type SupabaseConversationWithRelations = ConversationRow & {
-  creator?: PartialProfile;
-  participants?: SupabaseParticipantWithRelations[];
-};
+const mapProfile = (p: Profile) => ({
+  id: p.id,
+  username: p.username,
+  firstName: p.first_name ?? null,
+  lastName: p.last_name ?? null,
+  avatarUrl: p.avatar_url ?? null,
+});
 
-/**
- * Maps a partial profile to a simple user object
- */
-function mapPartialProfileToUser(profile: PartialProfile) {
-  return {
-    id: profile.id,
-    username: profile.username,
-    firstName: profile.first_name ?? null,
-    lastName: profile.last_name ?? null,
-    avatarUrl: profile.avatar_url ?? null,
-  };
-}
+const mapParticipant = (p: Participant): ConversationParticipantResponse => ({
+  userId: p.user_id,
+  conversationId: p.conversation_id,
+  joinedAt: p.joined_at,
+  leftAt: p.left_at ?? null,
+  isAdmin: p.is_admin,
+  lastReadMessageId: p.last_read_message_id ?? null,
+  lastReadAt: p.last_read_at ?? null,
+  notificationsEnabled: p.notifications_enabled,
+  isMuted: p.is_muted,
+  user: p.user ? mapProfile(p.user) : undefined,
+});
 
-/**
- * Maps Supabase participant response to API format
- */
-function mapParticipantToResponse(
-  participant: SupabaseParticipantWithRelations
-): ConversationParticipantResponse {
-  return {
-    userId: participant.user_id,
-    conversationId: participant.conversation_id,
-    joinedAt: participant.joined_at,
-    leftAt: participant.left_at ?? null,
-    isAdmin: participant.is_admin,
-    lastReadMessageId: participant.last_read_message_id ?? null,
-    lastReadAt: participant.last_read_at ?? null,
-    notificationsEnabled: participant.notifications_enabled,
-    isMuted: participant.is_muted,
-    user: participant.user
-      ? mapPartialProfileToUser(participant.user)
-      : undefined,
-  };
-}
-
-/**
- * Maps Supabase conversation response with nested relations to API format
- * Converts snake_case to camelCase and includes creator and participants
- */
 export function mapConversationToResponse(
-  conversation: SupabaseConversationWithRelations
+  conversation: any,
+  currentUserId?: string
 ): ConversationResponse {
+  const currentParticipant = currentUserId
+    ? conversation.participants?.find((p: any) => p.user_id === currentUserId)
+    : null;
+
   return {
     id: conversation.id,
     type: conversation.type as "direct" | "group",
@@ -86,20 +70,17 @@ export function mapConversationToResponse(
     lastMessageId: conversation.last_message_id ?? null,
     lastMessagePreview: conversation.last_message_preview ?? null,
     lastMessageAt: conversation.last_message_at ?? null,
+    unreadCount: currentParticipant?.unread_count || 0,
     creator: conversation.creator
-      ? mapPartialProfileToUser(conversation.creator)
+      ? mapProfile(conversation.creator)
       : undefined,
-    participants: conversation.participants
-      ? conversation.participants.map(mapParticipantToResponse)
-      : undefined,
+    participants: conversation.participants?.map(mapParticipant),
   };
 }
 
-/**
- * Maps array of Supabase conversation responses to API format
- */
 export function mapConversationsToResponse(
-  conversations: SupabaseConversationWithRelations[]
+  conversations: any[],
+  currentUserId?: string
 ): ConversationResponse[] {
-  return conversations.map(mapConversationToResponse);
+  return conversations.map((c) => mapConversationToResponse(c, currentUserId));
 }
