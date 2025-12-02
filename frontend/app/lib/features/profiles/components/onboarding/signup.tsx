@@ -12,8 +12,8 @@ import {
   checkUsernameAvailability,
   signupWithAuth,
 } from "@/app/lib/features/auth";
-import { Button } from "@/app/components/ui/buttons";
-import { ErrorMessage } from "@/app/components/ui/error-message";
+import { Button } from "@/app/components/buttons";
+import { ErrorMessage } from "@/app/components/error-message";
 
 const USERNAME_CHECK_DEBOUNCE = 500;
 

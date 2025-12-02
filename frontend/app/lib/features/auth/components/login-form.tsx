@@ -7,8 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 import { loginSchema, type LoginFormData } from "../schemas";
-import { ErrorMessage } from "@/app/components/ui/error-message";
-import { Button } from "@/app/components/ui/buttons";
+import { ErrorMessage } from "@/app/components/error-message";
+import { Button } from "@/app/components/buttons";
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
