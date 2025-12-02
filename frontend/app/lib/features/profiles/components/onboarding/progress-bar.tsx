@@ -1,6 +1,6 @@
 "use client";
 
-import { useOnboardingNavigation } from "../../hooks/useOnboardingNavigation";
+import { useOnboardingNavigation } from "../../hooks/onboarding/useOnboardingNavigation";
 
 const PROGRESS_START_STEP = 2;
 const TOTAL_STEPS_WITH_PROGRESS = 4;

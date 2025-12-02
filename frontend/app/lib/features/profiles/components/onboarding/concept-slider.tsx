@@ -1,6 +1,6 @@
 "use client";
 
-import { useOnboardingNavigation } from "../../hooks/useOnboardingNavigation";
+import { useOnboardingNavigation } from "../../hooks/onboarding/useOnboardingNavigation";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import Image from "next/image";
 import { useState, useRef } from "react";

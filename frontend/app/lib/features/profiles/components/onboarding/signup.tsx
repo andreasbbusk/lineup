@@ -94,7 +94,14 @@ export function OnboardingSignupStep() {
       });
 
       if (result.session) {
-        setAuth(result.user, result.session.accessToken, null);
+        setAuth(
+          {
+            id: result.user.id,
+            email: result.user.email,
+            username: result.user.username,
+          },
+          result.session.accessToken
+        );
       }
 
       updateOnboardingData({

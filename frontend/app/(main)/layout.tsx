@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import BottomNav from "@/app/components/bottom-nav";
 import Link from "next/link";
 
 const NAV_LINKS = [
@@ -35,6 +36,7 @@ export default function Layout({ children }: MainLayoutProps) {
         </div>
       </nav>
       <div className="mx-auto max-w-5xl px-6 py-8">{children}</div>
+      <BottomNav />
     </section>
   );
 }
