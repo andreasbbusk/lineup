@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsBoolean } from "class-validator";
+import { IsEnum, IsOptional, IsBoolean, IsString, Length } from "class-validator";
 
 /**
  * DTO for file upload request
@@ -29,4 +29,33 @@ export class UploadDto {
   @IsOptional()
   @IsBoolean()
   generateThumbnails?: boolean = false;
+}
+
+/**
+ * DTO for requesting a signed upload URL
+ *
+ * Used to generate a temporary signed URL for direct client uploads to Supabase Storage.
+ * The client will use this signed URL to upload files directly, bypassing the backend.
+ *
+ * @example
+ * {
+ *   "fileName": "my-image.jpg",
+ *   "fileType": "image/jpeg"
+ * }
+ */
+export class SignedUrlRequestDto {
+  /**
+   * Original file name (used to determine file extension)
+   * @example "my-image.jpg"
+   */
+  @IsString()
+  @Length(1, 255)
+  fileName!: string;
+
+  /**
+   * MIME type of the file (used for validation)
+   * @example "image/jpeg"
+   */
+  @IsString()
+  fileType!: string;
 }

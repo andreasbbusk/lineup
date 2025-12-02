@@ -80,6 +80,8 @@ const models: TsoaRoute.Models = {
     "UpdateProfileDto": {"dataType":"refObject","properties":{"username":{"dataType":"string"},"firstName":{"dataType":"string"},"lastName":{"dataType":"string"},"bio":{"dataType":"string"},"aboutMe":{"dataType":"string"},"avatarUrl":{"dataType":"string"},"location":{"dataType":"string"},"themeColor":{"dataType":"string"},"spotifyPlaylistUrl":{"dataType":"string"},"phoneCountryCode":{"dataType":"double"},"phoneNumber":{"dataType":"double"},"yearOfBirth":{"dataType":"double"},"userType":{"dataType":"string"},"onboardingCompleted":{"dataType":"boolean"},"lookingFor":{"dataType":"array","array":{"dataType":"refAlias","ref":"LookingForType"}}},"additionalProperties":false},
     "UploadedFileResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"url":{"dataType":"string","required":true},"thumbnailUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["image"]},{"dataType":"enum","enums":["video"]}],"required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true}},"additionalProperties":false},
     "UploadResponse": {"dataType":"refObject","properties":{"files":{"dataType":"array","array":{"dataType":"refObject","ref":"UploadedFileResponse"},"required":true}},"additionalProperties":false},
+    "SignedUrlResponse": {"dataType":"refObject","properties":{"signedUrl":{"dataType":"string","required":true},"filePath":{"dataType":"string","required":true}},"additionalProperties":false},
+    "SignedUrlRequestDto": {"dataType":"refObject","properties":{"fileName":{"dataType":"string","required":true},"fileType":{"dataType":"string","required":true}},"additionalProperties":false},
     "UserSearchResult": {"dataType":"refObject","properties":{"type":{"dataType":"enum","enums":["user"],"required":true},"id":{"dataType":"string","required":true},"username":{"dataType":"string","required":true},"firstName":{"dataType":"string","required":true},"lastName":{"dataType":"string","required":true},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"bio":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"genres":{"dataType":"any"},"lookingFor":{"dataType":"array","array":{"dataType":"string"}},"isConnected":{"dataType":"boolean","required":true},"relevance":{"dataType":"double","required":true}},"additionalProperties":false},
     "CollaborationSearchResult": {"dataType":"refObject","properties":{"type":{"dataType":"enum","enums":["collaboration"],"required":true},"id":{"dataType":"string","required":true},"title":{"dataType":"string","required":true},"description":{"dataType":"string","required":true},"authorId":{"dataType":"string","required":true},"authorUsername":{"dataType":"string","required":true},"authorAvatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"paidOpportunity":{"dataType":"boolean","required":true},"genres":{"dataType":"any"},"createdAt":{"dataType":"string","required":true},"relevance":{"dataType":"double","required":true}},"additionalProperties":false},
     "TagSearchResult": {"dataType":"refObject","properties":{"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["tag"]},{"dataType":"enum","enums":["genre"]},{"dataType":"enum","enums":["artist"]}],"required":true},"id":{"dataType":"string","required":true},"name":{"dataType":"string","required":true},"usageCount":{"dataType":"double","required":true},"relevance":{"dataType":"double","required":true}},"additionalProperties":false},
@@ -230,6 +232,38 @@ export function RegisterRoutes(app: Router,opts?:{multer?:ReturnType<typeof mult
 
               await templateService.apiHandler({
                 methodName: 'uploadFiles',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsUploadController_generateSignedUploadUrl: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"ref":"SignedUrlRequestDto"},
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.post('/upload/signed-url',
+            authenticateMiddleware([[{"bearerAuth":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(UploadController)),
+            ...(fetchMiddlewares<RequestHandler>(UploadController.prototype.generateSignedUploadUrl)),
+
+            async function UploadController_generateSignedUploadUrl(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsUploadController_generateSignedUploadUrl, request, response });
+
+                const controller = new UploadController();
+
+              await templateService.apiHandler({
+                methodName: 'generateSignedUploadUrl',
                 controller,
                 response,
                 next,

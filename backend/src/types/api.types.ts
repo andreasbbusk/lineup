@@ -893,6 +893,23 @@ export interface UploadResponse {
   files: UploadedFileResponse[];
 }
 
+/**
+ * API response format for signed upload URL
+ *
+ * Returns a temporary signed URL that allows direct client uploads to Supabase Storage.
+ * The client uses this URL to upload files directly, bypassing the backend.
+ *
+ * @example
+ * {
+ *   "signedUrl": "https://[project].supabase.co/storage/v1/object/sign/posts/user-123/file.jpg?...",
+ *   "filePath": "posts/user-123/1234567890-abc123.jpg"
+ * }
+ */
+export interface SignedUrlResponse {
+  signedUrl: string;
+  filePath: string;
+}
+
 // ==================== Error Response ====================
 
 /**

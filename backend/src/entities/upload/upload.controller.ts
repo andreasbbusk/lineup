@@ -10,11 +10,13 @@ import {
   UploadedFiles,
   FormField,
   Request,
+  Body,
 } from "tsoa";
 import { extractUserId } from "../../utils/auth-helpers.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
 import { UploadService } from "./upload.service.js";
-import { UploadResponse } from "../../types/api.types.js";
+import { UploadResponse, SignedUrlResponse } from "../../types/api.types.js";
+import { SignedUrlRequestDto } from "./upload.dto.js";
 
 @Route("upload")
 @Tags("Upload")
@@ -64,6 +66,53 @@ export class UploadController extends Controller {
         );
       },
       201
+    );
+  }
+
+  /**
+   * Generate a signed upload URL for direct client uploads
+   *
+   * Returns a temporary signed URL that allows clients to upload files directly
+   * to Supabase Storage, bypassing the backend. This improves scalability by
+   * avoiding large file buffers in the Node.js server.
+   *
+   * The client should:
+   * 1. Call this endpoint to get a signed URL
+   * 2. Upload the file directly to the signed URL using fetch/PUT
+   * 3. Use the returned filePath to construct the public URL
+   * 4. Include the public URL when creating posts
+   *
+   * - **Images**: JPEG, PNG, GIF, WebP
+   * - **Videos**: MP4, WebM, QuickTime
+   *
+   * @summary Generate signed upload URL
+   * @param body Request body containing fileName and fileType
+   * @returns Signed URL and file path for direct client upload
+   * @throws 400 if validation fails (invalid file type)
+   * @throws 401 if not authenticated
+   * @throws 500 if signed URL generation fails
+   */
+  @Security("bearerAuth")
+  @Post("/signed-url")
+  public async generateSignedUploadUrl(
+    @Body() body: SignedUrlRequestDto,
+    @Request() request: ExpressRequest
+  ): Promise<SignedUrlResponse> {
+    return handleControllerRequest(
+      this,
+      async () => {
+        const userId = await extractUserId(request);
+        const token =
+          request.headers.authorization?.replace("Bearer ", "") || "";
+
+        return this.uploadService.generateSignedUploadUrl(
+          userId,
+          body.fileName,
+          body.fileType,
+          token
+        );
+      },
+      200
     );
   }
 }

@@ -32,3 +32,22 @@ export function createAuthenticatedClient(
     },
   });
 }
+
+/**
+ * Helper to get an authenticated Supabase client for RLS-protected operations.
+ * 
+ * This is a lightweight wrapper that creates a new client instance with the user's token.
+ * Creating new client instances is cheap and necessary for RLS to work correctly.
+ * 
+ * @param token - User's JWT access token from Authorization header
+ * @returns Authenticated Supabase client that respects RLS policies
+ * 
+ * @example
+ * ```typescript
+ * const authedSupabase = getSupabaseClient(token);
+ * const { data } = await authedSupabase.from("posts").insert({ ... });
+ * ```
+ */
+export function getSupabaseClient(token: string): SupabaseClient<Database> {
+  return createAuthenticatedClient(token);
+}

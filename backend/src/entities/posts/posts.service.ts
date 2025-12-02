@@ -1,5 +1,5 @@
 // src/entities/posts/posts.service.ts
-import { supabase } from "../../config/supabase.config.js";
+import { getSupabaseClient } from "../../config/supabase.config.js";
 import { CreatePostBody } from "./posts.dto.js";
 import { PostInsert, MediaType } from "../../utils/supabase-helpers.js";
 import { mapPostToResponse } from "./posts.mapper.js";
@@ -12,8 +12,12 @@ export class PostsService {
    */
   async createPost(
     userId: string,
-    postData: CreatePostBody
+    postData: CreatePostBody,
+    token: string
   ): Promise<PostResponse> {
+    // Get authenticated Supabase client for RLS
+    // This creates a lightweight client instance with the user's token
+    const supabase = getSupabaseClient(token);
     const {
       type,
       title,

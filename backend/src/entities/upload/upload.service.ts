@@ -1,7 +1,7 @@
 import { createAuthenticatedClient } from "../../config/supabase.config.js";
 import { createHttpError } from "../../utils/error-handler.js";
 import { MediaInsert, MediaType } from "../../utils/supabase-helpers.js";
-import { UploadResponse } from "../../types/api.types.js";
+import { UploadResponse, SignedUrlResponse } from "../../types/api.types.js";
 import { mapMediaToResponse } from "./upload.mapper.js";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
@@ -211,5 +211,60 @@ export class UploadService {
         code: "DATABASE_ERROR",
       });
     }
+  }
+
+  /**
+   * Generate a signed upload URL for direct client uploads
+   * Validates file type, generates unique file path, and returns signed URL
+   */
+  async generateSignedUploadUrl(
+    userId: string,
+    fileName: string,
+    fileType: string,
+    token: string
+  ): Promise<SignedUrlResponse> {
+    const authedSupabase = createAuthenticatedClient(token);
+
+    // Validate file type
+    const isValidType =
+      ALLOWED_IMAGE_TYPES.includes(fileType) ||
+      ALLOWED_VIDEO_TYPES.includes(fileType);
+
+    if (!isValidType) {
+      throw createHttpError({
+        message: `File type ${fileType} not allowed. Allowed types: ${[
+          ...ALLOWED_IMAGE_TYPES,
+          ...ALLOWED_VIDEO_TYPES,
+        ].join(", ")}`,
+        statusCode: 400,
+        code: "VALIDATION_ERROR",
+      });
+    }
+
+    // Generate unique file path
+    const fileExt = fileName.split(".").pop() || "";
+    const uniqueFileName = `${Date.now()}-${Math.random()
+      .toString(36)
+      .substring(7)}.${fileExt}`;
+    const filePath = `posts/${userId}/${uniqueFileName}`;
+
+    // Generate signed upload URL
+    const { data: signedUrlData, error: signedUrlError } =
+      await authedSupabase.storage
+        .from("posts")
+        .createSignedUploadUrl(filePath);
+
+    if (signedUrlError || !signedUrlData) {
+      throw createHttpError({
+        message: `Failed to generate signed URL: ${signedUrlError?.message}`,
+        statusCode: 500,
+        code: "UPLOAD_ERROR",
+      });
+    }
+
+    return {
+      signedUrl: signedUrlData.signedUrl,
+      filePath: filePath,
+    };
   }
 }
