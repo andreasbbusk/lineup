@@ -1143,6 +1143,41 @@
 					]
 				}
 			},
+			"PaginatedResponse_PostResponse_": {
+				"description": "Generic paginated response wrapper",
+				"properties": {
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/PostResponse"
+						},
+						"type": "array"
+					},
+					"pagination": {
+						"properties": {
+							"total": {
+								"type": "number",
+								"format": "double"
+							},
+							"hasMore": {
+								"type": "boolean"
+							},
+							"nextCursor": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"hasMore"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"data",
+					"pagination"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"NotificationResponse": {
 				"description": "API response format for a notification\nRepresents a notification with actor information",
 				"properties": {
@@ -3183,6 +3218,131 @@
 						}
 					}
 				}
+			},
+			"get": {
+				"operationId": "ListPosts",
+				"responses": {
+					"200": {
+						"description": "Paginated list of posts",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PaginatedResponse_PostResponse_"
+								}
+							}
+						}
+					}
+				},
+				"description": "List posts with filters and pagination\n\nReturns a paginated list of posts with optional filters.\nSupports filtering by type, author, location, genres, tags, and paid opportunities.\nCan optionally include engagement data (requires authentication).\n\nPosts are public and can be viewed without authentication, but engagement data\n(likes, comments, bookmarks) requires authentication.",
+				"summary": "List posts",
+				"tags": [
+					"Posts"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "Filter by post type: \"note\", \"request\", or \"story\"",
+						"in": "query",
+						"name": "type",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"enum": [
+								"note",
+								"request",
+								"story"
+							]
+						}
+					},
+					{
+						"description": "Filter by author user ID",
+						"in": "query",
+						"name": "authorId",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "Cursor for pagination (ISO timestamp)",
+						"in": "query",
+						"name": "cursor",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "Maximum number of posts to return (1-100, default: 20)",
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"description": "Whether to include engagement data (requires auth)",
+						"in": "query",
+						"name": "includeEngagement",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					},
+					{
+						"description": "Whether to include media in the response",
+						"in": "query",
+						"name": "includeMedia",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					},
+					{
+						"description": "Filter by genre IDs (array)",
+						"in": "query",
+						"name": "genreIds",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					{
+						"description": "Filter by tag names (array)",
+						"in": "query",
+						"name": "tags",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					{
+						"description": "Filter by location",
+						"in": "query",
+						"name": "location",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "Filter for paid opportunities only",
+						"in": "query",
+						"name": "paidOnly",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					}
+				]
 			}
 		},
 		"/notifications": {

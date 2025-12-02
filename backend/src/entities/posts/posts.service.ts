@@ -1,10 +1,11 @@
 // src/entities/posts/posts.service.ts
-import { getSupabaseClient } from "../../config/supabase.config.js";
-import { CreatePostBody } from "./posts.dto.js";
-import { PostInsert, MediaType } from "../../utils/supabase-helpers.js";
+import { getSupabaseClient, supabase, SupabaseClient } from "../../config/supabase.config.js";
+import { CreatePostBody, PostsQueryDto } from "./posts.dto.js";
+import { PostInsert, MediaType, PostRow } from "../../utils/supabase-helpers.js";
 import { mapPostToResponse } from "./posts.mapper.js";
-import { PostResponse } from "../../types/api.types.js";
+import { PostResponse, PaginatedResponse } from "../../types/api.types.js";
 import { createHttpError } from "../../utils/error-handler.js";
+import { Database } from "../../types/supabase.js";
 
 export class PostsService {
   /**
@@ -233,5 +234,302 @@ export class PostsService {
 
     // Transform the response to match expected format
     return mapPostToResponse(completePost);
+  }
+
+  /**
+   * List posts with filters and pagination
+   * 
+   * Returns a paginated list of posts with optional filters.
+   * Supports public access (no auth required) but can include engagement data if authenticated.
+   */
+  async listPosts(
+    query: PostsQueryDto,
+    userId?: string,
+    token?: string
+  ): Promise<PaginatedResponse<PostResponse>> {
+    // Use authenticated client if token provided, otherwise use public client
+    const client = token ? getSupabaseClient(token) : supabase;
+
+    const {
+      type,
+      authorId,
+      cursor,
+      limit = 20,
+      includeEngagement = false,
+      includeMedia = true,
+      genreIds,
+      tags,
+      location,
+      paidOnly,
+    } = query;
+
+    // Build the base query
+    let postsQuery = client
+      .from("posts")
+      .select(
+        `
+        *,
+        author:profiles!posts_author_id_fkey(id, username, first_name, last_name, avatar_url)${
+          includeMedia
+            ? `,
+        metadata:post_metadata(
+          metadata:metadata(id, name, type)
+        ),
+        media:post_media(
+          display_order,
+          media:media(id, url, thumbnail_url, type)
+        ),
+        tagged_users:post_tagged_users(
+          user:profiles!post_tagged_users_user_id_fkey(id, username, first_name, last_name, avatar_url)
+        )`
+            : ""
+        }
+      `
+      )
+      .order("created_at", { ascending: false })
+      .limit(limit + 1); // Fetch one extra to determine if there's a next page
+
+    // Apply filters
+    if (type) {
+      postsQuery = postsQuery.eq("type", type);
+    }
+
+    if (authorId) {
+      postsQuery = postsQuery.eq("author_id", authorId);
+    }
+
+    if (location) {
+      postsQuery = postsQuery.ilike("location", `%${location}%`);
+    }
+
+    if (paidOnly !== undefined && type === "request") {
+      postsQuery = postsQuery.eq("paid_opportunity", paidOnly);
+    }
+
+    // Apply cursor for pagination
+    if (cursor) {
+      postsQuery = postsQuery.lt("created_at", cursor);
+    }
+
+    // Execute the query
+    const { data: posts, error: postsError } = await postsQuery;
+
+    if (postsError) {
+      throw createHttpError({
+        message: `Failed to fetch posts: ${postsError.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    if (!posts || posts.length === 0) {
+      return {
+        data: [],
+        pagination: {
+          hasMore: false,
+        },
+      };
+    }
+
+    // Check if there's a next page
+    const hasNextPage = posts.length > limit;
+    const postsToReturn = hasNextPage ? posts.slice(0, limit) : posts;
+    const nextCursor = hasNextPage
+      ? postsToReturn[postsToReturn.length - 1].created_at ?? undefined
+      : undefined;
+
+    // Filter by genres if provided
+    let filteredPosts = postsToReturn;
+    if (genreIds && genreIds.length > 0) {
+      const postIdsWithGenres = await this.getPostIdsByGenreIds(
+        genreIds,
+        client
+      );
+      filteredPosts = postsToReturn.filter((post) =>
+        postIdsWithGenres.has(post.id)
+      );
+    }
+
+    // Filter by tags if provided
+    if (tags && tags.length > 0) {
+      const postIdsWithTags = await this.getPostIdsByTagNames(tags, client);
+      filteredPosts = filteredPosts.filter((post) =>
+        postIdsWithTags.has(post.id)
+      );
+    }
+
+    // Map posts to response format
+    const mappedPosts = filteredPosts.map((post) =>
+      mapPostToResponse(post as PostRow & any)
+    );
+
+    // Optionally include engagement data if authenticated
+    if (includeEngagement && userId && token) {
+      const postIds = mappedPosts.map((p) => p.id);
+      const engagementData = await this.getEngagementData(
+        postIds,
+        userId,
+        token
+      );
+
+      // Add engagement data to posts
+      mappedPosts.forEach((post) => {
+        const engagement = engagementData.get(post.id);
+        if (engagement) {
+          (post as any).likesCount = engagement.likesCount;
+          (post as any).commentsCount = engagement.commentsCount;
+          (post as any).bookmarksCount = engagement.bookmarksCount;
+          (post as any).hasLiked = engagement.hasLiked;
+          (post as any).hasBookmarked = engagement.hasBookmarked;
+        }
+      });
+    }
+
+    return {
+      data: mappedPosts,
+      pagination: {
+        nextCursor,
+        hasMore: hasNextPage,
+      },
+    };
+  }
+
+  /**
+   * Get post IDs that have the specified genre IDs
+   */
+  private async getPostIdsByGenreIds(
+    genreIds: string[],
+    client: SupabaseClient<Database>
+  ): Promise<Set<string>> {
+    const { data: postMetadata } = await client
+      .from("post_metadata")
+      .select("post_id")
+      .in("metadata_id", genreIds);
+
+    return new Set(postMetadata?.map((pm) => pm.post_id) || []);
+  }
+
+  /**
+   * Get post IDs that have the specified tag names
+   */
+  private async getPostIdsByTagNames(
+    tagNames: string[],
+    client: SupabaseClient<Database>
+  ): Promise<Set<string>> {
+    // First, get metadata IDs for the tag names
+    const { data: metadata } = await client
+      .from("metadata")
+      .select("id")
+      .eq("type", "tag")
+      .in("name", tagNames);
+
+    if (!metadata || metadata.length === 0) {
+      return new Set();
+    }
+
+    const metadataIds = metadata.map((m) => m.id);
+
+    // Then get post IDs that have these metadata IDs
+    const { data: postMetadata } = await client
+      .from("post_metadata")
+      .select("post_id")
+      .in("metadata_id", metadataIds);
+
+    return new Set(postMetadata?.map((pm) => pm.post_id) || []);
+  }
+
+  /**
+   * Get engagement data (likes, comments, bookmarks) for posts
+   */
+  private async getEngagementData(
+    postIds: string[],
+    userId: string,
+    token: string
+  ): Promise<
+    Map<
+      string,
+      {
+        likesCount: number;
+        commentsCount: number;
+        bookmarksCount: number;
+        hasLiked: boolean;
+        hasBookmarked: boolean;
+      }
+    >
+  > {
+    const authedClient = getSupabaseClient(token);
+
+    // Get likes
+    const { data: likesData } = await authedClient
+      .from("likes")
+      .select("post_id, user_id")
+      .in("post_id", postIds);
+
+    // Get bookmarks
+    const { data: bookmarksData } = await authedClient
+      .from("bookmarks")
+      .select("post_id, user_id")
+      .in("post_id", postIds);
+
+    // Get comments
+    const { data: commentsData } = await authedClient
+      .from("comments")
+      .select("post_id")
+      .in("post_id", postIds);
+
+    // Build engagement maps
+    const engagementMap = new Map<
+      string,
+      {
+        likesCount: number;
+        commentsCount: number;
+        bookmarksCount: number;
+        hasLiked: boolean;
+        hasBookmarked: boolean;
+      }
+    >();
+
+    // Initialize all posts
+    postIds.forEach((postId) => {
+      engagementMap.set(postId, {
+        likesCount: 0,
+        commentsCount: 0,
+        bookmarksCount: 0,
+        hasLiked: false,
+        hasBookmarked: false,
+      });
+    });
+
+    // Count likes and check if user liked
+    likesData?.forEach((like) => {
+      const engagement = engagementMap.get(like.post_id);
+      if (engagement) {
+        engagement.likesCount++;
+        if (like.user_id === userId) {
+          engagement.hasLiked = true;
+        }
+      }
+    });
+
+    // Count bookmarks and check if user bookmarked
+    bookmarksData?.forEach((bookmark) => {
+      const engagement = engagementMap.get(bookmark.post_id);
+      if (engagement) {
+        engagement.bookmarksCount++;
+        if (bookmark.user_id === userId) {
+          engagement.hasBookmarked = true;
+        }
+      }
+    });
+
+    // Count comments
+    commentsData?.forEach((comment) => {
+      const engagement = engagementMap.get(comment.post_id);
+      if (engagement) {
+        engagement.commentsCount++;
+      }
+    });
+
+    return engagementMap;
   }
 }
