@@ -1,10 +1,10 @@
 export default function Page() {
   return (
     <main className="space-y-4">
-      <h1 className="text-h1 font-semibold">Beskeder</h1>
+      <h1 className="text-h1 font-semibold">Messages</h1>
       <p className="text-body text-grey">
-        Hold forbindelsen med dine kontakter. Dine samtaler vises her, så snart
-        beskedsystemet er klar.
+        Stay connected with your contacts. Your conversations will appear here
+        once the messaging system is ready.
       </p>
     </main>
   );

@@ -6,72 +6,41 @@ import { useAppStore } from "@/app/lib/stores/app-store";
 import { useMyProfile } from "../../profiles/hooks/queries/useProfile";
 
 export type RedirectStrategy =
-  | "guest-only"           // Redirect authenticated users (login, signup pages)
-  | "authenticated-only"   // Redirect guests (protected pages)
-  | "onboarding";          // Onboarding flow with step-based logic
+  | "guest-only" // Redirect authenticated users (login, signup pages)
+  | "authenticated-only" // Redirect guests (protected pages)
+  | "onboarding"; // Onboarding flow with step-based logic
 
 interface UseAuthRedirectOptions {
   strategy: RedirectStrategy;
-  /**
-   * Current onboarding step (required when strategy is "onboarding")
-   */
   currentStep?: number;
 }
 
 interface UseAuthRedirectResult {
-  /**
-   * Whether the component is still mounting or loading profile data
-   */
-  isLoading: boolean;
-
-  /**
-   * Whether to show the content (false = will redirect)
-   */
   shouldShowContent: boolean;
 }
 
-/**
- * Centralized authentication redirect logic
- *
- * Handles:
- * - Client-side mount detection
- * - Profile loading states
- * - Redirects based on auth and onboarding status
- *
- * @example
- * // For login page (guest-only)
- * const { isLoading, shouldShowContent } = useAuthRedirect({ strategy: "guest-only" });
- * if (isLoading || !shouldShowContent) return <Loading />;
- * return <LoginForm />;
- *
- * @example
- * // For onboarding flow
- * const { isLoading, shouldShowContent } = useAuthRedirect({
- *   strategy: "onboarding",
- *   currentStep: step
- * });
- */
-export function useAuthRedirect(options: UseAuthRedirectOptions): UseAuthRedirectResult {
+export function useAuthRedirect(
+  options: UseAuthRedirectOptions
+): UseAuthRedirectResult {
   const { strategy, currentStep } = options;
   const router = useRouter();
   const { isAuthenticated } = useAppStore();
-  const { data: profile, isLoading: isProfileLoading } = useMyProfile();
+  const { data: profile } = useMyProfile();
   const [isMounted, setIsMounted] = useState(false);
 
   // Wait for client-side mount
   useEffect(() => {
     setTimeout(() => {
       setIsMounted(true);
-    }, 0);
+    }, 100);
   }, []);
 
   // Handle redirects
   useEffect(() => {
     if (!isMounted) return;
 
-    // Wait for profile to load if user is authenticated
-    if (isAuthenticated && isProfileLoading) return;
-
+    // When authenticated, useMyProfile suspends until profile loads
+    // When not authenticated, useMyProfile returns { data: null } immediately
     const isOnboardingCompleted = profile?.onboardingCompleted;
     let redirectPath: string | null = null;
 
@@ -128,13 +97,25 @@ export function useAuthRedirect(options: UseAuthRedirectOptions): UseAuthRedirec
     if (redirectPath) {
       router.replace(redirectPath);
     }
-  }, [isMounted, isAuthenticated, profile?.onboardingCompleted, isProfileLoading, router, strategy, currentStep]);
+  }, [
+    isMounted,
+    isAuthenticated,
+    profile?.onboardingCompleted,
+    router,
+    strategy,
+    currentStep,
+  ]);
 
-  const isLoading = !isMounted || (isAuthenticated && isProfileLoading);
-  const shouldShowContent = !isLoading && !shouldRedirect(strategy, isAuthenticated, profile?.onboardingCompleted, currentStep);
+  const shouldShowContent =
+    isMounted &&
+    !shouldRedirect(
+      strategy,
+      isAuthenticated,
+      profile?.onboardingCompleted,
+      currentStep
+    );
 
   return {
-    isLoading,
     shouldShowContent,
   };
 }
