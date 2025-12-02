@@ -1178,6 +1178,83 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"CommentResponse": {
+				"description": "API response format for a comment\nRepresents a comment on a post with author information",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"postId": {
+						"type": "string"
+					},
+					"authorId": {
+						"type": "string"
+					},
+					"content": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"updatedAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"author": {
+						"properties": {
+							"avatarUrl": {
+								"type": "string",
+								"nullable": true
+							},
+							"lastName": {
+								"type": "string",
+								"nullable": true
+							},
+							"firstName": {
+								"type": "string",
+								"nullable": true
+							},
+							"username": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"username",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"postId",
+					"authorId",
+					"content",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"id": "comment-123",
+					"postId": "post-123",
+					"authorId": "user-456",
+					"content": "Great track! Love the production.",
+					"createdAt": "2024-01-20T16:00:00Z",
+					"updatedAt": "2024-01-20T16:00:00Z",
+					"author": {
+						"id": "user-456",
+						"username": "janedoe",
+						"firstName": "Jane",
+						"lastName": "Doe",
+						"avatarUrl": "https://..."
+					}
+				}
+			},
 			"NotificationResponse": {
 				"description": "API response format for a notification\nRepresents a notification with actor information",
 				"properties": {
@@ -2227,83 +2304,6 @@
 					"status": "accepted"
 				}
 			},
-			"CommentResponse": {
-				"description": "API response format for a comment\nRepresents a comment on a post with author information",
-				"properties": {
-					"id": {
-						"type": "string"
-					},
-					"postId": {
-						"type": "string"
-					},
-					"authorId": {
-						"type": "string"
-					},
-					"content": {
-						"type": "string"
-					},
-					"createdAt": {
-						"type": "string",
-						"nullable": true
-					},
-					"updatedAt": {
-						"type": "string",
-						"nullable": true
-					},
-					"author": {
-						"properties": {
-							"avatarUrl": {
-								"type": "string",
-								"nullable": true
-							},
-							"lastName": {
-								"type": "string",
-								"nullable": true
-							},
-							"firstName": {
-								"type": "string",
-								"nullable": true
-							},
-							"username": {
-								"type": "string"
-							},
-							"id": {
-								"type": "string"
-							}
-						},
-						"required": [
-							"username",
-							"id"
-						],
-						"type": "object"
-					}
-				},
-				"required": [
-					"id",
-					"postId",
-					"authorId",
-					"content",
-					"createdAt",
-					"updatedAt"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"id": "comment-123",
-					"postId": "post-123",
-					"authorId": "user-456",
-					"content": "Great track! Love the production.",
-					"createdAt": "2024-01-20T16:00:00Z",
-					"updatedAt": "2024-01-20T16:00:00Z",
-					"author": {
-						"id": "user-456",
-						"username": "janedoe",
-						"firstName": "Jane",
-						"lastName": "Doe",
-						"avatarUrl": "https://..."
-					}
-				}
-			},
 			"Pick_CommentInsert.Exclude_keyofCommentInsert.author_id-or-created_at-or-updated_at-or-id__": {
 				"properties": {
 					"content": {
@@ -3340,6 +3340,92 @@
 						"required": false,
 						"schema": {
 							"type": "boolean"
+						}
+					}
+				]
+			}
+		},
+		"/posts/{id}": {
+			"get": {
+				"operationId": "GetPost",
+				"responses": {
+					"200": {
+						"description": "The post with all related data, optional comments, and optional engagement",
+						"content": {
+							"application/json": {
+								"schema": {
+									"allOf": [
+										{
+											"$ref": "#/components/schemas/PostResponse"
+										},
+										{
+											"properties": {
+												"hasBookmarked": {
+													"type": "boolean"
+												},
+												"hasLiked": {
+													"type": "boolean"
+												},
+												"bookmarksCount": {
+													"type": "number",
+													"format": "double"
+												},
+												"commentsCount": {
+													"type": "number",
+													"format": "double"
+												},
+												"likesCount": {
+													"type": "number",
+													"format": "double"
+												},
+												"comments": {
+													"items": {
+														"$ref": "#/components/schemas/CommentResponse"
+													},
+													"type": "array"
+												}
+											},
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Get a single post by ID\n\nReturns a single post with full details including author, metadata, media, and tagged users.\nCan optionally include comments and engagement data (requires authentication).\n\nPosts are public and can be viewed without authentication, but engagement data\n(likes, comments, bookmarks) requires authentication.",
+				"summary": "Get post by ID",
+				"tags": [
+					"Posts"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The UUID of the post to retrieve",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "Whether to include comments in the response",
+						"in": "query",
+						"name": "includeComments",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					},
+					{
+						"description": "Maximum number of comments to return (1-100, default: 50)",
+						"in": "query",
+						"name": "commentsLimit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
 						}
 					}
 				]

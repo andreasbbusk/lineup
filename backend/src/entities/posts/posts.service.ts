@@ -3,9 +3,10 @@ import { getSupabaseClient, supabase, SupabaseClient } from "../../config/supaba
 import { CreatePostBody, PostsQueryDto } from "./posts.dto.js";
 import { PostInsert, MediaType, PostRow } from "../../utils/supabase-helpers.js";
 import { mapPostToResponse } from "./posts.mapper.js";
-import { PostResponse, PaginatedResponse } from "../../types/api.types.js";
+import { PostResponse, PaginatedResponse, CommentResponse } from "../../types/api.types.js";
 import { createHttpError } from "../../utils/error-handler.js";
 import { Database } from "../../types/supabase.js";
+import { mapCommentsToResponse } from "../comments/comments.mapper.js";
 
 export class PostsService {
   /**
@@ -333,9 +334,9 @@ export class PostsService {
 
     // Check if there's a next page
     const hasNextPage = posts.length > limit;
-    const postsToReturn = hasNextPage ? posts.slice(0, limit) : posts;
+    const postsToReturn = (hasNextPage ? posts.slice(0, limit) : posts) as (PostRow & any)[];
     const nextCursor = hasNextPage
-      ? postsToReturn[postsToReturn.length - 1].created_at ?? undefined
+      ? (postsToReturn[postsToReturn.length - 1] as PostRow & any).created_at ?? undefined
       : undefined;
 
     // Filter by genres if provided
@@ -346,7 +347,7 @@ export class PostsService {
         client
       );
       filteredPosts = postsToReturn.filter((post) =>
-        postIdsWithGenres.has(post.id)
+        postIdsWithGenres.has((post as PostRow & any).id)
       );
     }
 
@@ -354,7 +355,7 @@ export class PostsService {
     if (tags && tags.length > 0) {
       const postIdsWithTags = await this.getPostIdsByTagNames(tags, client);
       filteredPosts = filteredPosts.filter((post) =>
-        postIdsWithTags.has(post.id)
+        postIdsWithTags.has((post as PostRow & any).id)
       );
     }
 
@@ -531,5 +532,123 @@ export class PostsService {
     });
 
     return engagementMap;
+  }
+
+  /**
+   * Get a single post by ID
+   * 
+   * Returns a post with full details including author, metadata, media, and tagged users.
+   * Can optionally include comments and engagement data.
+   */
+  async getPostById(
+    postId: string,
+    options: {
+      includeComments?: boolean;
+      commentsLimit?: number;
+    } = {},
+    userId?: string,
+    token?: string
+  ): Promise<
+    PostResponse & {
+      comments?: CommentResponse[];
+      likesCount?: number;
+      commentsCount?: number;
+      bookmarksCount?: number;
+      hasLiked?: boolean;
+      hasBookmarked?: boolean;
+    }
+  > {
+    const { includeComments = false, commentsLimit = 50 } = options;
+
+    // Use authenticated client if token provided, otherwise use public client
+    const client = token ? getSupabaseClient(token) : supabase;
+
+    // Fetch the post with all relations
+    const { data: post, error: postError } = await client
+      .from("posts")
+      .select(
+        `
+        *,
+        author:profiles!posts_author_id_fkey(id, username, first_name, last_name, avatar_url),
+        metadata:post_metadata(
+          metadata:metadata(id, name, type)
+        ),
+        media:post_media(
+          display_order,
+          media:media(id, url, thumbnail_url, type)
+        ),
+        tagged_users:post_tagged_users(
+          user:profiles!post_tagged_users_user_id_fkey(id, username, first_name, last_name, avatar_url)
+        )
+      `
+      )
+      .eq("id", postId)
+      .single();
+
+    if (postError || !post) {
+      throw createHttpError({
+        message: `Post not found: ${postError?.message || "Post does not exist"}`,
+        statusCode: 404,
+        code: "NOT_FOUND",
+      });
+    }
+
+    // Map post to response format
+    const mappedPost = mapPostToResponse(post as PostRow & any);
+
+    // Optionally include comments
+    let comments: any[] | undefined;
+    if (includeComments) {
+      const { data: commentsData, error: commentsError } = await client
+        .from("comments")
+        .select(
+          `
+          *,
+          author:profiles!comments_author_id_fkey(
+            id,
+            username,
+            first_name,
+            last_name,
+            avatar_url
+          )
+        `
+        )
+        .eq("post_id", postId)
+        .order("created_at", { ascending: true })
+        .limit(commentsLimit);
+
+      if (!commentsError && commentsData) {
+        // Map comments to response format using the comments mapper
+        comments = mapCommentsToResponse(commentsData as any);
+      }
+    }
+
+    // Optionally include engagement data if authenticated
+    if (userId && token) {
+      const engagementData = await this.getEngagementData(
+        [postId],
+        userId,
+        token
+      );
+      const engagement = engagementData.get(postId);
+
+      if (engagement) {
+        return {
+          ...mappedPost,
+          comments,
+          likesCount: engagement.likesCount,
+          commentsCount: engagement.commentsCount,
+          bookmarksCount: engagement.bookmarksCount,
+          hasLiked: engagement.hasLiked,
+          hasBookmarked: engagement.hasBookmarked,
+        };
+      }
+    }
+
+    // If engagement data not requested or not authenticated, return without it
+    return {
+      ...mappedPost,
+      comments,
+    };
   }
 }

@@ -1,11 +1,11 @@
 // src/entities/posts/posts.controller.ts
-import { Controller, Route, Tags, Post, Get, Body, Query, Request, Security } from "tsoa";
+import { Controller, Route, Tags, Post, Get, Body, Query, Path, Request, Security } from "tsoa";
 import { Request as ExpressRequest } from "express";
 import { CreatePostBody, PostsQueryDto } from "./posts.dto.js";
 import { extractUserId, extractBearerToken } from "../../utils/auth-helpers.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
 import { PostsService } from "./posts.service.js";
-import { PostResponse, PaginatedResponse } from "../../types/api.types.js";
+import { PostResponse, PaginatedResponse, CommentResponse } from "../../types/api.types.js";
 
 @Route("posts")
 @Tags("Posts")
@@ -112,6 +112,68 @@ export class PostsController extends Controller {
         };
 
         return this.postsService.listPosts(query, userId, token);
+      },
+      200
+    );
+  }
+
+  /**
+   * Get a single post by ID
+   *
+   * Returns a single post with full details including author, metadata, media, and tagged users.
+   * Can optionally include comments and engagement data (requires authentication).
+   *
+   * Posts are public and can be viewed without authentication, but engagement data
+   * (likes, comments, bookmarks) requires authentication.
+   *
+   * @summary Get post by ID
+   * @param id The UUID of the post to retrieve
+   * @param includeComments Whether to include comments in the response
+   * @param commentsLimit Maximum number of comments to return (1-100, default: 50)
+   * @returns The post with all related data, optional comments, and optional engagement
+   * @throws 404 if post not found
+   */
+  @Get("{id}")
+  public async getPost(
+    @Path() id: string,
+    @Query() includeComments?: boolean,
+    @Query() commentsLimit?: number,
+    @Request() req?: ExpressRequest
+  ): Promise<
+    PostResponse & {
+      comments?: CommentResponse[];
+      likesCount?: number;
+      commentsCount?: number;
+      bookmarksCount?: number;
+      hasLiked?: boolean;
+      hasBookmarked?: boolean;
+    }
+  > {
+    return handleControllerRequest(
+      this,
+      async () => {
+        // Try to extract userId and token if authenticated, but posts are public
+        let userId: string | undefined;
+        let token: string | undefined;
+
+        try {
+          if (req?.headers.authorization) {
+            userId = await extractUserId(req);
+            token = extractBearerToken(req);
+          }
+        } catch {
+          // Not authenticated, continue with public access
+        }
+
+        return this.postsService.getPostById(
+          id,
+          {
+            includeComments: includeComments || false,
+            commentsLimit: commentsLimit || 50,
+          },
+          userId,
+          token
+        );
       },
       200
     );
