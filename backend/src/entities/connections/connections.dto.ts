@@ -1,4 +1,4 @@
-import { IsString, IsUUID, IsEnum, IsOptional } from "class-validator";
+import { IsString, IsUUID, IsEnum } from "class-validator";
 import { ConnectionRequestInsert } from "../../utils/supabase-helpers.js";
 import { ConnectionStatus } from "../../types/api.types.js";
 

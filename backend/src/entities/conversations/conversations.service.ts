@@ -1,7 +1,4 @@
-import {
-  createAuthenticatedClient,
-  supabase,
-} from "../../config/supabase.config.js";
+import { createAuthenticatedClient } from "../../config/supabase.config.js";
 import {
   ConversationInsert,
   ConversationUpdate,
