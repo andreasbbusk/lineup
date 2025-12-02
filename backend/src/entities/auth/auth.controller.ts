@@ -7,9 +7,15 @@ import { checkUsernameAvailability } from "./auth.service.js";
 export class AuthController extends Controller {
   /**
    * Check if a username is available
-   * Returns availability status for real-time validation
+   *
+   * Returns availability status for real-time validation during registration.
+   * Username must be between 3-30 characters to be considered valid.
+   *
+   * @summary Check username availability
+   * @param username Username to check for availability
+   * @returns Object containing available boolean
    */
-  @Get("/check-username")
+  @Get("check-username")
   public async checkUsername(
     @Query() username: string
   ): Promise<{ available: boolean }> {

@@ -6,13 +6,13 @@ import { useAppStore } from "../../../stores/app-store";
 
 export function useRequireAuth() {
   const router = useRouter();
-  const is_authenticated = useAppStore((state) => state.is_authenticated);
+  const isAuthenticated = useAppStore((state) => state.isAuthenticated);
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     // Allow the store to hydrate from localStorage first
     const timer = setTimeout(() => {
-      if (!is_authenticated) {
+      if (!isAuthenticated) {
         router.push("/login");
       } else {
         setIsChecking(false);
@@ -20,11 +20,10 @@ export function useRequireAuth() {
     }, 100); // Small delay to let Zustand persist middleware load
 
     return () => clearTimeout(timer);
-  }, [is_authenticated, router]);
+  }, [isAuthenticated, router]);
 
   return {
-    
-    isAuthenticated: is_authenticated,
+    isAuthenticated,
     isLoading: isChecking,
   };
 }

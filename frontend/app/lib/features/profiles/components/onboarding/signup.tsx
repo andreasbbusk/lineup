@@ -19,7 +19,7 @@ const USERNAME_CHECK_DEBOUNCE = 500;
 
 export function OnboardingSignupStep() {
   const router = useRouter();
-  const { onboarding, update_onboarding_data, mark_account_created, set_auth } =
+  const { onboarding, updateOnboardingData, markAccountCreated, setAuth } =
     useAppStore();
 
   const [signupError, setSignupError] = useState("");
@@ -94,15 +94,15 @@ export function OnboardingSignupStep() {
       });
 
       if (result.session) {
-        set_auth(result.user, result.session.access_token, null);
+        setAuth(result.user, result.session.accessToken, null);
       }
 
-      update_onboarding_data({
+      updateOnboardingData({
         username: formData.username,
         email: formData.email,
       });
 
-      mark_account_created();
+      markAccountCreated();
       router.push("/onboarding?step=3");
     } catch (error) {
       const errorMessage =

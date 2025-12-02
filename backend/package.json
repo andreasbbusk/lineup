@@ -2,9 +2,10 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "server.ts",
   "scripts": {
     "tsoa": "tsoa spec-and-routes",
+    "build": "npm run tsoa",
     "start": "nodemon",
     "dev": "nodemon"
   },
@@ -14,21 +15,21 @@
   "type": "module",
   "dependencies": {
     "@supabase/supabase-js": "^2.81.1",
-    "@types/express": "^5.0.5",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "multer": "^2.0.2",
     "nodemon": "^3.1.11",
-    "postgres": "^3.4.7",
     "swagger-ui-express": "^5.0.1",
-    "tsoa": "^6.6.0",
-    "typescript": "^5.9.3"
+    "tsoa": "^6.6.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.5",
+    "@types/multer": "^2.0.0",
     "@types/swagger-ui-express": "^4.1.8",
-    "concurrently": "^9.2.1",
-    "tsx": "^4.20.6"
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
   }
 }

@@ -2,11 +2,10 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { useAppStore } from "../../../stores/app-store";
-import { ProfileUpdateRequest } from "../types";
-import { updateUserProfile } from "../api";
+import { updateUserProfile, ProfileUpdateRequest } from "../api";
 
 export function useUpdateProfile() {
-  const update_profile = useAppStore((state) => state.update_profile);
+  const updateProfile = useAppStore((state) => state.updateProfile);
 
   return useMutation({
     mutationFn: async ({
@@ -20,7 +19,7 @@ export function useUpdateProfile() {
     },
     onSuccess: (profile) => {
       // Just update the store with the new profile data
-      update_profile(profile);
+      updateProfile(profile);
     },
   });
 }

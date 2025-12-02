@@ -1,16 +1,38 @@
 import { supabase } from "../../supabase/client";
-import {
-  AuthResponse,
-  AvailabilityResponse,
-  SignupWithAuthRequest,
-} from "./types";
-import { apiClient, ApiError } from "../../api/client";
+import { ApiError, apiClient, handleApiError } from "../../api/api-client";
+import type { components } from "@/app/lib/types/api";
+
+// Local types (Supabase-specific, not in backend)
+export interface SignupWithAuthRequest {
+  email: string;
+  password: string;
+  username: string;
+}
+
+export interface AuthResponse {
+  user: {
+    id: string;
+    email: string;
+    createdAt: string;
+  };
+  session: {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+    expiresAt: number;
+  };
+  profile: components["schemas"]["UserProfile"];
+}
 
 // --- Supabase Client-Side Auth ---
 
+/**
+ * Sign up with Supabase Auth
+ * This uses Supabase's auth system directly and doesn't hit our backend
+ */
 export async function signupWithAuth(data: SignupWithAuthRequest): Promise<{
   user: { id: string; email: string };
-  session: { access_token: string } | null;
+  session: { accessToken: string } | null;
 }> {
   const { data: authData, error } = await supabase.auth.signUp({
     email: data.email,
@@ -34,11 +56,15 @@ export async function signupWithAuth(data: SignupWithAuthRequest): Promise<{
       email: authData.user.email!,
     },
     session: authData.session
-      ? { access_token: authData.session.access_token }
+      ? { accessToken: authData.session.access_token }
       : null,
   };
 }
 
+/**
+ * Sign in with Supabase Auth
+ * This uses Supabase's auth system and fetches profile from database
+ */
 export async function signInWithAuth(
   email: string,
   password: string
@@ -74,13 +100,13 @@ export async function signInWithAuth(
     user: {
       id: authData.user.id,
       email: authData.user.email!,
-      created_at: authData.user.created_at,
+      createdAt: authData.user.created_at,
     },
     session: {
-      access_token: authData.session.access_token,
-      refresh_token: authData.session.refresh_token,
-      expires_in: authData.session.expires_in || 3600,
-      expires_at: authData.session.expires_at || Date.now() / 1000 + 3600,
+      accessToken: authData.session.access_token,
+      refreshToken: authData.session.refresh_token,
+      expiresIn: authData.session.expires_in || 3600,
+      expiresAt: authData.session.expires_at || Date.now() / 1000 + 3600,
     },
     profile: profileData,
   };
@@ -88,15 +114,29 @@ export async function signInWithAuth(
 
 // --- Backend Auth Endpoints ---
 
+/**
+ * Check username availability using backend API
+ * Uses the generated OpenAPI types and typed client
+ */
 export async function checkUsernameAvailability(
   username: string
-): Promise<AvailabilityResponse> {
+): Promise<{ available: boolean }> {
   if (!username?.trim()) {
     return { available: false };
   }
 
-  const params = new URLSearchParams({ username });
-  return apiClient.get<AvailabilityResponse>(
-    `/auth/check-username?${params.toString()}`
+  const { data, error, response } = await apiClient.GET(
+    "/auth/check-username",
+    {
+      params: {
+        query: { username },
+      },
+    }
   );
+
+  if (error) {
+    handleApiError(error, response);
+  }
+
+  return data;
 }

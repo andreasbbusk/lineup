@@ -1,10 +1,7 @@
 {
   "entryFile": "src/server.ts",
   "noImplicitAdditionalProperties": "throw-on-extras",
-  "controllerPathGlobs": [
-    "src/entities/**/*.controller.ts",
-    "src/controllers/**/*.controller.ts"
-  ],
+  "controllerPathGlobs": ["src/entities/**/*.controller.ts"],
   "spec": {
     "outputDirectory": "src/docs",
     "specVersion": 3,
@@ -24,6 +21,7 @@
   "routes": {
     "routesDir": "src/routes",
     "routesFileName": "tsoa-routes.ts",
-    "authenticationModule": "./src/middleware/authentication.ts"
+    "authenticationModule": "./src/middleware/authentication.ts",
+    "middlewareTemplate": "./templates/route.mustache"
   }
 }

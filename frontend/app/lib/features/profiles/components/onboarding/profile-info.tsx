@@ -26,38 +26,38 @@ const CountryCodeDisplay = ({ flag, code }: CountryCodeDisplayProps) => (
 
 const COUNTRY_CODES = [
   {
-    value: "+45",
+    value: "45",
     label: "🇩🇰 +45",
     display: <CountryCodeDisplay flag="🇩🇰" code="+45" />,
   },
   {
-    value: "+46",
+    value: "46",
     label: "🇸🇪 +46",
     display: <CountryCodeDisplay flag="🇸🇪" code="+46" />,
   },
   {
-    value: "+47",
+    value: "47",
     label: "🇳🇴 +47",
     display: <CountryCodeDisplay flag="🇳🇴" code="+47" />,
   },
   {
-    value: "+358",
+    value: "358",
     label: "🇫🇮 +358",
     display: <CountryCodeDisplay flag="🇫🇮" code="+358" />,
   },
   {
-    value: "+354",
+    value: "354",
     label: "🇮🇸 +354",
     display: <CountryCodeDisplay flag="🇮🇸" code="+354" />,
   },
 ];
 
 export function OnboardingProfileInfoStep() {
-  const { onboarding, update_onboarding_data } = useAppStore();
+  const { onboarding, updateOnboardingData } = useAppStore();
   const { nextStep } = useOnboardingNavigation();
 
   const [fullName, setFullName] = useState(
-    [onboarding.data.first_name, onboarding.data.last_name]
+    [onboarding.data.firstName, onboarding.data.lastName]
       .filter(Boolean)
       .join(" ")
   );
@@ -72,24 +72,22 @@ export function OnboardingProfileInfoStep() {
     resolver: zodResolver(basicInfoSchema),
     mode: "onChange",
     defaultValues: {
-      first_name: onboarding.data.first_name || "",
-      last_name: onboarding.data.last_name || "",
-      country_code: onboarding.data.phone_country_code
-        ? `+${onboarding.data.phone_country_code}`
-        : "+45",
-      phone_number: onboarding.data.phone_number?.toString() || "",
-      year_of_birth: onboarding.data.year_of_birth?.toString() || "",
+      firstName: onboarding.data.firstName || "",
+      lastName: onboarding.data.lastName || "",
+      phoneCountryCode: onboarding.data.phoneCountryCode || 45,
+      phoneNumber: onboarding.data.phoneNumber || undefined,
+      yearOfBirth: onboarding.data.yearOfBirth || undefined,
       location: onboarding.data.location || "",
     },
   });
 
   const onSubmit = (formData: BasicInfoFormData) => {
-    update_onboarding_data({
-      first_name: formData.first_name,
-      last_name: formData.last_name,
-      phone_country_code: formData.country_code.replace("+", ""),
-      phone_number: formData.phone_number.toString(),
-      year_of_birth: Number(formData.year_of_birth),
+    updateOnboardingData({
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      phoneCountryCode: formData.phoneCountryCode,
+      phoneNumber: formData.phoneNumber,
+      yearOfBirth: formData.yearOfBirth,
       location: formData.location,
     });
     nextStep();
@@ -100,19 +98,18 @@ export function OnboardingProfileInfoStep() {
     const nameParts = value.trim().split(/\s+/);
 
     if (nameParts.length >= 2) {
-      setValue("first_name", nameParts[0], { shouldValidate: true });
-      setValue("last_name", nameParts.slice(1).join(" "), {
+      setValue("firstName", nameParts[0], { shouldValidate: true });
+      setValue("lastName", nameParts.slice(1).join(" "), {
         shouldValidate: true,
       });
     } else {
-      setValue("first_name", value.trim(), { shouldValidate: true });
-      setValue("last_name", "", { shouldValidate: true });
+      setValue("firstName", value.trim(), { shouldValidate: true });
+      setValue("lastName", "", { shouldValidate: true });
     }
   };
 
   return (
     <div className="flex flex-col items-center justify-center bg-white px-4">
-
       <form onSubmit={handleSubmit(onSubmit)} className="w-full">
         <div className="flex flex-col gap-8">
           {/* Full Name */}
@@ -125,16 +122,16 @@ export function OnboardingProfileInfoStep() {
               value={fullName}
               placeholder="Enter your full name"
               className={`w-full rounded-lg border px-2.5 py-2.5 text-base ${
-                errors.first_name || errors.last_name
+                errors.firstName || errors.lastName
                   ? "border-maroon bg-maroon/5"
                   : "border-black/10"
               }`}
               onChange={(e) => handleNameChange(e.target.value)}
             />
-            {(errors.first_name || errors.last_name) && (
+            {(errors.firstName || errors.lastName) && (
               <ErrorMessage
                 message={
-                  errors.first_name?.message || errors.last_name?.message || ""
+                  errors.firstName?.message || errors.lastName?.message || ""
                 }
               />
             )}
@@ -147,30 +144,30 @@ export function OnboardingProfileInfoStep() {
             </label>
             <div className="flex gap-3">
               <Controller
-                name="country_code"
+                name="phoneCountryCode"
                 control={control}
                 render={({ field }) => (
                   <CustomSelect
-                    value={field.value}
-                    onAction={field.onChange}
+                    value={field.value?.toString() || "45"}
+                    onAction={(value) => field.onChange(Number(value))}
                     options={COUNTRY_CODES}
                     triggerWidth="w-fit gap-1!"
                   />
                 )}
               />
               <input
-                {...register("phone_number")}
-                type="tel"
+                {...register("phoneNumber", { valueAsNumber: true })}
+                type="number"
                 placeholder="Phone number"
                 className={`flex rounded-lg border px-2.5 py-2 ${
-                  errors.phone_number
+                  errors.phoneNumber
                     ? "border-maroon bg-maroon/5"
                     : "border-black/10"
                 }`}
               />
             </div>
-            {errors.phone_number && (
-              <ErrorMessage message={errors.phone_number.message || ""} />
+            {errors.phoneNumber && (
+              <ErrorMessage message={errors.phoneNumber.message || ""} />
             )}
           </div>
 
@@ -180,12 +177,12 @@ export function OnboardingProfileInfoStep() {
               Year of birth
             </label>
             <Controller
-              name="year_of_birth"
+              name="yearOfBirth"
               control={control}
               render={({ field }) => (
                 <CustomSelect
-                  value={field.value}
-                  onAction={field.onChange}
+                  value={field.value?.toString() || ""}
+                  onAction={(value) => field.onChange(Number(value))}
                   options={Array.from(
                     { length: 100 },
                     (_, i) => new Date().getFullYear() - 13 - i
@@ -194,12 +191,12 @@ export function OnboardingProfileInfoStep() {
                     label: year.toString(),
                   }))}
                   placeholder="Enter your year of birth"
-                  error={!!errors.year_of_birth}
+                  error={!!errors.yearOfBirth}
                 />
               )}
             />
-            {errors.year_of_birth && (
-              <ErrorMessage message={errors.year_of_birth.message || ""} />
+            {errors.yearOfBirth && (
+              <ErrorMessage message={errors.yearOfBirth.message || ""} />
             )}
           </div>
 

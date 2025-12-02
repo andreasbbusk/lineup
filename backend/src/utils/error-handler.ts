@@ -40,7 +40,7 @@ export function createHttpError({
 }: CreateHttpErrorOptions): HttpError {
   const error = new Error(message) as HttpError;
   error.statusCode = statusCode;
-  error.status = statusCode;  // TSOA compatibility
+  error.status = statusCode; // TSOA compatibility
   error.code = code;
   if (details !== undefined) {
     error.details = details;

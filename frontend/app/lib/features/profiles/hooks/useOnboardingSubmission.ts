@@ -4,19 +4,19 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/app/lib/stores/app-store";
 import { useUpdateProfile } from "./useUpdateProfile";
+import type { ProfileUpdateRequest } from "../api";
 
 export function useOnboardingSubmission() {
   const router = useRouter();
-  const { onboarding, update_onboarding_data, reset_onboarding } =
-    useAppStore();
+  const { onboarding, updateOnboardingData, resetOnboarding } = useAppStore();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const { mutateAsync: updateProfile, isPending } = useUpdateProfile();
 
   const toggleOption = (id: string) => {
-    const current = onboarding.data.looking_for || [];
-    update_onboarding_data({
-      looking_for: current.includes(id)
+    const current = onboarding.data.lookingFor || [];
+    updateOnboardingData({
+      lookingFor: current.includes(id)
         ? current.filter((i: string) => i !== id)
         : [...current, id],
     });
@@ -25,19 +25,25 @@ export function useOnboardingSubmission() {
   const submitOnboarding = async () => {
     setSubmitError(null);
     const data = onboarding.data;
+    const userId = useAppStore.getState().user?.id;
 
     // Validation
+    if (!userId) {
+      setSubmitError("User ID not found. Please restart the signup process.");
+      return;
+    }
+
     if (!data.username) {
       setSubmitError("Missing username. Please restart the signup process.");
       return;
     }
 
     if (
-      !data.first_name ||
-      !data.last_name ||
-      !data.phone_number ||
-      !data.phone_country_code ||
-      !data.year_of_birth ||
+      !data.firstName ||
+      !data.lastName ||
+      !data.phoneNumber ||
+      !data.phoneCountryCode ||
+      !data.yearOfBirth ||
       !data.location
     ) {
       setSubmitError(
@@ -47,22 +53,39 @@ export function useOnboardingSubmission() {
     }
 
     try {
-      // Single call to updateProfile with all onboarding data
+      // Ensure numeric fields are numbers (localStorage might serialize them as strings)
+      const profileData = {
+        username: data.username,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phoneCountryCode: Number(data.phoneCountryCode),
+        phoneNumber: Number(data.phoneNumber),
+        yearOfBirth: Number(data.yearOfBirth),
+        location: data.location,
+        userType: data.userType || "musician",
+        lookingFor: data.lookingFor || [],
+        onboardingCompleted: true,
+      };
+
+      // Validate that conversions were successful
+      if (
+        isNaN(profileData.phoneCountryCode) ||
+        isNaN(profileData.phoneNumber) ||
+        isNaN(profileData.yearOfBirth)
+      ) {
+        setSubmitError("Invalid numeric values. Please check your input.");
+        return;
+      }
+
       await updateProfile({
         username: data.username,
-        data: {
-          first_name: data.first_name,
-          last_name: data.last_name,
-          phone_country_code: data.phone_country_code.toString(),
-          phone_number: data.phone_number.toString(),
-          year_of_birth: data.year_of_birth,
-          location: data.location,
-          user_type: data.user_type || "musician",
-          looking_for: data.looking_for || [],
-        },
+        // Cast to match generated API types (backend DTO expects numbers and will convert strings)
+        // Note: Generated types show strings but backend expects numbers - this is a type mismatch
+        // that should be fixed by regenerating types after updating Swagger spec
+        data: profileData as unknown as ProfileUpdateRequest,
       });
 
-      reset_onboarding();
+      resetOnboarding();
       router.push("/");
     } catch (error) {
       console.error("Onboarding submission failed:", error);
@@ -73,7 +96,7 @@ export function useOnboardingSubmission() {
   };
 
   return {
-    lookingFor: onboarding.data.looking_for,
+    lookingFor: onboarding.data.lookingFor,
     toggleOption,
     submitOnboarding,
     isPending,

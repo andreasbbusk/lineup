@@ -16,8 +16,8 @@ interface AuthenticatedUser {
  * - GET /users/:username - Alternative route format
  */
 const OPTIONAL_AUTH_PATHS: RegExp[] = [
-  /^\/api\/users\/[^/]+$/,  // Matches: /api/users/{username}
-  /^\/users\/[^/]+$/,       // Matches: /users/{username}
+  /^\/api\/users\/[^/]+$/, // Matches: /api/users/{username}
+  /^\/users\/[^/]+$/, // Matches: /users/{username}
 ];
 
 function allowsAnonymous(request: Request): boolean {
@@ -30,9 +30,18 @@ function allowsAnonymous(request: Request): boolean {
 
 export async function expressAuthentication(
   request: Request,
-  securityName: string
+  securityName: string | number
 ): Promise<AuthenticatedUser | undefined> {
-  if (securityName !== "bearerAuth") {
+  // Handle case where TSOA passes array index (as string "0" or number 0) instead of security name
+  // This happens when the generated routes use for...in on an array
+  // Since we only support bearerAuth, default to it if we get a numeric value
+  const normalizedSecurityName =
+    typeof securityName === "number" ||
+    (typeof securityName === "string" && /^\d+$/.test(securityName))
+      ? "bearerAuth"
+      : securityName;
+
+  if (normalizedSecurityName !== "bearerAuth") {
     throw createHttpError({
       message: `Unsupported security scheme: ${securityName}`,
       statusCode: 500,

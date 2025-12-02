@@ -7,157 +7,906 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
-			"ProfileRow": {
+			"UserProfile": {
+				"description": "API response format for user profile",
 				"properties": {
-					"year_of_birth": {
-						"type": "number",
-						"format": "double"
+					"id": {
+						"type": "string"
 					},
 					"username": {
 						"type": "string"
 					},
-					"user_type": {
+					"firstName": {
 						"type": "string"
 					},
-					"updated_at": {
+					"lastName": {
+						"type": "string"
+					},
+					"avatarUrl": {
 						"type": "string",
-						"nullable": true
-					},
-					"theme_color": {
-						"type": "string",
-						"nullable": true
-					},
-					"spotify_playlist_url": {
-						"type": "string",
-						"nullable": true
-					},
-					"search_vector": {},
-					"phone_number": {
-						"type": "number",
-						"format": "double"
-					},
-					"phone_country_code": {
-						"type": "number",
-						"format": "double"
-					},
-					"onboarding_completed": {
-						"type": "boolean",
-						"nullable": true
-					},
-					"location": {
-						"type": "string"
-					},
-					"last_name": {
-						"type": "string"
-					},
-					"id": {
-						"type": "string"
-					},
-					"first_name": {
-						"type": "string"
-					},
-					"created_at": {
-						"type": "string",
-						"nullable": true
-					},
-					"blocked_users": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array",
 						"nullable": true
 					},
 					"bio": {
 						"type": "string",
 						"nullable": true
 					},
-					"avatar_url": {
+					"aboutMe": {
 						"type": "string",
 						"nullable": true
 					},
-					"about_me": {
+					"phoneCountryCode": {
+						"type": "number",
+						"format": "double"
+					},
+					"phoneNumber": {
+						"type": "number",
+						"format": "double"
+					},
+					"yearOfBirth": {
+						"type": "number",
+						"format": "double"
+					},
+					"location": {
+						"type": "string"
+					},
+					"userType": {
+						"type": "string"
+					},
+					"themeColor": {
+						"type": "string",
+						"nullable": true
+					},
+					"spotifyPlaylistUrl": {
+						"type": "string",
+						"nullable": true
+					},
+					"onboardingCompleted": {
+						"type": "boolean",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"updatedAt": {
 						"type": "string",
 						"nullable": true
 					}
 				},
 				"required": [
-					"year_of_birth",
-					"username",
-					"user_type",
-					"updated_at",
-					"theme_color",
-					"spotify_playlist_url",
-					"search_vector",
-					"phone_number",
-					"phone_country_code",
-					"onboarding_completed",
-					"location",
-					"last_name",
 					"id",
-					"first_name",
-					"created_at",
-					"blocked_users",
+					"username",
+					"firstName",
+					"lastName",
+					"avatarUrl",
 					"bio",
-					"avatar_url",
-					"about_me"
+					"aboutMe",
+					"location",
+					"userType",
+					"themeColor",
+					"spotifyPlaylistUrl",
+					"onboardingCompleted",
+					"createdAt",
+					"updatedAt"
 				],
-				"type": "object"
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"id": "123e4567-e89b-12d3-a456-426614174000",
+					"username": "johndoe",
+					"firstName": "John",
+					"lastName": "Doe",
+					"avatarUrl": "https://example.com/avatar.jpg",
+					"bio": "Musician and producer",
+					"location": "New York, NY",
+					"userType": "musician",
+					"onboardingCompleted": true,
+					"createdAt": "2024-01-15T10:30:00Z"
+				}
 			},
-			"UserProfile": {
-				"$ref": "#/components/schemas/ProfileRow"
+			"LookingForType": {
+				"type": "string",
+				"enum": [
+					"connect",
+					"promote",
+					"find-band",
+					"find-services"
+				]
 			},
 			"UpdateProfileDto": {
-				"description": "DTO for updating user profile\nMatches ProfileUpdateRequest API format (snake_case)",
+				"description": "DTO for updating user profile\r\n\r\nUsed to update user profile information. All fields are optional - only\r\nprovided fields will be updated. The user_id is automatically extracted\r\nfrom the authentication token.",
 				"properties": {
-					"first_name": {
-						"type": "string"
+					"username": {
+						"type": "string",
+						"description": "Username (3-30 characters, only for initial profile creation)",
+						"example": "johndoe"
 					},
-					"last_name": {
-						"type": "string"
+					"firstName": {
+						"type": "string",
+						"description": "First name (1-50 characters)",
+						"example": "John"
+					},
+					"lastName": {
+						"type": "string",
+						"description": "Last name (1-50 characters)",
+						"example": "Doe"
 					},
 					"bio": {
-						"type": "string"
+						"type": "string",
+						"description": "Short bio (max 100 characters)",
+						"example": "Musician from New York"
 					},
-					"about_me": {
-						"type": "string"
+					"aboutMe": {
+						"type": "string",
+						"description": "Detailed about me section (max 500 characters)",
+						"example": "I'm a professional musician with 10 years of experience..."
 					},
-					"avatar_url": {
-						"type": "string"
+					"avatarUrl": {
+						"type": "string",
+						"description": "URL to user's avatar image",
+						"example": "https://example.com/avatar.jpg"
 					},
 					"location": {
-						"type": "string"
+						"type": "string",
+						"description": "User's location (1-100 characters)",
+						"example": "New York, NY"
 					},
-					"theme_color": {
-						"type": "string"
+					"themeColor": {
+						"type": "string",
+						"description": "Theme color in hex format",
+						"example": "#FF5733"
 					},
-					"spotify_playlist_url": {
-						"type": "string"
+					"spotifyPlaylistUrl": {
+						"type": "string",
+						"description": "URL to Spotify playlist",
+						"example": "https://open.spotify.com/playlist/..."
 					},
-					"phone_country_code": {
+					"phoneCountryCode": {
 						"type": "number",
-						"format": "double"
+						"format": "double",
+						"description": "Phone country code (1-999)",
+						"example": 1
 					},
-					"phone_number": {
+					"phoneNumber": {
 						"type": "number",
-						"format": "double"
+						"format": "double",
+						"description": "Phone number (4-15 digits, stored as bigint)",
+						"example": 1234567890
 					},
-					"year_of_birth": {
+					"yearOfBirth": {
 						"type": "number",
-						"format": "double"
+						"format": "double",
+						"description": "Year of birth",
+						"example": 1990
 					},
-					"user_type": {
-						"type": "string"
+					"userType": {
+						"type": "string",
+						"description": "User type: \"musician\", \"service_provider\", or \"other\"",
+						"example": "musician"
 					},
-					"onboarding_completed": {
-						"type": "boolean"
+					"onboardingCompleted": {
+						"type": "boolean",
+						"description": "Whether user has completed onboarding",
+						"example": true
 					},
-					"looking_for": {
+					"lookingFor": {
 						"items": {
-							"type": "string"
+							"$ref": "#/components/schemas/LookingForType"
+						},
+						"type": "array",
+						"description": "Types of connections user is looking for",
+						"example": [
+							"connect",
+							"find-band"
+						]
+					}
+				},
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"firstName": "John",
+					"lastName": "Doe",
+					"bio": "Musician from New York",
+					"location": "New York, NY",
+					"themeColor": "#FF5733"
+				}
+			},
+			"UploadedFileResponse": {
+				"description": "API response format for a single uploaded file",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"url": {
+						"type": "string"
+					},
+					"thumbnailUrl": {
+						"type": "string",
+						"nullable": true
+					},
+					"type": {
+						"type": "string",
+						"enum": [
+							"image",
+							"video"
+						]
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"required": [
+					"id",
+					"url",
+					"type",
+					"createdAt"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"id": "media-123",
+					"url": "https://storage.supabase.co/.../image.jpg",
+					"thumbnailUrl": "https://storage.supabase.co/.../thumb.jpg",
+					"type": "image",
+					"createdAt": "2024-01-20T15:30:00Z"
+				}
+			},
+			"UploadResponse": {
+				"description": "API response format for batch file upload",
+				"properties": {
+					"files": {
+						"items": {
+							"$ref": "#/components/schemas/UploadedFileResponse"
 						},
 						"type": "array"
 					}
 				},
+				"required": [
+					"files"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"files": [
+						{
+							"id": "media-123",
+							"url": "https://storage.supabase.co/.../image1.jpg",
+							"thumbnailUrl": null,
+							"type": "image",
+							"createdAt": "2024-01-20T15:30:00Z"
+						},
+						{
+							"id": "media-124",
+							"url": "https://storage.supabase.co/.../image2.jpg",
+							"thumbnailUrl": null,
+							"type": "image",
+							"createdAt": "2024-01-20T15:30:00Z"
+						}
+					]
+				}
+			},
+			"UserSearchResult": {
+				"description": "Search result for a user (from search_people)",
+				"properties": {
+					"type": {
+						"type": "string",
+						"enum": [
+							"user"
+						],
+						"nullable": false
+					},
+					"id": {
+						"type": "string"
+					},
+					"username": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"avatarUrl": {
+						"type": "string",
+						"nullable": true
+					},
+					"bio": {
+						"type": "string",
+						"nullable": true
+					},
+					"location": {
+						"type": "string",
+						"nullable": true
+					},
+					"genres": {},
+					"lookingFor": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"isConnected": {
+						"type": "boolean"
+					},
+					"relevance": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"type",
+					"id",
+					"username",
+					"firstName",
+					"lastName",
+					"isConnected",
+					"relevance"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"type": "user",
+					"id": "user-123",
+					"username": "johndoe",
+					"firstName": "John",
+					"lastName": "Doe",
+					"avatarUrl": "https://...",
+					"bio": "Musician and producer",
+					"location": "New York, NY",
+					"genres": [
+						"rock",
+						"indie"
+					],
+					"lookingFor": [
+						"connect",
+						"find-band"
+					],
+					"isConnected": false,
+					"relevance": 0.95
+				}
+			},
+			"CollaborationSearchResult": {
+				"description": "Search result for a collaboration request (from search_collaborations)",
+				"properties": {
+					"type": {
+						"type": "string",
+						"enum": [
+							"collaboration"
+						],
+						"nullable": false
+					},
+					"id": {
+						"type": "string"
+					},
+					"title": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"authorId": {
+						"type": "string"
+					},
+					"authorUsername": {
+						"type": "string"
+					},
+					"authorAvatarUrl": {
+						"type": "string",
+						"nullable": true
+					},
+					"location": {
+						"type": "string",
+						"nullable": true
+					},
+					"paidOpportunity": {
+						"type": "boolean"
+					},
+					"genres": {},
+					"createdAt": {
+						"type": "string"
+					},
+					"relevance": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"type",
+					"id",
+					"title",
+					"description",
+					"authorId",
+					"authorUsername",
+					"paidOpportunity",
+					"createdAt",
+					"relevance"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"type": "collaboration",
+					"id": "post-123",
+					"title": "Looking for Drummer",
+					"description": "Rock band seeking experienced drummer",
+					"authorId": "user-456",
+					"authorUsername": "janedoe",
+					"authorAvatarUrl": "https://...",
+					"location": "Los Angeles, CA",
+					"paidOpportunity": true,
+					"genres": [
+						"rock",
+						"alternative"
+					],
+					"createdAt": "2024-01-20T12:00:00Z",
+					"relevance": 0.88
+				}
+			},
+			"TagSearchResult": {
+				"description": "Search result for metadata/tags (from search_tags)",
+				"properties": {
+					"type": {
+						"type": "string",
+						"enum": [
+							"tag",
+							"genre",
+							"artist"
+						]
+					},
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"usageCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"relevance": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"type",
+					"id",
+					"name",
+					"usageCount",
+					"relevance"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"type": "tag",
+					"id": "tag-123",
+					"name": "indie-rock",
+					"usageCount": 42,
+					"relevance": 0.75
+				}
+			},
+			"ForYouSearchResult": {
+				"description": "Search result for \"For You\" tab (from search_for_you)\r\nPolymorphic result that can be a user or collaboration",
+				"properties": {
+					"type": {
+						"type": "string",
+						"enum": [
+							"for_you"
+						],
+						"nullable": false
+					},
+					"entityType": {
+						"type": "string",
+						"enum": [
+							"user",
+							"collaboration"
+						]
+					},
+					"entityId": {
+						"type": "string"
+					},
+					"title": {
+						"type": "string"
+					},
+					"subtitle": {
+						"type": "string"
+					},
+					"avatarUrl": {
+						"type": "string",
+						"nullable": true
+					},
+					"matchReason": {
+						"type": "string"
+					},
+					"additionalInfo": {},
+					"relevance": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"type",
+					"entityType",
+					"entityId",
+					"title",
+					"subtitle",
+					"matchReason",
+					"relevance"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"type": "for_you",
+					"entityType": "user",
+					"entityId": "user-123",
+					"title": "John Doe",
+					"subtitle": "Musician • New York, NY",
+					"avatarUrl": "https://...",
+					"matchReason": "Similar genres and location",
+					"additionalInfo": {
+						"genres": [
+							"rock",
+							"indie"
+						]
+					},
+					"relevance": 0.92
+				}
+			},
+			"SearchResult": {
+				"anyOf": [
+					{
+						"$ref": "#/components/schemas/UserSearchResult"
+					},
+					{
+						"$ref": "#/components/schemas/CollaborationSearchResult"
+					},
+					{
+						"$ref": "#/components/schemas/TagSearchResult"
+					},
+					{
+						"$ref": "#/components/schemas/ForYouSearchResult"
+					}
+				],
+				"description": "Union type for all search results"
+			},
+			"SearchResponse": {
+				"description": "API response format for search results",
+				"properties": {
+					"results": {
+						"items": {
+							"$ref": "#/components/schemas/SearchResult"
+						},
+						"type": "array"
+					},
+					"total": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"results"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ReviewResponse": {
+				"description": "API response format for a user review\r\nRepresents a 5-star rating and review text for a user",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"reviewerId": {
+						"type": "string"
+					},
+					"rating": {
+						"type": "number",
+						"format": "double"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"reviewer": {
+						"properties": {
+							"avatarUrl": {
+								"type": "string",
+								"nullable": true
+							},
+							"lastName": {
+								"type": "string",
+								"nullable": true
+							},
+							"firstName": {
+								"type": "string",
+								"nullable": true
+							},
+							"username": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"username",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"userId",
+					"reviewerId",
+					"rating",
+					"createdAt"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"id": "review-123",
+					"userId": "user-456",
+					"reviewerId": "user-123",
+					"rating": 5,
+					"description": "Excellent collaborator, very professional!",
+					"createdAt": "2024-01-20T15:30:00Z",
+					"reviewer": {
+						"id": "user-123",
+						"username": "johndoe",
+						"firstName": "John",
+						"lastName": "Doe",
+						"avatarUrl": "https://..."
+					}
+				}
+			},
+			"Pick_ReviewInsert.Exclude_keyofReviewInsert.reviewer_id-or-user_id-or-created_at-or-id__": {
+				"properties": {
+					"description": {
+						"type": "string"
+					},
+					"rating": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"rating"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"CreateReviewDto": {
+				"description": "DTO for creating a review\r\n\r\nUsed when writing a review for a user.\r\nThe reviewer_id is automatically extracted from the authentication token.",
+				"properties": {
+					"description": {
+						"type": "string",
+						"nullable": true,
+						"description": "Optional review description (max 500 characters)",
+						"example": "Great collaborator, very professional!"
+					},
+					"rating": {
+						"type": "number",
+						"format": "double",
+						"description": "Rating from 1 to 5 stars",
+						"example": 5
+					}
+				},
+				"required": [
+					"rating"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"rating": 5,
+					"description": "Great collaborator, very professional!"
+				}
+			},
+			"UpdateReviewDto": {
+				"description": "DTO for updating a review\r\n\r\nUsed when editing your own review.",
+				"properties": {
+					"rating": {
+						"type": "number",
+						"format": "double",
+						"description": "Updated rating from 1 to 5 stars",
+						"example": 4
+					},
+					"description": {
+						"type": "string",
+						"nullable": true,
+						"description": "Updated review description (max 500 characters)",
+						"example": "Updated review description"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"rating": 4,
+					"description": "Updated review description"
+				}
+			},
+			"PostResponse": {
+				"description": "API response format for a post with flattened relations\r\nThis is the camelCase version of PostRow (database format)\r\nThe mapper transforms PostRow (snake_case) → PostResponse (camelCase)",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string",
+						"enum": [
+							"note",
+							"request",
+							"story"
+						]
+					},
+					"title": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"authorId": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"updatedAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"location": {
+						"type": "string",
+						"nullable": true
+					},
+					"paidOpportunity": {
+						"type": "boolean",
+						"nullable": true
+					},
+					"expiresAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"metadata": {
+						"items": {
+							"properties": {
+								"type": {
+									"type": "string",
+									"enum": [
+										"tag",
+										"genre",
+										"artist"
+									]
+								},
+								"name": {
+									"type": "string"
+								},
+								"id": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"type",
+								"name",
+								"id"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"media": {
+						"items": {
+							"properties": {
+								"displayOrder": {
+									"type": "number",
+									"format": "double"
+								},
+								"type": {
+									"type": "string",
+									"enum": [
+										"image",
+										"video"
+									]
+								},
+								"thumbnailUrl": {
+									"type": "string",
+									"nullable": true
+								},
+								"url": {
+									"type": "string"
+								},
+								"id": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"displayOrder",
+								"type",
+								"url",
+								"id"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"taggedUsers": {
+						"items": {
+							"properties": {
+								"avatarUrl": {
+									"type": "string",
+									"nullable": true
+								},
+								"lastName": {
+									"type": "string",
+									"nullable": true
+								},
+								"firstName": {
+									"type": "string",
+									"nullable": true
+								},
+								"username": {
+									"type": "string"
+								},
+								"id": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"username",
+								"id"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"author": {
+						"properties": {
+							"avatarUrl": {
+								"type": "string",
+								"nullable": true
+							},
+							"lastName": {
+								"type": "string",
+								"nullable": true
+							},
+							"firstName": {
+								"type": "string",
+								"nullable": true
+							},
+							"username": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"username",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"type",
+					"title",
+					"description",
+					"authorId",
+					"createdAt",
+					"updatedAt",
+					"location",
+					"paidOpportunity",
+					"expiresAt"
+				],
 				"type": "object",
 				"additionalProperties": false
 			},
@@ -170,15 +919,22 @@
 				]
 			},
 			"MediaItemDto": {
+				"description": "DTO for media items attached to posts",
 				"properties": {
 					"url": {
-						"type": "string"
+						"type": "string",
+						"description": "URL to the media file",
+						"example": "https://example.com/image.jpg"
 					},
-					"thumbnail_url": {
-						"type": "string"
+					"thumbnailUrl": {
+						"type": "string",
+						"description": "Optional thumbnail URL for the media",
+						"example": "https://example.com/thumb.jpg"
 					},
 					"type": {
-						"type": "string"
+						"type": "string",
+						"description": "Media type: \"image\" or \"video\"",
+						"example": "image"
 					}
 				},
 				"required": [
@@ -186,7 +942,12 @@
 					"type"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"url": "https://example.com/image.jpg",
+					"thumbnailUrl": "https://example.com/thumb.jpg",
+					"type": "image"
+				}
 			},
 			"Pick_PostInsert.Exclude_keyofPostInsert.id-or-author_id-or-created_at-or-updated_at-or-search_vector__": {
 				"properties": {
@@ -223,51 +984,93 @@
 				"description": "From T, pick a set of properties whose keys are in the union K"
 			},
 			"CreatePostBody": {
+				"description": "DTO for creating a new post\r\n\r\nUsed when creating a post (note, request, or story). The author_id is\r\nautomatically extracted from the authentication token.\r\n\r\nFor \"note\" posts, you can include tags.\r\nFor \"request\" posts, you can include genres and paidOpportunity flag.\r\nAll post types can include media attachments and tagged users.",
 				"properties": {
 					"description": {
-						"type": "string"
+						"type": "string",
+						"description": "Post description (10-5000 characters)",
+						"example": "I'm looking for an experienced drummer to join our band..."
 					},
 					"expires_at": {
-						"type": "string",
-						"nullable": true
+						"type": "string"
 					},
 					"location": {
 						"type": "string",
-						"nullable": true
+						"nullable": true,
+						"description": "Optional location where the post is relevant",
+						"example": "New York, NY"
 					},
 					"paid_opportunity": {
-						"type": "boolean",
-						"nullable": true
+						"type": "boolean"
 					},
 					"title": {
-						"type": "string"
+						"type": "string",
+						"description": "Post title (1-100 characters)",
+						"example": "Looking for a drummer"
 					},
 					"type": {
-						"$ref": "#/components/schemas/PostType"
+						"$ref": "#/components/schemas/PostType",
+						"description": "Post type: \"note\", \"request\", or \"story\"",
+						"example": "note"
+					},
+					"paidOpportunity": {
+						"type": "boolean",
+						"nullable": true,
+						"description": "Whether this is a paid opportunity (only for \"request\" type posts)",
+						"example": true
+					},
+					"expiresAt": {
+						"type": "string",
+						"nullable": true,
+						"description": "Optional expiration date/time (ISO 8601 format)",
+						"example": "2024-12-31T23:59:59Z"
 					},
 					"tags": {
 						"items": {
 							"type": "string"
 						},
-						"type": "array"
+						"type": "array",
+						"description": "Tags for \"note\" type posts",
+						"example": [
+							"music",
+							"jazz",
+							"performance"
+						]
 					},
 					"genres": {
 						"items": {
 							"type": "string"
 						},
-						"type": "array"
+						"type": "array",
+						"description": "Genres for \"request\" type posts",
+						"example": [
+							"rock",
+							"pop",
+							"indie"
+						]
 					},
 					"taggedUsers": {
 						"items": {
 							"type": "string"
 						},
-						"type": "array"
+						"type": "array",
+						"description": "Array of user IDs to tag in the post",
+						"example": [
+							"123e4567-e89b-12d3-a456-426614174000"
+						]
 					},
 					"media": {
 						"items": {
 							"$ref": "#/components/schemas/MediaItemDto"
 						},
-						"type": "array"
+						"type": "array",
+						"description": "Media attachments (images or videos)",
+						"example": [
+							{
+								"url": "https://example.com/image.jpg",
+								"type": "image"
+							}
+						]
 					}
 				},
 				"required": [
@@ -276,9 +1079,140 @@
 					"type"
 				],
 				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"type": "note",
+					"title": "My First Post",
+					"description": "This is a detailed description of my post",
+					"location": "New York, NY",
+					"tags": [
+						"music",
+						"jazz"
+					],
+					"media": [
+						{
+							"url": "https://example.com/image.jpg",
+							"type": "image"
+						}
+					]
+				}
+			},
+			"NotificationResponse": {
+				"description": "API response format for a notification\r\nRepresents a notification with actor information",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"recipientId": {
+						"type": "string"
+					},
+					"actorId": {
+						"type": "string",
+						"nullable": true
+					},
+					"type": {
+						"type": "string"
+					},
+					"entityType": {
+						"type": "string",
+						"nullable": true
+					},
+					"entityId": {
+						"type": "string",
+						"nullable": true
+					},
+					"title": {
+						"type": "string"
+					},
+					"body": {
+						"type": "string",
+						"nullable": true
+					},
+					"actionUrl": {
+						"type": "string",
+						"nullable": true
+					},
+					"isRead": {
+						"type": "boolean",
+						"nullable": true
+					},
+					"isArchived": {
+						"type": "boolean",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"readAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"sentViaWebsocket": {
+						"type": "boolean",
+						"nullable": true
+					},
+					"actor": {
+						"properties": {
+							"avatarUrl": {
+								"type": "string",
+								"nullable": true
+							},
+							"lastName": {
+								"type": "string",
+								"nullable": true
+							},
+							"firstName": {
+								"type": "string",
+								"nullable": true
+							},
+							"username": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"username",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"recipientId",
+					"type",
+					"title",
+					"isRead",
+					"isArchived",
+					"createdAt",
+					"sentViaWebsocket"
+				],
+				"type": "object",
 				"additionalProperties": false
 			},
+			"UpdateNotificationDto": {
+				"description": "DTO for updating a notification\r\n\r\nUsed when marking a notification as read or unread.",
+				"properties": {
+					"isRead": {
+						"type": "boolean",
+						"description": "Whether the notification is read",
+						"example": true
+					}
+				},
+				"required": [
+					"isRead"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"isRead": true
+				}
+			},
 			"MetadataItem": {
+				"description": "API response format for metadata item",
 				"properties": {
 					"id": {
 						"type": "string"
@@ -294,20 +1228,28 @@
 					"name": {
 						"type": "string"
 					},
-					"created_at": {
-						"type": "string"
+					"createdAt": {
+						"type": "string",
+						"nullable": true
 					}
 				},
 				"required": [
 					"id",
 					"type",
 					"name",
-					"created_at"
+					"createdAt"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"id": "abc123",
+					"type": "tag",
+					"name": "indie-rock",
+					"createdAt": "2024-01-15T10:30:00Z"
+				}
 			},
 			"MetadataResponse": {
+				"description": "API response format for metadata endpoint\r\nReturns all available tags, genres, and artists organized by type",
 				"properties": {
 					"tags": {
 						"items": {
@@ -334,7 +1276,1267 @@
 					"artists"
 				],
 				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"tags": [
+						{
+							"id": "1",
+							"type": "tag",
+							"name": "indie",
+							"createdAt": "2024-01-15T10:30:00Z"
+						}
+					],
+					"genres": [
+						{
+							"id": "2",
+							"type": "genre",
+							"name": "Rock",
+							"createdAt": "2024-01-15T10:30:00Z"
+						}
+					],
+					"artists": [
+						{
+							"id": "3",
+							"type": "artist",
+							"name": "The Beatles",
+							"createdAt": "2024-01-15T10:30:00Z"
+						}
+					]
+				}
+			},
+			"MessageResponse": {
+				"description": "API response format for a message\r\nRepresents a message in a conversation with sender info and optional reply",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"conversationId": {
+						"type": "string"
+					},
+					"senderId": {
+						"type": "string"
+					},
+					"content": {
+						"type": "string",
+						"nullable": true
+					},
+					"mediaIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array",
+						"nullable": true
+					},
+					"isEdited": {
+						"type": "boolean",
+						"nullable": true
+					},
+					"editedAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"isDeleted": {
+						"type": "boolean",
+						"nullable": true
+					},
+					"deletedAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"replyToMessageId": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"sentViaWebsocket": {
+						"type": "boolean",
+						"nullable": true
+					},
+					"sender": {
+						"properties": {
+							"avatarUrl": {
+								"type": "string",
+								"nullable": true
+							},
+							"lastName": {
+								"type": "string",
+								"nullable": true
+							},
+							"firstName": {
+								"type": "string",
+								"nullable": true
+							},
+							"username": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"username",
+							"id"
+						],
+						"type": "object"
+					},
+					"replyTo": {
+						"allOf": [
+							{
+								"$ref": "#/components/schemas/MessageResponse"
+							}
+						],
+						"nullable": true
+					},
+					"readReceipts": {
+						"items": {
+							"$ref": "#/components/schemas/MessageReadReceiptResponse"
+						},
+						"type": "array"
+					},
+					"media": {
+						"items": {
+							"properties": {
+								"type": {
+									"type": "string"
+								},
+								"thumbnailUrl": {
+									"type": "string",
+									"nullable": true
+								},
+								"url": {
+									"type": "string"
+								},
+								"id": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"type",
+								"url",
+								"id"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"id",
+					"conversationId",
+					"senderId",
+					"content",
+					"isEdited",
+					"isDeleted",
+					"createdAt",
+					"sentViaWebsocket"
+				],
+				"type": "object",
 				"additionalProperties": false
+			},
+			"MessageReadReceiptResponse": {
+				"description": "API response format for a message read receipt",
+				"properties": {
+					"messageId": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"readAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"user": {
+						"properties": {
+							"avatarUrl": {
+								"type": "string",
+								"nullable": true
+							},
+							"lastName": {
+								"type": "string",
+								"nullable": true
+							},
+							"firstName": {
+								"type": "string",
+								"nullable": true
+							},
+							"username": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"username",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"messageId",
+					"userId",
+					"readAt"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"messageId": "msg-789",
+					"userId": "user-456",
+					"readAt": "2024-01-20T16:05:00Z",
+					"user": {
+						"id": "user-456",
+						"username": "janedoe",
+						"firstName": "Jane",
+						"lastName": "Doe",
+						"avatarUrl": "https://..."
+					}
+				}
+			},
+			"Pick_MessageInsert.Exclude_keyofMessageInsert.sender_id-or-conversation_id-or-created_at-or-id-or-is_edited-or-edited_at-or-is_deleted-or-deleted_at-or-sent_via_websocket__": {
+				"properties": {
+					"content": {
+						"type": "string"
+					},
+					"media_ids": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"reply_to_message_id": {
+						"type": "string"
+					}
+				},
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"CreateMessageDto": {
+				"description": "DTO for creating a message\r\n\r\nUsed when sending a message in a conversation.\r\nThe sender_id is automatically extracted from the authentication token.",
+				"properties": {
+					"content": {
+						"type": "string",
+						"nullable": true,
+						"description": "Message content (1-5000 characters)\r\nRequired if media_ids is not provided",
+						"example": "Hey, how are you?"
+					},
+					"media_ids": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"reply_to_message_id": {
+						"type": "string"
+					},
+					"mediaIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array",
+						"nullable": true,
+						"description": "Array of media IDs to attach to the message",
+						"example": [
+							"media-id-1",
+							"media-id-2"
+						]
+					},
+					"replyToMessageId": {
+						"type": "string",
+						"nullable": true,
+						"description": "Optional ID of the message this is replying to",
+						"example": "message-id-to-reply-to"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"content": "Hey, how are you?",
+					"mediaIds": [
+						"media-id-1",
+						"media-id-2"
+					],
+					"replyToMessageId": "message-id-to-reply-to"
+				}
+			},
+			"UpdateMessageDto": {
+				"description": "DTO for updating a message\r\n\r\nUsed when editing a message. Only the sender can edit their own messages,\r\nand only within 15 minutes of sending.",
+				"properties": {
+					"content": {
+						"type": "string",
+						"description": "Updated message content (1-5000 characters)",
+						"example": "Updated message content"
+					}
+				},
+				"required": [
+					"content"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"content": "Updated message content"
+				}
+			},
+			"FeedPostResponse": {
+				"description": "API response format for a post in the feed\r\nExtends PostResponse with engagement data and user interaction state",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string",
+						"enum": [
+							"note",
+							"request",
+							"story"
+						]
+					},
+					"title": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"authorId": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"updatedAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"location": {
+						"type": "string",
+						"nullable": true
+					},
+					"paidOpportunity": {
+						"type": "boolean",
+						"nullable": true
+					},
+					"expiresAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"metadata": {
+						"items": {
+							"properties": {
+								"type": {
+									"type": "string",
+									"enum": [
+										"tag",
+										"genre",
+										"artist"
+									]
+								},
+								"name": {
+									"type": "string"
+								},
+								"id": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"type",
+								"name",
+								"id"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"media": {
+						"items": {
+							"properties": {
+								"displayOrder": {
+									"type": "number",
+									"format": "double"
+								},
+								"type": {
+									"type": "string",
+									"enum": [
+										"image",
+										"video"
+									]
+								},
+								"thumbnailUrl": {
+									"type": "string",
+									"nullable": true
+								},
+								"url": {
+									"type": "string"
+								},
+								"id": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"displayOrder",
+								"type",
+								"url",
+								"id"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"taggedUsers": {
+						"items": {
+							"properties": {
+								"avatarUrl": {
+									"type": "string",
+									"nullable": true
+								},
+								"lastName": {
+									"type": "string",
+									"nullable": true
+								},
+								"firstName": {
+									"type": "string",
+									"nullable": true
+								},
+								"username": {
+									"type": "string"
+								},
+								"id": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"username",
+								"id"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"author": {
+						"properties": {
+							"avatarUrl": {
+								"type": "string",
+								"nullable": true
+							},
+							"lastName": {
+								"type": "string",
+								"nullable": true
+							},
+							"firstName": {
+								"type": "string",
+								"nullable": true
+							},
+							"username": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"username",
+							"id"
+						],
+						"type": "object"
+					},
+					"likesCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"commentsCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"bookmarksCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"hasLiked": {
+						"type": "boolean"
+					},
+					"hasBookmarked": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"id",
+					"type",
+					"title",
+					"description",
+					"authorId",
+					"createdAt",
+					"updatedAt",
+					"location",
+					"paidOpportunity",
+					"expiresAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ConversationParticipantResponse": {
+				"description": "API response format for a conversation participant",
+				"properties": {
+					"userId": {
+						"type": "string"
+					},
+					"conversationId": {
+						"type": "string"
+					},
+					"joinedAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"leftAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"isAdmin": {
+						"type": "boolean",
+						"nullable": true
+					},
+					"lastReadMessageId": {
+						"type": "string",
+						"nullable": true
+					},
+					"lastReadAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"notificationsEnabled": {
+						"type": "boolean",
+						"nullable": true
+					},
+					"isMuted": {
+						"type": "boolean",
+						"nullable": true
+					},
+					"user": {
+						"properties": {
+							"avatarUrl": {
+								"type": "string",
+								"nullable": true
+							},
+							"lastName": {
+								"type": "string",
+								"nullable": true
+							},
+							"firstName": {
+								"type": "string",
+								"nullable": true
+							},
+							"username": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"username",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"userId",
+					"conversationId",
+					"joinedAt",
+					"isAdmin",
+					"notificationsEnabled",
+					"isMuted"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ConversationResponse": {
+				"description": "API response format for a conversation\r\nRepresents a direct message or group conversation",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string",
+						"enum": [
+							"direct",
+							"group"
+						]
+					},
+					"name": {
+						"type": "string",
+						"nullable": true
+					},
+					"avatarUrl": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdBy": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"updatedAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"lastMessageId": {
+						"type": "string",
+						"nullable": true
+					},
+					"lastMessagePreview": {
+						"type": "string",
+						"nullable": true
+					},
+					"lastMessageAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"creator": {
+						"properties": {
+							"avatarUrl": {
+								"type": "string",
+								"nullable": true
+							},
+							"lastName": {
+								"type": "string",
+								"nullable": true
+							},
+							"firstName": {
+								"type": "string",
+								"nullable": true
+							},
+							"username": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"username",
+							"id"
+						],
+						"type": "object"
+					},
+					"participants": {
+						"items": {
+							"$ref": "#/components/schemas/ConversationParticipantResponse"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"id",
+					"type",
+					"createdBy",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ConversationType": {
+				"type": "string",
+				"enum": [
+					"direct",
+					"group"
+				]
+			},
+			"Pick_ConversationInsert.Exclude_keyofConversationInsert.created_by-or-created_at-or-updated_at-or-id-or-last_message_id-or-last_message_preview-or-last_message_at__": {
+				"properties": {
+					"type": {
+						"type": "string",
+						"enum": [
+							"direct",
+							"group"
+						]
+					},
+					"avatar_url": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"type"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"CreateConversationDto": {
+				"description": "DTO for creating a conversation\r\n\r\nUsed when creating a new direct message or group conversation.\r\nThe created_by is automatically extracted from the authentication token.\r\n\r\nFor \"direct\" type conversations, name is not required.\r\nFor \"group\" type conversations, name is required.",
+				"properties": {
+					"type": {
+						"$ref": "#/components/schemas/ConversationType",
+						"description": "Conversation type: \"direct\" or \"group\"",
+						"example": "group"
+					},
+					"avatar_url": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string",
+						"nullable": true,
+						"description": "Optional name for the conversation (required for groups)",
+						"example": "Band Practice"
+					},
+					"avatarUrl": {
+						"type": "string",
+						"nullable": true,
+						"description": "Optional avatar URL for group conversations",
+						"example": "https://example.com/avatar.jpg"
+					},
+					"participantIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array",
+						"description": "Array of user IDs to add as participants (excluding the creator)\r\nFor direct messages, should contain exactly one user ID\r\nFor groups, can contain multiple user IDs (max 7 additional users, 8 total including creator)",
+						"example": [
+							"user-id-1",
+							"user-id-2"
+						]
+					}
+				},
+				"required": [
+					"type",
+					"participantIds"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"type": "group",
+					"name": "Band Practice",
+					"avatarUrl": "https://example.com/avatar.jpg",
+					"participantIds": [
+						"user-id-1",
+						"user-id-2"
+					]
+				}
+			},
+			"UpdateConversationDto": {
+				"description": "DTO for updating a conversation\r\n\r\nUsed when updating conversation settings like name or avatar.\r\nOnly group conversations can be updated.",
+				"properties": {
+					"name": {
+						"type": "string",
+						"nullable": true,
+						"description": "Updated name for the conversation",
+						"example": "Updated Group Name"
+					},
+					"avatarUrl": {
+						"type": "string",
+						"nullable": true,
+						"description": "Updated avatar URL for the conversation",
+						"example": "https://example.com/new-avatar.jpg"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"name": "Updated Group Name",
+					"avatarUrl": "https://example.com/new-avatar.jpg"
+				}
+			},
+			"ConnectionStatus": {
+				"type": "string",
+				"enum": [
+					"pending",
+					"accepted",
+					"rejected"
+				],
+				"description": "Status of a connection request between two users"
+			},
+			"Connection": {
+				"description": "API response format for a connection request\r\nRepresents a connection request between two users with requester/recipient profiles",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"requesterId": {
+						"type": "string"
+					},
+					"recipientId": {
+						"type": "string"
+					},
+					"status": {
+						"$ref": "#/components/schemas/ConnectionStatus"
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"updatedAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"requester": {
+						"$ref": "#/components/schemas/UserProfile"
+					},
+					"recipient": {
+						"$ref": "#/components/schemas/UserProfile"
+					}
+				},
+				"required": [
+					"id",
+					"requesterId",
+					"recipientId",
+					"status",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Pick_ConnectionRequestInsert.Exclude_keyofConnectionRequestInsert.requester_id-or-created_at-or-updated_at-or-id-or-status__": {
+				"properties": {
+					"recipient_id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"recipient_id"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"CreateConnectionRequestDto": {
+				"description": "DTO for creating a connection request\r\n\r\nUsed when sending a connection request to another user.\r\nThe requester_id is automatically extracted from the authentication token.",
+				"properties": {
+					"recipient_id": {
+						"type": "string"
+					},
+					"recipientId": {
+						"type": "string",
+						"description": "The ID of the user to send the connection request to (UUID format)",
+						"example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+					}
+				},
+				"required": [
+					"recipient_id",
+					"recipientId"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"recipientId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+				}
+			},
+			"UpdateConnectionRequestDto": {
+				"description": "DTO for updating a connection request status\r\n\r\nUsed when accepting or rejecting a connection request.\r\nOnly the recipient can update the status.",
+				"properties": {
+					"status": {
+						"$ref": "#/components/schemas/ConnectionStatus",
+						"description": "The new status for the connection request",
+						"example": "accepted"
+					}
+				},
+				"required": [
+					"status"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"status": "accepted"
+				}
+			},
+			"CommentResponse": {
+				"description": "API response format for a comment\r\nRepresents a comment on a post with author information",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"postId": {
+						"type": "string"
+					},
+					"authorId": {
+						"type": "string"
+					},
+					"content": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"updatedAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"author": {
+						"properties": {
+							"avatarUrl": {
+								"type": "string",
+								"nullable": true
+							},
+							"lastName": {
+								"type": "string",
+								"nullable": true
+							},
+							"firstName": {
+								"type": "string",
+								"nullable": true
+							},
+							"username": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"username",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"postId",
+					"authorId",
+					"content",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"id": "comment-123",
+					"postId": "post-123",
+					"authorId": "user-456",
+					"content": "Great track! Love the production.",
+					"createdAt": "2024-01-20T16:00:00Z",
+					"updatedAt": "2024-01-20T16:00:00Z",
+					"author": {
+						"id": "user-456",
+						"username": "janedoe",
+						"firstName": "Jane",
+						"lastName": "Doe",
+						"avatarUrl": "https://..."
+					}
+				}
+			},
+			"Pick_CommentInsert.Exclude_keyofCommentInsert.author_id-or-created_at-or-updated_at-or-id__": {
+				"properties": {
+					"content": {
+						"type": "string"
+					},
+					"post_id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"content",
+					"post_id"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"CreateCommentDto": {
+				"description": "DTO for creating a comment\r\n\r\nUsed when creating a comment on a post. The author_id is automatically\r\nextracted from the authentication token.",
+				"properties": {
+					"content": {
+						"type": "string",
+						"description": "The comment content (1-1000 characters)",
+						"example": "Great post! Looking forward to collaborating."
+					},
+					"post_id": {
+						"type": "string"
+					},
+					"postId": {
+						"type": "string",
+						"description": "The ID of the post to comment on (UUID format)",
+						"example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+					}
+				},
+				"required": [
+					"content",
+					"post_id",
+					"postId"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"postId": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+					"content": "Great post! Looking forward to collaborating."
+				}
+			},
+			"UpdateCommentDto": {
+				"description": "DTO for updating a comment\r\n\r\nUsed when updating an existing comment. Only the content can be updated.",
+				"properties": {
+					"content": {
+						"type": "string",
+						"description": "The updated comment content (1-1000 characters)",
+						"example": "Updated comment text"
+					}
+				},
+				"required": [
+					"content"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"content": "Updated comment text"
+				}
+			},
+			"CollaborationResponse": {
+				"description": "API response format for a user collaboration\r\nRepresents a past collaboration between two users",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"collaboratorId": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"collaborator": {
+						"properties": {
+							"avatarUrl": {
+								"type": "string",
+								"nullable": true
+							},
+							"lastName": {
+								"type": "string",
+								"nullable": true
+							},
+							"firstName": {
+								"type": "string",
+								"nullable": true
+							},
+							"username": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"username",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"userId",
+					"collaboratorId",
+					"createdAt"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"id": "collab-123",
+					"userId": "user-123",
+					"collaboratorId": "user-456",
+					"description": "Worked together on album production",
+					"createdAt": "2024-01-20T15:30:00Z",
+					"collaborator": {
+						"id": "user-456",
+						"username": "janedoe",
+						"firstName": "Jane",
+						"lastName": "Doe",
+						"avatarUrl": "https://..."
+					}
+				}
+			},
+			"Pick_CollaborationInsert.Exclude_keyofCollaborationInsert.user_id-or-created_at-or-id__": {
+				"properties": {
+					"description": {
+						"type": "string"
+					},
+					"collaborator_id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"collaborator_id"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"CreateCollaborationDto": {
+				"description": "DTO for creating a collaboration\r\n\r\nRepresents a past collaboration between the authenticated user and another user.\r\nThe description is optional and limited to 200 characters.",
+				"properties": {
+					"description": {
+						"type": "string",
+						"nullable": true,
+						"description": "Optional description of the collaboration (max 200 characters)",
+						"example": "Worked together on a jazz album in 2023"
+					},
+					"collaborator_id": {
+						"type": "string"
+					},
+					"collaboratorId": {
+						"type": "string",
+						"description": "The ID of the user you collaborated with (UUID format)",
+						"example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+					}
+				},
+				"required": [
+					"collaborator_id",
+					"collaboratorId"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"collaboratorId": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+					"description": "Worked together on a jazz album in 2023"
+				}
+			},
+			"BookmarkResponse": {
+				"description": "API response format for a bookmark\r\nIncludes the bookmark details and optional post information with author",
+				"properties": {
+					"postId": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"post": {
+						"properties": {
+							"author": {
+								"properties": {
+									"avatarUrl": {
+										"type": "string",
+										"nullable": true
+									},
+									"lastName": {
+										"type": "string"
+									},
+									"firstName": {
+										"type": "string"
+									},
+									"username": {
+										"type": "string"
+									},
+									"id": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"avatarUrl",
+									"lastName",
+									"firstName",
+									"username",
+									"id"
+								],
+								"type": "object"
+							},
+							"createdAt": {
+								"type": "string",
+								"nullable": true
+							},
+							"location": {
+								"type": "string",
+								"nullable": true
+							},
+							"type": {
+								"type": "string"
+							},
+							"description": {
+								"type": "string"
+							},
+							"title": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"createdAt",
+							"location",
+							"type",
+							"description",
+							"title",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"postId",
+					"userId",
+					"createdAt"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"postId": "post-123",
+					"userId": "user-456",
+					"createdAt": "2024-01-20T15:30:00Z",
+					"post": {
+						"id": "post-123",
+						"title": "New Song Release",
+						"description": "Check it out!",
+						"type": "note",
+						"location": null,
+						"createdAt": "2024-01-20T12:00:00Z",
+						"author": {
+							"id": "user-123",
+							"username": "johndoe",
+							"firstName": "John",
+							"lastName": "Doe",
+							"avatarUrl": "https://..."
+						}
+					}
+				}
+			},
+			"Pick_BookmarkInsert.Exclude_keyofBookmarkInsert.user_id-or-created_at__": {
+				"properties": {
+					"post_id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"post_id"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"CreateBookmarkDto": {
+				"description": "DTO for creating a bookmark\r\n\r\nUsed when a user wants to bookmark a post for later reference.\r\nThe user_id is automatically extracted from the authentication token.",
+				"properties": {
+					"post_id": {
+						"type": "string"
+					},
+					"postId": {
+						"type": "string",
+						"description": "The UUID of the post to bookmark",
+						"example": "123e4567-e89b-12d3-a456-426614174000"
+					}
+				},
+				"required": [
+					"post_id",
+					"postId"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"postId": "123e4567-e89b-12d3-a456-426614174000"
+				}
 			}
 		},
 		"securitySchemes": {
@@ -362,7 +2564,7 @@
 				"operationId": "GetUser",
 				"responses": {
 					"200": {
-						"description": "Ok",
+						"description": "User profile (public or private based on authentication)",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -372,7 +2574,8 @@
 						}
 					}
 				},
-				"description": "Get user profile by username\nReturns public profile by default. If authenticated and viewing own profile, returns private fields.\nAuthentication is optional - endpoint can be accessed without a token.",
+				"description": "Get user profile by username\r\n\r\nRetrieves a user's profile information. Returns public profile data by default.\r\nIf authenticated and viewing your own profile, returns additional private fields\r\nsuch as phone number, year of birth, etc.\r\n\r\nAuthentication is optional - endpoint can be accessed without a token for public profiles.",
+				"summary": "Get user profile",
 				"tags": [
 					"Users"
 				],
@@ -383,9 +2586,18 @@
 				],
 				"parameters": [
 					{
+						"description": "The username of the user to retrieve",
 						"in": "path",
 						"name": "username",
 						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "header",
+						"name": "Authorization",
+						"required": false,
 						"schema": {
 							"type": "string"
 						}
@@ -396,7 +2608,7 @@
 				"operationId": "UpdateProfile",
 				"responses": {
 					"200": {
-						"description": "Ok",
+						"description": "Updated user profile",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -406,7 +2618,8 @@
 						}
 					}
 				},
-				"description": "Update own profile (requires authentication)\nOnly the profile owner can update their own profile\nAuthentication is required - will throw 401 if not authenticated",
+				"description": "Update own profile\r\n\r\nUpdates the authenticated user's profile information. Only the profile owner\r\ncan update their own profile. All fields in the request body are optional -\r\nonly provided fields will be updated.",
+				"summary": "Update user profile",
 				"tags": [
 					"Users"
 				],
@@ -417,41 +2630,56 @@
 				],
 				"parameters": [
 					{
+						"description": "The username of the profile to update (must match authenticated user)",
 						"in": "path",
 						"name": "username",
 						"required": true,
 						"schema": {
 							"type": "string"
 						}
+					},
+					{
+						"in": "header",
+						"name": "Authorization",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
 					}
 				],
 				"requestBody": {
+					"description": "The profile fields to update (all optional)",
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/UpdateProfileDto"
+								"$ref": "#/components/schemas/UpdateProfileDto",
+								"description": "The profile fields to update (all optional)"
 							}
 						}
 					}
 				}
 			}
 		},
-		"/posts": {
+		"/upload": {
 			"post": {
-				"operationId": "CreatePost",
+				"operationId": "UploadFiles",
 				"responses": {
 					"200": {
-						"description": "Ok",
+						"description": "Array of uploaded file records with URLs",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"$ref": "#/components/schemas/UploadResponse"
+								}
 							}
 						}
 					}
 				},
+				"description": "Upload files (images or videos) for posts or avatars\r\n\r\nSupports batch upload of up to 4 files.\r\nFiles are uploaded to Supabase Storage and media records are created in the database.\r\n\r\n- **Images**: JPEG, PNG, GIF, WebP (max 50MB each)\r\n- **Videos**: MP4, WebM, QuickTime (max 50MB each)\r\n- **Thumbnails**: Can be generated for videos if requested",
+				"summary": "Upload files",
 				"tags": [
-					"Posts"
+					"Upload"
 				],
 				"security": [
 					{
@@ -462,13 +2690,1898 @@
 				"requestBody": {
 					"required": true,
 					"content": {
-						"application/json": {
+						"multipart/form-data": {
 							"schema": {
-								"$ref": "#/components/schemas/CreatePostBody"
+								"type": "object",
+								"properties": {
+									"files": {
+										"items": {
+											"type": "string",
+											"format": "binary"
+										},
+										"type": "array",
+										"description": "Array of files to upload (multipart/form-data)"
+									},
+									"type": {
+										"type": "string",
+										"description": "Upload type: \"post\" for post media, \"avatar\" for profile pictures"
+									},
+									"generateThumbnails": {
+										"type": "string",
+										"description": "Whether to generate thumbnails for videos (default: false)"
+									}
+								},
+								"required": [
+									"files",
+									"type"
+								]
 							}
 						}
 					}
 				}
+			}
+		},
+		"/media/{mediaId}": {
+			"delete": {
+				"operationId": "DeleteMedia",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Delete a media file\r\n\r\nRemoves the file from Supabase Storage and deletes the media record from the database.\r\nOnly authenticated users can delete media.",
+				"summary": "Delete media",
+				"tags": [
+					"Upload"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the media to delete",
+						"in": "path",
+						"name": "mediaId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/search": {
+			"get": {
+				"operationId": "Search",
+				"responses": {
+					"200": {
+						"description": "Search results based on the selected tab",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SearchResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Search for users, posts, or tags\r\n\r\nPerforms a search across different entity types based on the specified tab.\r\nReturns polymorphic results that vary by tab type.\r\n\r\n- **for_you**: Personalized results combining people and collaboration requests\r\n- **people**: Search for users with filters (location, genres, looking for)\r\n- **collaborations**: Search for collaboration request posts\r\n- **tags**: Search for metadata (tags, genres, artists)",
+				"summary": "Search across users, posts, and tags",
+				"tags": [
+					"Search"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "Search query string",
+						"in": "query",
+						"name": "q",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "Search tab: \"for_you\", \"people\", \"collaborations\", or \"tags\" (default: \"for_you\")",
+						"in": "query",
+						"name": "tab",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"enum": [
+								"for_you",
+								"people",
+								"collaborations",
+								"tags"
+							]
+						}
+					},
+					{
+						"description": "Filter by location",
+						"in": "query",
+						"name": "location",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "Filter by genres (array)",
+						"in": "query",
+						"name": "genres",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					{
+						"description": "Filter by looking for types (for people tab)",
+						"in": "query",
+						"name": "lookingFor",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					{
+						"description": "Filter for paid opportunities only (for collaborations tab)",
+						"in": "query",
+						"name": "paidOnly",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					},
+					{
+						"description": "Maximum number of results (1-100, default: 20)",
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"description": "Offset for pagination (default: 0)",
+						"in": "query",
+						"name": "offset",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/users/{username}/reviews": {
+			"get": {
+				"operationId": "GetUserReviews",
+				"responses": {
+					"200": {
+						"description": "Array of reviews with reviewer details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/ReviewResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all reviews for a user\r\n\r\nReturns all reviews for a specific user with reviewer information.\r\nThis endpoint is public and does not require authentication.",
+				"summary": "Get user reviews",
+				"tags": [
+					"Reviews"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The username of the user to retrieve reviews for",
+						"in": "path",
+						"name": "username",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"post": {
+				"operationId": "CreateReview",
+				"responses": {
+					"200": {
+						"description": "The newly created review",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ReviewResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create a review for a user\r\n\r\nAllows the authenticated user to write a review for another user.\r\nPrevents self-reviews and duplicate reviews.",
+				"summary": "Create a review",
+				"tags": [
+					"Reviews"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The username of the user being reviewed",
+						"in": "path",
+						"name": "username",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "Review data including rating (1-5) and optional description",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateReviewDto",
+								"description": "Review data including rating (1-5) and optional description"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/reviews/{reviewId}": {
+			"get": {
+				"operationId": "GetReview",
+				"responses": {
+					"200": {
+						"description": "The review with reviewer details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ReviewResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get a review by ID\r\n\r\nReturns a specific review with reviewer information.\r\nThis endpoint is public and does not require authentication.",
+				"summary": "Get review by ID",
+				"tags": [
+					"Reviews"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The UUID of the review to retrieve",
+						"in": "path",
+						"name": "reviewId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"patch": {
+				"operationId": "UpdateReview",
+				"responses": {
+					"200": {
+						"description": "The updated review",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ReviewResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Update a review\r\n\r\nUpdates the rating and/or description of a review.\r\nOnly the reviewer can update their own review.",
+				"summary": "Update a review",
+				"tags": [
+					"Reviews"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the review to update",
+						"in": "path",
+						"name": "reviewId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "Updated review data (rating and/or description)",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateReviewDto",
+								"description": "Updated review data (rating and/or description)"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteReview",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Delete a review\r\n\r\nPermanently deletes a review.\r\nOnly the reviewer can delete their own review.",
+				"summary": "Delete a review",
+				"tags": [
+					"Reviews"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the review to delete",
+						"in": "path",
+						"name": "reviewId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/posts": {
+			"post": {
+				"operationId": "CreatePost",
+				"responses": {
+					"200": {
+						"description": "The created post with all related data (metadata, media, tagged users, author)",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PostResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create a new post\r\n\r\nCreates a new post (note, request, or story) with optional metadata, media,\r\nand tagged users. The post is automatically associated with the authenticated user.\r\n\r\nFor \"note\" type posts, you can include tags.\r\nFor \"request\" type posts, you can include genres and paid_opportunity flag.\r\nAll post types can include media and tagged users.",
+				"summary": "Create a post",
+				"tags": [
+					"Posts"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "The post data including type, title, description, and optional fields",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreatePostBody",
+								"description": "The post data including type, title, description, and optional fields"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/notifications": {
+			"get": {
+				"operationId": "GetNotifications",
+				"responses": {
+					"200": {
+						"description": "Notifications with pagination cursor",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"nextCursor": {
+											"type": "string"
+										},
+										"notifications": {
+											"items": {
+												"$ref": "#/components/schemas/NotificationResponse"
+											},
+											"type": "array"
+										}
+									},
+									"required": [
+										"notifications"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get notifications for the authenticated user\r\n\r\nReturns notifications for the authenticated user with optional filters.\r\nSupports filtering by type and unread status, with cursor-based pagination.\r\nArchived notifications are excluded by default.",
+				"summary": "Get user notifications",
+				"tags": [
+					"Notifications"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "Filter by notification type",
+						"in": "query",
+						"name": "type",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "If true, only return unread notifications",
+						"in": "query",
+						"name": "unreadOnly",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					},
+					{
+						"description": "Cursor for pagination (ISO timestamp)",
+						"in": "query",
+						"name": "cursor",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "Maximum number of notifications to return (1-100, default: 50)",
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/notifications/{notificationId}": {
+			"get": {
+				"operationId": "GetNotification",
+				"responses": {
+					"200": {
+						"description": "The notification with actor information",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/NotificationResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get a notification by ID\r\n\r\nReturns a specific notification with actor information.\r\nOnly the recipient can access their own notifications.",
+				"summary": "Get notification by ID",
+				"tags": [
+					"Notifications"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the notification to retrieve",
+						"in": "path",
+						"name": "notificationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"patch": {
+				"operationId": "UpdateNotification",
+				"responses": {
+					"200": {
+						"description": "The updated notification",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/NotificationResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Update a notification\r\n\r\nMarks a notification as read or unread.\r\nOnly the recipient can update their own notifications.",
+				"summary": "Mark notification as read/unread",
+				"tags": [
+					"Notifications"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the notification to update",
+						"in": "path",
+						"name": "notificationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "Update data including isRead status",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateNotificationDto",
+								"description": "Update data including isRead status"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteNotification",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Delete a notification\r\n\r\nPermanently deletes a notification.\r\nOnly the recipient can delete their own notifications.",
+				"summary": "Delete a notification",
+				"tags": [
+					"Notifications"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the notification to delete",
+						"in": "path",
+						"name": "notificationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/metadata": {
+			"get": {
+				"operationId": "GetMetadata",
+				"responses": {
+					"200": {
+						"description": "Metadata grouped by type (tags, genres, artists)",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MetadataResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all metadata\r\n\r\nReturns all tags, genres, and artists grouped by type.\r\nUsed for dropdowns, autocomplete, and tag/genre selectors.\r\nThis endpoint is public and does not require authentication.",
+				"summary": "Get all metadata",
+				"tags": [
+					"Metadata"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/conversations/{conversationId}/messages": {
+			"get": {
+				"operationId": "GetConversationMessages",
+				"responses": {
+					"200": {
+						"description": "Messages with pagination cursor",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"nextCursor": {
+											"type": "string"
+										},
+										"messages": {
+											"items": {
+												"$ref": "#/components/schemas/MessageResponse"
+											},
+											"type": "array"
+										}
+									},
+									"required": [
+										"messages"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get messages in a conversation\r\n\r\nReturns messages for a specific conversation with sender info, read receipts,\r\nand optional reply data. Supports cursor-based pagination.",
+				"summary": "Get conversation messages",
+				"tags": [
+					"Messages"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the conversation",
+						"in": "path",
+						"name": "conversationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "Cursor for pagination (ISO timestamp)",
+						"in": "query",
+						"name": "cursor",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "Maximum number of messages to return (1-100, default: 50)",
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"description": "If true, fetch messages before the cursor (for loading older messages)",
+						"in": "query",
+						"name": "before",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					}
+				]
+			},
+			"post": {
+				"operationId": "CreateMessage",
+				"responses": {
+					"200": {
+						"description": "The created message with all relations",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MessageResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Send a message in a conversation\r\n\r\nCreates a new message in the conversation. The message must have either\r\ncontent or media. Only participants can send messages.",
+				"summary": "Send a message",
+				"tags": [
+					"Messages"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the conversation",
+						"in": "path",
+						"name": "conversationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "Message data including content, optional media, and optional reply",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateMessageDto",
+								"description": "Message data including content, optional media, and optional reply"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/conversations/{conversationId}/messages/{messageId}": {
+			"get": {
+				"operationId": "GetMessage",
+				"responses": {
+					"200": {
+						"description": "The message with all relations",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MessageResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get a specific message by ID\r\n\r\nReturns a single message with all relations (sender, reply, read receipts, media).\r\nOnly participants in the conversation can access messages.",
+				"summary": "Get message by ID",
+				"tags": [
+					"Messages"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the conversation",
+						"in": "path",
+						"name": "conversationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "The UUID of the message to retrieve",
+						"in": "path",
+						"name": "messageId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdateMessage",
+				"responses": {
+					"200": {
+						"description": "The updated message",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MessageResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Edit a message\r\n\r\nUpdates the content of a message. Only the sender can edit their own messages,\r\nand only within 15 minutes of sending.",
+				"summary": "Edit a message",
+				"tags": [
+					"Messages"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the conversation",
+						"in": "path",
+						"name": "conversationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "The UUID of the message to edit",
+						"in": "path",
+						"name": "messageId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "Updated message content",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateMessageDto",
+								"description": "Updated message content"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteMessage",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Delete a message\r\n\r\nSoft deletes a message. Only the sender can delete their own messages.\r\nThe message content is cleared but the message record remains.",
+				"summary": "Delete a message",
+				"tags": [
+					"Messages"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the conversation",
+						"in": "path",
+						"name": "conversationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "The UUID of the message to delete",
+						"in": "path",
+						"name": "messageId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/conversations/{conversationId}/messages/read": {
+			"post": {
+				"operationId": "MarkMessagesAsRead",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Mark messages as read\r\n\r\nCreates read receipts for messages in a conversation, indicating that\r\nthe authenticated user has read them.",
+				"summary": "Mark messages as read",
+				"tags": [
+					"Messages"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the conversation",
+						"in": "path",
+						"name": "conversationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "Array of message IDs to mark as read",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"messageIds": {
+										"items": {
+											"type": "string"
+										},
+										"type": "array"
+									}
+								},
+								"required": [
+									"messageIds"
+								],
+								"type": "object",
+								"description": "Array of message IDs to mark as read"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/feed": {
+			"get": {
+				"operationId": "GetFeed",
+				"responses": {
+					"200": {
+						"description": "Feed posts with pagination cursor, or recommendations array",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"properties": {
+												"nextCursor": {
+													"type": "string"
+												},
+												"posts": {
+													"items": {
+														"$ref": "#/components/schemas/FeedPostResponse"
+													},
+													"type": "array"
+												}
+											},
+											"required": [
+												"posts"
+											],
+											"type": "object"
+										},
+										{
+											"properties": {
+												"recommendations": {
+													"items": {
+														"$ref": "#/components/schemas/FeedPostResponse"
+													},
+													"type": "array"
+												}
+											},
+											"required": [
+												"recommendations"
+											],
+											"type": "object"
+										},
+										{
+											"properties": {
+												"stories": {
+													"items": {},
+													"type": "array"
+												}
+											},
+											"required": [
+												"stories"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Get home feed\r\n\r\nReturns feed content based on the specified component:\r\n- \"posts\": Posts from users you follow (with pagination)\r\n- \"recommendations\": Collaboration request recommendations\r\n- \"stories\": Stories from followed users (coming soon)\r\n\r\nPosts feed includes engagement data (likes, comments, bookmarks counts)\r\nand user interaction state (hasLiked, hasBookmarked).",
+				"summary": "Get home feed",
+				"tags": [
+					"Feed"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The feed component to fetch (default: \"posts\")",
+						"in": "query",
+						"name": "component",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"enum": [
+								"posts",
+								"recommendations",
+								"stories"
+							]
+						}
+					},
+					{
+						"description": "Cursor for pagination (ISO timestamp)",
+						"in": "query",
+						"name": "cursor",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "Maximum number of items to return (1-50, default: 20)",
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/conversations": {
+			"get": {
+				"operationId": "GetConversations",
+				"responses": {
+					"200": {
+						"description": "Array of conversations with creator and participants",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/ConversationResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all conversations for the authenticated user\r\n\r\nReturns all conversations where the authenticated user is an active participant.\r\nEach conversation includes creator information and participant list.\r\nResults are ordered by last message time (most recent first).",
+				"summary": "Get user's conversations",
+				"tags": [
+					"Conversations"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "CreateConversation",
+				"responses": {
+					"200": {
+						"description": "The created conversation with creator and participants",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ConversationResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create a conversation\r\n\r\nCreates a new direct message or group conversation.\r\nFor direct messages, provide exactly one participant ID.\r\nFor group conversations, provide multiple participant IDs (max 7, 8 total including creator).\r\nGroup conversations must have a name.",
+				"summary": "Create a conversation",
+				"tags": [
+					"Conversations"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "Conversation data including type, name (for groups), and participant IDs",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateConversationDto",
+								"description": "Conversation data including type, name (for groups), and participant IDs"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/conversations/{conversationId}": {
+			"get": {
+				"operationId": "GetConversation",
+				"responses": {
+					"200": {
+						"description": "The conversation with creator and participants",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ConversationResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get a conversation by ID\r\n\r\nReturns a specific conversation with creator and participants.\r\nOnly participants can access the conversation.",
+				"summary": "Get conversation by ID",
+				"tags": [
+					"Conversations"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the conversation to retrieve",
+						"in": "path",
+						"name": "conversationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdateConversation",
+				"responses": {
+					"200": {
+						"description": "The updated conversation",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ConversationResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Update a conversation\r\n\r\nUpdates a group conversation's name or avatar.\r\nOnly the conversation creator or admins can update the conversation.\r\nDirect conversations cannot be updated.",
+				"summary": "Update a conversation",
+				"tags": [
+					"Conversations"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the conversation to update",
+						"in": "path",
+						"name": "conversationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "Updated conversation data (name, avatar_url)",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateConversationDto",
+								"description": "Updated conversation data (name, avatar_url)"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteConversation",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Delete a conversation or leave a group\r\n\r\nFor direct messages, marks the user as having left the conversation.\r\nFor group conversations, removes the user from participants.",
+				"summary": "Delete/leave a conversation",
+				"tags": [
+					"Conversations"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the conversation to delete/leave",
+						"in": "path",
+						"name": "conversationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/connections": {
+			"get": {
+				"operationId": "GetConnectionRequests",
+				"responses": {
+					"200": {
+						"description": "Array of connection requests (sent and received)",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Connection"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all connection requests for the authenticated user\r\n\r\nReturns both sent and received connection requests for the authenticated user.\r\nEach request includes requester and recipient profile information.",
+				"summary": "Get user's connection requests",
+				"tags": [
+					"Connections"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "CreateConnectionRequest",
+				"responses": {
+					"200": {
+						"description": "The created connection request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Connection"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create a connection request\r\n\r\nAllows the authenticated user to send a connection request to another user.\r\nThe recipient must exist and there must not be an existing connection request.",
+				"summary": "Send a connection request",
+				"tags": [
+					"Connections"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "Connection request data including recipient ID",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateConnectionRequestDto",
+								"description": "Connection request data including recipient ID"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/connections/sent/{userId}": {
+			"get": {
+				"operationId": "GetSentConnectionRequests",
+				"responses": {
+					"200": {
+						"description": "Array of connection requests sent by the user",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Connection"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get connection requests sent by a user\r\n\r\nReturns all connection requests sent by the specified user.\r\nThis endpoint can be accessed without authentication.",
+				"summary": "Get sent connection requests by user",
+				"tags": [
+					"Connections"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The UUID of the user to retrieve sent requests for",
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/connections/received/{userId}": {
+			"get": {
+				"operationId": "GetReceivedConnectionRequests",
+				"responses": {
+					"200": {
+						"description": "Array of connection requests received by the user",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Connection"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get connection requests received by a user\r\n\r\nReturns all connection requests received by the specified user.\r\nThis endpoint can be accessed without authentication.",
+				"summary": "Get received connection requests by user",
+				"tags": [
+					"Connections"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The UUID of the user to retrieve received requests for",
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/connections/{requestId}": {
+			"put": {
+				"operationId": "UpdateConnectionRequest",
+				"responses": {
+					"200": {
+						"description": "The updated connection request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Connection"
+								}
+							}
+						}
+					}
+				},
+				"description": "Update a connection request status\r\n\r\nAllows the recipient to accept or reject a connection request.\r\nOnly the recipient can update the status, and only pending requests can be updated.",
+				"summary": "Accept or reject a connection request",
+				"tags": [
+					"Connections"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the connection request to update",
+						"in": "path",
+						"name": "requestId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "Updated status (accepted or rejected)",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateConnectionRequestDto",
+								"description": "Updated status (accepted or rejected)"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteConnectionRequest",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Delete a connection request\r\n\r\nRemoves a connection request. Only the requester can delete a pending request.",
+				"summary": "Delete a connection request",
+				"tags": [
+					"Connections"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the connection request to delete",
+						"in": "path",
+						"name": "requestId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/comments/post/{postId}": {
+			"get": {
+				"operationId": "GetPostComments",
+				"responses": {
+					"200": {
+						"description": "Array of comments with author details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/CommentResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all comments for a post\r\n\r\nReturns all comments on a specific post, ordered by creation date (oldest first).\r\nEach comment includes the author's profile information.",
+				"summary": "Get comments for a post",
+				"tags": [
+					"Comments"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The UUID of the post to retrieve comments for",
+						"in": "path",
+						"name": "postId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/comments/user/{userId}": {
+			"get": {
+				"operationId": "GetUserComments",
+				"responses": {
+					"200": {
+						"description": "Array of comments with author details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/CommentResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all comments by a user\r\n\r\nReturns all comments created by a specific user, ordered by creation date (newest first).\r\nEach comment includes the author's profile information.",
+				"summary": "Get comments by user",
+				"tags": [
+					"Comments"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The UUID of the user to retrieve comments for",
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/comments": {
+			"post": {
+				"operationId": "CreateComment",
+				"responses": {
+					"200": {
+						"description": "The created comment with author details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CommentResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create a comment on a post\r\n\r\nAllows the authenticated user to create a comment on a post.\r\nThe post must exist and the comment content must be between 1 and 1000 characters.",
+				"summary": "Create a comment",
+				"tags": [
+					"Comments"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "Comment data including post ID and content",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateCommentDto",
+								"description": "Comment data including post ID and content"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/comments/{commentId}": {
+			"put": {
+				"operationId": "UpdateComment",
+				"responses": {
+					"200": {
+						"description": "The updated comment",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CommentResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Update a comment\r\n\r\nAllows the authenticated user to update their own comment.\r\nOnly the comment author can update their comment.",
+				"summary": "Update a comment",
+				"tags": [
+					"Comments"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the comment to update",
+						"in": "path",
+						"name": "commentId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "Updated comment content",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateCommentDto",
+								"description": "Updated comment content"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteComment",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Delete a comment\r\n\r\nRemoves a comment. Only the comment author can delete their own comment.",
+				"summary": "Delete a comment",
+				"tags": [
+					"Comments"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the comment to delete",
+						"in": "path",
+						"name": "commentId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/collaborations": {
+			"get": {
+				"operationId": "GetCollaborations",
+				"responses": {
+					"200": {
+						"description": "Array of collaborations with collaborator details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/CollaborationResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all collaborations for the authenticated user\r\n\r\nReturns a list of all collaborations where the authenticated user is involved.\r\nEach collaboration includes the collaborator's profile information.",
+				"summary": "Get user's collaborations",
+				"tags": [
+					"Collaborations"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "CreateCollaboration",
+				"responses": {
+					"200": {
+						"description": "The created collaboration",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CollaborationResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create a collaboration\r\n\r\nAllows the authenticated user to record a past collaboration with another user.\r\nThe collaborator must exist and the collaboration must not already exist.",
+				"summary": "Create a collaboration",
+				"tags": [
+					"Collaborations"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "Collaboration data including collaborator ID and optional description",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateCollaborationDto",
+								"description": "Collaboration data including collaborator ID and optional description"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/collaborations/{userId}": {
+			"get": {
+				"operationId": "GetUserCollaborations",
+				"responses": {
+					"200": {
+						"description": "Array of collaborations with collaborator details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/CollaborationResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get collaborations for a specific user\r\n\r\nReturns all collaborations for the specified user. This endpoint can be\r\naccessed without authentication to view public collaboration information.",
+				"summary": "Get collaborations by user ID",
+				"tags": [
+					"Collaborations"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The UUID of the user to retrieve collaborations for",
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/collaborations/{collaborationId}": {
+			"delete": {
+				"operationId": "DeleteCollaboration",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Delete a collaboration\r\n\r\nRemoves a collaboration. Only the user who created the collaboration\r\ncan delete it.",
+				"summary": "Delete a collaboration",
+				"tags": [
+					"Collaborations"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the collaboration to delete",
+						"in": "path",
+						"name": "collaborationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/bookmarks": {
+			"get": {
+				"operationId": "GetBookmarks",
+				"responses": {
+					"200": {
+						"description": "Array of bookmarks with post details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/BookmarkResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all bookmarks for the authenticated user\r\n\r\nReturns a list of all bookmarks created by the authenticated user.\r\nEach bookmark includes the post details and author information.",
+				"summary": "Get user's bookmarks",
+				"tags": [
+					"Bookmarks"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "CreateBookmark",
+				"responses": {
+					"200": {
+						"description": "The created bookmark",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BookmarkResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create a bookmark for a post\r\n\r\nAllows the authenticated user to bookmark a post for later reference.\r\nThe post must exist and must not already be bookmarked by the user.",
+				"summary": "Create a bookmark",
+				"tags": [
+					"Bookmarks"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "The bookmark data containing the post ID to bookmark",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateBookmarkDto",
+								"description": "The bookmark data containing the post ID to bookmark"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/bookmarks/{postId}": {
+			"delete": {
+				"operationId": "DeleteBookmark",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Remove a bookmark\r\n\r\nDeletes a bookmark for a specific post. Only the user who created\r\nthe bookmark can remove it.",
+				"summary": "Delete a bookmark",
+				"tags": [
+					"Bookmarks"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the post to unbookmark",
+						"in": "path",
+						"name": "postId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		},
 		"/auth/check-username": {
@@ -476,7 +4589,7 @@
 				"operationId": "CheckUsername",
 				"responses": {
 					"200": {
-						"description": "Ok",
+						"description": "Object containing available boolean",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -494,903 +4607,17 @@
 						}
 					}
 				},
-				"description": "Check if a username is available\nReturns availability status for real-time validation",
+				"description": "Check if a username is available\r\n\r\nReturns availability status for real-time validation during registration.\r\nUsername must be between 3-30 characters to be considered valid.",
+				"summary": "Check username availability",
 				"tags": [
 					"Authentication"
 				],
 				"security": [],
 				"parameters": [
 					{
+						"description": "Username to check for availability",
 						"in": "query",
 						"name": "username",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/uploads": {
-			"get": {
-				"operationId": "GetUploads",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{
-											"items": {},
-											"type": "array"
-										},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves a list of all uploads.",
-				"tags": [
-					"Uploads"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/uploads/{userId}": {
-			"get": {
-				"operationId": "GetUserUploads",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves all uploads for a user by their ID.",
-				"tags": [
-					"Uploads"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"description": "The ID of the user to retrieve uploads from",
-						"in": "path",
-						"name": "userId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/search": {
-			"get": {
-				"operationId": "GetRecentSearchResults",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{
-											"items": {},
-											"type": "array"
-										},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves a list of all recent search results.",
-				"tags": [
-					"Search"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/search/{userId}": {
-			"get": {
-				"operationId": "GetUserRecentSearches",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves all recent searches for a user by their ID.",
-				"tags": [
-					"Search"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"description": "The ID of the user to retrieve recent searches from",
-						"in": "path",
-						"name": "userId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/reviews": {
-			"get": {
-				"operationId": "GetReviews",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{
-											"items": {},
-											"type": "array"
-										},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves a list of all reviews.",
-				"tags": [
-					"Reviews"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/reviews/{userId}": {
-			"get": {
-				"operationId": "GetUserReviews",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves all reviews for a user by their ID.",
-				"tags": [
-					"Reviews"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"description": "The ID of the user to retrieve reviews from",
-						"in": "path",
-						"name": "userId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/notifications": {
-			"get": {
-				"operationId": "GetNotifications",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{
-											"items": {},
-											"type": "array"
-										},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves a list of all notifications.",
-				"tags": [
-					"Notifications"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/notifications/{userId}": {
-			"get": {
-				"operationId": "GetUserNotifications",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves all notifications for a user by their ID.",
-				"tags": [
-					"Notifications"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"description": "The ID of the user to retrieve notifications from",
-						"in": "path",
-						"name": "userId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/metadata": {
-			"get": {
-				"operationId": "GetMetadata",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{
-											"$ref": "#/components/schemas/MetadataResponse"
-										},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Get all tags, genres, artists, interests for dropdowns/autocomplete\nReturns metadata grouped by type with usage counts",
-				"tags": [
-					"Metadata"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/messages": {
-			"get": {
-				"operationId": "GetMessages",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{
-											"items": {},
-											"type": "array"
-										},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves a list of all messages.",
-				"tags": [
-					"Messages"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/messages/{userId}": {
-			"get": {
-				"operationId": "GetUserMessages",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves all messages for a user by their ID.",
-				"tags": [
-					"Messages"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"description": "The ID of the user to retrieve messages from",
-						"in": "path",
-						"name": "userId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/conversations": {
-			"get": {
-				"operationId": "GetConversations",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{
-											"items": {},
-											"type": "array"
-										},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves a list of all conversations.",
-				"tags": [
-					"Conversations"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/conversations/{userId}": {
-			"get": {
-				"operationId": "GetUserConversations",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves all conversations for a user by their ID.",
-				"tags": [
-					"Conversations"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"description": "The ID of the user to retrieve conversations from",
-						"in": "path",
-						"name": "userId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/connections": {
-			"get": {
-				"operationId": "GetConnectionRequests",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{
-											"items": {},
-											"type": "array"
-										},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves a list of all connections.",
-				"tags": [
-					"Connections"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/connections/{userId}": {
-			"get": {
-				"operationId": "GetUserConnectionsRequest",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves all connections requests for a user by their ID.",
-				"tags": [
-					"Connections"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"description": "The ID of the user to retrieve connections from",
-						"in": "path",
-						"name": "userId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/comments": {
-			"get": {
-				"operationId": "GetComments",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{
-											"items": {},
-											"type": "array"
-										},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves a list of all comments.",
-				"tags": [
-					"Comments"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/comments/{userId}": {
-			"get": {
-				"operationId": "GetUserComments",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves all comments for a user by their ID.",
-				"tags": [
-					"Comments"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"description": "The ID of the user to retrieve comments from",
-						"in": "path",
-						"name": "userId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/collaborations": {
-			"get": {
-				"operationId": "GetCollaborations",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{
-											"items": {},
-											"type": "array"
-										},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves a list of all collaborations.",
-				"tags": [
-					"Collaborations"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/collaborations/{userId}": {
-			"get": {
-				"operationId": "GetUserCollaborations",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves all collaborations for a user by their ID.",
-				"tags": [
-					"Collaborations"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"description": "The ID of the user to retrieve collaborations from",
-						"in": "path",
-						"name": "userId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/bookmarks": {
-			"get": {
-				"operationId": "GetBookmarks",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{
-											"items": {},
-											"type": "array"
-										},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves a list of all bookmarks.",
-				"tags": [
-					"Bookmarks"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/bookmarks/{userId}": {
-			"get": {
-				"operationId": "GetUserBookmarks",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"anyOf": [
-										{},
-										{
-											"properties": {
-												"error": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"error"
-											],
-											"type": "object"
-										}
-									]
-								}
-							}
-						}
-					}
-				},
-				"description": "Retrieves all bookmarks for a user by their ID.",
-				"tags": [
-					"Bookmarks"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"description": "The ID of the user to retrieve bookmarks from",
-						"in": "path",
-						"name": "userId",
 						"required": true,
 						"schema": {
 							"type": "string"
