@@ -4,7 +4,7 @@ import { useOnboardingNavigation } from "../../hooks/useOnboardingNavigation";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import Image from "next/image";
 import { useState, useRef } from "react";
-import { Button } from "@/app/components/ui/buttons";
+import { Button } from "@/app/components/buttons";
 
 const SLIDES = [
   {

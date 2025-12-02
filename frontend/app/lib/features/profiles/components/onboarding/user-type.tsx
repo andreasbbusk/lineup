@@ -2,8 +2,8 @@
 
 import { useAppStore } from "@/app/lib/stores/app-store";
 import { useOnboardingNavigation } from "../../hooks/useOnboardingNavigation";
-import { Button } from "@/app/components/ui/buttons";
-import { CheckboxCircle } from "@/app/components/ui/checkbox-circle";
+import { Button } from "@/app/components/buttons";
+import { CheckboxCircle } from "@/app/components/checkbox-circle";
 import Image from "next/image";
 
 const LOGO_ICON = "/logos/small_logos/white-and-yellow.svg";

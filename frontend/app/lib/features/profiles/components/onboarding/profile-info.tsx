@@ -6,11 +6,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { basicInfoSchema, type BasicInfoFormData } from "../../schemas";
 import { useOnboardingNavigation } from "../../hooks/useOnboardingNavigation";
 import { useAppStore } from "@/app/lib/stores/app-store";
-import { Button } from "@/app/components/ui/buttons";
-import { CustomSelect } from "@/app/components/ui/select";
-import { Combobox } from "@/app/components/ui/combobox";
+import { Button } from "@/app/components/buttons";
+import { CustomSelect } from "@/app/components/select";
+import { Combobox } from "@/app/components/combobox";
 import { NORDIC_CITIES as OPTIONS } from "@/app/lib/features/profiles/constants";
-import { ErrorMessage } from "@/app/components/ui/error-message";
+import { ErrorMessage } from "@/app/components/error-message";
 
 interface CountryCodeDisplayProps {
   flag: string;
