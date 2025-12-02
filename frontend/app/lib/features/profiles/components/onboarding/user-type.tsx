@@ -1,7 +1,7 @@
 "use client";
 
 import { useAppStore } from "@/app/lib/stores/app-store";
-import { useOnboardingNavigation } from "../../hooks/useOnboardingNavigation";
+import { useOnboardingNavigation } from "../../hooks/onboarding/useOnboardingNavigation";
 import { Button } from "@/app/components/buttons";
 import { CheckboxCircle } from "@/app/components/checkbox-circle";
 import Image from "next/image";

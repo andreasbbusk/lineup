@@ -1,8 +1,13 @@
-// Hooks
-export * from "./hooks/useOnboardingNavigation";
-export * from "./hooks/useOnboardingSubmission";
-export * from "./hooks/useProfile";
-export * from "./hooks/useUpdateProfile";
+// Hooks - queries
+export {
+  useProfile,
+  useMyProfile,
+  useUpdateProfile,
+} from "./hooks/queries/useProfile";
+
+// Hooks - onboarding
+export { useOnboardingNavigation } from "./hooks/onboarding/useOnboardingNavigation";
+export { useOnboardingSubmission } from "./hooks/onboarding/useOnboardingSubmission";
 
 // Onboarding Components
 export { OnboardingWrapper } from "./components/onboarding/wrapper";

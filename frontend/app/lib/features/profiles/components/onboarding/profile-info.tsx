@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { basicInfoSchema, type BasicInfoFormData } from "../../schemas";
-import { useOnboardingNavigation } from "../../hooks/useOnboardingNavigation";
+import { useOnboardingNavigation } from "../../hooks/onboarding/useOnboardingNavigation";
 import { useAppStore } from "@/app/lib/stores/app-store";
 import { Button } from "@/app/components/buttons";
 import { CustomSelect } from "@/app/components/select";
@@ -210,7 +210,7 @@ export function OnboardingProfileInfoStep() {
               control={control}
               render={({ field }) => (
                 <Combobox
-                  value={field.value}
+                  value={field.value || ""}
                   onAction={field.onChange}
                   options={OPTIONS}
                   placeholder="Enter your location"

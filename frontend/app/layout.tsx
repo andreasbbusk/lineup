@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
-import BottomNav from "./components/bottom-nav";
 
 export const metadata: Metadata = {
   title: "LineUp",
@@ -17,7 +16,6 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <Providers>{children}</Providers>
-        <BottomNav />
       </body>
     </html>
   );

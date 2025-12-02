@@ -1,6 +1,6 @@
 "use client";
 
-import { useOnboardingSubmission } from "../../hooks/useOnboardingSubmission";
+import { useOnboardingSubmission } from "../../hooks/onboarding/useOnboardingSubmission";
 import { Button } from "@/app/components/buttons";
 import { CheckboxCircle } from "@/app/components/checkbox-circle";
 import { ErrorMessage } from "@/app/components/error-message";
