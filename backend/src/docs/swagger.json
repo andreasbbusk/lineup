@@ -319,6 +319,16 @@
 						"type": "string",
 						"description": "MIME type of the file (used for validation)",
 						"example": "image/jpeg"
+					},
+					"uploadType": {
+						"type": "string",
+						"enum": [
+							"post",
+							"avatar"
+						],
+						"description": "Upload type: \"post\" for post media, \"avatar\" for profile pictures",
+						"example": "post",
+						"default": "post"
 					}
 				},
 				"required": [
@@ -329,7 +339,8 @@
 				"additionalProperties": false,
 				"example": {
 					"fileName": "my-image.jpg",
-					"fileType": "image/jpeg"
+					"fileType": "image/jpeg",
+					"uploadType": "post"
 				}
 			},
 			"UserSearchResult": {
@@ -2817,7 +2828,7 @@
 						}
 					}
 				},
-				"description": "Generate a signed upload URL for direct client uploads\n\nReturns a temporary signed URL that allows clients to upload files directly\nto Supabase Storage, bypassing the backend. This improves scalability by\navoiding large file buffers in the Node.js server.\n\nThe client should:\n1. Call this endpoint to get a signed URL\n2. Upload the file directly to the signed URL using fetch/PUT\n3. Use the returned filePath to construct the public URL\n4. Include the public URL when creating posts\n\n- **Images**: JPEG, PNG, GIF, WebP\n- **Videos**: MP4, WebM, QuickTime",
+				"description": "Generate a signed upload URL for direct client uploads\n\nReturns a temporary signed URL that allows clients to upload files directly\nto Supabase Storage, bypassing the backend. This improves scalability by\navoiding large file buffers in the Node.js server.\n\nThe client should:\n1. Call this endpoint to get a signed URL\n2. Upload the file directly to the signed URL using fetch/PUT\n3. Use the returned filePath to construct the public URL\n4. Include the public URL when creating posts or updating avatars\n\n- **Images**: JPEG, PNG, GIF, WebP\n- **Videos**: MP4, WebM, QuickTime\n- **Upload Types**: \"post\" (default) for post media, \"avatar\" for profile pictures",
 				"summary": "Generate signed upload URL",
 				"tags": [
 					"Upload"
@@ -2829,13 +2840,13 @@
 				],
 				"parameters": [],
 				"requestBody": {
-					"description": "Request body containing fileName and fileType",
+					"description": "Request body containing fileName, fileType, and optional uploadType",
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
 								"$ref": "#/components/schemas/SignedUrlRequestDto",
-								"description": "Request body containing fileName and fileType"
+								"description": "Request body containing fileName, fileType, and optional uploadType"
 							}
 						}
 					}

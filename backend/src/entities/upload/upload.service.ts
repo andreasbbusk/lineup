@@ -1,4 +1,4 @@
-import { createAuthenticatedClient } from "../../config/supabase.config.js";
+import { createAuthenticatedClient, createServiceRoleClient } from "../../config/supabase.config.js";
 import { createHttpError } from "../../utils/error-handler.js";
 import { MediaInsert, MediaType } from "../../utils/supabase-helpers.js";
 import { UploadResponse, SignedUrlResponse } from "../../types/api.types.js";
@@ -221,10 +221,9 @@ export class UploadService {
     userId: string,
     fileName: string,
     fileType: string,
+    uploadType: "post" | "avatar",
     token: string
   ): Promise<SignedUrlResponse> {
-    const authedSupabase = createAuthenticatedClient(token);
-
     // Validate file type
     const isValidType =
       ALLOWED_IMAGE_TYPES.includes(fileType) ||
@@ -241,17 +240,26 @@ export class UploadService {
       });
     }
 
+    // Determine storage bucket based on upload type
+    const bucket = uploadType === "avatar" ? "avatars" : "posts";
+
     // Generate unique file path
     const fileExt = fileName.split(".").pop() || "";
     const uniqueFileName = `${Date.now()}-${Math.random()
       .toString(36)
       .substring(7)}.${fileExt}`;
-    const filePath = `posts/${userId}/${uniqueFileName}`;
+    const filePath = `${bucket}/${userId}/${uniqueFileName}`;
 
-    // Generate signed upload URL
+    // Use service role client for generating signed URLs
+    // This bypasses RLS which is required for signed URL generation
+    // The actual upload will still be validated by storage policies
+    const serviceRoleClient = createServiceRoleClient();
+
+    // Generate signed upload URL for new file uploads
+    // createSignedUploadUrl is specifically for uploads (doesn't require existing file)
     const { data: signedUrlData, error: signedUrlError } =
-      await authedSupabase.storage
-        .from("posts")
+      await serviceRoleClient.storage
+        .from(bucket)
         .createSignedUploadUrl(filePath);
 
     if (signedUrlError || !signedUrlData) {

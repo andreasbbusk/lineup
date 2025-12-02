@@ -3,6 +3,7 @@ import { Database } from "../types/supabase.js";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error(
@@ -12,6 +13,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const SUPABASE_URL = supabaseUrl;
 export const SUPABASE_ANON_KEY = supabaseAnonKey;
+export const SUPABASE_SERVICE_ROLE_KEY = supabaseServiceRoleKey;
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -51,4 +53,27 @@ export function createAuthenticatedClient(
  */
 export function getSupabaseClient(token: string): SupabaseClient<Database> {
   return createAuthenticatedClient(token);
+}
+
+/**
+ * Creates a Supabase client with service role key for admin operations.
+ * This bypasses RLS and should only be used for backend operations that require
+ * elevated permissions, such as generating signed upload URLs.
+ * 
+ * @returns Supabase client with service role permissions
+ * @throws Error if SUPABASE_SERVICE_ROLE_KEY is not set
+ */
+export function createServiceRoleClient(): SupabaseClient<Database> {
+  if (!supabaseServiceRoleKey) {
+    throw new Error(
+      "SUPABASE_SERVICE_ROLE_KEY is required for this operation but is not set in environment variables"
+    );
+  }
+  
+  return createClient<Database>(SUPABASE_URL, supabaseServiceRoleKey, {
+    auth: {
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
+  });
 }

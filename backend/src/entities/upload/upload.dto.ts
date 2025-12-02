@@ -40,7 +40,8 @@ export class UploadDto {
  * @example
  * {
  *   "fileName": "my-image.jpg",
- *   "fileType": "image/jpeg"
+ *   "fileType": "image/jpeg",
+ *   "uploadType": "post"
  * }
  */
 export class SignedUrlRequestDto {
@@ -58,4 +59,14 @@ export class SignedUrlRequestDto {
    */
   @IsString()
   fileType!: string;
+
+  /**
+   * Upload type: "post" for post media, "avatar" for profile pictures
+   * @example "post"
+   */
+  @IsOptional()
+  @IsEnum(["post", "avatar"], {
+    message: "Upload type must be 'post' or 'avatar'",
+  })
+  uploadType?: "post" | "avatar" = "post";
 }

@@ -80,13 +80,14 @@ export class UploadController extends Controller {
    * 1. Call this endpoint to get a signed URL
    * 2. Upload the file directly to the signed URL using fetch/PUT
    * 3. Use the returned filePath to construct the public URL
-   * 4. Include the public URL when creating posts
+   * 4. Include the public URL when creating posts or updating avatars
    *
    * - **Images**: JPEG, PNG, GIF, WebP
    * - **Videos**: MP4, WebM, QuickTime
+   * - **Upload Types**: "post" (default) for post media, "avatar" for profile pictures
    *
    * @summary Generate signed upload URL
-   * @param body Request body containing fileName and fileType
+   * @param body Request body containing fileName, fileType, and optional uploadType
    * @returns Signed URL and file path for direct client upload
    * @throws 400 if validation fails (invalid file type)
    * @throws 401 if not authenticated
@@ -109,6 +110,7 @@ export class UploadController extends Controller {
           userId,
           body.fileName,
           body.fileType,
+          body.uploadType || "post",
           token
         );
       },
