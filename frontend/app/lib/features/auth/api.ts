@@ -13,6 +13,7 @@ export interface AuthResponse {
   user: {
     id: string;
     email: string;
+    username: string;
     createdAt: string;
   };
   session: {
@@ -21,7 +22,6 @@ export interface AuthResponse {
     expiresIn: number;
     expiresAt: number;
   };
-  profile: components["schemas"]["UserProfile"];
 }
 
 // --- Supabase Client-Side Auth ---
@@ -31,7 +31,7 @@ export interface AuthResponse {
  * This uses Supabase's auth system directly and doesn't hit our backend
  */
 export async function signupWithAuth(data: SignupWithAuthRequest): Promise<{
-  user: { id: string; email: string };
+  user: { id: string; email: string; username: string };
   session: { accessToken: string } | null;
 }> {
   const { data: authData, error } = await supabase.auth.signUp({
@@ -54,6 +54,7 @@ export async function signupWithAuth(data: SignupWithAuthRequest): Promise<{
     user: {
       id: authData.user.id,
       email: authData.user.email!,
+      username: data.username,
     },
     session: authData.session
       ? { accessToken: authData.session.access_token }
@@ -84,15 +85,15 @@ export async function signInWithAuth(
 
   const { data: profileData, error: profileError } = await supabase
     .from("profiles")
-    .select("*")
+    .select("username")
     .eq("id", authData.user.id)
     .single();
 
-  if (profileError || !profileData) {
+  if (profileError || !profileData?.username) {
     throw new ApiError(
       500,
       "PROFILE_FETCH_FAILED",
-      "Failed to fetch user profile"
+      "Username not found"
     );
   }
 
@@ -100,6 +101,7 @@ export async function signInWithAuth(
     user: {
       id: authData.user.id,
       email: authData.user.email!,
+      username: profileData.username,
       createdAt: authData.user.created_at,
     },
     session: {
@@ -108,7 +110,6 @@ export async function signInWithAuth(
       expiresIn: authData.session.expires_in || 3600,
       expiresAt: authData.session.expires_at || Date.now() / 1000 + 3600,
     },
-    profile: profileData,
   };
 }
 

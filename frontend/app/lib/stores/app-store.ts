@@ -1,15 +1,12 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 // Import types from your features (Single Source of Truth)
-import { UserProfile } from "@/app/lib/features/profiles";
 import { OnboardingData } from "@/app/lib/features/profiles/types";
 
 interface AppState {
   // --- AUTH STATE ---
-  user: { id: string; email: string } | null;
+  user: { id: string; email: string; username: string } | null;
   accessToken: string | null;
-  // Use the shared UserProfile type!
-  profile: UserProfile | null;
   isAuthenticated: boolean;
 
   // --- ONBOARDING STATE ---
@@ -18,21 +15,15 @@ interface AppState {
     // Use the shared OnboardingData type!
     data: Partial<OnboardingData>;
   };
-
-  // --- FUTURE: GLOBAL UI STATE ---
-  // theme: 'light' | 'dark';
-  // isSidebarOpen: boolean;
 }
 
 interface AppActions {
   // Auth actions
   setAuth: (
-    user: { id: string; email: string },
-    accessToken: string,
-    profile: UserProfile | null
+    user: { id: string; email: string; username: string },
+    accessToken: string
   ) => void;
   clearAuth: () => void;
-  updateProfile: (profile: UserProfile) => void;
 
   // Onboarding actions
   nextStep: () => void;
@@ -51,7 +42,6 @@ export const useAppStore = create<AppStore>()(
       // --- INITIAL STATE ---
       user: null,
       accessToken: null,
-      profile: null,
       isAuthenticated: false,
 
       onboarding: {
@@ -60,24 +50,16 @@ export const useAppStore = create<AppStore>()(
       },
 
       // --- ACTIONS ---
-      setAuth: (user, accessToken, profile) => {
-        set({ user, accessToken, profile, isAuthenticated: true });
+      setAuth: (user, accessToken) => {
+        set({ user, accessToken, isAuthenticated: true });
       },
 
       clearAuth: () => {
         set({
           user: null,
           accessToken: null,
-          profile: null,
           isAuthenticated: false,
         });
-      },
-
-      updateProfile: (profile) => {
-        // Shallow merge to ensure we don't overwrite with nulls if partial
-        set((state) => ({
-          profile: state.profile ? { ...state.profile, ...profile } : profile,
-        }));
       },
 
       nextStep: () =>
@@ -135,12 +117,6 @@ export const useAppStore = create<AppStore>()(
           ? localStorage
           : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
       ),
-      // OPTIONAL: Only persist specific fields to avoid storing garbage
-      // partialize: (state) => ({
-      //   user: state.user,
-      //   accessToken: state.accessToken,
-      //   profile: state.profile
-      // }),
     }
   )
 );

@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/app/lib/stores/app-store";
-import { useUpdateProfile } from "./useUpdateProfile";
-import type { ProfileUpdateRequest } from "../api";
+import { useUpdateProfile } from "../queries/useProfile";
+import type { ProfileUpdateRequest } from "../../api";
 
 export function useOnboardingSubmission() {
   const router = useRouter();
@@ -80,8 +80,6 @@ export function useOnboardingSubmission() {
       await updateProfile({
         username: data.username,
         // Cast to match generated API types (backend DTO expects numbers and will convert strings)
-        // Note: Generated types show strings but backend expects numbers - this is a type mismatch
-        // that should be fixed by regenerating types after updating Swagger spec
         data: profileData as unknown as ProfileUpdateRequest,
       });
 
