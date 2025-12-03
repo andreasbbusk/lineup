@@ -10,7 +10,6 @@ export { useOnboardingNavigation } from "./hooks/onboarding/useOnboardingNavigat
 export { useOnboardingSubmission } from "./hooks/onboarding/useOnboardingSubmission";
 
 // Onboarding Components
-export { OnboardingWrapper } from "./components/onboarding/wrapper";
 export { OnboardingSignupStep } from "./components/onboarding/signup";
 export { OnboardingUserTypeStep } from "./components/onboarding/user-type";
 export { OnboardingProfileInfoStep } from "./components/onboarding/profile-info";

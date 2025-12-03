@@ -1,31 +1,26 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-// Import types from your features (Single Source of Truth)
+import { supabase } from "@/app/lib/supabase/client";
 import { OnboardingData } from "@/app/lib/features/profiles/types";
+import { initializeAuthState } from "@/app/lib/features/auth";
 
 interface AppState {
-  // --- AUTH STATE ---
-  user: { id: string; email: string; username: string } | null;
-  accessToken: string | null;
-  isAuthenticated: boolean;
-
-  // --- ONBOARDING STATE ---
+  user: {
+    id: string;
+    email: string;
+    username: string;
+    onboardingCompleted: boolean;
+  } | null;
+  isInitialized: boolean;
   onboarding: {
     step: number;
-    // Use the shared OnboardingData type!
     data: Partial<OnboardingData>;
   };
 }
 
 interface AppActions {
-  // Auth actions
-  setAuth: (
-    user: { id: string; email: string; username: string },
-    accessToken: string
-  ) => void;
-  clearAuth: () => void;
-
-  // Onboarding actions
+  initializeAuth: () => Promise<void>;
+  logout: () => Promise<void>;
   nextStep: () => void;
   prevStep: () => void;
   goToStep: (step: number) => void;
@@ -41,27 +36,31 @@ export const useAppStore = create<AppStore>()(
     (set) => ({
       // --- INITIAL STATE ---
       user: null,
-      accessToken: null,
-      isAuthenticated: false,
-
+      isInitialized: false,
       onboarding: {
         step: 0,
-        data: { userType: "musician", lookingFor: [] }, // Type-safe defaults
+        data: {},
       },
 
-      // --- ACTIONS ---
-      setAuth: (user, accessToken) => {
-        set({ user, accessToken, isAuthenticated: true });
-      },
-
-      clearAuth: () => {
+      // --- AUTH ACTIONS ---
+      initializeAuth: async () => {
+        const user = await initializeAuthState();
         set({
-          user: null,
-          accessToken: null,
-          isAuthenticated: false,
+          user,
+          isInitialized: true,
         });
       },
 
+      logout: async () => {
+        await supabase.auth.signOut();
+        set({
+          user: null,
+          isInitialized: true,
+          onboarding: { step: 0, data: {} },
+        });
+      },
+
+      // --- ONBOARDING ACTIONS ---
       nextStep: () =>
         set((state) => ({
           onboarding: {
@@ -94,13 +93,15 @@ export const useAppStore = create<AppStore>()(
           },
         })),
 
-      resetOnboarding: () =>
+      resetOnboarding: () => {
         set({
           onboarding: {
             step: 0,
-            data: { userType: "musician", lookingFor: [] },
+            data: {},
           },
-        }),
+        });
+        useAppStore.persist.clearStorage();
+      },
 
       markAccountCreated: () =>
         set((state) => ({
@@ -117,6 +118,9 @@ export const useAppStore = create<AppStore>()(
           ? localStorage
           : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
       ),
+      partialize: (state) => ({
+        onboarding: state.onboarding,
+      }),
     }
   )
 );

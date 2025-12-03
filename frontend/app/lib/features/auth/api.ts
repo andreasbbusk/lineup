@@ -1,6 +1,5 @@
 import { supabase } from "../../supabase/client";
 import { ApiError, apiClient, handleApiError } from "../../api/api-client";
-import type { components } from "@/app/lib/types/api";
 
 // Local types (Supabase-specific, not in backend)
 export interface SignupWithAuthRequest {
@@ -24,7 +23,66 @@ export interface AuthResponse {
   };
 }
 
+export interface InitializedUser {
+  id: string;
+  email: string;
+  username: string;
+  onboardingCompleted: boolean;
+}
+
 // --- Supabase Client-Side Auth ---
+
+/**
+ * Initialize auth state by checking Supabase session and fetching profile
+ * Returns user data or null if not authenticated
+ */
+export async function initializeAuthState(): Promise<InitializedUser | null> {
+  try {
+    // Step 1: Get Supabase session (Contains Email + Auth ID)
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
+
+    if (sessionError || !session) {
+      console.log("No session found");
+      return null;
+    }
+
+    // Step 2: Fetch profile from database (Contains Username + Onboarding Status)
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("id, username, onboarding_completed")
+      .eq("id", session.user.id)
+      .single();
+
+    if (profileError) {
+      // User mid-signup (steps 0-2), profile row not created in DB yet
+      if (profileError.code === "PGRST116") {
+        console.log("⚠️ No profile yet - mid-signup");
+        return {
+          id: session.user.id,
+          email: session.user.email!,
+          username: "",
+          onboardingCompleted: false,
+        };
+      }
+      console.error("Profile fetch error:", profileError);
+      throw profileError;
+    }
+
+    // Step 3: Combine Session Data + Database Data
+    return {
+      id: profile.id,
+      email: session.user.email!,
+      username: profile.username,
+      onboardingCompleted: profile.onboarding_completed ?? false,
+    };
+  } catch (error) {
+    console.error("Auth init error:", error);
+    return null;
+  }
+}
 
 /**
  * Sign up with Supabase Auth
@@ -90,11 +148,7 @@ export async function signInWithAuth(
     .single();
 
   if (profileError || !profileData?.username) {
-    throw new ApiError(
-      500,
-      "PROFILE_FETCH_FAILED",
-      "Username not found"
-    );
+    throw new ApiError(500, "PROFILE_FETCH_FAILED", "Username not found");
   }
 
   return {
