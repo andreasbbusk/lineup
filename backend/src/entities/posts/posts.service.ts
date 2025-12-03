@@ -1,13 +1,10 @@
 // src/entities/posts/posts.service.ts
-import { supabase } from "../../config/supabase.js";
+import { supabase } from "../../config/supabase.config.js";
 import { CreatePostBody } from "./posts.dto.js";
-import {
-  PostRow,
-  PostInsert,
-  PostType,
-  MediaType,
-} from "../../utils/supabase-helpers.js";
-import { mapPostToResponse } from "../../utils/mappers/index.js";
+import { PostInsert, MediaType } from "../../utils/supabase-helpers.js";
+import { mapPostToResponse } from "./posts.mapper.js";
+import { PostResponse } from "../../types/api.types.js";
+import { createHttpError } from "../../utils/error-handler.js";
 
 export class PostsService {
   /**
@@ -16,14 +13,7 @@ export class PostsService {
   async createPost(
     userId: string,
     postData: CreatePostBody
-  ): Promise<
-    PostRow & {
-      metadata?: any[];
-      media?: any[];
-      tagged_users?: any[];
-      author?: any;
-    }
-  > {
+  ): Promise<PostResponse> {
     const {
       type,
       title,
@@ -31,7 +21,8 @@ export class PostsService {
       tags,
       genres,
       location,
-      paid_opportunity,
+      paidOpportunity,
+      expiresAt,
       taggedUsers,
       media,
     } = postData;
@@ -43,7 +34,8 @@ export class PostsService {
       title: title.trim(),
       description: description.trim(),
       location: location ?? null,
-      paid_opportunity: type === "request" ? paid_opportunity ?? false : null,
+      paid_opportunity: type === "request" ? paidOpportunity ?? false : null,
+      expires_at: expiresAt ?? null,
     };
 
     const { data: newPost, error: postError } = await supabase
@@ -53,7 +45,11 @@ export class PostsService {
       .single();
 
     if (postError || !newPost) {
-      throw new Error(`Failed to create post: ${postError?.message}`);
+      throw createHttpError({
+        message: `Failed to create post: ${postError?.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
     }
 
     const postId = newPost.id;
@@ -86,9 +82,11 @@ export class PostsService {
               .single();
 
             if (metadataError || !newMetadata) {
-              throw new Error(
-                `Failed to create metadata: ${metadataError?.message}`
-              );
+              throw createHttpError({
+                message: `Failed to create metadata: ${metadataError?.message}`,
+                statusCode: 500,
+                code: "DATABASE_ERROR",
+              });
             }
             metadataId = newMetadata.id;
           }
@@ -131,9 +129,11 @@ export class PostsService {
               .single();
 
             if (metadataError || !newMetadata) {
-              throw new Error(
-                `Failed to create metadata: ${metadataError?.message}`
-              );
+              throw createHttpError({
+                message: `Failed to create metadata: ${metadataError?.message}`,
+                statusCode: 500,
+                code: "DATABASE_ERROR",
+              });
             }
             metadataId = newMetadata.id;
           }
@@ -158,14 +158,18 @@ export class PostsService {
           .from("media")
           .insert({
             url: item.url,
-            thumbnail_url: item.thumbnail_url ?? null,
+            thumbnail_url: item.thumbnailUrl ?? null,
             type: item.type as MediaType,
           })
           .select("id")
           .single();
 
         if (mediaError || !mediaRecord) {
-          throw new Error(`Failed to create media: ${mediaError?.message}`);
+          throw createHttpError({
+            message: `Failed to create media: ${mediaError?.message}`,
+            statusCode: 500,
+            code: "DATABASE_ERROR",
+          });
         }
 
         // Link to post
@@ -216,7 +220,11 @@ export class PostsService {
       .single();
 
     if (fetchError || !completePost) {
-      throw new Error(`Failed to fetch post: ${fetchError?.message}`);
+      throw createHttpError({
+        message: `Failed to fetch post: ${fetchError?.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
     }
 
     // Transform the response to match expected format

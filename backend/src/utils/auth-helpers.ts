@@ -1,5 +1,5 @@
 import { Request as ExpressRequest } from "express";
-import { supabase } from "../config/supabase.js";
+import { supabase } from "../config/supabase.config.js";
 import { createHttpError } from "./error-handler.js";
 
 /**

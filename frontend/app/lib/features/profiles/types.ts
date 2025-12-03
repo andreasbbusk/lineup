@@ -1,42 +1,7 @@
-// Profile Types
-export interface UserProfile {
-  id: string;
-  username: string;
-  first_name: string;
-  last_name: string;
-  avatar_url?: string;
-  bio?: string;
-  about_me?: string;
-  phone_country_code?: string;
-  phone_number?: string;
-  year_of_birth?: number;
-  location: string;
-  user_type: string;
-  theme_color?: string;
-  spotify_playlist_url?: string;
-  onboarding_completed: boolean;
-  created_at: string;
-  updated_at: string;
-  blocked_users?: string[];
-  search_vector?: unknown;
-}
+// Re-export backend API types from api.ts for convenience
+export type { UserProfile, ProfileUpdateRequest } from "./api";
 
-export interface ProfileUpdateRequest {
-  first_name?: string;
-  last_name?: string;
-  bio?: string;
-  about_me?: string;
-  avatar_url?: string;
-  location?: string;
-  theme_color?: string;
-  spotify_playlist_url?: string;
-  phone_country_code?: string;
-  phone_number?: string;
-  year_of_birth?: number;
-  onboarding_completed?: boolean;
-  user_type?: string;
-  looking_for?: string[];
-}
+// Frontend-only types (not in backend API)
 
 export type LookingForType =
   | "connect"
@@ -47,13 +12,13 @@ export type LookingForType =
 export interface OnboardingData {
   email: string;
   username: string;
-  first_name: string;
-  last_name: string;
-  phone_country_code: string;
-  phone_number: string;
-  year_of_birth: number;
+  firstName: string;
+  lastName: string;
+  phoneCountryCode: number;
+  phoneNumber: number;
+  yearOfBirth: number;
   location: string;
-  user_type: "musician" | "service_provider" | "other";
-  looking_for: string[];
-  account_created?: boolean;
+  userType: "musician" | "service_provider" | "other";
+  lookingFor: string[];
+  accountCreated?: boolean;
 }

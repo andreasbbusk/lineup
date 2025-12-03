@@ -1,5 +1,4 @@
 import express, { Request, Response, NextFunction } from "express";
-import { sql } from "./config/database.config.js";
 import { corsMiddleware } from "./middleware/cors.middleware.js";
 import swaggerUi from "swagger-ui-express";
 import { RegisterRoutes } from "./routes/tsoa-routes.js";
@@ -21,9 +20,8 @@ app.use(express.json());
 
 // Swagger UI
 try {
-  const swaggerDocument = JSON.parse(
-    fs.readFileSync(path.join(__dirname, "docs", "swagger.json"), "utf8")
-  );
+  const swaggerPath = path.join(__dirname, "docs", "swagger.json");
+  const swaggerDocument = JSON.parse(fs.readFileSync(swaggerPath, "utf8"));
   app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 } catch (err) {
   console.error("Unable to load swagger.json", err);
@@ -33,7 +31,6 @@ try {
 const apiRouter = express.Router();
 RegisterRoutes(apiRouter);
 app.use("/api", apiRouter);
-
 
 // Global error handler middleware (must be after routes)
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

@@ -1,9 +1,9 @@
 "use client";
 
 import { useAppStore } from "@/app/lib/stores/app-store";
-import { useOnboardingNavigation } from "../../hooks/useOnboardingNavigation";
-import { Button } from "@/app/components/ui/buttons";
-import { CheckboxCircle } from "@/app/components/ui/checkbox-circle";
+import { useOnboardingNavigation } from "../../hooks/onboarding/useOnboardingNavigation";
+import { Button } from "@/app/components/buttons";
+import { CheckboxCircle } from "@/app/components/checkbox-circle";
 import Image from "next/image";
 
 const LOGO_ICON = "/logos/small_logos/white-and-yellow.svg";
@@ -24,13 +24,13 @@ const USER_TYPES = [
 ];
 
 export function OnboardingUserTypeStep() {
-  const { onboarding, update_onboarding_data } = useAppStore();
+  const { onboarding, updateOnboardingData } = useAppStore();
   const { nextStep } = useOnboardingNavigation();
 
-  const selectedType = onboarding.data.user_type;
+  const selectedType = onboarding.data.userType;
 
   const handleSelect = (value: "musician" | "service_provider") => {
-    update_onboarding_data({ user_type: value });
+    updateOnboardingData({ userType: value });
   };
 
   const canContinue = !!selectedType;

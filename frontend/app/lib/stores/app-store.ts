@@ -1,16 +1,13 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 // Import types from your features (Single Source of Truth)
-import { UserProfile } from "@/app/lib/features/profiles";
-import { OnboardingData } from "@/app/lib/features/profiles/types"; 
+import { OnboardingData } from "@/app/lib/features/profiles/types";
 
 interface AppState {
   // --- AUTH STATE ---
-  user: { id: string; email: string } | null;
-  access_token: string | null;
-  // Use the shared UserProfile type!
-  profile: UserProfile | null;
-  is_authenticated: boolean;
+  user: { id: string; email: string; username: string } | null;
+  accessToken: string | null;
+  isAuthenticated: boolean;
 
   // --- ONBOARDING STATE ---
   onboarding: {
@@ -18,29 +15,23 @@ interface AppState {
     // Use the shared OnboardingData type!
     data: Partial<OnboardingData>;
   };
-
-  // --- FUTURE: GLOBAL UI STATE ---
-  // theme: 'light' | 'dark';
-  // isSidebarOpen: boolean;
 }
 
 interface AppActions {
   // Auth actions
-  set_auth: (
-    user: { id: string; email: string },
-    access_token: string,
-    profile: UserProfile | null
+  setAuth: (
+    user: { id: string; email: string; username: string },
+    accessToken: string
   ) => void;
-  clear_auth: () => void;
-  update_profile: (profile: UserProfile) => void;
+  clearAuth: () => void;
 
   // Onboarding actions
-  next_step: () => void;
-  prev_step: () => void;
-  go_to_step: (step: number) => void;
-  update_onboarding_data: (partial: Partial<OnboardingData>) => void;
-  reset_onboarding: () => void;
-  mark_account_created: () => void;
+  nextStep: () => void;
+  prevStep: () => void;
+  goToStep: (step: number) => void;
+  updateOnboardingData: (partial: Partial<OnboardingData>) => void;
+  resetOnboarding: () => void;
+  markAccountCreated: () => void;
 }
 
 export type AppStore = AppState & AppActions;
@@ -50,37 +41,28 @@ export const useAppStore = create<AppStore>()(
     (set) => ({
       // --- INITIAL STATE ---
       user: null,
-      access_token: null,
-      profile: null,
-      is_authenticated: false,
+      accessToken: null,
+      isAuthenticated: false,
 
       onboarding: {
         step: 0,
-        data: { user_type: "musician", looking_for: [] }, // Type-safe defaults
+        data: { userType: "musician", lookingFor: [] }, // Type-safe defaults
       },
 
       // --- ACTIONS ---
-      set_auth: (user, access_token, profile) => {
-        set({ user, access_token, profile, is_authenticated: true });
+      setAuth: (user, accessToken) => {
+        set({ user, accessToken, isAuthenticated: true });
       },
 
-      clear_auth: () => {
+      clearAuth: () => {
         set({
           user: null,
-          access_token: null,
-          profile: null,
-          is_authenticated: false,
+          accessToken: null,
+          isAuthenticated: false,
         });
       },
 
-      update_profile: (profile) => {
-        // Shallow merge to ensure we don't overwrite with nulls if partial
-        set((state) => ({
-            profile: state.profile ? { ...state.profile, ...profile } : profile
-        }));
-      },
-
-      next_step: () =>
+      nextStep: () =>
         set((state) => ({
           onboarding: {
             ...state.onboarding,
@@ -88,7 +70,7 @@ export const useAppStore = create<AppStore>()(
           },
         })),
 
-      prev_step: () =>
+      prevStep: () =>
         set((state) => ({
           onboarding: {
             ...state.onboarding,
@@ -96,7 +78,7 @@ export const useAppStore = create<AppStore>()(
           },
         })),
 
-      go_to_step: (step) =>
+      goToStep: (step) =>
         set((state) => ({
           onboarding: {
             ...state.onboarding,
@@ -104,7 +86,7 @@ export const useAppStore = create<AppStore>()(
           },
         })),
 
-      update_onboarding_data: (partial) =>
+      updateOnboardingData: (partial) =>
         set((state) => ({
           onboarding: {
             ...state.onboarding,
@@ -112,33 +94,29 @@ export const useAppStore = create<AppStore>()(
           },
         })),
 
-      reset_onboarding: () =>
+      resetOnboarding: () =>
         set({
           onboarding: {
             step: 0,
-            data: { user_type: "musician", looking_for: [] },
+            data: { userType: "musician", lookingFor: [] },
           },
         }),
 
-      mark_account_created: () =>
+      markAccountCreated: () =>
         set((state) => ({
           onboarding: {
             ...state.onboarding,
-            data: { ...state.onboarding.data, account_created: true },
+            data: { ...state.onboarding.data, accountCreated: true },
           },
         })),
     }),
     {
       name: "lineup_app_store",
       storage: createJSONStorage(() =>
-        typeof window !== "undefined" ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
+        typeof window !== "undefined"
+          ? localStorage
+          : { getItem: () => null, setItem: () => {}, removeItem: () => {} }
       ),
-      // OPTIONAL: Only persist specific fields to avoid storing garbage
-      // partialize: (state) => ({ 
-      //   user: state.user, 
-      //   access_token: state.access_token, 
-      //   profile: state.profile 
-      // }),
     }
   )
 );

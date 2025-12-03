@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useOnboardingNavigation } from "../../hooks/useOnboardingNavigation";
+import { useOnboardingNavigation } from "../../hooks/onboarding/useOnboardingNavigation";
 import Image from "next/image";
 
 const LOGO_URL = "/logos/big_logos/no-bg.svg";

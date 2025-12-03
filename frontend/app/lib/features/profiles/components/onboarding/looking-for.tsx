@@ -1,9 +1,9 @@
 "use client";
 
-import { useOnboardingSubmission } from "../../hooks/useOnboardingSubmission";
-import { Button } from "@/app/components/ui/buttons";
-import { CheckboxCircle } from "@/app/components/ui/checkbox-circle";
-import { ErrorMessage } from "@/app/components/ui/error-message";
+import { useOnboardingSubmission } from "../../hooks/onboarding/useOnboardingSubmission";
+import { Button } from "@/app/components/buttons";
+import { CheckboxCircle } from "@/app/components/checkbox-circle";
+import { ErrorMessage } from "@/app/components/error-message";
 
 const OPTIONS = [
   { id: "connect", label: "Connect to fellow musicians" },
@@ -14,13 +14,8 @@ const OPTIONS = [
 
 export function OnboardingLookingForStep() {
   // The hook handles all the logic, state, and API complexity
-  const {
-    lookingFor,
-    toggleOption,
-    submitOnboarding,
-    isPending,
-    error
-  } = useOnboardingSubmission();
+  const { lookingFor, toggleOption, submitOnboarding, isPending, error } =
+    useOnboardingSubmission();
 
   return (
     <div className="flex flex-col items-center justify-center bg-white px-4">

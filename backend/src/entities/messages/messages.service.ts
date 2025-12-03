@@ -1,0 +1,232 @@
+import { supabase } from "../../config/supabase.config.js";
+import { createHttpError } from "../../utils/error-handler.js";
+import type { SendMessageDto, EditMessageDto } from "./messages.dto.js";
+
+const MESSAGE_SELECT = `
+  id,
+  conversation_id,
+  sender_id,
+  content,
+  media_ids,
+  is_edited,
+  edited_at,
+  is_deleted,
+  deleted_at,
+  reply_to_message_id,
+  created_at,
+  sent_via_websocket,
+  status,
+  sender:profiles!messages_sender_id_fkey(id, username, first_name, last_name, avatar_url)
+`;
+
+export class MessagesService {
+  private async verifyParticipant(
+    conversationId: string,
+    userId: string
+  ): Promise<boolean> {
+    const { data } = await supabase
+      .from("conversation_participants")
+      .select("user_id")
+      .eq("conversation_id", conversationId)
+      .eq("user_id", userId)
+      .is("left_at", null)
+      .single();
+    return !!data;
+  }
+
+  async getMessages(
+    userId: string,
+    conversationId: string,
+    pagination: { before_message_id?: string; limit: number }
+  ) {
+    if (!(await this.verifyParticipant(conversationId, userId))) {
+      throw createHttpError({
+        message: "Not a participant",
+        statusCode: 403,
+        code: "FORBIDDEN",
+      });
+    }
+
+    let query = supabase
+      .from("messages")
+      .select(MESSAGE_SELECT)
+      .eq("conversation_id", conversationId)
+      .eq("is_deleted", false)
+      .order("created_at", { ascending: false })
+      .limit(pagination.limit);
+
+    if (pagination.before_message_id) {
+      const { data: cursor } = await supabase
+        .from("messages")
+        .select("created_at")
+        .eq("id", pagination.before_message_id)
+        .single();
+
+      if (cursor) query = query.lt("created_at", cursor.created_at);
+    }
+
+    const { data, error } = await query;
+    if (error)
+      throw createHttpError({
+        message: `Fetch failed: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+
+    return data?.reverse() || [];
+  }
+
+  async sendMessage(userId: string, dto: SendMessageDto) {
+    if (!(await this.verifyParticipant(dto.conversation_id, userId))) {
+      throw createHttpError({
+        message: "Not a participant",
+        statusCode: 403,
+        code: "FORBIDDEN",
+      });
+    }
+
+    const { data, error } = await supabase
+      .from("messages")
+      .insert({
+        conversation_id: dto.conversation_id,
+        sender_id: userId,
+        content: dto.content,
+        media_ids: dto.media_ids || null,
+        reply_to_message_id: dto.reply_to_message_id || null,
+      })
+      .select(
+        `*, sender:profiles!messages_sender_id_fkey(id, username, first_name, last_name, avatar_url)`
+      )
+      .single();
+
+    if (error)
+      throw createHttpError({
+        message: `Send failed: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+
+    return data;
+  }
+
+  async editMessage(userId: string, messageId: string, dto: EditMessageDto) {
+    const { data, error } = await supabase
+      .from("messages")
+      .update({
+        content: dto.content,
+        is_edited: true,
+        edited_at: new Date().toISOString(),
+      })
+      .eq("id", messageId)
+      .eq("sender_id", userId)
+      .eq("is_deleted", false)
+      .select()
+      .single();
+
+    if (error)
+      throw createHttpError({
+        message: `Edit failed: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    if (!data)
+      throw createHttpError({
+        message: "Message not found",
+        statusCode: 404,
+        code: "NOT_FOUND",
+      });
+
+    return data;
+  }
+
+  async deleteMessage(userId: string, messageId: string): Promise<void> {
+    const { data, error } = await supabase
+      .from("messages")
+      .update({
+        is_deleted: true,
+        deleted_at: new Date().toISOString(),
+        content: "[Deleted]",
+      })
+      .eq("id", messageId)
+      .eq("sender_id", userId)
+      .select();
+
+    if (error)
+      throw createHttpError({
+        message: `Delete failed: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    if (!data?.length)
+      throw createHttpError({
+        message: "Message not found",
+        statusCode: 404,
+        code: "NOT_FOUND",
+      });
+
+    // No return statement - void – REST convention for DELETE requests
+  }
+
+  async markAsRead(userId: string, messageIds: string[]) {
+    if (!messageIds.length) return { success: true };
+
+    const receipts = messageIds.map((id) => ({
+      message_id: id,
+      user_id: userId,
+    }));
+
+    const { error: receiptError } = await supabase
+      .from("message_read_receipts")
+      .upsert(receipts, { onConflict: "message_id,user_id" });
+
+    if (receiptError)
+      throw createHttpError({
+        message: `Read receipt failed: ${receiptError.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+
+    const { data: message } = await supabase
+      .from("messages")
+      .select("conversation_id")
+      .eq("id", messageIds[0])
+      .single();
+
+    if (message) {
+      await supabase
+        .from("conversation_participants")
+        .update({
+          last_read_message_id: messageIds[messageIds.length - 1],
+          last_read_at: new Date().toISOString(),
+          unread_count: 0,
+        })
+        .eq("conversation_id", message.conversation_id)
+        .eq("user_id", userId);
+    }
+
+    return { success: true };
+  }
+
+  async setTypingIndicator(
+    userId: string,
+    conversationId: string,
+    isTyping: boolean
+  ) {
+    const { error } = await supabase
+      .from("conversation_participants")
+      .update({
+        is_typing: isTyping,
+        last_typing_at: isTyping ? new Date().toISOString() : null,
+      })
+      .eq("conversation_id", conversationId)
+      .eq("user_id", userId)
+      .is("left_at", null);
+
+    if (error)
+      throw createHttpError({
+        message: `Typing indicator failed: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+  }
+}
