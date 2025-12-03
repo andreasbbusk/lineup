@@ -7,10 +7,10 @@ interface PostDetailsPageProps {
 export default function Page({ params }: PostDetailsPageProps) {
   return (
     <main className="space-y-4">
-      <h1 className="text-h1 font-semibold">Opslag</h1>
+      <h1 className="text-h1 font-semibold">Post</h1>
       <p className="text-body text-grey">
-        Viser detaljer for opslag #{params.id}. Her kommer indhold, kommentarer
-        og handlinger.
+        Shows details for post #{params.id}. Content, comments and actions will
+        appear here.
       </p>
     </main>
   );

@@ -24,19 +24,10 @@ const STEPS_WITH_PROGRESS = [2, 3, 4, 5];
 export function OnboardingWrapper() {
   const { step } = useOnboardingNavigation();
 
-  const { isLoading, shouldShowContent } = useAuthRedirect({
+  const { shouldShowContent } = useAuthRedirect({
     strategy: "onboarding",
     currentStep: step,
   });
-
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-white">
-        <p className="text-grey">Loading...</p>
-      </div>
-    );
-  }
 
   // Don't render if we are about to redirect
   if (!shouldShowContent) return null;
