@@ -1,13 +1,13 @@
-import { MessageRow } from "../../utils/supabase-helpers.js";
 import {
   MessageResponse,
   MessageReadReceiptResponse,
 } from "../../types/api.types.js";
 
 /**
- * Partial profile structure returned by Supabase select queries
+ * Internal types for documentation and IDE autocomplete.
+ * Functions accept 'any' for flexibility with dynamic Supabase queries.
  */
-type PartialProfile = {
+type Profile = {
   id: string;
   username: string;
   first_name: string | null;
@@ -15,68 +15,43 @@ type PartialProfile = {
   avatar_url: string | null;
 };
 
-/**
- * Media structure from Supabase
- */
-type MediaRow = {
+type Media = {
   id: string;
   url: string;
   thumbnail_url: string | null;
   type: string;
 };
 
-/**
- * Supabase message response with nested sender, reply, read receipts, and media relations
- */
-type SupabaseMessageWithRelations = MessageRow & {
-  sender?: PartialProfile;
-  reply_to?: SupabaseMessageWithRelations;
-  read_receipts?: Array<{
-    message_id: string;
-    user_id: string;
-    read_at: string | null;
-    user?: PartialProfile;
-  }>;
-  media?: MediaRow[];
-};
-
-/**
- * Maps a partial profile to a simple user object
- */
-function mapPartialProfileToUser(profile: PartialProfile) {
-  return {
-    id: profile.id,
-    username: profile.username,
-    firstName: profile.first_name ?? null,
-    lastName: profile.last_name ?? null,
-    avatarUrl: profile.avatar_url ?? null,
-  };
-}
-
-/**
- * Maps read receipt to API format
- */
-function mapReadReceiptToResponse(receipt: {
+type ReadReceipt = {
   message_id: string;
   user_id: string;
   read_at: string | null;
-  user?: PartialProfile;
-}): MessageReadReceiptResponse {
-  return {
-    messageId: receipt.message_id,
-    userId: receipt.user_id,
-    readAt: receipt.read_at,
-    user: receipt.user ? mapPartialProfileToUser(receipt.user) : undefined,
-  };
-}
+  user?: Profile;
+};
 
-/**
- * Maps Supabase message response with nested relations to API format
- * Converts snake_case to camelCase and includes sender, reply, read receipts, and media
- */
-export function mapMessageToResponse(
-  message: SupabaseMessageWithRelations
-): MessageResponse {
+const mapProfile = (p: Profile) => ({
+  id: p.id,
+  username: p.username,
+  firstName: p.first_name ?? null,
+  lastName: p.last_name ?? null,
+  avatarUrl: p.avatar_url ?? null,
+});
+
+const mapMedia = (m: Media) => ({
+  id: m.id,
+  url: m.url,
+  thumbnailUrl: m.thumbnail_url ?? null,
+  type: m.type,
+});
+
+const mapReadReceipt = (r: ReadReceipt): MessageReadReceiptResponse => ({
+  messageId: r.message_id,
+  userId: r.user_id,
+  readAt: r.read_at,
+  user: r.user ? mapProfile(r.user) : undefined,
+});
+
+export function mapMessageToResponse(message: any): MessageResponse {
   return {
     id: message.id,
     conversationId: message.conversation_id,
@@ -90,31 +65,15 @@ export function mapMessageToResponse(
     replyToMessageId: message.reply_to_message_id ?? null,
     createdAt: message.created_at,
     sentViaWebsocket: message.sent_via_websocket,
-    sender: message.sender
-      ? mapPartialProfileToUser(message.sender)
-      : undefined,
+    sender: message.sender ? mapProfile(message.sender) : undefined,
     replyTo: message.reply_to
       ? mapMessageToResponse(message.reply_to)
       : undefined,
-    readReceipts: message.read_receipts
-      ? message.read_receipts.map(mapReadReceiptToResponse)
-      : undefined,
-    media: message.media
-      ? message.media.map((m) => ({
-          id: m.id,
-          url: m.url,
-          thumbnailUrl: m.thumbnail_url ?? null,
-          type: m.type,
-        }))
-      : undefined,
+    readReceipts: message.read_receipts?.map(mapReadReceipt),
+    media: message.media?.map(mapMedia),
   };
 }
 
-/**
- * Maps array of Supabase message responses to API format
- */
-export function mapMessagesToResponse(
-  messages: SupabaseMessageWithRelations[]
-): MessageResponse[] {
+export function mapMessagesToResponse(messages: any[]): MessageResponse[] {
   return messages.map(mapMessageToResponse);
 }
