@@ -38,7 +38,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   // Show loader while initializing or redirecting
   if (!isInitialized || isRedirecting) {
-    return <LoadingSpinner />;
+    return <LoadingSpinner variant="rays" />;
   }
 
   return <>{children}</>;
