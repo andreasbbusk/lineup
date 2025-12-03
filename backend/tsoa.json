@@ -1,17 +1,27 @@
 {
   "entryFile": "src/server.ts",
   "noImplicitAdditionalProperties": "throw-on-extras",
-  "controllerPathGlobs": ["src/controllers/**/*.ts"],
+  "controllerPathGlobs": ["src/entities/**/*.controller.ts"],
   "spec": {
     "outputDirectory": "src/docs",
     "specVersion": 3,
     "x-enum-varnames": true,
     "name": "LineUp API",
     "description": "API documentation for the LineUp application",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "basePath": "/api",
+    "securityDefinitions": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
   },
   "routes": {
     "routesDir": "src/routes",
-    "routesFileName": "tsoa-routes.ts"
+    "routesFileName": "tsoa-routes.ts",
+    "authenticationModule": "./src/middleware/authentication.ts",
+    "middlewareTemplate": "./templates/route.mustache"
   }
 }
