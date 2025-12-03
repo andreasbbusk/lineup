@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAppStore } from "@/app/lib/stores/app-store";
 import { useUpdateProfile } from "../queries/useProfile";
 import type { ProfileUpdateRequest } from "../../api";
 
 export function useOnboardingSubmission() {
-  const router = useRouter();
-  const { onboarding, updateOnboardingData, resetOnboarding } = useAppStore();
+  const { onboarding, updateOnboardingData, resetOnboarding, initializeAuth } =
+    useAppStore();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const { mutateAsync: updateProfile, isPending } = useUpdateProfile();
@@ -64,7 +63,7 @@ export function useOnboardingSubmission() {
         location: data.location,
         userType: data.userType || "musician",
         lookingFor: data.lookingFor || [],
-        onboardingCompleted: true,
+        onboardingCompleted: true, // ✅ Mark as complete
       };
 
       // Validate that conversions were successful
@@ -77,14 +76,20 @@ export function useOnboardingSubmission() {
         return;
       }
 
+      // 1. Submit to backend
       await updateProfile({
         username: data.username,
-        // Cast to match generated API types (backend DTO expects numbers and will convert strings)
         data: profileData as unknown as ProfileUpdateRequest,
       });
 
+      // 2. Re-fetch auth state (picks up onboardingCompleted: true from database)
+      await initializeAuth();
+
+      // 3. Clear onboarding form data (no longer needed)
       resetOnboarding();
-      router.push("/");
+
+      // 4. AuthGuard will see user.onboardingCompleted = true and redirect to /
+      // No need for manual router.push - let AuthGuard handle it
     } catch (error) {
       console.error("Onboarding submission failed:", error);
       setSubmitError(

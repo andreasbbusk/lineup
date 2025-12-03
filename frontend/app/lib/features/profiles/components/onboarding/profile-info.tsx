@@ -9,55 +9,28 @@ import { useAppStore } from "@/app/lib/stores/app-store";
 import { Button } from "@/app/components/buttons";
 import { CustomSelect } from "@/app/components/select";
 import { Combobox } from "@/app/components/combobox";
-import { NORDIC_CITIES as OPTIONS } from "@/app/lib/features/profiles/constants";
+import { NORDIC_CITIES } from "@/app/lib/features/profiles/constants";
 import { ErrorMessage } from "@/app/components/error-message";
 
-interface CountryCodeDisplayProps {
-  flag: string;
-  code: string;
-}
-
-const CountryCodeDisplay = ({ flag, code }: CountryCodeDisplayProps) => (
-  <span className="flex items-center gap-2">
-    <span>{flag}</span>
-    <span>{code}</span>
-  </span>
-);
-
 const COUNTRY_CODES = [
-  {
-    value: "45",
-    label: "🇩🇰 +45",
-    display: <CountryCodeDisplay flag="🇩🇰" code="+45" />,
-  },
-  {
-    value: "46",
-    label: "🇸🇪 +46",
-    display: <CountryCodeDisplay flag="🇸🇪" code="+46" />,
-  },
-  {
-    value: "47",
-    label: "🇳🇴 +47",
-    display: <CountryCodeDisplay flag="🇳🇴" code="+47" />,
-  },
-  {
-    value: "358",
-    label: "🇫🇮 +358",
-    display: <CountryCodeDisplay flag="🇫🇮" code="+358" />,
-  },
-  {
-    value: "354",
-    label: "🇮🇸 +354",
-    display: <CountryCodeDisplay flag="🇮🇸" code="+354" />,
-  },
+  { value: "45", label: "🇩🇰 +45" },
+  { value: "46", label: "🇸🇪 +46" },
+  { value: "47", label: "🇳🇴 +47" },
+  { value: "358", label: "🇫🇮 +358" },
+  { value: "354", label: "🇮🇸 +354" },
 ];
+
+const YEAR_OPTIONS = Array.from({ length: 100 }, (_, i) => {
+  const year = new Date().getFullYear() - 13 - i;
+  return { value: year.toString(), label: year.toString() };
+});
 
 export function OnboardingProfileInfoStep() {
   const { onboarding, updateOnboardingData } = useAppStore();
   const { nextStep } = useOnboardingNavigation();
 
   const [fullName, setFullName] = useState(
-    [onboarding.data.firstName, onboarding.data.lastName]
+    [onboarding?.data.firstName, onboarding?.data.lastName]
       .filter(Boolean)
       .join(" ")
   );
@@ -72,24 +45,17 @@ export function OnboardingProfileInfoStep() {
     resolver: zodResolver(basicInfoSchema),
     mode: "onChange",
     defaultValues: {
-      firstName: onboarding.data.firstName || "",
-      lastName: onboarding.data.lastName || "",
-      phoneCountryCode: onboarding.data.phoneCountryCode || 45,
-      phoneNumber: onboarding.data.phoneNumber || undefined,
-      yearOfBirth: onboarding.data.yearOfBirth || undefined,
-      location: onboarding.data.location || "",
+      firstName: onboarding?.data.firstName || "",
+      lastName: onboarding?.data.lastName || "",
+      phoneCountryCode: onboarding?.data.phoneCountryCode || 45,
+      phoneNumber: onboarding?.data.phoneNumber || undefined,
+      yearOfBirth: onboarding?.data.yearOfBirth || undefined,
+      location: onboarding?.data.location || "",
     },
   });
 
   const onSubmit = (formData: BasicInfoFormData) => {
-    updateOnboardingData({
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      phoneCountryCode: formData.phoneCountryCode,
-      phoneNumber: formData.phoneNumber,
-      yearOfBirth: formData.yearOfBirth,
-      location: formData.location,
-    });
+    updateOnboardingData(formData);
     nextStep();
   };
 
@@ -108,6 +74,11 @@ export function OnboardingProfileInfoStep() {
     }
   };
 
+  const getInputClass = (hasError: boolean) =>
+    `w-full rounded-lg border px-2.5 py-2.5 text-base ${
+      hasError ? "border-maroon bg-maroon/5" : "border-black/10"
+    }`;
+
   return (
     <div className="flex flex-col items-center justify-center bg-white px-4">
       <form onSubmit={handleSubmit(onSubmit)} className="w-full">
@@ -121,18 +92,12 @@ export function OnboardingProfileInfoStep() {
               type="text"
               value={fullName}
               placeholder="Enter your full name"
-              className={`w-full rounded-lg border px-2.5 py-2.5 text-base ${
-                errors.firstName || errors.lastName
-                  ? "border-maroon bg-maroon/5"
-                  : "border-black/10"
-              }`}
+              className={getInputClass(!!errors.firstName || !!errors.lastName)}
               onChange={(e) => handleNameChange(e.target.value)}
             />
             {(errors.firstName || errors.lastName) && (
               <ErrorMessage
-                message={
-                  errors.firstName?.message || errors.lastName?.message || ""
-                }
+                message={(errors.firstName?.message || errors.lastName?.message)!}
               />
             )}
           </div>
@@ -167,7 +132,7 @@ export function OnboardingProfileInfoStep() {
               />
             </div>
             {errors.phoneNumber && (
-              <ErrorMessage message={errors.phoneNumber.message || ""} />
+              <ErrorMessage message={errors.phoneNumber.message!} />
             )}
           </div>
 
@@ -183,20 +148,14 @@ export function OnboardingProfileInfoStep() {
                 <CustomSelect
                   value={field.value?.toString() || ""}
                   onAction={(value) => field.onChange(Number(value))}
-                  options={Array.from(
-                    { length: 100 },
-                    (_, i) => new Date().getFullYear() - 13 - i
-                  ).map((year) => ({
-                    value: year.toString(),
-                    label: year.toString(),
-                  }))}
+                  options={YEAR_OPTIONS}
                   placeholder="Enter your year of birth"
                   error={!!errors.yearOfBirth}
                 />
               )}
             />
             {errors.yearOfBirth && (
-              <ErrorMessage message={errors.yearOfBirth.message || ""} />
+              <ErrorMessage message={errors.yearOfBirth.message!} />
             )}
           </div>
 
@@ -212,14 +171,14 @@ export function OnboardingProfileInfoStep() {
                 <Combobox
                   value={field.value || ""}
                   onAction={field.onChange}
-                  options={OPTIONS}
+                  options={NORDIC_CITIES}
                   placeholder="Enter your location"
                   error={!!errors.location}
                 />
               )}
             />
             {errors.location && (
-              <ErrorMessage message={errors.location.message || ""} />
+              <ErrorMessage message={errors.location.message!} />
             )}
           </div>
         </div>
