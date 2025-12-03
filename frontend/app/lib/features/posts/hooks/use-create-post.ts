@@ -21,7 +21,10 @@ import type { CreatePostBody, PostResponse } from "../types";
  * });
  * ```
  */
-export function useCreatePost() {
+export function useCreatePost(options?: {
+  onSuccess?: (data: PostResponse) => void;
+  onError?: (error: Error) => void;
+}) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -45,6 +48,12 @@ export function useCreatePost() {
           queryKey: ["posts", "author", newPost.authorId],
         });
       }
+
+      // Call custom onSuccess if provided
+      options?.onSuccess?.(newPost);
+    },
+    onError: (error) => {
+      options?.onError?.(error as Error);
     },
   });
 }
