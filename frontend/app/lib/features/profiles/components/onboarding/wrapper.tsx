@@ -1,7 +1,6 @@
 "use client";
 
 import { useOnboardingNavigation } from "../../hooks/onboarding/useOnboardingNavigation";
-import { useAuthRedirect } from "../../../auth/hooks/useAuthRedirect";
 import { OnboardingSignupStep } from "./signup";
 import { OnboardingUserTypeStep } from "./user-type";
 import { OnboardingProfileInfoStep } from "./profile-info";
@@ -24,17 +23,8 @@ const STEPS_WITH_PROGRESS = [2, 3, 4, 5];
 export function OnboardingWrapper() {
   const { step } = useOnboardingNavigation();
 
-  const { shouldShowContent } = useAuthRedirect({
-    strategy: "onboarding",
-    currentStep: step,
-  });
-
-  // Don't render if we are about to redirect
-  if (!shouldShowContent) return null;
-
   const Component = STEP_COMPONENTS[step as keyof typeof STEP_COMPONENTS];
 
-  // 4. LAYOUT RENDER
   if (step === 0 || step === 1) {
     return <Component />;
   }

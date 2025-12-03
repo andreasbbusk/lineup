@@ -31,7 +31,6 @@ export async function updateUserProfile(
   username: string,
   updates: ProfileUpdateRequest
 ): Promise<UserProfile> {
-
   const { data, error, response } = await apiClient.PUT("/users/{username}", {
     params: {
       path: { username },
