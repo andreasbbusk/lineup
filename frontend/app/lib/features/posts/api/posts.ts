@@ -77,8 +77,12 @@ export async function listPosts(
   if (params?.paidOnly !== undefined)
     queryParams.append("paidOnly", params.paidOnly.toString());
 
+  // Ensure baseUrl doesn't already end with /api
+  // If baseUrl is "http://localhost:3001/api", use it as-is
+  // If baseUrl is "http://localhost:3001", add /api
+  const apiBase = baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) : baseUrl;
   const response = await fetch(
-    `${baseUrl}/api/posts${queryParams.toString() ? `?${queryParams.toString()}` : ""}`,
+    `${apiBase}/api/posts${queryParams.toString() ? `?${queryParams.toString()}` : ""}`,
     {
       method: "GET",
       headers: {
@@ -138,8 +142,12 @@ export async function getPostById(
   if (options?.commentsLimit)
     queryParams.append("commentsLimit", options.commentsLimit.toString());
 
+  // Ensure baseUrl doesn't already end with /api
+  // If baseUrl is "http://localhost:3001/api", remove /api
+  // If baseUrl is "http://localhost:3001", use as-is
+  const apiBase = baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) : baseUrl;
   const response = await fetch(
-    `${baseUrl}/api/posts/${postId}${queryParams.toString() ? `?${queryParams.toString()}` : ""}`,
+    `${apiBase}/api/posts/${postId}${queryParams.toString() ? `?${queryParams.toString()}` : ""}`,
     {
       method: "GET",
       headers: {

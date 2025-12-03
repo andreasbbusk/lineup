@@ -3,7 +3,7 @@ import BottomNav from "@/app/components/bottom-nav";
 import Link from "next/link";
 
 const NAV_LINKS = [
-  { href: "/", label: "Feed" },
+  { href: "/feed", label: "Feed" },
   { href: "/search", label: "Søg" },
   { href: "/create", label: "Opret" },
   { href: "/chats", label: "Beskeder" },
