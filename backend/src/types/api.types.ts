@@ -612,6 +612,23 @@ export interface MessageResponse {
   }>;
 }
 
+/**
+ * API response format for paginated messages
+ * Used by GET /messages/:conversationId endpoint
+ *
+ * @example
+ * {
+ *   "messages": [...],
+ *   "hasMore": true,
+ *   "nextCursor": "msg-123"
+ * }
+ */
+export interface PaginatedMessagesResponse {
+  messages: MessageResponse[];
+  hasMore: boolean;
+  nextCursor: string | null;
+}
+
 // ==================== Notification Types ====================
 
 /**

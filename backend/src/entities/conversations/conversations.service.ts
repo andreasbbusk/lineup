@@ -159,6 +159,48 @@ export class ConversationsService {
       });
     }
 
+    // For direct conversations, check if one already exists between these users
+    if (data.type === "direct") {
+      const otherUserId = data.participantIds[0];
+
+      // Find all direct conversations where the current user is a participant
+      const { data: userConversations } = await supabase
+        .from("conversation_participants")
+        .select("conversation_id")
+        .eq("user_id", userId)
+        .is("left_at", null);
+
+      if (userConversations && userConversations.length > 0) {
+        const conversationIds = userConversations.map((c) => c.conversation_id);
+
+        // Check if the other user is also in any of these direct conversations
+        const { data: existingDirectConversation } = await supabase
+          .from("conversations")
+          .select(
+            `
+            id,
+            type,
+            conversation_participants!inner(user_id)
+          `
+          )
+          .in("id", conversationIds)
+          .eq("type", "direct")
+          .eq("conversation_participants.user_id", otherUserId)
+          .is("conversation_participants.left_at", null)
+          .limit(1)
+          .single();
+
+        if (existingDirectConversation) {
+          // Return the existing direct conversation
+          return this.getConversationById(
+            existingDirectConversation.id,
+            userId,
+            token
+          );
+        }
+      }
+    }
+
     // Create conversation
     const { data: conversation, error: conversationError } = await supabase
       .from("conversations")
