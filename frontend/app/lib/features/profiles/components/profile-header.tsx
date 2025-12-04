@@ -3,10 +3,14 @@ import Image from "next/image";
 import type { CSSProperties } from "react";
 import { Button } from "@/app/components/buttons";
 import { Popover } from "@/app/components/popover";
+import { ConnectionButton } from "./connections/ConnectionButton";
+import { ConnectionsModal } from "./connections/ConnectionsModal";
 
 type ProfileHeaderProps = {
   /** Username of the profile */
   username: string;
+  /** User ID of the profile (for connection functionality) */
+  userId?: string | null;
   /** Image source URL */
   imgSrc: string;
   /** Short biography */
@@ -25,13 +29,12 @@ type ProfileHeaderProps = {
   connections?: number;
   /** Number of notes */
   notes?: number;
-  /** Callback when Connect button is clicked */
-  onClickConnect?: () => void;
   /** Callback when Message button is clicked */
   onClickMessage?: () => void;
 };
 function ProfileHeader(props: ProfileHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isConnectionsModalOpen, setIsConnectionsModalOpen] = useState(false);
 
   const colorClass = {
     default: "1E1E1E",
@@ -110,10 +113,13 @@ function ProfileHeader(props: ProfileHeaderProps) {
         />
       )}
       <div className="flex justify-center items-center self-stretch">
-        <div className="flex flex-col items-center flex-[1_0_0]">
+        <button
+          onClick={() => setIsConnectionsModalOpen(true)}
+          className="flex flex-col items-center flex-[1_0_0] cursor-pointer hover:opacity-80 transition-opacity"
+        >
           <p>{props.connections ?? 0}</p>
           <p>Connections</p>
-        </div>
+        </button>
         <Image
           src={props.imgSrc}
           alt={`${props.username}'s avatar`}
@@ -146,14 +152,7 @@ function ProfileHeader(props: ProfileHeaderProps) {
         </p>
       </div>
       <div className="flex items-center gap-[var(--Spacing-XS---spacing,0.625rem)]">
-        <Button
-          variant="primary"
-          glass
-          icon="add-circle"
-          onClick={props.onClickConnect ?? (() => {})}
-        >
-          Connect
-        </Button>
+        <ConnectionButton targetUserId={props.userId || null} />
         <Button
           variant="primary"
           glass
@@ -162,6 +161,12 @@ function ProfileHeader(props: ProfileHeaderProps) {
           Message
         </Button>
       </div>
+      <ConnectionsModal
+        isOpen={isConnectionsModalOpen}
+        onClose={() => setIsConnectionsModalOpen(false)}
+        userId={props.userId || null}
+        username={props.username}
+      />
     </div>
   );
 }
