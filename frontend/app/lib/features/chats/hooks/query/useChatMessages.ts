@@ -22,7 +22,6 @@ export function useChatMessages(
         before_message_id: pageParam,
       });
 
-      // Type assertion - the response is already properly typed from backend
       return response as unknown as {
         messages: Message[];
         hasMore: boolean;

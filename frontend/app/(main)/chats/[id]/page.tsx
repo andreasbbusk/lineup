@@ -36,7 +36,7 @@ export default function ChatPage({ params }: ChatPageProps) {
   } = useChatMessages(id);
 
   // Mutations
-  const { mutate: sendMessage } = useSendMessage(id);
+  const { mutate: sendMessage } = useSendMessage(id, user?.id ?? "");
 
   // Subscriptions
   useMessageSubscription(id);

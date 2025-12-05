@@ -5,7 +5,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/app/components/popover";
+} from "@/app/components/radix-popover";
 
 type MessageInputProps = {
   conversationId: string;
