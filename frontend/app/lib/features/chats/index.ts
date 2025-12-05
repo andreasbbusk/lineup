@@ -7,6 +7,7 @@ export type {
   UIMessage,
   Participant,
   GroupedConversations,
+  PaginatedMessages,
   CreateConversationDto,
   SendMessageDto,
   EditMessageDto,
@@ -23,6 +24,9 @@ export {
   useConversation,
   useUnreadCount,
   useChatMessages,
+  useSendMessage,
+  useDeleteMessage,
+  useMarkAsRead,
   useMessageSubscription,
   useConversationSubscription,
 } from "./hooks";
@@ -42,5 +46,7 @@ export {
   formatConversationTime,
   formatFullTime,
   truncateMessage,
-} from "./utils/dateHelpers";
-export { mapRealtimeMessage, mapApiMessage } from "./utils/realtimeAdapter";
+  getConversationDisplayInfo,
+} from "./utils/helpers";
+
+export { mapRealtimeMessage } from "./utils/realtimeAdapter";

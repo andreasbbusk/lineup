@@ -1,175 +1,30 @@
-import Image from "next/image";
+"use client";
 
-type PopoverProps = {
-	/** Popover variant */
-	variant: "my-profile" | "message" | "profile-actions" | "other-profile";
-	/** Optional additional class names for styling, used for placement */
-	className?: string;
-};
-function Popover(props: PopoverProps) {
-	return (
-		<>
-			{props.variant === "other-profile" ? (
-				<ul
-					className={`${props.className} w-fit text-[var(--color-white)] flex p-[0.75rem] flex-col justify-center gap-[0.625rem]  rounded-[1.5625rem] bg-[rgba(108,108,108,0.65)]`}>
-					<li className="flex gap-[0.5rem]">
-						<Image
-							src="/icons/share-ios.svg"
-							alt="Edit Profile"
-							width={16}
-							height={16}
-							className="invert brightness-0"
-						/>
-						<p>Share profile</p>
-					</li>
-					<div className="w-full h-[0.0625rem] bg-[var(--color-white)]"></div>
-					<li className="flex gap-[0.5rem]">
-						<Image
-							src="/icons/remove-user.svg"
-							alt="Edit Profile"
-							width={16}
-							height={16}
-							className="invert brightness-0"
-						/>
-						<p>Disconnect</p>
-					</li>
-					<div className="w-full h-[0.0625rem] bg-[var(--color-white)]"></div>
-					<li className="flex gap-[0.5rem]">
-						<Image
-							src="/icons/delete-circle.svg"
-							alt="Edit Profile"
-							width={16}
-							height={16}
-							className="invert brightness-0"
-						/>
-						<p>Block user</p>
-					</li>
-					<div className="w-full h-[0.0625rem] bg-[var(--color-white)]"></div>
-					<li className="flex gap-[0.5rem]">
-						<Image
-							src="/icons/chat-bubble-warning.svg"
-							alt="Edit Profile"
-							width={16}
-							height={16}
-							className="invert brightness-0"
-						/>
-						<p>Report user</p>
-					</li>
-				</ul>
-			) : props.variant === "message" ? (
-				<ul
-					className={`${props.className} w-fit text-[var(--color-white)] flex p-[0.75rem] flex-col justify-center gap-[0.625rem] rounded-[1.5625rem] bg-[rgba(108,108,108,0.65)]`}>
-					<li className="flex gap-[0.5rem]">
-						<Image
-							src="/icons/camera.svg"
-							alt="Edit Profile"
-							width={16}
-							height={16}
-							className="invert brightness-0"
-						/>
-						<p>Attach a picture</p>
-					</li>
-					<div className="w-full h-[0.0625rem] bg-[var(--color-white)]"></div>
-					<li className="flex gap-[0.5rem]">
-						<Image
-							src="/icons/attachment.svg"
-							alt="Edit Profile"
-							width={16}
-							height={16}
-							className="invert brightness-0"
-						/>
-						<p>Attach a file</p>
-					</li>
-					<div className="w-full h-[0.0625rem] bg-[var(--color-white)]"></div>
-					<li className="flex gap-[0.5rem]">
-						<Image
-							src="/icons/pin-alt.svg"
-							alt="Edit Profile"
-							width={16}
-							height={16}
-							className="invert brightness-0"
-						/>
-						<p>Share location</p>
-					</li>
-					<div className="w-full h-[0.0625rem] bg-[var(--color-white)]"></div>
-					<li className="flex gap-[0.5rem]">
-						<Image
-							src="/icons/stats-up-square.svg"
-							alt="Edit Profile"
-							width={16}
-							height={16}
-							className="invert brightness-0"
-						/>
-						<p>Survey</p>
-					</li>
-				</ul>
-			) : props.variant === "profile-actions" ? (
-				<ul
-					className={`${props.className} w-fit text-[var(--color-white)] flex p-[0.75rem] flex-col justify-center gap-[0.625rem] rounded-[1.5625rem] bg-[rgba(108,108,108,0.65)]`}>
-					<li className="flex gap-[0.5rem]">
-						<Image
-							src="/icons/user-circle.svg"
-							alt="Edit Profile"
-							width={16}
-							height={16}
-							className="invert brightness-0"
-						/>
-						<p>Go to profile</p>
-					</li>
-					<div className="w-full h-[0.0625rem] bg-[var(--color-white)]"></div>
-					<li className="flex gap-[0.5rem]">
-						<Image
-							src="/icons/delete-circle.svg"
-							alt="Edit Profile"
-							width={16}
-							height={16}
-							className="invert brightness-0"
-						/>
-						<p>Block user</p>
-					</li>
-					<div className="w-full h-[0.0625rem] bg-[var(--color-white)]"></div>
-					<li className="flex gap-[0.5rem]">
-						<Image
-							src="/icons/chat-bubble-warning.svg"
-							alt="Edit Profile"
-							width={16}
-							height={16}
-							className="invert brightness-0"
-						/>
-						<p>Report user</p>
-					</li>
-				</ul>
-			) : props.variant === "my-profile" ? (
-				<ul
-					className={`${props.className} w-fit text-[var(--color-white)] flex p-[0.75rem] flex-col justify-center gap-[0.625rem]  rounded-[1.5625rem] bg-[rgba(108,108,108,0.65)]`}>
-					<li className="flex gap-[0.5rem]">
-						<Image
-							src="/icons/bookmark-empty.svg"
-							alt="Edit Profile"
-							width={16}
-							height={16}
-							className="invert brightness-0"
-						/>
-						<p>Saved</p>
-					</li>
-					<div className="w-full h-[0.0625rem] bg-[var(--color-white)]"></div>
-					<li className="flex gap-[0.5rem]">
-						<Image
-							src="/icons/hourglass.svg"
-							alt="Edit Profile"
-							width={16}
-							height={16}
-							className="invert brightness-0"
-						/>
-						<p>Archived</p>
-					</li>
-				</ul>
-			) : null}
-		</>
-	);
-}
+import * as React from "react";
+import * as PopoverPrimitive from "@radix-ui/react-popover";
+import { cn } from "@/app/lib/utils";
 
-export { Popover };
+const Popover = PopoverPrimitive.Root;
 
-// example usage:
-// <Popover variant="my-profile" className="absolute top-12 right-7" />
+const PopoverTrigger = PopoverPrimitive.Trigger;
+
+const PopoverContent = React.forwardRef<
+  React.ElementRef<typeof PopoverPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
+>(({ className, align = "center", sideOffset = 4, ...props }, ref) => (
+  <PopoverPrimitive.Portal>
+    <PopoverPrimitive.Content
+      ref={ref}
+      align={align}
+      sideOffset={sideOffset}
+      className={cn(
+        "z-50 w-fit rounded-[1.5625rem] bg-grey/65 p-3 text-white outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+        className
+      )}
+      {...props}
+    />
+  </PopoverPrimitive.Portal>
+));
+PopoverContent.displayName = PopoverPrimitive.Content.displayName;
+
+export { Popover, PopoverTrigger, PopoverContent };

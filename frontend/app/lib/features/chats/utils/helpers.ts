@@ -1,4 +1,4 @@
-// lib/features/chats/utils/dateHelpers.ts
+import { Conversation } from "../types";
 
 /**
  * Format a timestamp for chat message display
@@ -72,7 +72,42 @@ export function formatFullTime(timestamp: string | null): string {
 /**
  * Truncate message content for preview
  */
-export function truncateMessage(content: string, maxLength: number = 50): string {
+export function truncateMessage(
+  content: string,
+  maxLength: number = 50
+): string {
   if (content.length <= maxLength) return content;
   return `${content.substring(0, maxLength)}...`;
+}
+
+/**
+ * Get display name and avatar for a conversation
+ */
+export function getConversationDisplayInfo(
+  conversation: Conversation,
+  currentUserId: string
+) {
+  if (conversation.type === "group") {
+    return {
+      name: conversation.name || "Group Chat",
+      avatarUrl: conversation.avatarUrl,
+    };
+  }
+
+  // For direct messages, find the other participant
+  const otherParticipant = conversation.participants?.find(
+    (p) => p.userId !== currentUserId
+  );
+
+  if (otherParticipant?.user) {
+    return {
+      name: `${otherParticipant.user.firstName} ${otherParticipant.user.lastName}`,
+      avatarUrl: otherParticipant.user.avatarUrl,
+    };
+  }
+
+  return {
+    name: "Chat",
+    avatarUrl: null,
+  };
 }

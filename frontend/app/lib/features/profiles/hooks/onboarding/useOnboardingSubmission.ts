@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAppStore } from "@/app/lib/stores/app-store";
 import { useUpdateProfile } from "../queries/useProfile";
-import type { ProfileUpdateRequest } from "../../api";
+import type { ProfileUpdateRequest, LookingForType } from "../../types";
 
 export function useOnboardingSubmission() {
   const { onboarding, updateOnboardingData, resetOnboarding, initializeAuth } =
@@ -12,11 +12,11 @@ export function useOnboardingSubmission() {
 
   const { mutateAsync: updateProfile, isPending } = useUpdateProfile();
 
-  const toggleOption = (id: string) => {
+  const toggleOption = (id: LookingForType) => {
     const current = onboarding.data.lookingFor || [];
     updateOnboardingData({
       lookingFor: current.includes(id)
-        ? current.filter((i: string) => i !== id)
+        ? current.filter((i) => i !== id)
         : [...current, id],
     });
   };

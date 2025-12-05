@@ -1,8 +1,7 @@
-// lib/features/chats/hooks/useConversations.ts
 import { useQuery } from "@tanstack/react-query";
-import { chatApi } from "../api";
-import { chatKeys } from "../queryKeys";
-import { GroupedConversations } from "../types";
+import { chatApi } from "../../api";
+import { chatKeys } from "../../queryKeys";
+import { GroupedConversations } from "../../types";
 
 /**
  * Hook to fetch and group conversations by type (direct vs group)
@@ -32,17 +31,6 @@ export function useConversations() {
       return grouped;
     },
     staleTime: 1000 * 60, // 1 minute
-  });
-}
-
-/**
- * Hook to fetch a single conversation by ID
- */
-export function useConversation(conversationId: string) {
-  return useQuery({
-    queryKey: chatKeys.detail(conversationId),
-    queryFn: () => chatApi.getConversation(conversationId),
-    enabled: !!conversationId,
   });
 }
 

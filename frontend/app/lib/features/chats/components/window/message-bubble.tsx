@@ -1,7 +1,7 @@
 "use client";
 
 import { Message } from "../../types";
-import { formatFullTime } from "../../utils/dateHelpers";
+import { formatFullTime } from "../../utils/helpers";
 import Image from "next/image";
 
 type MessageBubbleProps = {
@@ -10,7 +10,11 @@ type MessageBubbleProps = {
   showAvatar?: boolean;
 };
 
-export function MessageBubble({ message, isMe, showAvatar = true }: MessageBubbleProps) {
+export function MessageBubble({
+  message,
+  isMe,
+  showAvatar = true,
+}: MessageBubbleProps) {
   const timeDisplay = formatFullTime(message.createdAt);
 
   return (
@@ -29,9 +33,10 @@ export function MessageBubble({ message, isMe, showAvatar = true }: MessageBubbl
               className="rounded-full aspect-square object-cover"
             />
           ) : !isMe ? (
-            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-600 text-xs font-medium">
+            <div className="w-8 h-8 rounded-full bg-light-grey flex items-center justify-center">
+              <span className="text-grey text-xs font-medium">
                 {message.sender?.firstName?.charAt(0).toUpperCase() ?? "?"}
+                {message.sender?.lastName?.charAt(0).toUpperCase() ?? "?"}
               </span>
             </div>
           ) : (
@@ -42,7 +47,9 @@ export function MessageBubble({ message, isMe, showAvatar = true }: MessageBubbl
 
       {/* Message Content */}
       <div
-        className={`flex flex-col max-w-[70%] ${isMe ? "items-end" : "items-start"}`}
+        className={`flex flex-col max-w-[70%] ${
+          isMe ? "items-end" : "items-start"
+        }`}
       >
         {/* Sender name (only for group chats and not own messages) */}
         {!isMe && message.sender && (
@@ -56,12 +63,12 @@ export function MessageBubble({ message, isMe, showAvatar = true }: MessageBubbl
           className={`px-4 py-2 rounded-2xl ${
             isMe
               ? "bg-crocus-yellow text-black rounded-tr-sm"
-              : "bg-gray-100 text-black rounded-tl-sm"
+              : "bg-melting-glacier text-black rounded-tl-sm"
           }`}
         >
           {/* Reply indicator */}
-          {message.replyTo && (
-            <div className="mb-2 pb-2 border-b border-gray-300 opacity-70">
+          {message.replyTo && message.replyTo.content && (
+            <div className="mb-2 pb-2 border-b border-grey/20 opacity-70">
               <p className="text-xs italic">
                 Replying to: {message.replyTo.content.substring(0, 50)}
                 {message.replyTo.content.length > 50 ? "..." : ""}
@@ -81,9 +88,7 @@ export function MessageBubble({ message, isMe, showAvatar = true }: MessageBubbl
         </div>
 
         {/* Timestamp */}
-        <span className="text-xs text-grey mt-1 px-1">
-          {timeDisplay}
-        </span>
+        <span className="text-xs text-grey mt-1 px-1">{timeDisplay}</span>
       </div>
     </div>
   );

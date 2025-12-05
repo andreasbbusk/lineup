@@ -1,8 +1,7 @@
 // lib/features/chats/hooks/index.ts
 
-// Data hooks
-export { useConversations, useConversation, useUnreadCount } from "./useConversations";
-export { useChatMessages } from "./useChatMessages";
+// Data hooks (Query & Mutations)
+export * from "./query";
 
 // Realtime hooks
 export { useMessageSubscription } from "./realtime/useMessageSubscription";

@@ -1,59 +1,69 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ChatWindow, useConversation } from "@/app/lib/features/chats";
+import { use } from "react";
+import {
+  ChatWindow,
+  useConversation,
+  useChatMessages,
+  useSendMessage,
+  useMessageSubscription,
+  chatApi,
+  getConversationDisplayInfo,
+} from "@/app/lib/features/chats";
 import { useAppStore } from "@/app/lib/stores/app-store";
 
 interface ChatPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function ChatPage({ params }: ChatPageProps) {
+  const { id } = use(params);
   const router = useRouter();
   const user = useAppStore((state) => state.user);
-  const { data: conversation } = useConversation(params.id);
 
-  // Handle unauthenticated state
-  if (!user?.id) {
-    return (
-      <main className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">Not Authenticated</h2>
-          <p className="text-grey">Please log in to view this conversation.</p>
-        </div>
-      </main>
-    );
-  }
+  // Queries
+  const { data: conversation } = useConversation(id);
+  const {
+    messages,
+    isLoading: messagesLoading,
+    error: messagesError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useChatMessages(id);
 
-  // Get conversation display name
-  const getConversationName = () => {
-    if (!conversation) return "Chat";
+  // Mutations
+  const { mutate: sendMessage } = useSendMessage(id);
 
-    if (conversation.type === "group") {
-      return conversation.name || "Group Chat";
-    }
+  // Subscriptions
+  useMessageSubscription(id);
 
-    // For direct messages, find the other participant
-    const otherParticipant = conversation.participants?.find(
-      (p) => p.userId !== user.id
-    );
+  const { name } = conversation
+    ? getConversationDisplayInfo(conversation, user?.id ?? "")
+    : { name: "Chat" };
 
-    if (otherParticipant?.user) {
-      return `${otherParticipant.user.firstName} ${otherParticipant.user.lastName}`;
-    }
-
-    return "Chat";
+  const handleTyping = (isTyping: boolean) => {
+    chatApi.setTyping(id, isTyping);
   };
 
   return (
     <main className="h-[calc(100vh-8rem)]">
-      <div className="h-full max-w-3xl mx-auto bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+      <div className="h-full max-w-3xl mx-auto bg-white rounded-lg shadow-sm border border-light-grey overflow-hidden flex flex-col">
         <ChatWindow
-          conversationId={params.id}
-          currentUserId={user.id}
-          conversationName={getConversationName()}
+          conversationId={id}
+          currentUserId={user?.id ?? ""}
+          conversationName={name}
+          messages={messages}
+          isLoading={messagesLoading}
+          error={messagesError}
+          fetchNextPage={fetchNextPage}
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          onSendMessage={sendMessage}
+          onTyping={handleTyping}
           onBack={() => router.push("/chats")}
         />
       </div>
