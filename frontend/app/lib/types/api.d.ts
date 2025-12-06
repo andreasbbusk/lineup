@@ -1657,6 +1657,7 @@ export interface components {
       lastMessageId?: string | null;
       lastMessagePreview?: string | null;
       lastMessageAt?: string | null;
+      lastMessageSenderId?: string | null;
       /** Format: double */
       unreadCount: number;
       creator?: {

@@ -7,16 +7,31 @@ import { chatApi } from "../../api";
 import { chatKeys } from "../../queryKeys";
 import type { Message } from "../../types";
 
-// Type for the infinite query page structure
+// ============================================================================
+// Types
+// ============================================================================
+
 type MessagesPage = {
   messages: Message[];
   hasMore: boolean;
   nextCursor: string | null;
 };
 
-// Type for the infinite query data
 type InfiniteMessages = InfiniteData<MessagesPage, string | undefined>;
 
+// ============================================================================
+// Hook
+// ============================================================================
+
+/**
+ * Hook for sending messages with optimistic updates
+ *
+ * Flow:
+ * 1. onMutate: Immediately show message in UI with temp ID
+ * 2. mutationFn: Send to server in background
+ * 3. onSuccess: Replace temp message with server response
+ * 4. onError: Rollback to snapshot if send fails
+ */
 export function useSendMessage(conversationId: string, userId: string) {
   const queryClient = useQueryClient();
 
@@ -29,17 +44,21 @@ export function useSendMessage(conversationId: string, userId: string) {
         reply_to_message_id: null,
       }),
 
+    // Optimistic update: Show message immediately before server confirms
     onMutate: async (content: string) => {
       const tempId = `temp-${Date.now()}`;
 
+      // Cancel in-flight queries to avoid race conditions
       await queryClient.cancelQueries({
         queryKey: chatKeys.messages(conversationId),
       });
 
+      // Save current state for rollback on error
       const snapshot = queryClient.getQueryData<InfiniteMessages>(
         chatKeys.messages(conversationId)
       );
 
+      // Create temporary message with client-side ID
       const optimisticMessage: Message = {
         id: tempId,
         conversationId,
@@ -59,18 +78,19 @@ export function useSendMessage(conversationId: string, userId: string) {
         media: [],
       };
 
+      // Add optimistic message to the first page (most recent messages)
       queryClient.setQueryData<InfiniteMessages>(
         chatKeys.messages(conversationId),
         (old) => {
           if (!old) return old;
 
           const newPages = [...old.pages];
-          const lastPageIndex = newPages.length - 1;
-          const lastPage = newPages[lastPageIndex];
+          const firstPage = newPages[0];
 
-          newPages[lastPageIndex] = {
-            ...lastPage,
-            messages: [...lastPage.messages, optimisticMessage],
+          // Always add new messages to the first page (index 0), which contains the most recent messages
+          newPages[0] = {
+            ...firstPage,
+            messages: [...firstPage.messages, optimisticMessage],
           };
 
           return {
@@ -83,6 +103,7 @@ export function useSendMessage(conversationId: string, userId: string) {
       return { snapshot, tempId };
     },
 
+    // Rollback: Restore previous state if send fails
     onError: (_err, _content, context) => {
       if (context?.snapshot) {
         queryClient.setQueryData(
@@ -92,6 +113,7 @@ export function useSendMessage(conversationId: string, userId: string) {
       }
     },
 
+    // Replace temporary message with server response
     onSuccess: (serverMessage, _content, context) => {
       queryClient.setQueryData<InfiniteMessages>(
         chatKeys.messages(conversationId),
@@ -110,6 +132,7 @@ export function useSendMessage(conversationId: string, userId: string) {
         }
       );
 
+      // Refresh conversation list to update last message preview
       queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
     },
   });

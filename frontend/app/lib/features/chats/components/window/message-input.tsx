@@ -1,164 +1,105 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/app/components/buttons";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/app/components/radix-popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/app/components/radix-popover";
+import { TYPING_INDICATOR_TIMEOUT_MS } from "../../constants";
+
+// ============================================================================
+// Types & Constants
+// ============================================================================
 
 type MessageInputProps = {
-  conversationId: string;
   onTyping?: (isTyping: boolean) => void;
   onSendMessage: (content: string) => void;
   isDisabled?: boolean;
 };
 
-export function MessageInput({
-  onTyping,
-  onSendMessage,
-  isDisabled,
-}: MessageInputProps) {
+/** Attachment menu options (placeholder for future features) */
+const MENU_ITEMS = [
+  { icon: "camera", label: "Attach a picture" },
+  { icon: "attachment", label: "Attach a file" },
+  { icon: "pin-alt", label: "Share location" },
+  { icon: "stats-up-square", label: "Survey" },
+];
+
+// ============================================================================
+// Component
+// ============================================================================
+
+export function MessageInput({ onTyping, onSendMessage, isDisabled }: MessageInputProps) {
   const [content, setContent] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const timeout = useRef<NodeJS.Timeout | undefined>(undefined);
 
-  // Handle typing indicator
-  const handleTypingChange = (typing: boolean) => {
+  // Update typing status and notify parent
+  const updateTyping = (typing: boolean) => {
     if (typing !== isTyping) {
       setIsTyping(typing);
       onTyping?.(typing);
     }
   };
 
-  const handleSend = (value: string) => {
-    const trimmedContent = value.trim();
+  // Send message and reset input state
+  const handleSend = () => {
+    const trimmedContent = content.trim();
     if (!trimmedContent || isDisabled) return;
 
     onSendMessage(trimmedContent);
-    handleTypingChange(false);
-
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
+    setContent("");
+    clearTimeout(timeout.current);
+    updateTyping(false);
   };
 
-  // Handle input change with typing indicator
-  const handleInputChange = (value: string) => {
-    setContent(value);
-
-    // Set typing indicator
-    handleTypingChange(true);
-
-    // Clear previous timeout
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
-
-    // Set timeout to stop typing indicator
-    typingTimeoutRef.current = setTimeout(() => {
-      handleTypingChange(false);
-    }, 2000);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSend(content);
-      setContent("");
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-    };
-  }, []);
+  // Cleanup timeout on unmount
+  useEffect(() => () => clearTimeout(timeout.current), []);
 
   return (
-    <div className="border-t border-light-grey p-4 bg-white relative">
-      <div className="flex w-full justify-center items-center gap-2">
-        <Popover>
-          <PopoverTrigger asChild>
-            <div>
-              <Button
-                variant="icon"
-                onClick={() => {}}
-                icon="plus"
-                disabled={isDisabled}
-              />
-            </div>
-          </PopoverTrigger>
-          <PopoverContent side="top" align="start" sideOffset={10}>
-            <ul className="flex flex-col justify-center gap-2.5">
-              <li className="flex gap-2 cursor-pointer hover:opacity-80 transition-opacity">
-                <Image
-                  src="/icons/camera.svg"
-                  alt="Attach a picture"
-                  width={16}
-                  height={16}
-                  className="invert brightness-0"
-                />
-                <p>Attach a picture</p>
-              </li>
-              <div className="w-full h-px bg-white opacity-20"></div>
-              <li className="flex gap-2 cursor-pointer hover:opacity-80 transition-opacity">
-                <Image
-                  src="/icons/attachment.svg"
-                  alt="Attach a file"
-                  width={16}
-                  height={16}
-                  className="invert brightness-0"
-                />
-                <p>Attach a file</p>
-              </li>
-              <div className="w-full h-px bg-white opacity-20"></div>
-              <li className="flex gap-2 cursor-pointer hover:opacity-80 transition-opacity">
-                <Image
-                  src="/icons/pin-alt.svg"
-                  alt="Share location"
-                  width={16}
-                  height={16}
-                  className="invert brightness-0"
-                />
-                <p>Share location</p>
-              </li>
-              <div className="w-full h-px bg-white opacity-20"></div>
-              <li className="flex gap-2 cursor-pointer hover:opacity-80 transition-opacity">
-                <Image
-                  src="/icons/stats-up-square.svg"
-                  alt="Survey"
-                  width={16}
-                  height={16}
-                  className="invert brightness-0"
-                />
-                <p>Survey</p>
-              </li>
-            </ul>
-          </PopoverContent>
-        </Popover>
-
-        <input
-          className="flex h-10 pl-4 pr-4 items-center gap-4 flex-1 rounded-full bg-melting-glacier focus:outline-none text-base placeholder:text-input-placeholder text-black"
-          value={content}
-          onChange={(e) => handleInputChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Aa"
-          disabled={isDisabled}
-        />
-        <Button
-          variant="icon"
-          onClick={() => {
-            if (content) {
-              handleSend(content);
-              setContent("");
-            }
-          }}
-          icon={content === "" ? "mic" : "send"}
-          disabled={isDisabled}
-        />
-      </div>
+    <div className="border-t border-light-grey p-4 bg-white flex items-center gap-2">
+      <Popover>
+        <PopoverTrigger asChild>
+          <div>
+            <Button variant="icon" onClick={() => {}} icon="plus" disabled={isDisabled} />
+          </div>
+        </PopoverTrigger>
+        <PopoverContent side="top" align="start" sideOffset={10}>
+          <ul className="flex flex-col gap-2.5">
+            {MENU_ITEMS.map((item, i) => (
+              <React.Fragment key={item.icon}>
+                {i > 0 && <div className="w-full h-px bg-white opacity-20" />}
+                <li className="flex gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+                  <Image
+                    src={`/icons/${item.icon}.svg`}
+                    alt={item.label}
+                    width={16}
+                    height={16}
+                    className="invert brightness-0"
+                  />
+                  <p>{item.label}</p>
+                </li>
+              </React.Fragment>
+            ))}
+          </ul>
+        </PopoverContent>
+      </Popover>
+      <input
+        className="flex h-10 px-4 flex-1 rounded-full bg-melting-glacier focus:outline-none text-base placeholder:text-input-placeholder text-black"
+        value={content}
+        onChange={(e) => {
+          setContent(e.target.value);
+          clearTimeout(timeout.current);
+          updateTyping(true);
+          timeout.current = setTimeout(() => updateTyping(false), TYPING_INDICATOR_TIMEOUT_MS);
+        }}
+        onKeyDown={(e) => e.key === "Enter" && handleSend()}
+        placeholder="Aa"
+        disabled={isDisabled}
+      />
+      <Button
+        variant="icon"
+        onClick={handleSend}
+        icon={content ? "send" : "mic"}
+        disabled={isDisabled}
+      />
     </div>
   );
 }

@@ -3,18 +3,22 @@ import { chatApi } from "../../api";
 import { chatKeys } from "../../queryKeys";
 
 /**
- * Mark messages as read and update unread counts
- * Refreshes conversation list to clear unread indicators
+ * Hook to create a new conversation
  */
-export function useMarkAsRead() {
+export function useCreateConversation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (messageIds: string[]) => chatApi.markAsRead(messageIds),
+    mutationFn: (participantIds: string[]) =>
+      chatApi.createConversation({
+        type: "direct",
+        participantIds,
+        name: null,
+        avatarUrl: null,
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: chatKeys.unread() });
+      // Invalidate conversations list to show new conversation
       queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
     },
   });
 }
-

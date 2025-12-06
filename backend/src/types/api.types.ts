@@ -515,6 +515,7 @@ export interface ConversationResponse {
   lastMessageId?: string | null;
   lastMessagePreview?: string | null;
   lastMessageAt?: string | null;
+  lastMessageSenderId?: string | null;
   unreadCount: number;
   creator?: {
     id: string;

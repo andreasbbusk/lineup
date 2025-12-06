@@ -1,49 +1,29 @@
 import { useQuery } from "@tanstack/react-query";
 import { chatApi } from "../../api";
 import { chatKeys } from "../../queryKeys";
-import { GroupedConversations } from "../../types";
+import { STALE_TIME } from "../../constants";
 
-/**
- * Hook to fetch and group conversations by type (direct vs group)
- */
-export function useConversations() {
-  return useQuery({
+export const useConversations = () =>
+  useQuery({
     queryKey: chatKeys.lists(),
     queryFn: async () => {
-      const conversations = await chatApi.getConversations();
+      const conversations =
+        (await chatApi.getConversations())?.filter((conv) => conv.lastMessagePreview) ?? [];
 
-      // Group conversations by type
-      const grouped: GroupedConversations = {
-        direct: [],
-        groups: [],
+      return {
+        direct: conversations.filter((conv) => conv.type === "direct"),
+        groups: conversations.filter((conv) => conv.type === "group"),
       };
-
-      if (conversations) {
-        conversations.forEach((conv) => {
-          if (conv.type === "direct") {
-            grouped.direct.push(conv);
-          } else {
-            grouped.groups.push(conv);
-          }
-        });
-      }
-
-      return grouped;
     },
-    staleTime: 1000 * 60, // 1 minute
+    staleTime: STALE_TIME.CONVERSATIONS,
   });
-}
 
-/**
- * Hook to fetch unread message count
- */
-export function useUnreadCount() {
-  return useQuery({
+export const useUnreadCount = () =>
+  useQuery({
     queryKey: chatKeys.unread(),
     queryFn: async () => {
       const data = await chatApi.getUnreadCount();
       return data?.unread_count ?? 0;
     },
-    staleTime: 1000 * 30, // 30 seconds
+    staleTime: STALE_TIME.USER_SEARCH,
   });
-}

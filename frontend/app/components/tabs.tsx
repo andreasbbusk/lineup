@@ -45,7 +45,7 @@ type TabsContentProps = {
 const TabsContent = ({ value, children }: TabsContentProps) => {
   return (
     <div
-      className="flex px-3.75 pt-2.5 pb-32.5 flex-col items-start gap-7.5 self-stretch bg-white"
+      className="h-full w-full overflow-y-auto overflow-x-hidden bg-white"
       data-value={value}
     >
       {children}
@@ -58,8 +58,8 @@ const Tabs = (props: TabsProps) => {
 
   if (props.variant === "profile" || props.variant === "chat") {
     return (
-      <div>
-        <ul className="flex items-center rounded-tl-[2.8125rem] rounded-tr-[2.8125rem] bg-white">
+      <div className="flex flex-col h-full">
+        <ul className="flex items-center shrink-0 rounded-tl-[2.8125rem] rounded-tr-[2.8125rem] bg-white will-change-auto">
           <button
             onClick={() =>
               props.variant === "profile"
@@ -105,13 +105,17 @@ const Tabs = (props: TabsProps) => {
             {props.variant === "profile" ? "Notes" : "Groups"}
           </button>
         </ul>
-        <div>
-          {children.map((child) => {
+        <div className="flex-1 min-h-0 relative">
+          {children.map((child, index) => {
             if (
               React.isValidElement<TabsContentProps>(child) &&
               child.props.value === props.activeTab
             ) {
-              return child;
+              return (
+                <div key={index} className="absolute inset-0">
+                  {child}
+                </div>
+              );
             }
             return null;
           })}

@@ -1,6 +1,16 @@
 // lib/features/chats/index.ts
 
+// ============================================================================
+// Re-exports from other features
+// ============================================================================
+
+// Re-export search infrastructure for convenience
+export { useUserSearch } from "@/app/lib/features/search";
+
+// ============================================================================
 // Types
+// ============================================================================
+
 export type {
   Conversation,
   Message,
@@ -14,33 +24,78 @@ export type {
   MarkMessagesReadDto,
 } from "./types";
 
-// API
+// ============================================================================
+// Constants
+// ============================================================================
+
+export {
+  MESSAGE_PREVIEW_LENGTH,
+  CONVERSATION_PREVIEW_LENGTH,
+  TYPING_INDICATOR_TIMEOUT_MS,
+  DEFAULT_MESSAGES_PAGE_SIZE,
+  DEFAULT_SKELETON_COUNT,
+  STALE_TIME,
+} from "./constants";
+
+// ============================================================================
+// API & Keys
+// ============================================================================
+
 export { chatApi } from "./api";
 export { chatKeys } from "./queryKeys";
 
-// Hooks
-export {
-  useConversations,
-  useConversation,
-  useUnreadCount,
-  useChatMessages,
-  useSendMessage,
-  useDeleteMessage,
-  useMarkAsRead,
-  useMessageSubscription,
-  useConversationSubscription,
-} from "./hooks";
+// ============================================================================
+// Hooks - Query & Mutations
+// ============================================================================
 
-// Components
-export {
-  ChatRow,
-  ConversationList,
-  MessageBubble,
-  MessageInput,
-  ChatWindow,
-} from "./components";
+export { useChatMessages } from "./hooks/query/useChatMessages";
+export { useConversations, useUnreadCount } from "./hooks/query/useConversations";
+export { useConversation } from "./hooks/query/useConversation";
+export { useSendMessage } from "./hooks/query/useSendMessage";
+export { useDeleteMessage } from "./hooks/query/useDeleteMessage";
+export { useMarkAsRead } from "./hooks/query/useMarkAsRead";
+export { useConnections } from "./hooks/query/useConnections";
+export { useCreateConversation } from "./hooks/query/useCreateConversation";
 
+// ============================================================================
+// Hooks - Realtime
+// ============================================================================
+
+export { useMessageSubscription } from "./hooks/realtime/useMessageSubscription";
+export { useConversationSubscription } from "./hooks/realtime/useConversationSubscription";
+
+// ============================================================================
+// Components - Shared
+// ============================================================================
+
+export { Avatar, getInitials } from "./components/shared/avatar";
+
+// ============================================================================
+// Components - List
+// ============================================================================
+
+export { ChatRow } from "./components/list/chat-row";
+export { ConversationList } from "./components/list/conversation-list";
+
+// ============================================================================
+// Components - Window
+// ============================================================================
+
+export { MessageBubble } from "./components/window/message-bubble";
+export { MessageInput } from "./components/window/message-input";
+export { ChatWindow } from "./components/window/chat-window";
+
+// ============================================================================
+// Components - New Chat
+// ============================================================================
+
+export { UserSuggestionRow } from "./components/new-chat/user-suggestion-row";
+export { UserSearchList } from "./components/new-chat/user-search-list";
+
+// ============================================================================
 // Utils
+// ============================================================================
+
 export {
   formatMessageTime,
   formatConversationTime,

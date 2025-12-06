@@ -1891,6 +1891,10 @@
 						"type": "string",
 						"nullable": true
 					},
+					"lastMessageSenderId": {
+						"type": "string",
+						"nullable": true
+					},
 					"unreadCount": {
 						"type": "number",
 						"format": "double"

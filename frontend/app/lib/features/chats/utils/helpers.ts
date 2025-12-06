@@ -1,113 +1,127 @@
 import { Conversation } from "../types";
 
-/**
- * Format a timestamp for chat message display
- * Returns "Just now", "Xm ago", "Xh ago", "Yesterday", or "MM/DD/YY"
- */
-export function formatMessageTime(timestamp: string | null): string {
-  if (!timestamp) return "";
+// ============================================================================
+// Time Formatting Constants
+// ============================================================================
 
-  const now = new Date();
-  const messageDate = new Date(timestamp);
-  const diffInMs = now.getTime() - messageDate.getTime();
-  const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-  const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+const MS_PER_MINUTE = 60_000;
+const MS_PER_HOUR = 3_600_000;
+const MS_PER_DAY = 86_400_000;
 
-  if (diffInMinutes < 1) return "Just now";
-  if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-  if (diffInHours < 24) return `${diffInHours}h ago`;
-  if (diffInDays === 1) return "Yesterday";
+const MINUTES_PER_HOUR = 60;
+const HOURS_PER_DAY = 24;
 
-  // Format as MM/DD/YY for older messages
-  const month = String(messageDate.getMonth() + 1).padStart(2, "0");
-  const day = String(messageDate.getDate()).padStart(2, "0");
-  const year = String(messageDate.getFullYear()).slice(-2);
-  return `${month}/${day}/${year}`;
-}
+const DATE_PAD_LENGTH = 2;
+const DATE_PAD_CHAR = "0";
+const TWO_DIGIT_YEAR_START = -2;
+
+// ============================================================================
+// Time Formatting Helpers
+// ============================================================================
 
 /**
- * Format timestamp for conversation list preview
- * Returns "Now", "Xm", "Xh", "Yesterday", or "MM/DD"
+ * Formats a date as relative time (if recent) or absolute date (if older)
+ * @param isShort - Whether to use compact format (e.g., "5m" vs "5m ago")
  */
-export function formatConversationTime(timestamp: string | null): string {
+const formatTime = (date: Date, diffMs: number, isShort: boolean) => {
+  const minutes = Math.floor(diffMs / MS_PER_MINUTE);
+  const hours = Math.floor(diffMs / MS_PER_HOUR);
+  const days = Math.floor(diffMs / MS_PER_DAY);
+
+  // Recent times: show relative
+  if (minutes < 1) return isShort ? "Now" : "Just now";
+  if (minutes < MINUTES_PER_HOUR)
+    return isShort ? `${minutes}m` : `${minutes}m ago`;
+  if (hours < HOURS_PER_DAY) return isShort ? `${hours}h` : `${hours}h ago`;
+  if (days === 1) return "Yesterday";
+
+  // Older times: show absolute date
+  const month = String(date.getMonth() + 1).padStart(
+    DATE_PAD_LENGTH,
+    DATE_PAD_CHAR
+  );
+  const day = String(date.getDate()).padStart(DATE_PAD_LENGTH, DATE_PAD_CHAR);
+  const year = String(date.getFullYear()).slice(TWO_DIGIT_YEAR_START);
+
+  return isShort ? `${month}/${day}` : `${month}/${day}/${year}`;
+};
+
+/** Format timestamp for message detail view (full relative time) */
+export const formatMessageTime = (timestamp: string | null) => {
   if (!timestamp) return "";
-
-  const now = new Date();
-  const messageDate = new Date(timestamp);
-  const diffInMs = now.getTime() - messageDate.getTime();
-  const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-  const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-
-  if (diffInMinutes < 1) return "Now";
-  if (diffInMinutes < 60) return `${diffInMinutes}m`;
-  if (diffInHours < 24) return `${diffInHours}h`;
-  if (diffInDays === 1) return "Yesterday";
-
-  // Format as MM/DD for older messages
-  const month = String(messageDate.getMonth() + 1).padStart(2, "0");
-  const day = String(messageDate.getDate()).padStart(2, "0");
-  return `${month}/${day}`;
-}
-
-/**
- * Format full timestamp for message bubbles
- * Returns time in "HH:MM AM/PM" format
- */
-export function formatFullTime(timestamp: string | null): string {
-  if (!timestamp) return "";
-
   const date = new Date(timestamp);
-  let hours = date.getHours();
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const ampm = hours >= 12 ? "PM" : "AM";
+  return formatTime(date, Date.now() - date.getTime(), false);
+};
 
-  hours = hours % 12;
-  hours = hours ? hours : 12; // 0 should be 12
+/** Format timestamp for conversation list (compact time) */
+export const formatConversationTime = (timestamp: string | null) => {
+  if (!timestamp) return "";
+  const date = new Date(timestamp);
+  return formatTime(date, Date.now() - date.getTime(), true);
+};
 
-  return `${hours}:${minutes} ${ampm}`;
-}
+/** Format timestamp as 24-hour clock time (e.g., "14:30") */
+export const formatFullTime = (timestamp: string | null) => {
+  if (!timestamp) return "";
+  const date = new Date(timestamp);
 
-/**
- * Truncate message content for preview
- */
-export function truncateMessage(
-  content: string,
-  maxLength: number = 50
-): string {
-  if (content.length <= maxLength) return content;
-  return `${content.substring(0, maxLength)}...`;
-}
+  const hours = String(date.getHours()).padStart(
+    DATE_PAD_LENGTH,
+    DATE_PAD_CHAR
+  );
+  const minutes = String(date.getMinutes()).padStart(
+    DATE_PAD_LENGTH,
+    DATE_PAD_CHAR
+  );
+
+  return `${hours}:${minutes}`;
+};
+
+// ============================================================================
+// Text Helpers
+// ============================================================================
+
+const TRUNCATION_SUFFIX = "...";
+
+/** Truncate text to maximum length with ellipsis */
+export const truncateMessage = (content: string, maxLength: number) =>
+  content.length <= maxLength
+    ? content
+    : `${content.substring(0, maxLength)}${TRUNCATION_SUFFIX}`;
+
+// ============================================================================
+// Conversation Helpers
+// ============================================================================
+
+const DEFAULT_GROUP_NAME = "Group Chat";
+const DEFAULT_CONVERSATION_NAME = "Chat";
 
 /**
  * Get display name and avatar for a conversation
+ * - Group chats: use conversation name/avatar
+ * - Direct messages: use other participant's name/avatar
  */
-export function getConversationDisplayInfo(
+export const getConversationDisplayInfo = (
   conversation: Conversation,
-  currentUserId: string
-) {
+  userId: string
+) => {
   if (conversation.type === "group") {
     return {
-      name: conversation.name || "Group Chat",
+      name: conversation.name || DEFAULT_GROUP_NAME,
       avatarUrl: conversation.avatarUrl,
     };
   }
 
-  // For direct messages, find the other participant
-  const otherParticipant = conversation.participants?.find(
-    (p) => p.userId !== currentUserId
-  );
+  const otherUser = conversation.participants?.find(
+    (participant) => participant.userId !== userId
+  )?.user;
 
-  if (otherParticipant?.user) {
-    return {
-      name: `${otherParticipant.user.firstName} ${otherParticipant.user.lastName}`,
-      avatarUrl: otherParticipant.user.avatarUrl,
-    };
+  if (!otherUser) {
+    return { name: DEFAULT_CONVERSATION_NAME, avatarUrl: null };
   }
 
   return {
-    name: "Chat",
-    avatarUrl: null,
+    name: `${otherUser.firstName} ${otherUser.lastName}`,
+    avatarUrl: otherUser.avatarUrl,
   };
-}
+};

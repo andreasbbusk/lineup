@@ -1,8 +1,8 @@
+import { MessageBubbleSkeleton } from "@/app/components/skeleton";
 import { useEffect, useRef } from "react";
+import { Message } from "../../types";
 import { MessageBubble } from "./message-bubble";
 import { MessageInput } from "./message-input";
-import { Message } from "../../types";
-import { MessageBubbleSkeleton } from "@/app/components/skeleton";
 
 type ChatWindowProps = {
   conversationId: string;
@@ -20,7 +20,6 @@ type ChatWindowProps = {
 };
 
 export function ChatWindow({
-  conversationId,
   currentUserId,
   conversationName,
   messages,
@@ -33,12 +32,20 @@ export function ChatWindow({
   onTyping,
   onBack,
 }: ChatWindowProps) {
+  // ============================================================================
+  // Scroll Management
+  // ============================================================================
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const hasInitiallyScrolled = useRef(false);
   const previousMessageCount = useRef(0);
 
-  // Scroll to bottom on initial load
+  // Constants for scroll behavior
+  const AUTO_SCROLL_THRESHOLD_PX = 150; // User must be within this distance from bottom for auto-scroll
+  const LOAD_MORE_THRESHOLD_PX = 100; // Trigger pagination when within this distance from top
+
+  // Initial scroll: Jump to bottom on first load
   useEffect(() => {
     if (
       messages.length > 0 &&
@@ -50,47 +57,46 @@ export function ChatWindow({
     }
   }, [messages.length]);
 
-  // Scroll to bottom when new messages arrive (not when loading older messages)
+  // Auto-scroll on new messages: Only if user is near bottom (prevents disrupting scroll position)
   useEffect(() => {
-    if (
-      messages.length > previousMessageCount.current &&
-      hasInitiallyScrolled.current &&
-      messagesEndRef.current
-    ) {
-      // Only auto-scroll if we're near the bottom (user hasn't scrolled up much)
+    const hasNewMessages = messages.length > previousMessageCount.current;
+    const shouldAutoScroll =
+      hasInitiallyScrolled.current && messagesEndRef.current;
+
+    if (hasNewMessages && shouldAutoScroll) {
       const container = messagesContainerRef.current;
       if (container) {
-        const isNearBottom =
-          container.scrollHeight -
-            container.scrollTop -
-            container.clientHeight <
-          150;
+        const distanceFromBottom =
+          container.scrollHeight - container.scrollTop - container.clientHeight;
+
+        const isNearBottom = distanceFromBottom < AUTO_SCROLL_THRESHOLD_PX;
         if (isNearBottom) {
-          messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+          messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
         }
       }
     }
+
     previousMessageCount.current = messages.length;
   }, [messages.length]);
 
-  // Handle infinite scroll - load older messages when scrolling to top
+  // Infinite scroll: Load older messages when scrolling near top
   const handleScroll = () => {
     const container = messagesContainerRef.current;
     if (!container) return;
 
-    const scrollTop = container.scrollTop;
-    const threshold = 100;
+    const isNearTop = container.scrollTop < LOAD_MORE_THRESHOLD_PX;
+    const canLoadMore = hasNextPage && !isFetchingNextPage;
 
-    // Load more when near the TOP (scrolling up for older messages)
-    if (scrollTop < threshold && hasNextPage && !isFetchingNextPage) {
+    if (isNearTop && canLoadMore) {
       const previousScrollHeight = container.scrollHeight;
 
       fetchNextPage().then(() => {
-        // Maintain scroll position after loading older messages at the top
+        // Preserve scroll position after prepending older messages
         requestAnimationFrame(() => {
           if (container) {
             const newScrollHeight = container.scrollHeight;
-            container.scrollTop = newScrollHeight - previousScrollHeight;
+            const scrollDifference = newScrollHeight - previousScrollHeight;
+            container.scrollTop = scrollDifference;
           }
         });
       });
@@ -159,10 +165,33 @@ export function ChatWindow({
             ))}
           </div>
         ) : messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-grey text-center">
-              No messages yet. Start the conversation!
-            </p>
+          <div className="flex flex-col items-center justify-center h-full gap-4 px-4">
+            <div className="w-24 h-24 rounded-full bg-melting-glacier flex items-center justify-center">
+              <svg
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="text-grey"
+              >
+                <path
+                  d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 13.4876 3.3635 14.8911 4.00638 16.1272L3 21L7.87281 19.9936C9.10891 20.6365 10.5124 21 12 21Z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+            <div className="text-center">
+              <h3 className="font-semibold text-black mb-1">
+                {conversationName}
+              </h3>
+              <p className="text-sm text-grey">
+                No messages yet. Start the conversation!
+              </p>
+            </div>
           </div>
         ) : (
           <>
@@ -187,11 +216,7 @@ export function ChatWindow({
       </div>
 
       {/* Input */}
-      <MessageInput
-        conversationId={conversationId}
-        onSendMessage={onSendMessage}
-        onTyping={onTyping}
-      />
+      <MessageInput onSendMessage={onSendMessage} onTyping={onTyping} />
     </div>
   );
 }

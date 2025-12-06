@@ -1,4 +1,3 @@
-// lib/features/chats/hooks/realtime/useMessageSubscription.ts
 import { useEffect } from "react";
 import { useQueryClient, InfiniteData } from "@tanstack/react-query";
 import { supabase } from "@/app/lib/supabase/client";
@@ -10,7 +9,9 @@ import { chatKeys } from "../../queryKeys";
 import type { Message, PaginatedMessages } from "../../types";
 
 /**
- * Subscribe to new messages in a conversation via Supabase Realtime
+ * Subscribe to real-time message updates via Supabase Realtime
+ * Listens for INSERT, UPDATE, and DELETE events on the messages table
+ * Automatically updates the query cache to reflect changes
  */
 export function useMessageSubscription(conversationId: string | null) {
   const queryClient = useQueryClient();
@@ -20,6 +21,9 @@ export function useMessageSubscription(conversationId: string | null) {
 
     const channel = supabase
       .channel(`messages:${conversationId}`)
+      // ========================================================================
+      // INSERT: New message received
+      // ========================================================================
       .on(
         "postgres_changes",
         {
@@ -31,24 +35,19 @@ export function useMessageSubscription(conversationId: string | null) {
         (payload) => {
           const newMessage = mapRealtimeMessage(payload.new as DbMessageRecord);
 
-          // Update the messages cache with the new message
           queryClient.setQueryData<InfiniteData<PaginatedMessages>>(
             chatKeys.messages(conversationId),
             (old) => {
               if (!old) return old;
 
-              // Check if message already exists in any page (prevent duplicates)
+              // Prevent duplicates (message might already exist from optimistic update)
               const messageExists = old.pages.some((page) =>
                 page.messages.some((msg) => msg.id === newMessage.id)
               );
 
-              if (messageExists) {
-                return old;
-              }
+              if (messageExists) return old;
 
-              // Add message to the END of the first page (newest messages page)
-              // Messages within each page are in chronological order (oldest first)
-              // So new messages go at the end
+              // Add to first page (most recent messages)
               const updatedPages = [...old.pages];
               if (updatedPages[0]) {
                 updatedPages[0] = {
@@ -57,17 +56,17 @@ export function useMessageSubscription(conversationId: string | null) {
                 };
               }
 
-              return {
-                ...old,
-                pages: updatedPages,
-              };
+              return { ...old, pages: updatedPages };
             }
           );
 
-          // Invalidate conversations list to update lastMessage preview
+          // Update conversation list preview
           queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
         }
       )
+      // ========================================================================
+      // UPDATE: Message edited
+      // ========================================================================
       .on(
         "postgres_changes",
         {
@@ -81,7 +80,6 @@ export function useMessageSubscription(conversationId: string | null) {
             payload.new as DbMessageRecord
           );
 
-          // Update message in cache
           queryClient.setQueryData<InfiniteData<PaginatedMessages>>(
             chatKeys.messages(conversationId),
             (old) => {
@@ -94,14 +92,14 @@ export function useMessageSubscription(conversationId: string | null) {
                 ),
               }));
 
-              return {
-                ...old,
-                pages: updatedPages,
-              };
+              return { ...old, pages: updatedPages };
             }
           );
         }
       )
+      // ========================================================================
+      // DELETE: Message removed
+      // ========================================================================
       .on(
         "postgres_changes",
         {
@@ -113,7 +111,6 @@ export function useMessageSubscription(conversationId: string | null) {
         (payload) => {
           const deletedMessageId = payload.old.id;
 
-          // Remove message from cache
           queryClient.setQueryData<InfiniteData<PaginatedMessages>>(
             chatKeys.messages(conversationId),
             (old) => {
@@ -126,10 +123,7 @@ export function useMessageSubscription(conversationId: string | null) {
                 ),
               }));
 
-              return {
-                ...old,
-                pages: updatedPages,
-              };
+              return { ...old, pages: updatedPages };
             }
           );
         }

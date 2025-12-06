@@ -71,7 +71,34 @@ export class ConversationsService {
         code: "DATABASE_ERROR",
       });
 
-    return mapConversationsToResponse(data || [], userId);
+    // Fetch sender IDs for last messages
+    const conversationsWithMessages = data || [];
+    const messageIds = conversationsWithMessages
+      .map((c) => c.last_message_id)
+      .filter(Boolean);
+
+    let messageSenders: Record<string, string> = {};
+    if (messageIds.length > 0) {
+      const { data: messages } = await supabase
+        .from("messages")
+        .select("id, sender_id")
+        .in("id", messageIds as string[]);
+
+      messageSenders = (messages || []).reduce((acc, msg) => {
+        acc[msg.id] = msg.sender_id;
+        return acc;
+      }, {} as Record<string, string>);
+    }
+
+    // Add sender_id to conversations
+    const conversationsWithSenders = conversationsWithMessages.map((conv) => ({
+      ...conv,
+      last_message_sender_id: conv.last_message_id
+        ? messageSenders[conv.last_message_id] || null
+        : null,
+    }));
+
+    return mapConversationsToResponse(conversationsWithSenders, userId);
   }
 
   async getConversationById(
@@ -102,7 +129,21 @@ export class ConversationsService {
         code: "NOT_FOUND",
       });
 
-    return mapConversationToResponse(data, userId);
+    // Fetch sender ID for last message if it exists
+    let lastMessageSenderId = null;
+    if (data.last_message_id) {
+      const { data: message } = await supabase
+        .from("messages")
+        .select("sender_id")
+        .eq("id", data.last_message_id)
+        .single();
+      lastMessageSenderId = message?.sender_id || null;
+    }
+
+    return mapConversationToResponse(
+      { ...data, last_message_sender_id: lastMessageSenderId },
+      userId
+    );
   }
 
   async createConversation(

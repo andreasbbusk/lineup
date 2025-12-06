@@ -3,8 +3,7 @@ import { useMemo } from "react";
 import { chatApi } from "../../api";
 import { chatKeys } from "../../queryKeys";
 import { Message } from "../../types";
-
-const DEFAULT_PAGE_SIZE = 50;
+import { DEFAULT_MESSAGES_PAGE_SIZE, STALE_TIME } from "../../constants";
 
 /**
  * Hook for fetching messages with infinite scroll (pagination)
@@ -12,7 +11,7 @@ const DEFAULT_PAGE_SIZE = 50;
  */
 export function useChatMessages(
   conversationId: string,
-  pageSize: number = DEFAULT_PAGE_SIZE
+  pageSize: number = DEFAULT_MESSAGES_PAGE_SIZE
 ) {
   const query = useInfiniteQuery({
     queryKey: chatKeys.messages(conversationId),
@@ -31,7 +30,7 @@ export function useChatMessages(
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     enabled: !!conversationId,
-    staleTime: 1000 * 60, // 1 minute
+    staleTime: STALE_TIME.MESSAGES,
   });
 
   const messages = useMemo(() => {

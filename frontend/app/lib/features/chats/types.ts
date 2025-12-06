@@ -1,4 +1,3 @@
-// lib/features/chats/types.ts
 // Single source of truth: @/app/lib/types/api.d.ts
 import type { components } from "@/app/lib/types/api";
 
