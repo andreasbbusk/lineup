@@ -65,7 +65,7 @@ export function MessageInput({ onTyping, onSendMessage, isDisabled }: MessageInp
           <ul className="flex flex-col gap-2.5">
             {MENU_ITEMS.map((item, i) => (
               <React.Fragment key={item.icon}>
-                {i > 0 && <div className="w-full h-px bg-white opacity-20" />}
+                {i > 0 && <div className="w-full h-px bg-white opacity-50" />}
                 <li className="flex gap-2 cursor-pointer hover:opacity-80 transition-opacity">
                   <Image
                     src={`/icons/${item.icon}.svg`}

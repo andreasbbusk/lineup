@@ -30,6 +30,7 @@ type AvatarProps = {
   fallback: string;
   size?: AvatarSize;
   showUnreadIndicator?: boolean;
+  className?: string;
 };
 
 // ============================================================================
@@ -71,11 +72,12 @@ export function Avatar({
   fallback,
   size = "md",
   showUnreadIndicator = false,
+  className,
 }: AvatarProps) {
   const [imageError, setImageError] = useState(false);
 
   return (
-    <div className={`relative shrink-0 ${SIZE_CLASSES[size]}`}>
+    <div className={`relative shrink-0 ${SIZE_CLASSES[size]} ${className}`}>
       {src && !imageError ? (
         /* eslint-disable-next-line @next/next/no-img-element */
         <img

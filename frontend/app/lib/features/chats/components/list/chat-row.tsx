@@ -1,11 +1,9 @@
 "use client";
 
 import { Conversation } from "../../types";
-import {
-  formatConversationTime,
-  truncateMessage,
-  getConversationDisplayInfo,
-} from "../../utils/helpers";
+import { formatConversationTime } from "../../utils/formatting/time";
+import { truncateMessage } from "../../utils/formatting/text";
+import { getConversationDisplayInfo } from "../../utils/conversation";
 import { Avatar, getInitials } from "../shared/avatar";
 import { CONVERSATION_PREVIEW_LENGTH } from "../../constants";
 

@@ -7,7 +7,7 @@ interface MainLayoutProps {
 
 export default function Layout({ children }: MainLayoutProps) {
   return (
-    <div className="min-h-screen">
+    <div className="">
       <div className="">{children}</div>
       <BottomNav />
     </div>

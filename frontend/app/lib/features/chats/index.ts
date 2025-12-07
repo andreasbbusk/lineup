@@ -65,6 +65,12 @@ export { useMessageSubscription } from "./hooks/realtime/useMessageSubscription"
 export { useConversationSubscription } from "./hooks/realtime/useConversationSubscription";
 
 // ============================================================================
+// Hooks - UI
+// ============================================================================
+
+export { useMessageScroll } from "./hooks/useMessageScroll";
+
+// ============================================================================
 // Components - Shared
 // ============================================================================
 
@@ -100,8 +106,20 @@ export {
   formatMessageTime,
   formatConversationTime,
   formatFullTime,
-  truncateMessage,
-  getConversationDisplayInfo,
-} from "./utils/helpers";
+  formatMessageSessionTime,
+} from "./utils/formatting/time";
+
+export { truncateMessage } from "./utils/formatting/text";
+
+export { getConversationDisplayInfo } from "./utils/conversation";
 
 export { mapRealtimeMessage } from "./utils/realtimeAdapter";
+
+export {
+  shouldShowAvatar,
+  shouldShowTimestamp,
+  isFirstUnreadMessage,
+  getMessageGroupingInfo,
+} from "./utils/messageGrouping";
+
+export type { MessageGroupingInfo } from "./utils/messageGrouping";

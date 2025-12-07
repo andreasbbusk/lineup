@@ -71,21 +71,21 @@ export default function ChatPage({ params }: ChatPageProps) {
   // Derived State & Handlers
   // ============================================================================
 
-  const { name } = conversation
+  const { name, avatarUrl } = conversation
     ? getConversationDisplayInfo(conversation, user?.id ?? "")
-    : { name: "Chat" };
+    : { name: "Chat", avatarUrl: null };
 
   const handleTyping = (isTyping: boolean) => {
     chatApi.setTyping(id, isTyping);
   };
 
   return (
-    <main className="h-[calc(100vh-8rem)]">
-      <div className="h-full max-w-3xl mx-auto bg-white rounded-lg shadow-sm border border-light-grey overflow-hidden flex flex-col">
+    <main className="h-dvh bg-dark-cyan-blue">
+      <div className="h-full flex flex-col">
         <ChatWindow
-          conversationId={id}
           currentUserId={user?.id ?? ""}
           conversationName={name}
+          conversationAvatar={avatarUrl}
           messages={messages}
           isLoading={messagesLoading}
           error={messagesError}

@@ -114,7 +114,7 @@ export default function NewChatPage() {
   const isLoading = isSearching ? searchLoading : connectionsLoading;
 
   return (
-    <main className="flex flex-col h-[calc(100vh-4rem)] bg-white">
+    <main className="flex flex-col h-[calc(100dvh-4rem)] bg-white">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-4 border-b border-light-grey">
         <button

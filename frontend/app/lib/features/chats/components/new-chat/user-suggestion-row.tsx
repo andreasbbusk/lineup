@@ -1,10 +1,9 @@
 "use client";
 
-import type { components } from "@/app/lib/types/api";
+import { UserSearchResult } from "../../types";
 import { Avatar, getInitials } from "../shared/avatar";
 import { Check } from "lucide-react";
 
-type UserSearchResult = components["schemas"]["UserSearchResult"];
 
 type UserSuggestionRowProps = {
   user: UserSearchResult;
@@ -39,13 +38,13 @@ export function UserSuggestionRow({
         </p>
       </div>
       <div
-        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
           isSelected
             ? "bg-crocus-yellow border-crocus-yellow"
             : "border-grey bg-white"
         }`}
       >
-        {isSelected && <Check className="size-3 text-black stroke-[3]" />}
+        {isSelected && <Check className="size-3 text-black stroke-3" />}
       </div>
     </button>
   );

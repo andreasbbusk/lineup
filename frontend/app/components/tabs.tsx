@@ -40,12 +40,13 @@ type TabsProps = TabsPropsProfile | TabsPropsCreate | TabsPropsChat;
 type TabsContentProps = {
   value: string;
   children: React.ReactNode;
+  className?: string;
 };
 
-const TabsContent = ({ value, children }: TabsContentProps) => {
+const TabsContent = ({ value, children, className }: TabsContentProps) => {
   return (
     <div
-      className="h-full w-full overflow-y-auto overflow-x-hidden bg-white"
+      className={`h-full w-full overflow-y-auto overflow-x-hidden bg-white ${className}`}
       data-value={value}
     >
       {children}

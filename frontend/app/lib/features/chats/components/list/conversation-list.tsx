@@ -126,7 +126,7 @@ export function ConversationList({
 
   return (
     <Tabs variant="chat" activeTab={activeTab} onTabChange={onTabChange}>
-      <TabsContent value="chats">
+      <TabsContent value="chats" className="pb-16 no-scrollbar">
         {renderContent(
           filterConversations(conversations?.direct, searchQuery, currentUserId),
           isLoading,
@@ -135,7 +135,7 @@ export function ConversationList({
           onConversationClick
         )}
       </TabsContent>
-      <TabsContent value="groups">
+      <TabsContent value="groups" className="pb-16 no-scrollbar">
         {renderContent(
           filterConversations(conversations?.groups, searchQuery, currentUserId),
           isLoading,

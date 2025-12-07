@@ -15,6 +15,7 @@ export type CreateConversationDto =
 export type SendMessageDto = components["schemas"]["SendMessageDto"];
 export type EditMessageDto = components["schemas"]["EditMessageDto"];
 export type MarkMessagesReadDto = components["schemas"]["MarkMessagesReadDto"];
+export type UserSearchResult = components["schemas"]["UserSearchResult"];
 
 // --- Frontend-only UI Types ---
 export type UIMessage = Message & {

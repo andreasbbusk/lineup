@@ -1,4 +1,3 @@
-// lib/features/chats/utils/realtimeAdapter.ts
 import { Message } from "../types";
 
 /**
@@ -29,7 +28,7 @@ export type DbMessageRecord = {
  * Note: Realtime events do NOT include relations (sender, media, replyTo),
  * so those will be undefined. The message will still render, just without
  * sender info until the cache is refreshed.
- */
+ */ 
 export function mapRealtimeMessage(row: DbMessageRecord): Message {
   return {
     id: row.id,

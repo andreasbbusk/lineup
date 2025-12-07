@@ -30,20 +30,19 @@ export function ChatRowSkeleton() {
 export function MessageBubbleSkeleton({ isMe = false }: { isMe?: boolean }) {
   return (
     <div
-      className={cn("flex gap-2 mb-3", isMe ? "flex-row-reverse" : "flex-row")}
+      className={cn("flex gap-2 mb-4", isMe ? "flex-row-reverse" : "flex-row")}
     >
-      <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+      <Skeleton className="w-8 h-8 rounded-full shrink-0 mt-2" />
       <div
         className={cn(
           "flex flex-col max-w-[70%] space-y-1",
           isMe ? "items-end" : "items-start"
         )}
       >
-        <Skeleton className="h-3 w-20" />
         <Skeleton
           className={cn(
-            "h-10 w-32 rounded-2xl",
-            isMe ? "rounded-tr-sm" : "rounded-tl-sm"
+            "h-10 w-36 rounded-2xl",
+            isMe ? "rounded-br-none" : "rounded-bl-none"
           )}
         />
       </div>

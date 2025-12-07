@@ -39,9 +39,9 @@ export default function ChatsPage() {
   if (!user) return null;
 
   return (
-    <main className="-mx-6 -my-8 flex flex-col h-[calc(100vh-4rem)] min-w-[360px] overflow-hidden">
+    <main className="flex flex-col h-[calc(100dvh-4rem)] overflow-hidden bg-dark-cyan-blue">
       {/* Header with dark-cyan background */}
-      <div className="flex flex-col bg-dark-cyan-blue px-6 py-4 pt-8 pb-6 shrink-0">
+      <div className="flex flex-col bg-dark-cyan-blue px-6 py-4 shrink-0">
         <div className="flex items-center justify-between">
           <h1 className="heading-1 text-white tracking-wide">Messages</h1>
           <div className="flex items-center gap-4">
@@ -90,7 +90,7 @@ export default function ChatsPage() {
       </div>
 
       {/* Content Container */}
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0 rounded-t-3xl bg-dark-cyan-blue">
         <ConversationList
           conversations={data}
           isLoading={isLoading}

@@ -1,10 +1,8 @@
 "use client";
 
 import { UserSuggestionRow } from "./user-suggestion-row";
-import type { components } from "@/app/lib/types/api";
 import { ChatRowSkeleton } from "@/app/components/skeleton";
-
-type UserSearchResult = components["schemas"]["UserSearchResult"];
+import { UserSearchResult } from "../../types";
 
 type UserSearchListProps = {
   users: UserSearchResult[];
