@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
   ConversationList,
@@ -12,6 +12,7 @@ import { useAppStore } from "@/app/lib/stores/app-store";
 
 export default function ChatsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const user = useAppStore((state) => state.user);
 
   // ============================================================================
@@ -21,6 +22,16 @@ export default function ChatsPage() {
   const { data, isLoading, error } = useConversations();
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
+
+  // Get active tab from URL search params, default to "chats"
+  const activeTab = (searchParams.get("tab") as "chats" | "groups") || "chats";
+
+  // Handle tab change by updating URL search params
+  const handleTabChange = (tab: "chats" | "groups") => {
+    const params = new URLSearchParams(searchParams);
+    params.set("tab", tab);
+    router.push(`/chats?${params.toString()}`);
+  };
 
   // Real-time subscription for conversation updates
   useConversationSubscription(user?.id ?? "");
@@ -86,6 +97,8 @@ export default function ChatsPage() {
           error={error}
           currentUserId={user.id}
           searchQuery={searchQuery}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
           onConversationClick={(conversationId) => {
             router.push(`/chats/${conversationId}`);
           }}

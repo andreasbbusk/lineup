@@ -1,5 +1,4 @@
 import { Tabs, TabsContent } from "@/app/components/tabs";
-import { useState } from "react";
 import { GroupedConversations, Conversation } from "../../types";
 import { ChatRow } from "./chat-row";
 import { ChatRowSkeleton } from "@/app/components/skeleton";
@@ -16,20 +15,49 @@ type ConversationListProps = {
   currentUserId: string;
   onConversationClick: (conversationId: string) => void;
   searchQuery?: string;
+  activeTab: "chats" | "groups";
+  onTabChange: (tab: "chats" | "groups") => void;
 };
 
 // ============================================================================
 // Helpers
 // ============================================================================
 
-/** Filter conversations by name only */
-const filterConversations = (conversations: Conversation[] = [], query: string) => {
+/** Filter conversations by name and participant information */
+const filterConversations = (
+  conversations: Conversation[] = [],
+  query: string,
+  currentUserId: string
+) => {
   if (!query.trim()) return conversations;
 
   const searchTerm = query.toLowerCase();
-  return conversations.filter((conv) =>
-    conv.name?.toLowerCase().includes(searchTerm)
-  );
+
+  return conversations.filter((conv) => {
+    // For group chats, search in conversation name
+    if (conv.type === "group") {
+      return conv.name?.toLowerCase().includes(searchTerm);
+    }
+
+    // For direct chats, search in other participant's info
+    const otherUser = conv.participants?.find(
+      (p) => p.userId !== currentUserId
+    )?.user;
+
+    if (!otherUser) return false;
+
+    const firstName = otherUser.firstName?.toLowerCase() || "";
+    const lastName = otherUser.lastName?.toLowerCase() || "";
+    const username = otherUser.username.toLowerCase();
+    const fullName = `${firstName} ${lastName}`.trim();
+
+    return (
+      firstName.includes(searchTerm) ||
+      lastName.includes(searchTerm) ||
+      username.includes(searchTerm) ||
+      fullName.includes(searchTerm)
+    );
+  });
 };
 
 /** Render loading skeletons, empty state, or conversation list */
@@ -86,9 +114,9 @@ export function ConversationList({
   currentUserId,
   onConversationClick,
   searchQuery = "",
+  activeTab,
+  onTabChange,
 }: ConversationListProps) {
-  const [activeTab, setActiveTab] = useState<"chats" | "groups">("chats");
-
   if (error)
     return (
       <div className="flex flex-col items-center justify-center h-full bg-white rounded-t-[45px] p-8">
@@ -97,10 +125,10 @@ export function ConversationList({
     );
 
   return (
-    <Tabs variant="chat" activeTab={activeTab} onTabChange={setActiveTab}>
+    <Tabs variant="chat" activeTab={activeTab} onTabChange={onTabChange}>
       <TabsContent value="chats">
         {renderContent(
-          filterConversations(conversations?.direct, searchQuery),
+          filterConversations(conversations?.direct, searchQuery, currentUserId),
           isLoading,
           "No direct chats yet",
           currentUserId,
@@ -109,7 +137,7 @@ export function ConversationList({
       </TabsContent>
       <TabsContent value="groups">
         {renderContent(
-          filterConversations(conversations?.groups, searchQuery),
+          filterConversations(conversations?.groups, searchQuery, currentUserId),
           isLoading,
           "No group chats yet",
           currentUserId,

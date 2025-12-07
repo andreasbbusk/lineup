@@ -1,5 +1,7 @@
 "use client";
 
+// TODO: Match with global avatar component when available
+
 import { useState } from "react";
 
 // ============================================================================
@@ -30,7 +32,6 @@ type AvatarProps = {
   showUnreadIndicator?: boolean;
 };
 
-
 // ============================================================================
 // Helpers
 // ============================================================================
@@ -50,7 +51,6 @@ export function getInitials(
   const last = lastName?.charAt(0).toUpperCase() || FALLBACK_INITIAL;
   return `${first}${last}`;
 }
-
 
 // ============================================================================
 // Components
@@ -97,4 +97,3 @@ export function Avatar({
     </div>
   );
 }
-

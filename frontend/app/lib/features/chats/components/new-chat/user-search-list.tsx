@@ -2,14 +2,16 @@
 
 import { UserSuggestionRow } from "./user-suggestion-row";
 import type { components } from "@/app/lib/types/api";
+import { ChatRowSkeleton } from "@/app/components/skeleton";
 
 type UserSearchResult = components["schemas"]["UserSearchResult"];
 
 type UserSearchListProps = {
   users: UserSearchResult[];
   isLoading: boolean;
-  onUserClick: (userId: string) => void;
+  onUserClick: (userId: string, user: UserSearchResult) => void;
   emptyMessage?: string;
+  selectedUserIds?: string[];
 };
 
 export function UserSearchList({
@@ -17,11 +19,14 @@ export function UserSearchList({
   isLoading,
   onUserClick,
   emptyMessage = "No users found",
+  selectedUserIds = [],
 }: UserSearchListProps) {
   if (isLoading) {
     return (
-      <div className="py-8 text-center">
-        <p className="text-grey">Loading...</p>
+      <div className="divide-y divide-light-grey">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <ChatRowSkeleton key={i} />
+        ))}
       </div>
     );
   }
@@ -37,7 +42,12 @@ export function UserSearchList({
   return (
     <div className="divide-y divide-light-grey">
       {users.map((user) => (
-        <UserSuggestionRow key={user.id} user={user} onClick={onUserClick} />
+        <UserSuggestionRow
+          key={user.id}
+          user={user}
+          onClick={onUserClick}
+          isSelected={selectedUserIds.includes(user.id)}
+        />
       ))}
     </div>
   );

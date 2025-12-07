@@ -8,7 +8,9 @@ export const useConversations = () =>
     queryKey: chatKeys.lists(),
     queryFn: async () => {
       const conversations =
-        (await chatApi.getConversations())?.filter((conv) => conv.lastMessagePreview) ?? [];
+        (await chatApi.getConversations())?.filter(
+          (conv) => conv.type === "group" || conv.lastMessagePreview
+        ) ?? [];
 
       return {
         direct: conversations.filter((conv) => conv.type === "direct"),

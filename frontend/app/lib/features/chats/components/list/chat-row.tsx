@@ -39,7 +39,9 @@ export function ChatRow({
         conversation.lastMessagePreview,
         CONVERSATION_PREVIEW_LENGTH
       )
-    : "No messages yet";
+    : conversation.type === "direct"
+    ? "No messages yet"
+    : "Group created";
 
   const previewStyle = hasUnread
     ? "text-black font-medium italic"
@@ -51,7 +53,7 @@ export function ChatRow({
     <>
       <button
         onClick={onClick}
-        className="flex w-full min-w-[360px] items-center gap-4 px-6 py-4 hover:bg-melting-glacier transition-colors"
+        className="flex w-full items-center gap-4 px-6 py-4 hover:bg-melting-glacier transition-colors"
       >
         <Avatar
           src={avatarUrl}

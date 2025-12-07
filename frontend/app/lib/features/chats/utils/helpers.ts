@@ -57,7 +57,34 @@ export const formatMessageTime = (timestamp: string | null) => {
 export const formatConversationTime = (timestamp: string | null) => {
   if (!timestamp) return "";
   const date = new Date(timestamp);
-  return formatTime(date, Date.now() - date.getTime(), true);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const days = Math.floor(diffMs / MS_PER_DAY);
+
+  // Check if message is from today (same day)
+  const isToday =
+    date.getDate() === now.getDate() &&
+    date.getMonth() === now.getMonth() &&
+    date.getFullYear() === now.getFullYear();
+
+  if (isToday) {
+    // Show time for today's messages (HH:MM)
+    return formatFullTime(timestamp);
+  }
+
+  if (days === 1) {
+    // Show "Yesterday" for messages from yesterday
+    return "Yesterday";
+  }
+
+  // Show date for older messages (MM/DD)
+  const month = String(date.getMonth() + 1).padStart(
+    DATE_PAD_LENGTH,
+    DATE_PAD_CHAR
+  );
+  const day = String(date.getDate()).padStart(DATE_PAD_LENGTH, DATE_PAD_CHAR);
+
+  return `${month}/${day}`;
 };
 
 /** Format timestamp as 24-hour clock time (e.g., "14:30") */
