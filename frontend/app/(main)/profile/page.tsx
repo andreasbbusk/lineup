@@ -6,21 +6,25 @@ import { useEffect } from "react";
 
 export default function Page() {
 	const router = useRouter();
-	const { isAuthenticated, user } = useAppStore();
+	const { user, isInitialized } = useAppStore();
 
 	useEffect(() => {
-		if (!isAuthenticated) {
+		if (!isInitialized) {
+			return;
+		}
+
+		if (!user) {
 			router.push("/login");
 			return;
 		}
 
-		if (!user?.username) {
+		if (!user.username) {
 			router.push("/onboarding");
 			return;
 		}
 
 		router.push(`/profile/${user.username}`);
-	}, [isAuthenticated, user, router]);
+	}, [user, isInitialized, router]);
 
 	return (
 		<div className="flex items-center justify-center min-h-screen">
