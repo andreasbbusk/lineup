@@ -164,6 +164,8 @@
 
 :root {
 	/* Approximate OKLCH equivalent of #F7F6F6 */
+	--background: oklch(97.39% 0.001 17.18);
+	--foreground: oklch(15.2% 0 0);
 
 	/* Typography System - Based on 16px base (1rem = 16px) */
 	--font-heading-1: 1.5rem;
