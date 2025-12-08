@@ -184,7 +184,7 @@
 
 	/* Color System - Secondary (Used in customization) */
 	--color-dark-grey-red: oklch(40% 0.012 15);
-	--color-dark-cyan-blue: oklch(35% 0.02 235);
+	--color-dark-cyan-blue: oklch(0.4108 0.0213 229.56);
 	--color-dark-blue: oklch(32% 0.03 275);
 	--color-dark-pink-red: oklch(33% 0.028 15);
 	--color-dark-orange: oklch(37% 0.025 50);
@@ -261,6 +261,7 @@
 
 * {
 	font-family: var(--font-family-helvetica);
+	overscroll-behavior-y: none;
 }
 
 body {

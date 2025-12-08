@@ -34,6 +34,11 @@ const NAV_ITEMS: NavItem[] = [
 export default function BottomNav() {
   const pathname = usePathname();
 
+  // Hide bottom nav on chat detail and new chat pages
+  if (pathname === "/chats/new" || (pathname?.startsWith("/chats/") && pathname !== "/chats")) {
+    return null;
+  }
+
   return (
     <nav className="fixed bottom-0 left-1/2 z-50 -translate-x-1/2 pb-4">
       <div className="relative flex h-[69px] w-[368px] items-center justify-between rounded-[45px] bg-[#1e1e1e] px-1 py-3">

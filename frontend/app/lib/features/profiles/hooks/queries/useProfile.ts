@@ -1,32 +1,39 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useAppStore } from "@/app/lib/stores/app-store";
 import {
-  updateUserProfile,
-  ProfileUpdateRequest,
-  getUserProfile,
-} from "../../api";
+  useMutation,
+  useSuspenseQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useMemo } from "react";
+import { useAppStore } from "@/app/lib/stores/app-store";
+import { updateUserProfile, getUserProfile } from "../../api";
+import type { ProfileUpdateRequest } from "../../types";
 
 export function useProfile(username: string) {
-  return useQuery({
-    queryKey: ["profile", username],
-    queryFn: () => getUserProfile(username),
+  const queryKey = useMemo(() => ["profile", username || null], [username]);
+
+  return useSuspenseQuery({
+    queryKey,
+    queryFn: async () => {
+      if (!username) return null;
+      return getUserProfile(username);
+    },
     staleTime: 5 * 60 * 1000,
   });
 }
 
 export function useMyProfile() {
   const user = useAppStore((state) => state.user);
+  const username = user?.username;
+  const queryKey = useMemo(() => ["profile", username || null], [username]);
 
-  return useQuery({
-    queryKey: ["profile", user?.username],
+  return useSuspenseQuery({
+    queryKey,
     queryFn: async () => {
-      if (!user?.username) throw new Error("Not authenticated");
-
-      return getUserProfile(user.username);
+      if (!username) return null;
+      return getUserProfile(username);
     },
-    enabled: !!user?.username,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
   });

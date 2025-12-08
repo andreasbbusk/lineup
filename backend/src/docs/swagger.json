@@ -1591,8 +1591,36 @@
 					}
 				}
 			},
-			"Pick_MessageInsert.Exclude_keyofMessageInsert.sender_id-or-conversation_id-or-created_at-or-id-or-is_edited-or-edited_at-or-is_deleted-or-deleted_at-or-sent_via_websocket__": {
+			"PaginatedMessagesResponse": {
+				"description": "API response format for paginated messages\nUsed by GET /messages/:conversationId endpoint",
 				"properties": {
+					"messages": {
+						"items": {
+							"$ref": "#/components/schemas/MessageResponse"
+						},
+						"type": "array"
+					},
+					"hasMore": {
+						"type": "boolean"
+					},
+					"nextCursor": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"required": [
+					"messages",
+					"hasMore",
+					"nextCursor"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"SendMessageDto": {
+				"properties": {
+					"conversation_id": {
+						"type": "string"
+					},
 					"content": {
 						"type": "string"
 					},
@@ -1603,77 +1631,43 @@
 						"type": "array"
 					},
 					"reply_to_message_id": {
-						"type": "string"
+						"type": "string",
+						"nullable": true
 					}
 				},
+				"required": [
+					"conversation_id",
+					"content"
+				],
 				"type": "object",
-				"description": "From T, pick a set of properties whose keys are in the union K"
+				"additionalProperties": false
 			},
-			"CreateMessageDto": {
-				"description": "DTO for creating a message\n\nUsed when sending a message in a conversation.\nThe sender_id is automatically extracted from the authentication token.",
+			"EditMessageDto": {
 				"properties": {
 					"content": {
-						"type": "string",
-						"nullable": true,
-						"description": "Message content (1-5000 characters)\nRequired if media_ids is not provided",
-						"example": "Hey, how are you?"
-					},
-					"media_ids": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					},
-					"reply_to_message_id": {
 						"type": "string"
-					},
-					"mediaIds": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array",
-						"nullable": true,
-						"description": "Array of media IDs to attach to the message",
-						"example": [
-							"media-id-1",
-							"media-id-2"
-						]
-					},
-					"replyToMessageId": {
-						"type": "string",
-						"nullable": true,
-						"description": "Optional ID of the message this is replying to",
-						"example": "message-id-to-reply-to"
-					}
-				},
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"content": "Hey, how are you?",
-					"mediaIds": [
-						"media-id-1",
-						"media-id-2"
-					],
-					"replyToMessageId": "message-id-to-reply-to"
-				}
-			},
-			"UpdateMessageDto": {
-				"description": "DTO for updating a message\n\nUsed when editing a message. Only the sender can edit their own messages,\nand only within 15 minutes of sending.",
-				"properties": {
-					"content": {
-						"type": "string",
-						"description": "Updated message content (1-5000 characters)",
-						"example": "Updated message content"
 					}
 				},
 				"required": [
 					"content"
 				],
 				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"content": "Updated message content"
-				}
+				"additionalProperties": false
+			},
+			"MarkMessagesReadDto": {
+				"properties": {
+					"message_ids": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"message_ids"
+				],
+				"type": "object",
+				"additionalProperties": false
 			},
 			"FeedPostResponse": {
 				"description": "API response format for a post in the feed\nExtends PostResponse with engagement data and user interaction state",
@@ -1991,6 +1985,14 @@
 						"type": "string",
 						"nullable": true
 					},
+					"lastMessageSenderId": {
+						"type": "string",
+						"nullable": true
+					},
+					"unreadCount": {
+						"type": "number",
+						"format": "double"
+					},
 					"creator": {
 						"properties": {
 							"avatarUrl": {
@@ -2030,7 +2032,8 @@
 					"type",
 					"createdBy",
 					"createdAt",
-					"updatedAt"
+					"updatedAt",
+					"unreadCount"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -2042,61 +2045,24 @@
 					"group"
 				]
 			},
-			"Pick_ConversationInsert.Exclude_keyofConversationInsert.created_by-or-created_at-or-updated_at-or-id-or-last_message_id-or-last_message_preview-or-last_message_at__": {
-				"properties": {
-					"type": {
-						"type": "string",
-						"enum": [
-							"direct",
-							"group"
-						]
-					},
-					"avatar_url": {
-						"type": "string"
-					},
-					"name": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"type"
-				],
-				"type": "object",
-				"description": "From T, pick a set of properties whose keys are in the union K"
-			},
 			"CreateConversationDto": {
-				"description": "DTO for creating a conversation\n\nUsed when creating a new direct message or group conversation.\nThe created_by is automatically extracted from the authentication token.\n\nFor \"direct\" type conversations, name is not required.\nFor \"group\" type conversations, name is required.",
 				"properties": {
 					"type": {
-						"$ref": "#/components/schemas/ConversationType",
-						"description": "Conversation type: \"direct\" or \"group\"",
-						"example": "group"
-					},
-					"avatar_url": {
-						"type": "string"
+						"$ref": "#/components/schemas/ConversationType"
 					},
 					"name": {
 						"type": "string",
-						"nullable": true,
-						"description": "Optional name for the conversation (required for groups)",
-						"example": "Band Practice"
+						"nullable": true
 					},
 					"avatarUrl": {
 						"type": "string",
-						"nullable": true,
-						"description": "Optional avatar URL for group conversations",
-						"example": "https://example.com/avatar.jpg"
+						"nullable": true
 					},
 					"participantIds": {
 						"items": {
 							"type": "string"
 						},
-						"type": "array",
-						"description": "Array of user IDs to add as participants (excluding the creator)\nFor direct messages, should contain exactly one user ID\nFor groups, can contain multiple user IDs (max 7 additional users, 8 total including creator)",
-						"example": [
-							"user-id-1",
-							"user-id-2"
-						]
+						"type": "array"
 					}
 				},
 				"required": [
@@ -2104,39 +2070,21 @@
 					"participantIds"
 				],
 				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"type": "group",
-					"name": "Band Practice",
-					"avatarUrl": "https://example.com/avatar.jpg",
-					"participantIds": [
-						"user-id-1",
-						"user-id-2"
-					]
-				}
+				"additionalProperties": false
 			},
 			"UpdateConversationDto": {
-				"description": "DTO for updating a conversation\n\nUsed when updating conversation settings like name or avatar.\nOnly group conversations can be updated.",
 				"properties": {
 					"name": {
 						"type": "string",
-						"nullable": true,
-						"description": "Updated name for the conversation",
-						"example": "Updated Group Name"
+						"nullable": true
 					},
 					"avatarUrl": {
 						"type": "string",
-						"nullable": true,
-						"description": "Updated avatar URL for the conversation",
-						"example": "https://example.com/new-avatar.jpg"
+						"nullable": true
 					}
 				},
 				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"name": "Updated Group Name",
-					"avatarUrl": "https://example.com/new-avatar.jpg"
-				}
+				"additionalProperties": false
 			},
 			"ConnectionStatus": {
 				"type": "string",
@@ -2242,16 +2190,16 @@
 			},
 			"Pick_CommentInsert.Exclude_keyofCommentInsert.author_id-or-created_at-or-updated_at-or-id__": {
 				"properties": {
-					"content": {
+					"post_id": {
 						"type": "string"
 					},
-					"post_id": {
+					"content": {
 						"type": "string"
 					}
 				},
 				"required": [
-					"content",
-					"post_id"
+					"post_id",
+					"content"
 				],
 				"type": "object",
 				"description": "From T, pick a set of properties whose keys are in the union K"
@@ -2259,13 +2207,13 @@
 			"CreateCommentDto": {
 				"description": "DTO for creating a comment\n\nUsed when creating a comment on a post. The author_id is automatically\nextracted from the authentication token.",
 				"properties": {
+					"post_id": {
+						"type": "string"
+					},
 					"content": {
 						"type": "string",
 						"description": "The comment content (1-1000 characters)",
 						"example": "Great post! Looking forward to collaborating."
-					},
-					"post_id": {
-						"type": "string"
 					},
 					"postId": {
 						"type": "string",
@@ -2274,8 +2222,8 @@
 					}
 				},
 				"required": [
-					"content",
 					"post_id",
+					"content",
 					"postId"
 				],
 				"type": "object",
@@ -3526,37 +3474,21 @@
 				"parameters": []
 			}
 		},
-		"/conversations/{conversationId}/messages": {
+		"/messages/{conversationId}": {
 			"get": {
-				"operationId": "GetConversationMessages",
+				"operationId": "GetMessages",
 				"responses": {
 					"200": {
-						"description": "Messages with pagination cursor",
+						"description": "Ok",
 						"content": {
 							"application/json": {
 								"schema": {
-									"properties": {
-										"nextCursor": {
-											"type": "string"
-										},
-										"messages": {
-											"items": {
-												"$ref": "#/components/schemas/MessageResponse"
-											},
-											"type": "array"
-										}
-									},
-									"required": [
-										"messages"
-									],
-									"type": "object"
+									"$ref": "#/components/schemas/PaginatedMessagesResponse"
 								}
 							}
 						}
 					}
 				},
-				"description": "Get messages in a conversation\n\nReturns messages for a specific conversation with sender info, read receipts,\nand optional reply data. Supports cursor-based pagination.",
-				"summary": "Get conversation messages",
 				"tags": [
 					"Messages"
 				],
@@ -3567,7 +3499,6 @@
 				],
 				"parameters": [
 					{
-						"description": "The UUID of the conversation",
 						"in": "path",
 						"name": "conversationId",
 						"required": true,
@@ -3576,16 +3507,6 @@
 						}
 					},
 					{
-						"description": "Cursor for pagination (ISO timestamp)",
-						"in": "query",
-						"name": "cursor",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "Maximum number of messages to return (1-100, default: 50)",
 						"in": "query",
 						"name": "limit",
 						"required": false,
@@ -3595,21 +3516,22 @@
 						}
 					},
 					{
-						"description": "If true, fetch messages before the cursor (for loading older messages)",
 						"in": "query",
-						"name": "before",
+						"name": "before_message_id",
 						"required": false,
 						"schema": {
-							"type": "boolean"
+							"type": "string"
 						}
 					}
 				]
-			},
+			}
+		},
+		"/messages": {
 			"post": {
-				"operationId": "CreateMessage",
+				"operationId": "SendMessage",
 				"responses": {
 					"200": {
-						"description": "The created message with all relations",
+						"description": "Ok",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -3619,8 +3541,6 @@
 						}
 					}
 				},
-				"description": "Send a message in a conversation\n\nCreates a new message in the conversation. The message must have either\ncontent or media. Only participants can send messages.",
-				"summary": "Send a message",
 				"tags": [
 					"Messages"
 				],
@@ -3629,93 +3549,89 @@
 						"bearerAuth": []
 					}
 				],
-				"parameters": [
-					{
-						"description": "The UUID of the conversation",
-						"in": "path",
-						"name": "conversationId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
+				"parameters": [],
 				"requestBody": {
-					"description": "Message data including content, optional media, and optional reply",
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/CreateMessageDto",
-								"description": "Message data including content, optional media, and optional reply"
+								"$ref": "#/components/schemas/SendMessageDto"
 							}
 						}
 					}
 				}
 			}
 		},
-		"/conversations/{conversationId}/messages/{messageId}": {
-			"get": {
-				"operationId": "GetMessage",
-				"responses": {
-					"200": {
-						"description": "The message with all relations",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/MessageResponse"
-								}
-							}
-						}
-					}
-				},
-				"description": "Get a specific message by ID\n\nReturns a single message with all relations (sender, reply, read receipts, media).\nOnly participants in the conversation can access messages.",
-				"summary": "Get message by ID",
-				"tags": [
-					"Messages"
-				],
-				"security": [
-					{
-						"bearerAuth": []
-					}
-				],
-				"parameters": [
-					{
-						"description": "The UUID of the conversation",
-						"in": "path",
-						"name": "conversationId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "The UUID of the message to retrieve",
-						"in": "path",
-						"name": "messageId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			},
+		"/messages/{messageId}": {
 			"put": {
-				"operationId": "UpdateMessage",
+				"operationId": "EditMessage",
 				"responses": {
 					"200": {
-						"description": "The updated message",
+						"description": "Ok",
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/MessageResponse"
+									"properties": {
+										"sent_via_websocket": {
+											"type": "boolean"
+										},
+										"sender_id": {
+											"type": "string"
+										},
+										"reply_to_message_id": {
+											"type": "string"
+										},
+										"media_ids": {
+											"items": {
+												"type": "string"
+											},
+											"type": "array"
+										},
+										"is_edited": {
+											"type": "boolean"
+										},
+										"is_deleted": {
+											"type": "boolean"
+										},
+										"id": {
+											"type": "string"
+										},
+										"edited_at": {
+											"type": "string"
+										},
+										"deleted_at": {
+											"type": "string"
+										},
+										"created_at": {
+											"type": "string"
+										},
+										"conversation_id": {
+											"type": "string"
+										},
+										"content": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"sent_via_websocket",
+										"sender_id",
+										"reply_to_message_id",
+										"media_ids",
+										"is_edited",
+										"is_deleted",
+										"id",
+										"edited_at",
+										"deleted_at",
+										"created_at",
+										"conversation_id",
+										"content"
+									],
+									"type": "object"
 								}
 							}
 						}
 					}
 				},
-				"description": "Edit a message\n\nUpdates the content of a message. Only the sender can edit their own messages,\nand only within 15 minutes of sending.",
-				"summary": "Edit a message",
 				"tags": [
 					"Messages"
 				],
@@ -3726,16 +3642,6 @@
 				],
 				"parameters": [
 					{
-						"description": "The UUID of the conversation",
-						"in": "path",
-						"name": "conversationId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "The UUID of the message to edit",
 						"in": "path",
 						"name": "messageId",
 						"required": true,
@@ -3745,13 +3651,11 @@
 					}
 				],
 				"requestBody": {
-					"description": "Updated message content",
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/UpdateMessageDto",
-								"description": "Updated message content"
+								"$ref": "#/components/schemas/EditMessageDto"
 							}
 						}
 					}
@@ -3764,8 +3668,6 @@
 						"description": "No content"
 					}
 				},
-				"description": "Delete a message\n\nSoft deletes a message. Only the sender can delete their own messages.\nThe message content is cleared but the message record remains.",
-				"summary": "Delete a message",
 				"tags": [
 					"Messages"
 				],
@@ -3776,16 +3678,6 @@
 				],
 				"parameters": [
 					{
-						"description": "The UUID of the conversation",
-						"in": "path",
-						"name": "conversationId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "The UUID of the message to delete",
 						"in": "path",
 						"name": "messageId",
 						"required": true,
@@ -3796,16 +3688,58 @@
 				]
 			}
 		},
-		"/conversations/{conversationId}/messages/read": {
+		"/messages/read": {
 			"post": {
-				"operationId": "MarkMessagesAsRead",
+				"operationId": "MarkAsRead",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Messages"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/MarkMessagesReadDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/messages/typing/{conversationId}": {
+			"post": {
+				"operationId": "SetTyping",
 				"responses": {
 					"204": {
 						"description": "No content"
 					}
 				},
-				"description": "Mark messages as read\n\nCreates read receipts for messages in a conversation, indicating that\nthe authenticated user has read them.",
-				"summary": "Mark messages as read",
 				"tags": [
 					"Messages"
 				],
@@ -3816,38 +3750,23 @@
 				],
 				"parameters": [
 					{
-						"description": "The UUID of the conversation",
 						"in": "path",
 						"name": "conversationId",
 						"required": true,
 						"schema": {
 							"type": "string"
 						}
-					}
-				],
-				"requestBody": {
-					"description": "Array of message IDs to mark as read",
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"properties": {
-									"messageIds": {
-										"items": {
-											"type": "string"
-										},
-										"type": "array"
-									}
-								},
-								"required": [
-									"messageIds"
-								],
-								"type": "object",
-								"description": "Array of message IDs to mark as read"
-							}
+					},
+					{
+						"in": "query",
+						"name": "isTyping",
+						"required": false,
+						"schema": {
+							"default": true,
+							"type": "boolean"
 						}
 					}
-				}
+				]
 			}
 		},
 		"/feed": {
@@ -3961,7 +3880,7 @@
 				"operationId": "GetConversations",
 				"responses": {
 					"200": {
-						"description": "Array of conversations with creator and participants",
+						"description": "Ok",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -3974,8 +3893,6 @@
 						}
 					}
 				},
-				"description": "Get all conversations for the authenticated user\n\nReturns all conversations where the authenticated user is an active participant.\nEach conversation includes creator information and participant list.\nResults are ordered by last message time (most recent first).",
-				"summary": "Get user's conversations",
 				"tags": [
 					"Conversations"
 				],
@@ -3990,7 +3907,7 @@
 				"operationId": "CreateConversation",
 				"responses": {
 					"200": {
-						"description": "The created conversation with creator and participants",
+						"description": "Ok",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -4000,8 +3917,6 @@
 						}
 					}
 				},
-				"description": "Create a conversation\n\nCreates a new direct message or group conversation.\nFor direct messages, provide exactly one participant ID.\nFor group conversations, provide multiple participant IDs (max 7, 8 total including creator).\nGroup conversations must have a name.",
-				"summary": "Create a conversation",
 				"tags": [
 					"Conversations"
 				],
@@ -4012,17 +3927,50 @@
 				],
 				"parameters": [],
 				"requestBody": {
-					"description": "Conversation data including type, name (for groups), and participant IDs",
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/CreateConversationDto",
-								"description": "Conversation data including type, name (for groups), and participant IDs"
+								"$ref": "#/components/schemas/CreateConversationDto"
 							}
 						}
 					}
 				}
+			}
+		},
+		"/conversations/unread-count": {
+			"get": {
+				"operationId": "GetUnreadCount",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"unread_count": {
+											"type": "number",
+											"format": "double"
+										}
+									},
+									"required": [
+										"unread_count"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Conversations"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": []
 			}
 		},
 		"/conversations/{conversationId}": {
@@ -4030,7 +3978,7 @@
 				"operationId": "GetConversation",
 				"responses": {
 					"200": {
-						"description": "The conversation with creator and participants",
+						"description": "Ok",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -4040,8 +3988,6 @@
 						}
 					}
 				},
-				"description": "Get a conversation by ID\n\nReturns a specific conversation with creator and participants.\nOnly participants can access the conversation.",
-				"summary": "Get conversation by ID",
 				"tags": [
 					"Conversations"
 				],
@@ -4052,7 +3998,6 @@
 				],
 				"parameters": [
 					{
-						"description": "The UUID of the conversation to retrieve",
 						"in": "path",
 						"name": "conversationId",
 						"required": true,
@@ -4066,7 +4011,7 @@
 				"operationId": "UpdateConversation",
 				"responses": {
 					"200": {
-						"description": "The updated conversation",
+						"description": "Ok",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -4076,8 +4021,6 @@
 						}
 					}
 				},
-				"description": "Update a conversation\n\nUpdates a group conversation's name or avatar.\nOnly the conversation creator or admins can update the conversation.\nDirect conversations cannot be updated.",
-				"summary": "Update a conversation",
 				"tags": [
 					"Conversations"
 				],
@@ -4088,7 +4031,6 @@
 				],
 				"parameters": [
 					{
-						"description": "The UUID of the conversation to update",
 						"in": "path",
 						"name": "conversationId",
 						"required": true,
@@ -4098,13 +4040,11 @@
 					}
 				],
 				"requestBody": {
-					"description": "Updated conversation data (name, avatar_url)",
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/UpdateConversationDto",
-								"description": "Updated conversation data (name, avatar_url)"
+								"$ref": "#/components/schemas/UpdateConversationDto"
 							}
 						}
 					}
@@ -4117,8 +4057,6 @@
 						"description": "No content"
 					}
 				},
-				"description": "Delete a conversation or leave a group\n\nFor direct messages, marks the user as having left the conversation.\nFor group conversations, removes the user from participants.",
-				"summary": "Delete/leave a conversation",
 				"tags": [
 					"Conversations"
 				],
@@ -4129,7 +4067,6 @@
 				],
 				"parameters": [
 					{
-						"description": "The UUID of the conversation to delete/leave",
 						"in": "path",
 						"name": "conversationId",
 						"required": true,

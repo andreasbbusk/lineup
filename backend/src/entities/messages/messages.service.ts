@@ -1,576 +1,266 @@
-import { createAuthenticatedClient } from "../../config/supabase.config.js";
-import { MessageInsert, MessageUpdate } from "../../utils/supabase-helpers.js";
+import { supabase } from "../../config/supabase.config.js";
 import { createHttpError } from "../../utils/error-handler.js";
+import type { SendMessageDto, EditMessageDto } from "./messages.dto.js";
 import {
-  mapMessagesToResponse,
   mapMessageToResponse,
+  mapMessagesToResponse,
 } from "./messages.mapper.js";
-import { MessageResponse } from "../../types/api.types.js";
-import { CreateMessageDto, UpdateMessageDto } from "./messages.dto.js";
+import type {
+  PaginatedMessagesResponse,
+  MessageResponse,
+} from "../../types/api.types.js";
+
+const MESSAGE_SELECT = `
+  id,
+  conversation_id,
+  sender_id,
+  content,
+  media_ids,
+  is_edited,
+  edited_at,
+  is_deleted,
+  deleted_at,
+  reply_to_message_id,
+  created_at,
+  sent_via_websocket,
+  status,
+  sender:profiles!messages_sender_id_fkey(id, username, first_name, last_name, avatar_url)
+`;
 
 export class MessagesService {
-  /**
-   * Get messages for a conversation
-   * Returns messages with sender info, read receipts, and optional reply data
-   * Supports cursor-based pagination
-   */
-  async getConversationMessages(
+  private async verifyParticipant(
     conversationId: string,
-    userId: string,
-    token: string,
-    cursor?: string,
-    limit: number = 50,
-    before?: boolean
-  ): Promise<{ messages: MessageResponse[]; nextCursor?: string }> {
-    const authedSupabase = createAuthenticatedClient(token);
-
-    // Verify user is a participant
-    const { data: participant } = await authedSupabase
+    userId: string
+  ): Promise<boolean> {
+    const { data } = await supabase
       .from("conversation_participants")
-      .select("conversation_id")
+      .select("user_id")
       .eq("conversation_id", conversationId)
       .eq("user_id", userId)
       .is("left_at", null)
       .single();
+    return !!data;
+  }
 
-    if (!participant) {
+  async getMessages(
+    userId: string,
+    conversationId: string,
+    pagination: { before_message_id?: string; limit: number }
+  ): Promise<PaginatedMessagesResponse> {
+    if (!(await this.verifyParticipant(conversationId, userId))) {
       throw createHttpError({
-        message: "Conversation not found or access denied",
-        statusCode: 404,
-        code: "NOT_FOUND",
+        message: "Not a participant",
+        statusCode: 403,
+        code: "FORBIDDEN",
       });
     }
 
-    // Build query
-    let query = authedSupabase
+    // Fetch one extra message to check if there are more
+    let query = supabase
       .from("messages")
-      .select(
-        `
-        *,
-        sender:profiles!messages_sender_id_fkey(
-          id,
-          username,
-          first_name,
-          last_name,
-          avatar_url
-        ),
-        reply_to:messages!messages_reply_to_message_id_fkey(
-          id,
-          conversation_id,
-          sender_id,
-          content,
-          created_at,
-          sender:profiles!messages_sender_id_fkey(
-            id,
-            username,
-            first_name,
-            last_name,
-            avatar_url
-          )
-        ),
-        read_receipts:message_read_receipts(
-          message_id,
-          user_id,
-          read_at,
-          user:profiles!message_read_receipts_user_id_fkey(
-            id,
-            username,
-            first_name,
-            last_name,
-            avatar_url
-          )
-        )
-      `
-      )
+      .select(MESSAGE_SELECT)
       .eq("conversation_id", conversationId)
       .eq("is_deleted", false)
-      .order("created_at", { ascending: before ? false : true })
-      .limit(limit + 1);
+      .order("created_at", { ascending: false })
+      .limit(pagination.limit + 1);
 
-    // Apply cursor
-    if (cursor) {
-      if (before) {
-        query = query.lt("created_at", cursor);
-      } else {
-        query = query.gt("created_at", cursor);
-      }
+    if (pagination.before_message_id) {
+      const { data: cursor } = await supabase
+        .from("messages")
+        .select("created_at")
+        .eq("id", pagination.before_message_id)
+        .single();
+
+      if (cursor) query = query.lt("created_at", cursor.created_at);
     }
 
-    const { data: messages, error } = await query;
-
-    if (error) {
+    const { data, error } = await query;
+    if (error)
       throw createHttpError({
-        message: `Failed to fetch messages: ${error.message}`,
+        message: `Fetch failed: ${error.message}`,
         statusCode: 500,
         code: "DATABASE_ERROR",
       });
-    }
 
-    if (!messages || messages.length === 0) {
-      return { messages: [] };
-    }
+    const allMessages = data || [];
 
-    // Check if there's a next page
-    const hasNextPage = messages.length > limit;
-    const messagesToReturn = hasNextPage ? messages.slice(0, limit) : messages;
-    const nextCursor = hasNextPage
-      ? messagesToReturn[messagesToReturn.length - 1].created_at ?? undefined
-      : undefined;
+    // Check if there are more messages (we fetched limit + 1)
+    const hasMore = allMessages.length > pagination.limit;
 
-    // Get all unique media IDs from messages
-    const allMediaIds = new Set<string>();
-    messagesToReturn.forEach((msg) => {
-      if (msg.media_ids && Array.isArray(msg.media_ids)) {
-        msg.media_ids.forEach((id) => allMediaIds.add(id));
-      }
-    });
+    // Remove the extra message we fetched for the hasMore check
+    const messagesToReturn = hasMore
+      ? allMessages.slice(0, pagination.limit)
+      : allMessages;
 
-    // Fetch media objects
-    let mediaMap = new Map<string, any>();
-    if (allMediaIds.size > 0) {
-      const { data: media } = await authedSupabase
-        .from("media")
-        .select("id, url, thumbnail_url, type")
-        .in("id", Array.from(allMediaIds));
+    // Reverse to chronological order (oldest first) and map to camelCase
+    const sortedMessages = messagesToReturn.reverse();
+    const mappedMessages = mapMessagesToResponse(sortedMessages);
 
-      media?.forEach((m) => {
-        mediaMap.set(m.id, m);
-      });
-    }
-
-    // Attach media to messages
-    const messagesWithMedia = messagesToReturn.map((msg) => ({
-      ...msg,
-      media:
-        msg.media_ids && Array.isArray(msg.media_ids)
-          ? msg.media_ids
-              .map((id) => mediaMap.get(id))
-              .filter(Boolean)
-              .map((m) => ({
-                id: m.id,
-                url: m.url,
-                thumbnailUrl: m.thumbnail_url ?? undefined,
-                type: m.type,
-              }))
-          : [],
-    }));
+    // nextCursor is the oldest message ID (first in the sorted array)
+    const nextCursor =
+      hasMore && mappedMessages.length > 0 ? mappedMessages[0].id : null;
 
     return {
-      messages: mapMessagesToResponse(messagesWithMedia as any),
+      messages: mappedMessages,
+      hasMore,
       nextCursor,
     };
   }
 
-  /**
-   * Create a message in a conversation
-   * Only participants can send messages
-   */
-  async createMessage(
-    conversationId: string,
+  async sendMessage(
     userId: string,
-    data: CreateMessageDto,
-    token: string
+    dto: SendMessageDto
   ): Promise<MessageResponse> {
-    const authedSupabase = createAuthenticatedClient(token);
-
-    // Validate that content or mediaIds is provided
-    if (!data.content && (!data.mediaIds || data.mediaIds.length === 0)) {
+    if (!(await this.verifyParticipant(dto.conversation_id, userId))) {
       throw createHttpError({
-        message: "Message must have content or media",
-        statusCode: 400,
-        code: "VALIDATION_ERROR",
-      });
-    }
-
-    // Verify user is a participant
-    const { data: participant } = await authedSupabase
-      .from("conversation_participants")
-      .select("conversation_id")
-      .eq("conversation_id", conversationId)
-      .eq("user_id", userId)
-      .is("left_at", null)
-      .single();
-
-    if (!participant) {
-      throw createHttpError({
-        message: "You are not a participant in this conversation",
+        message: "Not a participant",
         statusCode: 403,
         code: "FORBIDDEN",
       });
     }
 
-    // Verify replyToMessageId exists and is in the same conversation
-    if (data.replyToMessageId) {
-      const { data: replyMessage } = await authedSupabase
-        .from("messages")
-        .select("conversation_id")
-        .eq("id", data.replyToMessageId)
-        .eq("conversation_id", conversationId)
-        .single();
-
-      if (!replyMessage) {
-        throw createHttpError({
-          message: "Reply message not found or not in this conversation",
-          statusCode: 404,
-          code: "NOT_FOUND",
-        });
-      }
-    }
-
-    // Create the message
-    const messageInsert: MessageInsert = {
-      conversation_id: conversationId,
-      sender_id: userId,
-      content: data.content ?? null,
-      media_ids: data.mediaIds ?? null,
-      reply_to_message_id: data.replyToMessageId ?? null,
-    };
-
-    const { data: newMessage, error } = await authedSupabase
+    const { data, error } = await supabase
       .from("messages")
-      .insert(messageInsert)
+      .insert({
+        conversation_id: dto.conversation_id,
+        sender_id: userId,
+        content: dto.content,
+        media_ids: dto.media_ids || null,
+        reply_to_message_id: dto.reply_to_message_id || null,
+      })
       .select(
-        `
-        *,
-        sender:profiles!messages_sender_id_fkey(
-          id,
-          username,
-          first_name,
-          last_name,
-          avatar_url
-        ),
-        reply_to:messages!messages_reply_to_message_id_fkey(
-          id,
-          conversation_id,
-          sender_id,
-          content,
-          created_at,
-          sender:profiles!messages_sender_id_fkey(
-            id,
-            username,
-            first_name,
-            last_name,
-            avatar_url
-          )
-        )
-      `
+        `*, sender:profiles!messages_sender_id_fkey(id, username, first_name, last_name, avatar_url)`
       )
       .single();
 
-    if (error || !newMessage) {
+    if (error)
       throw createHttpError({
-        message: `Failed to create message: ${error?.message}`,
+        message: `Send failed: ${error.message}`,
         statusCode: 500,
         code: "DATABASE_ERROR",
       });
-    }
 
-    // Fetch complete message with all relations
-    return this.getMessageById(newMessage.id, userId, token);
+    return mapMessageToResponse(data);
   }
 
-  /**
-   * Get a message by ID
-   */
-  async getMessageById(
-    messageId: string,
-    userId: string,
-    token: string
-  ): Promise<MessageResponse> {
-    const authedSupabase = createAuthenticatedClient(token);
-
-    const { data: message, error } = await authedSupabase
+  async editMessage(userId: string, messageId: string, dto: EditMessageDto) {
+    const { data, error } = await supabase
       .from("messages")
-      .select(
-        `
-        *,
-        sender:profiles!messages_sender_id_fkey(
-          id,
-          username,
-          first_name,
-          last_name,
-          avatar_url
-        ),
-        reply_to:messages!messages_reply_to_message_id_fkey(
-          id,
-          conversation_id,
-          sender_id,
-          content,
-          created_at,
-          sender:profiles!messages_sender_id_fkey(
-            id,
-            username,
-            first_name,
-            last_name,
-            avatar_url
-          )
-        ),
-        read_receipts:message_read_receipts(
-          message_id,
-          user_id,
-          read_at,
-          user:profiles!message_read_receipts_user_id_fkey(
-            id,
-            username,
-            first_name,
-            last_name,
-            avatar_url
-          )
-        )
-      `
-      )
+      .update({
+        content: dto.content,
+        is_edited: true,
+        edited_at: new Date().toISOString(),
+      })
       .eq("id", messageId)
+      .eq("sender_id", userId)
+      .eq("is_deleted", false)
+      .select()
       .single();
 
-    if (error || !message) {
+    if (error)
       throw createHttpError({
-        message: "Message not found",
-        statusCode: 404,
-        code: "NOT_FOUND",
-      });
-    }
-
-    // Verify user is a participant in the conversation
-    const { data: participant } = await authedSupabase
-      .from("conversation_participants")
-      .select("conversation_id")
-      .eq("conversation_id", message.conversation_id)
-      .eq("user_id", userId)
-      .is("left_at", null)
-      .single();
-
-    if (!participant) {
-      throw createHttpError({
-        message: "Access denied",
-        statusCode: 403,
-        code: "FORBIDDEN",
-      });
-    }
-
-    // Get media if media_ids exist
-    let media: any[] = [];
-    if (
-      message.media_ids &&
-      Array.isArray(message.media_ids) &&
-      message.media_ids.length > 0
-    ) {
-      const { data: mediaData } = await authedSupabase
-        .from("media")
-        .select("id, url, thumbnail_url, type")
-        .in("id", message.media_ids);
-
-      media =
-        mediaData?.map((m) => ({
-          id: m.id,
-          url: m.url,
-          thumbnailUrl: m.thumbnail_url ?? undefined,
-          type: m.type,
-        })) || [];
-    }
-
-    const messageWithMedia = {
-      ...message,
-      media,
-    };
-
-    return mapMessageToResponse(messageWithMedia as any);
-  }
-
-  /**
-   * Update a message
-   * Only the sender can update their own messages, and only within 15 minutes
-   */
-  async updateMessage(
-    messageId: string,
-    userId: string,
-    data: UpdateMessageDto,
-    token: string
-  ): Promise<MessageResponse> {
-    const authedSupabase = createAuthenticatedClient(token);
-
-    // Verify message exists and user is the sender
-    const { data: message, error: fetchError } = await authedSupabase
-      .from("messages")
-      .select("sender_id, created_at")
-      .eq("id", messageId)
-      .single();
-
-    if (fetchError || !message) {
-      throw createHttpError({
-        message: "Message not found",
-        statusCode: 404,
-        code: "NOT_FOUND",
-      });
-    }
-
-    if (message.sender_id !== userId) {
-      throw createHttpError({
-        message: "You can only edit your own messages",
-        statusCode: 403,
-        code: "FORBIDDEN",
-      });
-    }
-
-    // Check if message is within 15 minutes of creation
-    const messageAge = Date.now() - new Date(message.created_at!).getTime();
-    const fifteenMinutes = 15 * 60 * 1000;
-    if (messageAge > fifteenMinutes) {
-      throw createHttpError({
-        message: "Messages can only be edited within 15 minutes of sending",
-        statusCode: 400,
-        code: "VALIDATION_ERROR",
-      });
-    }
-
-    // Update the message
-    const messageUpdate: MessageUpdate = {
-      content: data.content,
-      is_edited: true,
-      edited_at: new Date().toISOString(),
-    };
-
-    const { error: updateError } = await authedSupabase
-      .from("messages")
-      .update(messageUpdate)
-      .eq("id", messageId);
-
-    if (updateError) {
-      throw createHttpError({
-        message: `Failed to update message: ${updateError.message}`,
+        message: `Edit failed: ${error.message}`,
         statusCode: 500,
         code: "DATABASE_ERROR",
       });
-    }
-
-    // Fetch updated message
-    return this.getMessageById(messageId, userId, token);
-  }
-
-  /**
-   * Delete a message (soft delete)
-   * Only the sender can delete their own messages
-   */
-  async deleteMessage(
-    messageId: string,
-    userId: string,
-    token: string
-  ): Promise<void> {
-    const authedSupabase = createAuthenticatedClient(token);
-
-    // Verify message exists and user is the sender
-    const { data: message, error: fetchError } = await authedSupabase
-      .from("messages")
-      .select("sender_id")
-      .eq("id", messageId)
-      .single();
-
-    if (fetchError || !message) {
+    if (!data)
       throw createHttpError({
         message: "Message not found",
         statusCode: 404,
         code: "NOT_FOUND",
       });
-    }
 
-    if (message.sender_id !== userId) {
-      throw createHttpError({
-        message: "You can only delete your own messages",
-        statusCode: 403,
-        code: "FORBIDDEN",
-      });
-    }
+    return data;
+  }
 
-    // Soft delete
-    const { error } = await authedSupabase
+  async deleteMessage(userId: string, messageId: string): Promise<void> {
+    const { data, error } = await supabase
       .from("messages")
       .update({
         is_deleted: true,
         deleted_at: new Date().toISOString(),
-        content: null, // Clear content on delete
+        content: "[Deleted]",
       })
-      .eq("id", messageId);
+      .eq("id", messageId)
+      .eq("sender_id", userId)
+      .select();
 
-    if (error) {
+    if (error)
       throw createHttpError({
-        message: `Failed to delete message: ${error.message}`,
+        message: `Delete failed: ${error.message}`,
         statusCode: 500,
         code: "DATABASE_ERROR",
       });
-    }
-  }
-
-  /**
-   * Mark messages as read
-   * Creates read receipts for messages in a conversation
-   */
-  async markMessagesAsRead(
-    conversationId: string,
-    userId: string,
-    messageIds: string[],
-    token: string
-  ): Promise<void> {
-    const authedSupabase = createAuthenticatedClient(token);
-
-    // Verify user is a participant
-    const { data: participant } = await authedSupabase
-      .from("conversation_participants")
-      .select("conversation_id")
-      .eq("conversation_id", conversationId)
-      .eq("user_id", userId)
-      .is("left_at", null)
-      .single();
-
-    if (!participant) {
+    if (!data?.length)
       throw createHttpError({
-        message: "You are not a participant in this conversation",
-        statusCode: 403,
-        code: "FORBIDDEN",
-      });
-    }
-
-    // Verify all messages belong to this conversation
-    const { data: messages } = await authedSupabase
-      .from("messages")
-      .select("id")
-      .eq("conversation_id", conversationId)
-      .in("id", messageIds);
-
-    if (!messages || messages.length !== messageIds.length) {
-      throw createHttpError({
-        message: "One or more messages not found in this conversation",
+        message: "Message not found",
         statusCode: 404,
         code: "NOT_FOUND",
       });
-    }
 
-    // Create or update read receipts
-    const readReceipts = messageIds.map((messageId) => ({
-      message_id: messageId,
+    // No return statement - void – REST convention for DELETE requests
+  }
+
+  async markAsRead(userId: string, messageIds: string[]) {
+    if (!messageIds.length) return { success: true };
+
+    const receipts = messageIds.map((id) => ({
+      message_id: id,
       user_id: userId,
-      read_at: new Date().toISOString(),
     }));
 
-    const { error } = await authedSupabase
+    const { error: receiptError } = await supabase
       .from("message_read_receipts")
-      .upsert(readReceipts, { onConflict: "message_id,user_id" });
+      .upsert(receipts, { onConflict: "message_id,user_id" });
 
-    if (error) {
+    if (receiptError)
       throw createHttpError({
-        message: `Failed to mark messages as read: ${error.message}`,
+        message: `Read receipt failed: ${receiptError.message}`,
         statusCode: 500,
         code: "DATABASE_ERROR",
       });
+
+    const { data: message } = await supabase
+      .from("messages")
+      .select("conversation_id")
+      .eq("id", messageIds[0])
+      .single();
+
+    if (message) {
+      await supabase
+        .from("conversation_participants")
+        .update({
+          last_read_message_id: messageIds[messageIds.length - 1],
+          last_read_at: new Date().toISOString(),
+          unread_count: 0,
+        })
+        .eq("conversation_id", message.conversation_id)
+        .eq("user_id", userId);
     }
 
-    // Update participant's last_read_message_id
-    const latestMessageId = messageIds[messageIds.length - 1];
-    await authedSupabase
+    return { success: true };
+  }
+
+  async setTypingIndicator(
+    userId: string,
+    conversationId: string,
+    isTyping: boolean
+  ) {
+    const { error } = await supabase
       .from("conversation_participants")
       .update({
-        last_read_message_id: latestMessageId,
-        last_read_at: new Date().toISOString(),
+        is_typing: isTyping,
+        last_typing_at: isTyping ? new Date().toISOString() : null,
       })
       .eq("conversation_id", conversationId)
-      .eq("user_id", userId);
+      .eq("user_id", userId)
+      .is("left_at", null);
+
+    if (error)
+      throw createHttpError({
+        message: `Typing indicator failed: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
   }
 }

@@ -102,23 +102,23 @@ const models: TsoaRoute.Models = {
     "MetadataResponse": {"dataType":"refObject","properties":{"tags":{"dataType":"array","array":{"dataType":"refObject","ref":"MetadataItem"},"required":true},"genres":{"dataType":"array","array":{"dataType":"refObject","ref":"MetadataItem"},"required":true},"artists":{"dataType":"array","array":{"dataType":"refObject","ref":"MetadataItem"},"required":true}},"additionalProperties":false},
     "MessageResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"conversationId":{"dataType":"string","required":true},"senderId":{"dataType":"string","required":true},"content":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"mediaIds":{"dataType":"union","subSchemas":[{"dataType":"array","array":{"dataType":"string"}},{"dataType":"enum","enums":[null]}]},"isEdited":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"editedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"isDeleted":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"deletedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"replyToMessageId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"sentViaWebsocket":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"sender":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}},"replyTo":{"dataType":"union","subSchemas":[{"ref":"MessageResponse"},{"dataType":"enum","enums":[null]}]},"readReceipts":{"dataType":"array","array":{"dataType":"refObject","ref":"MessageReadReceiptResponse"}},"media":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"type":{"dataType":"string","required":true},"thumbnailUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"url":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}}},"additionalProperties":false},
     "MessageReadReceiptResponse": {"dataType":"refObject","properties":{"messageId":{"dataType":"string","required":true},"userId":{"dataType":"string","required":true},"readAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"user":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}},"additionalProperties":false},
-    "Pick_MessageInsert.Exclude_keyofMessageInsert.sender_id-or-conversation_id-or-created_at-or-id-or-is_edited-or-edited_at-or-is_deleted-or-deleted_at-or-sent_via_websocket__": {"dataType":"refAlias","type":{"dataType":"nestedObjectLiteral","nestedProperties":{"content":{"dataType":"string"},"media_ids":{"dataType":"array","array":{"dataType":"string"}},"reply_to_message_id":{"dataType":"string"}},"validators":{}}},
-    "CreateMessageDto": {"dataType":"refObject","properties":{"content":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"media_ids":{"dataType":"array","array":{"dataType":"string"}},"reply_to_message_id":{"dataType":"string"},"mediaIds":{"dataType":"union","subSchemas":[{"dataType":"array","array":{"dataType":"string"}},{"dataType":"enum","enums":[null]}]},"replyToMessageId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]}},"additionalProperties":false},
-    "UpdateMessageDto": {"dataType":"refObject","properties":{"content":{"dataType":"string","required":true}},"additionalProperties":false},
+    "PaginatedMessagesResponse": {"dataType":"refObject","properties":{"messages":{"dataType":"array","array":{"dataType":"refObject","ref":"MessageResponse"},"required":true},"hasMore":{"dataType":"boolean","required":true},"nextCursor":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true}},"additionalProperties":false},
+    "SendMessageDto": {"dataType":"refObject","properties":{"conversation_id":{"dataType":"string","required":true},"content":{"dataType":"string","required":true},"media_ids":{"dataType":"array","array":{"dataType":"string"}},"reply_to_message_id":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]}},"additionalProperties":false},
+    "EditMessageDto": {"dataType":"refObject","properties":{"content":{"dataType":"string","required":true}},"additionalProperties":false},
+    "MarkMessagesReadDto": {"dataType":"refObject","properties":{"message_ids":{"dataType":"array","array":{"dataType":"string"},"required":true}},"additionalProperties":false},
     "FeedPostResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["note"]},{"dataType":"enum","enums":["request"]},{"dataType":"enum","enums":["story"]}],"required":true},"title":{"dataType":"string","required":true},"description":{"dataType":"string","required":true},"authorId":{"dataType":"string","required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"updatedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"paidOpportunity":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"expiresAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"metadata":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["tag"]},{"dataType":"enum","enums":["genre"]},{"dataType":"enum","enums":["artist"]}],"required":true},"name":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}},"media":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"displayOrder":{"dataType":"double","required":true},"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["image"]},{"dataType":"enum","enums":["video"]}],"required":true},"thumbnailUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"url":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}},"taggedUsers":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}},"author":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}},"likesCount":{"dataType":"double"},"commentsCount":{"dataType":"double"},"bookmarksCount":{"dataType":"double"},"hasLiked":{"dataType":"boolean"},"hasBookmarked":{"dataType":"boolean"}},"additionalProperties":false},
     "ConversationParticipantResponse": {"dataType":"refObject","properties":{"userId":{"dataType":"string","required":true},"conversationId":{"dataType":"string","required":true},"joinedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"leftAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"isAdmin":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"lastReadMessageId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastReadAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"notificationsEnabled":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"isMuted":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"user":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}},"additionalProperties":false},
-    "ConversationResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["direct"]},{"dataType":"enum","enums":["group"]}],"required":true},"name":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"createdBy":{"dataType":"string","required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"updatedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"lastMessageId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastMessagePreview":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastMessageAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"creator":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}},"participants":{"dataType":"array","array":{"dataType":"refObject","ref":"ConversationParticipantResponse"}}},"additionalProperties":false},
+    "ConversationResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["direct"]},{"dataType":"enum","enums":["group"]}],"required":true},"name":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"createdBy":{"dataType":"string","required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"updatedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"lastMessageId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastMessagePreview":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastMessageAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastMessageSenderId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"unreadCount":{"dataType":"double","required":true},"creator":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}},"participants":{"dataType":"array","array":{"dataType":"refObject","ref":"ConversationParticipantResponse"}}},"additionalProperties":false},
     "ConversationType": {"dataType":"refAlias","type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["direct"]},{"dataType":"enum","enums":["group"]}],"validators":{}}},
-    "Pick_ConversationInsert.Exclude_keyofConversationInsert.created_by-or-created_at-or-updated_at-or-id-or-last_message_id-or-last_message_preview-or-last_message_at__": {"dataType":"refAlias","type":{"dataType":"nestedObjectLiteral","nestedProperties":{"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["direct"]},{"dataType":"enum","enums":["group"]}],"required":true},"avatar_url":{"dataType":"string"},"name":{"dataType":"string"}},"validators":{}}},
-    "CreateConversationDto": {"dataType":"refObject","properties":{"type":{"ref":"ConversationType","required":true},"avatar_url":{"dataType":"string"},"name":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"participantIds":{"dataType":"array","array":{"dataType":"string"},"required":true}},"additionalProperties":false},
+    "CreateConversationDto": {"dataType":"refObject","properties":{"type":{"ref":"ConversationType","required":true},"name":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"participantIds":{"dataType":"array","array":{"dataType":"string"},"required":true}},"additionalProperties":false},
     "UpdateConversationDto": {"dataType":"refObject","properties":{"name":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]}},"additionalProperties":false},
     "ConnectionStatus": {"dataType":"refAlias","type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["pending"]},{"dataType":"enum","enums":["accepted"]},{"dataType":"enum","enums":["rejected"]}],"validators":{}}},
     "Connection": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"requesterId":{"dataType":"string","required":true},"recipientId":{"dataType":"string","required":true},"status":{"ref":"ConnectionStatus","required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"updatedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"requester":{"ref":"UserProfile"},"recipient":{"ref":"UserProfile"}},"additionalProperties":false},
     "Pick_ConnectionRequestInsert.Exclude_keyofConnectionRequestInsert.requester_id-or-created_at-or-updated_at-or-id-or-status__": {"dataType":"refAlias","type":{"dataType":"nestedObjectLiteral","nestedProperties":{"recipient_id":{"dataType":"string","required":true}},"validators":{}}},
     "CreateConnectionRequestDto": {"dataType":"refObject","properties":{"recipient_id":{"dataType":"string","required":true},"recipientId":{"dataType":"string","required":true}},"additionalProperties":false},
     "UpdateConnectionRequestDto": {"dataType":"refObject","properties":{"status":{"ref":"ConnectionStatus","required":true}},"additionalProperties":false},
-    "Pick_CommentInsert.Exclude_keyofCommentInsert.author_id-or-created_at-or-updated_at-or-id__": {"dataType":"refAlias","type":{"dataType":"nestedObjectLiteral","nestedProperties":{"content":{"dataType":"string","required":true},"post_id":{"dataType":"string","required":true}},"validators":{}}},
-    "CreateCommentDto": {"dataType":"refObject","properties":{"content":{"dataType":"string","required":true},"post_id":{"dataType":"string","required":true},"postId":{"dataType":"string","required":true}},"additionalProperties":false},
+    "Pick_CommentInsert.Exclude_keyofCommentInsert.author_id-or-created_at-or-updated_at-or-id__": {"dataType":"refAlias","type":{"dataType":"nestedObjectLiteral","nestedProperties":{"post_id":{"dataType":"string","required":true},"content":{"dataType":"string","required":true}},"validators":{}}},
+    "CreateCommentDto": {"dataType":"refObject","properties":{"post_id":{"dataType":"string","required":true},"content":{"dataType":"string","required":true},"postId":{"dataType":"string","required":true}},"additionalProperties":false},
     "UpdateCommentDto": {"dataType":"refObject","properties":{"content":{"dataType":"string","required":true}},"additionalProperties":false},
     "CollaborationResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"userId":{"dataType":"string","required":true},"collaboratorId":{"dataType":"string","required":true},"description":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"collaborator":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}},"additionalProperties":false},
     "Pick_CollaborationInsert.Exclude_keyofCollaborationInsert.user_id-or-created_at-or-id__": {"dataType":"refAlias","type":{"dataType":"nestedObjectLiteral","nestedProperties":{"description":{"dataType":"string"},"collaborator_id":{"dataType":"string","required":true}},"validators":{}}},
@@ -731,30 +731,29 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsMessagesController_getConversationMessages: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsMessagesController_getMessages: Record<string, TsoaRoute.ParameterSchema> = {
                 conversationId: {"in":"path","name":"conversationId","required":true,"dataType":"string"},
-                cursor: {"in":"query","name":"cursor","dataType":"string"},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
                 limit: {"in":"query","name":"limit","dataType":"double"},
-                before: {"in":"query","name":"before","dataType":"boolean"},
-                request: {"in":"request","name":"request","dataType":"object"},
+                before_message_id: {"in":"query","name":"before_message_id","dataType":"string"},
         };
-        app.get('/conversations/:conversationId/messages',
+        app.get('/messages/:conversationId',
             authenticateMiddleware([[{"bearerAuth":[]}]]),
             ...(fetchMiddlewares<RequestHandler>(MessagesController)),
-            ...(fetchMiddlewares<RequestHandler>(MessagesController.prototype.getConversationMessages)),
+            ...(fetchMiddlewares<RequestHandler>(MessagesController.prototype.getMessages)),
 
-            async function MessagesController_getConversationMessages(request: ExRequest, response: ExResponse, next: any) {
+            async function MessagesController_getMessages(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsMessagesController_getConversationMessages, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsMessagesController_getMessages, request, response });
 
                 const controller = new MessagesController();
 
               await templateService.apiHandler({
-                methodName: 'getConversationMessages',
+                methodName: 'getMessages',
                 controller,
                 response,
                 next,
@@ -766,95 +765,60 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsMessagesController_getMessage: Record<string, TsoaRoute.ParameterSchema> = {
-                conversationId: {"in":"path","name":"conversationId","required":true,"dataType":"string"},
+        const argsMessagesController_sendMessage: Record<string, TsoaRoute.ParameterSchema> = {
+                dto: {"in":"body","name":"dto","required":true,"ref":"SendMessageDto"},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+        };
+        app.post('/messages',
+            authenticateMiddleware([[{"bearerAuth":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(MessagesController)),
+            ...(fetchMiddlewares<RequestHandler>(MessagesController.prototype.sendMessage)),
+
+            async function MessagesController_sendMessage(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsMessagesController_sendMessage, request, response });
+
+                const controller = new MessagesController();
+
+              await templateService.apiHandler({
+                methodName: 'sendMessage',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsMessagesController_editMessage: Record<string, TsoaRoute.ParameterSchema> = {
                 messageId: {"in":"path","name":"messageId","required":true,"dataType":"string"},
-                request: {"in":"request","name":"request","dataType":"object"},
+                dto: {"in":"body","name":"dto","required":true,"ref":"EditMessageDto"},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
         };
-        app.get('/conversations/:conversationId/messages/:messageId',
+        app.put('/messages/:messageId',
             authenticateMiddleware([[{"bearerAuth":[]}]]),
             ...(fetchMiddlewares<RequestHandler>(MessagesController)),
-            ...(fetchMiddlewares<RequestHandler>(MessagesController.prototype.getMessage)),
+            ...(fetchMiddlewares<RequestHandler>(MessagesController.prototype.editMessage)),
 
-            async function MessagesController_getMessage(request: ExRequest, response: ExResponse, next: any) {
+            async function MessagesController_editMessage(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsMessagesController_getMessage, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsMessagesController_editMessage, request, response });
 
                 const controller = new MessagesController();
 
               await templateService.apiHandler({
-                methodName: 'getMessage',
-                controller,
-                response,
-                next,
-                validatedArgs,
-                successStatus: undefined,
-              });
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsMessagesController_createMessage: Record<string, TsoaRoute.ParameterSchema> = {
-                conversationId: {"in":"path","name":"conversationId","required":true,"dataType":"string"},
-                body: {"in":"body","name":"body","required":true,"ref":"CreateMessageDto"},
-                request: {"in":"request","name":"request","dataType":"object"},
-        };
-        app.post('/conversations/:conversationId/messages',
-            authenticateMiddleware([[{"bearerAuth":[]}]]),
-            ...(fetchMiddlewares<RequestHandler>(MessagesController)),
-            ...(fetchMiddlewares<RequestHandler>(MessagesController.prototype.createMessage)),
-
-            async function MessagesController_createMessage(request: ExRequest, response: ExResponse, next: any) {
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsMessagesController_createMessage, request, response });
-
-                const controller = new MessagesController();
-
-              await templateService.apiHandler({
-                methodName: 'createMessage',
-                controller,
-                response,
-                next,
-                validatedArgs,
-                successStatus: undefined,
-              });
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsMessagesController_updateMessage: Record<string, TsoaRoute.ParameterSchema> = {
-                conversationId: {"in":"path","name":"conversationId","required":true,"dataType":"string"},
-                messageId: {"in":"path","name":"messageId","required":true,"dataType":"string"},
-                body: {"in":"body","name":"body","required":true,"ref":"UpdateMessageDto"},
-                request: {"in":"request","name":"request","dataType":"object"},
-        };
-        app.put('/conversations/:conversationId/messages/:messageId',
-            authenticateMiddleware([[{"bearerAuth":[]}]]),
-            ...(fetchMiddlewares<RequestHandler>(MessagesController)),
-            ...(fetchMiddlewares<RequestHandler>(MessagesController.prototype.updateMessage)),
-
-            async function MessagesController_updateMessage(request: ExRequest, response: ExResponse, next: any) {
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsMessagesController_updateMessage, request, response });
-
-                const controller = new MessagesController();
-
-              await templateService.apiHandler({
-                methodName: 'updateMessage',
+                methodName: 'editMessage',
                 controller,
                 response,
                 next,
@@ -867,11 +831,10 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsMessagesController_deleteMessage: Record<string, TsoaRoute.ParameterSchema> = {
-                conversationId: {"in":"path","name":"conversationId","required":true,"dataType":"string"},
                 messageId: {"in":"path","name":"messageId","required":true,"dataType":"string"},
-                request: {"in":"request","name":"request","dataType":"object"},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
         };
-        app.delete('/conversations/:conversationId/messages/:messageId',
+        app.delete('/messages/:messageId',
             authenticateMiddleware([[{"bearerAuth":[]}]]),
             ...(fetchMiddlewares<RequestHandler>(MessagesController)),
             ...(fetchMiddlewares<RequestHandler>(MessagesController.prototype.deleteMessage)),
@@ -899,28 +862,60 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsMessagesController_markMessagesAsRead: Record<string, TsoaRoute.ParameterSchema> = {
-                conversationId: {"in":"path","name":"conversationId","required":true,"dataType":"string"},
-                body: {"in":"body","name":"body","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"messageIds":{"dataType":"array","array":{"dataType":"string"},"required":true}}},
-                request: {"in":"request","name":"request","dataType":"object"},
+        const argsMessagesController_markAsRead: Record<string, TsoaRoute.ParameterSchema> = {
+                dto: {"in":"body","name":"dto","required":true,"ref":"MarkMessagesReadDto"},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
         };
-        app.post('/conversations/:conversationId/messages/read',
+        app.post('/messages/read',
             authenticateMiddleware([[{"bearerAuth":[]}]]),
             ...(fetchMiddlewares<RequestHandler>(MessagesController)),
-            ...(fetchMiddlewares<RequestHandler>(MessagesController.prototype.markMessagesAsRead)),
+            ...(fetchMiddlewares<RequestHandler>(MessagesController.prototype.markAsRead)),
 
-            async function MessagesController_markMessagesAsRead(request: ExRequest, response: ExResponse, next: any) {
+            async function MessagesController_markAsRead(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsMessagesController_markMessagesAsRead, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsMessagesController_markAsRead, request, response });
 
                 const controller = new MessagesController();
 
               await templateService.apiHandler({
-                methodName: 'markMessagesAsRead',
+                methodName: 'markAsRead',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsMessagesController_setTyping: Record<string, TsoaRoute.ParameterSchema> = {
+                conversationId: {"in":"path","name":"conversationId","required":true,"dataType":"string"},
+                isTyping: {"default":true,"in":"query","name":"isTyping","dataType":"boolean"},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+        };
+        app.post('/messages/typing/:conversationId',
+            authenticateMiddleware([[{"bearerAuth":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(MessagesController)),
+            ...(fetchMiddlewares<RequestHandler>(MessagesController.prototype.setTyping)),
+
+            async function MessagesController_setTyping(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsMessagesController_setTyping, request, response });
+
+                const controller = new MessagesController();
+
+              await templateService.apiHandler({
+                methodName: 'setTyping',
                 controller,
                 response,
                 next,
@@ -967,7 +962,7 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsConversationsController_getConversations: Record<string, TsoaRoute.ParameterSchema> = {
-                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
         };
         app.get('/conversations',
             authenticateMiddleware([[{"bearerAuth":[]}]]),
@@ -997,9 +992,40 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsConversationsController_getUnreadCount: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+        };
+        app.get('/conversations/unread-count',
+            authenticateMiddleware([[{"bearerAuth":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(ConversationsController)),
+            ...(fetchMiddlewares<RequestHandler>(ConversationsController.prototype.getUnreadCount)),
+
+            async function ConversationsController_getUnreadCount(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsConversationsController_getUnreadCount, request, response });
+
+                const controller = new ConversationsController();
+
+              await templateService.apiHandler({
+                methodName: 'getUnreadCount',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsConversationsController_getConversation: Record<string, TsoaRoute.ParameterSchema> = {
                 conversationId: {"in":"path","name":"conversationId","required":true,"dataType":"string"},
-                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
         };
         app.get('/conversations/:conversationId',
             authenticateMiddleware([[{"bearerAuth":[]}]]),
@@ -1031,7 +1057,7 @@ export function RegisterRoutes(app: Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsConversationsController_createConversation: Record<string, TsoaRoute.ParameterSchema> = {
                 body: {"in":"body","name":"body","required":true,"ref":"CreateConversationDto"},
-                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
         };
         app.post('/conversations',
             authenticateMiddleware([[{"bearerAuth":[]}]]),
@@ -1064,7 +1090,7 @@ export function RegisterRoutes(app: Router) {
         const argsConversationsController_updateConversation: Record<string, TsoaRoute.ParameterSchema> = {
                 conversationId: {"in":"path","name":"conversationId","required":true,"dataType":"string"},
                 body: {"in":"body","name":"body","required":true,"ref":"UpdateConversationDto"},
-                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
         };
         app.put('/conversations/:conversationId',
             authenticateMiddleware([[{"bearerAuth":[]}]]),
@@ -1096,7 +1122,7 @@ export function RegisterRoutes(app: Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsConversationsController_deleteConversation: Record<string, TsoaRoute.ParameterSchema> = {
                 conversationId: {"in":"path","name":"conversationId","required":true,"dataType":"string"},
-                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
         };
         app.delete('/conversations/:conversationId',
             authenticateMiddleware([[{"bearerAuth":[]}]]),

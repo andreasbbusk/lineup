@@ -1,9 +1,8 @@
 import { apiClient, handleApiError } from "../../api/api-client";
-import type { components } from "@/app/lib/types/api";
+import type { UserProfile, ProfileUpdateRequest } from "./types";
 
-// Export types from generated schema
-export type UserProfile = components["schemas"]["UserProfile"];
-export type ProfileUpdateRequest = components["schemas"]["UpdateProfileDto"];
+// Re-export types for backward compatibility
+export type { UserProfile, ProfileUpdateRequest };
 
 /**
  * Get user profile by username
@@ -31,7 +30,6 @@ export async function updateUserProfile(
   username: string,
   updates: ProfileUpdateRequest
 ): Promise<UserProfile> {
-
   const { data, error, response } = await apiClient.PUT("/users/{username}", {
     params: {
       path: { username },

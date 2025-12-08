@@ -515,6 +515,8 @@ export interface ConversationResponse {
   lastMessageId?: string | null;
   lastMessagePreview?: string | null;
   lastMessageAt?: string | null;
+  lastMessageSenderId?: string | null;
+  unreadCount: number;
   creator?: {
     id: string;
     username: string;
@@ -609,6 +611,23 @@ export interface MessageResponse {
     thumbnailUrl?: string | null;
     type: string;
   }>;
+}
+
+/**
+ * API response format for paginated messages
+ * Used by GET /messages/:conversationId endpoint
+ *
+ * @example
+ * {
+ *   "messages": [...],
+ *   "hasMore": true,
+ *   "nextCursor": "msg-123"
+ * }
+ */
+export interface PaginatedMessagesResponse {
+  messages: MessageResponse[];
+  hasMore: boolean;
+  nextCursor: string | null;
 }
 
 // ==================== Notification Types ====================
