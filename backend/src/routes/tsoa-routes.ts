@@ -114,8 +114,7 @@ const models: TsoaRoute.Models = {
     "UpdateConversationDto": {"dataType":"refObject","properties":{"name":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]}},"additionalProperties":false},
     "ConnectionStatus": {"dataType":"refAlias","type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["pending"]},{"dataType":"enum","enums":["accepted"]},{"dataType":"enum","enums":["rejected"]}],"validators":{}}},
     "Connection": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"requesterId":{"dataType":"string","required":true},"recipientId":{"dataType":"string","required":true},"status":{"ref":"ConnectionStatus","required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"updatedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"requester":{"ref":"UserProfile"},"recipient":{"ref":"UserProfile"}},"additionalProperties":false},
-    "Pick_ConnectionRequestInsert.Exclude_keyofConnectionRequestInsert.requester_id-or-created_at-or-updated_at-or-id-or-status__": {"dataType":"refAlias","type":{"dataType":"nestedObjectLiteral","nestedProperties":{"recipient_id":{"dataType":"string","required":true}},"validators":{}}},
-    "CreateConnectionRequestDto": {"dataType":"refObject","properties":{"recipient_id":{"dataType":"string","required":true},"recipientId":{"dataType":"string","required":true}},"additionalProperties":false},
+    "CreateConnectionRequestDto": {"dataType":"refObject","properties":{"recipientId":{"dataType":"string","required":true}},"additionalProperties":false},
     "UpdateConnectionRequestDto": {"dataType":"refObject","properties":{"status":{"ref":"ConnectionStatus","required":true}},"additionalProperties":false},
     "Pick_CommentInsert.Exclude_keyofCommentInsert.author_id-or-created_at-or-updated_at-or-id__": {"dataType":"refAlias","type":{"dataType":"nestedObjectLiteral","nestedProperties":{"post_id":{"dataType":"string","required":true},"content":{"dataType":"string","required":true}},"validators":{}}},
     "CreateCommentDto": {"dataType":"refObject","properties":{"post_id":{"dataType":"string","required":true},"content":{"dataType":"string","required":true},"postId":{"dataType":"string","required":true}},"additionalProperties":false},
@@ -1232,6 +1231,68 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'getReceivedConnectionRequests',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsConnectionsController_getConnectionStatus: Record<string, TsoaRoute.ParameterSchema> = {
+                targetUserId: {"in":"path","name":"targetUserId","required":true,"dataType":"string"},
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.get('/connections/status/:targetUserId',
+            authenticateMiddleware([[{"bearerAuth":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(ConnectionsController)),
+            ...(fetchMiddlewares<RequestHandler>(ConnectionsController.prototype.getConnectionStatus)),
+
+            async function ConnectionsController_getConnectionStatus(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsConnectionsController_getConnectionStatus, request, response });
+
+                const controller = new ConnectionsController();
+
+              await templateService.apiHandler({
+                methodName: 'getConnectionStatus',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsConnectionsController_getUserAcceptedConnections: Record<string, TsoaRoute.ParameterSchema> = {
+                userId: {"in":"path","name":"userId","required":true,"dataType":"string"},
+        };
+        app.get('/connections/accepted/:userId',
+            ...(fetchMiddlewares<RequestHandler>(ConnectionsController)),
+            ...(fetchMiddlewares<RequestHandler>(ConnectionsController.prototype.getUserAcceptedConnections)),
+
+            async function ConnectionsController_getUserAcceptedConnections(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsConnectionsController_getUserAcceptedConnections, request, response });
+
+                const controller = new ConnectionsController();
+
+              await templateService.apiHandler({
+                methodName: 'getUserAcceptedConnections',
                 controller,
                 response,
                 next,

@@ -13,6 +13,7 @@ export { useOnboardingSubmission } from "./hooks/onboarding/useOnboardingSubmiss
 export {
   useConnectionStatus,
   getConnectionButtonState,
+  useConnectionButton,
   useSendConnection,
   useAcceptConnection,
   useRejectConnection,

@@ -1,13 +1,7 @@
 "use client";
 
 import { Button } from "@/app/components/buttons";
-import {
-  useConnectionStatus,
-  getConnectionButtonState,
-  useSendConnection,
-  useCancelConnection,
-} from "@/app/lib/features/profiles";
-import { useAppStore } from "@/app/lib/stores/app-store";
+import { useConnectionButton } from "@/app/lib/features/profiles";
 import { LoadingSpinner } from "@/app/components/loading-spinner";
 import { UserRoundPlus, UserRoundCheck, UserRoundX } from "lucide-react";
 
@@ -24,18 +18,26 @@ interface ConnectionButtonProps {
  * - "Connect" - Not connected, can send request
  * - "Pending" - Request sent, waiting for response (can cancel)
  * - "Connected" - Already connected
+ *
+ * Uses the useConnectionButton hook for all logic, making it easy to create
+ * variants (e.g., ConnectionButtonCompact, ConnectionButtonCard) that reuse
+ * the same hook with different styling.
  */
 export function ConnectionButton({
   targetUserId,
   className = "",
 }: ConnectionButtonProps) {
-  const currentUserId = useAppStore((state) => state.user?.id);
-  const { data: connection, isLoading } = useConnectionStatus(targetUserId);
-  const sendConnection = useSendConnection();
-  const cancelConnection = useCancelConnection();
+  const {
+    state,
+    handleConnect,
+    handleCancel,
+    isLoading,
+    isPending,
+    shouldRender,
+  } = useConnectionButton(targetUserId);
 
-  // Don't show button if viewing own profile
-  if (!targetUserId || !currentUserId || targetUserId === currentUserId) {
+  // Don't show button if viewing own profile or invalid state
+  if (!shouldRender) {
     return null;
   }
 
@@ -47,24 +49,6 @@ export function ConnectionButton({
     );
   }
 
-  const { state, requestId } = getConnectionButtonState(
-    connection,
-    currentUserId,
-    targetUserId
-  );
-
-  const handleConnect = () => {
-    if (targetUserId) {
-      sendConnection.mutate(targetUserId);
-    }
-  };
-
-  const handleCancel = () => {
-    if (requestId) {
-      cancelConnection.mutate(requestId);
-    }
-  };
-
   switch (state) {
     case "not_connected":
       return (
@@ -72,7 +56,7 @@ export function ConnectionButton({
           variant="primary"
           glass
           onClick={handleConnect}
-          disabled={sendConnection.isPending}
+          disabled={isPending}
           className={className}
         >
           <div className="flex items-center gap-2">
@@ -88,7 +72,7 @@ export function ConnectionButton({
           variant="primary"
           glass
           onClick={handleCancel}
-          disabled={cancelConnection.isPending}
+          disabled={isPending}
           className={className}
         >
           <div className="flex items-center gap-2">

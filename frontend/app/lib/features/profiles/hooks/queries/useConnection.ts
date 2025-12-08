@@ -67,6 +67,54 @@ export function getConnectionButtonState(
   return { state: "not_connected", requestId: null };
 }
 
+/**
+ * Hook to encapsulate all connection button logic
+ * Returns state, handlers, and loading states for connection button components
+ *
+ * This hook can be used by ConnectionButton, search cards, user lists, or any component
+ * that needs to display and handle connection actions.
+ */
+export function useConnectionButton(targetUserId: string | null) {
+  const currentUserId = useAppStore((state) => state.user?.id);
+  const { data: connection, isLoading } = useConnectionStatus(targetUserId);
+  const sendConnection = useSendConnection();
+  const cancelConnection = useCancelConnection();
+
+  // Determine if button should be rendered
+  const shouldRender =
+    !!targetUserId && !!currentUserId && targetUserId !== currentUserId;
+
+  // Get button state
+  const { state, requestId } = getConnectionButtonState(
+    connection,
+    currentUserId,
+    targetUserId
+  );
+
+  // Handlers
+  const handleConnect = () => {
+    if (targetUserId) {
+      sendConnection.mutate(targetUserId);
+    }
+  };
+
+  const handleCancel = () => {
+    if (requestId) {
+      cancelConnection.mutate(requestId);
+    }
+  };
+
+  return {
+    state,
+    requestId,
+    handleConnect,
+    handleCancel,
+    isLoading,
+    isPending: sendConnection.isPending || cancelConnection.isPending,
+    shouldRender,
+  };
+}
+
 // ==================== Connection Actions ====================
 
 /**
