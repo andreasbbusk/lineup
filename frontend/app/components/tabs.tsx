@@ -40,12 +40,13 @@ type TabsProps = TabsPropsProfile | TabsPropsCreate | TabsPropsChat;
 type TabsContentProps = {
   value: string;
   children: React.ReactNode;
+  className?: string;
 };
 
-const TabsContent = ({ value, children }: TabsContentProps) => {
+const TabsContent = ({ value, children, className }: TabsContentProps) => {
   return (
     <div
-      className="flex px-[0.9375rem] pt-[0.625rem] pb-[8.125rem] flex-col items-start gap-[1.875rem] self-stretch bg-[var(--color-white)]"
+      className={`h-full w-full overflow-y-auto overflow-x-hidden bg-white ${className}`}
       data-value={value}
     >
       {children}
@@ -58,18 +59,18 @@ const Tabs = (props: TabsProps) => {
 
   if (props.variant === "profile" || props.variant === "chat") {
     return (
-      <div>
-        <ul className="flex items-center rounded-tl-[2.8125rem] rounded-tr-[2.8125rem] bg-[var(--color-white)]">
+      <div className="flex flex-col h-full">
+        <ul className="flex items-center shrink-0 rounded-tl-[2.8125rem] rounded-tr-[2.8125rem] bg-white will-change-auto">
           <button
             onClick={() =>
               props.variant === "profile"
                 ? props.onTabChange("about")
                 : props.onTabChange("chats")
             }
-            className={`flex w-1/2 py-[0.9375rem] justify-center items-center gap-[0.3125rem]  rounded-tl-[2.8125rem] bg-[var(--color-white)] text-base font-medium transition-colors ${
-              props.activeTab === "about"
-                ? "text-[var(--color-black)]"
-                : "text-[var(--color-grey)]"
+            className={`flex w-1/2 py-3.75 justify-center items-center gap-1.25  rounded-tl-[2.8125rem] bg-white text-base font-medium transition-colors ${
+              props.activeTab === "about" || props.activeTab === "chats"
+                ? "text-black"
+                : "text-grey"
             }`}
           >
             {props.variant === "profile" ? "About" : "Chats"}
@@ -96,22 +97,26 @@ const Tabs = (props: TabsProps) => {
                 ? props.onTabChange("notes")
                 : props.onTabChange("groups")
             }
-            className={`flex w-1/2 py-[0.9375rem] justify-center items-center gap-[0.3125rem] rounded-tr-[2.8125rem] bg-[var(--color-white)] text-base font-medium transition-colors ${
-              props.activeTab === "notes"
-                ? "text-[var(--color-black)]"
-                : "text-[var(--color-grey)]"
+            className={`flex w-1/2 py-3.75 justify-center items-center gap-1.25 rounded-tr-[2.8125rem] bg-white text-base font-medium transition-colors ${
+              props.activeTab === "notes" || props.activeTab === "groups"
+                ? "text-black"
+                : "text-grey"
             }`}
           >
             {props.variant === "profile" ? "Notes" : "Groups"}
           </button>
         </ul>
-        <div>
-          {children.map((child) => {
+        <div className="flex-1 min-h-0 relative">
+          {children.map((child, index) => {
             if (
               React.isValidElement<TabsContentProps>(child) &&
               child.props.value === props.activeTab
             ) {
-              return child;
+              return (
+                <div key={index} className="absolute inset-0">
+                  {child}
+                </div>
+              );
             }
             return null;
           })}
@@ -122,33 +127,27 @@ const Tabs = (props: TabsProps) => {
     // Variant with 3 tabs
     return (
       <div>
-        <ul className="flex h-[2.25rem] px-[5.125rem] justify-center items-center gap-2">
+        <ul className="flex h-9 px-20.5 justify-center items-center gap-2">
           <button
             onClick={() => props.onTabChange("note")}
-            className={`flex w-[3.8125rem] h-[1.6875rem] pl-[0.875rem] pr-[0.625rem] py-[0.125rem] justify-center items-center gap-[0.625rem] rounded-[1.9375rem] transition-all ${
-              props.activeTab === "note"
-                ? "bg-[var(--color-crocus-yellow)]"
-                : ""
+            className={`flex w-15.25 h-6.75 pl-3.5 pr-2.5 py-0.5 justify-center items-center gap-2.5 rounded-[1.9375rem] transition-all ${
+              props.activeTab === "note" ? "bg-crocus-yellow" : ""
             }`}
           >
             <span className="text-base font-medium">Note</span>
           </button>
           <button
             onClick={() => props.onTabChange("story")}
-            className={`flex w-[3.8125rem] h-[1.6875rem] pl-[0.875rem] pr-[0.625rem] py-[0.125rem] justify-center items-center gap-[0.625rem] rounded-[1.9375rem] transition-all ${
-              props.activeTab === "story"
-                ? "bg-[var(--color-crocus-yellow)]"
-                : ""
+            className={`flex w-15.25 h-6.75 pl-3.5 pr-2.5 py-0.5 justify-center items-center gap-2.5 rounded-[1.9375rem] transition-all ${
+              props.activeTab === "story" ? "bg-crocus-yellow" : ""
             }`}
           >
             <span className="text-base font-medium">Story</span>
           </button>
           <button
             onClick={() => props.onTabChange("request")}
-            className={`flex w-[3.8125rem] h-[1.6875rem] pl-[0.875rem] pr-[0.625rem] py-[0.125rem] justify-center items-center gap-[0.625rem] rounded-[1.9375rem] transition-all ${
-              props.activeTab === "request"
-                ? "bg-[var(--color-crocus-yellow)]"
-                : ""
+            className={`flex w-15.25 h-6.75 pl-3.5 pr-2.5 py-0.5 justify-center items-center gap-2.5 rounded-[1.9375rem] transition-all ${
+              props.activeTab === "request" ? "bg-crocus-yellow" : ""
             }`}
           >
             <span className="text-base font-medium">Request</span>

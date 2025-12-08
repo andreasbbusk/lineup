@@ -21,6 +21,10 @@ import {
 import { MessagesService } from "./messages.service.js";
 import { extractUserId } from "../../utils/auth-helpers.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
+import type {
+  PaginatedMessagesResponse,
+  MessageResponse,
+} from "../../types/api.types.js";
 
 @Route("messages")
 @Tags("Messages")
@@ -34,7 +38,7 @@ export class MessagesController extends Controller {
     @Request() req: ExpressRequest,
     @Query() limit?: number,
     @Query() before_message_id?: string
-  ) {
+  ): Promise<PaginatedMessagesResponse> {
     return handleControllerRequest(this, async () => {
       const userId = await extractUserId(req);
       return this.service.getMessages(userId, conversationId, {
@@ -49,7 +53,7 @@ export class MessagesController extends Controller {
   public async sendMessage(
     @Body() dto: SendMessageDto,
     @Request() req: ExpressRequest
-  ) {
+  ): Promise<MessageResponse> {
     return handleControllerRequest(
       this,
       async () => {

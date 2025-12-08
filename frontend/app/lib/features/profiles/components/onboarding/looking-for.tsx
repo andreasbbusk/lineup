@@ -4,8 +4,9 @@ import { useOnboardingSubmission } from "../../hooks/onboarding/useOnboardingSub
 import { Button } from "@/app/components/buttons";
 import { CheckboxCircle } from "@/app/components/checkbox-circle";
 import { ErrorMessage } from "@/app/components/error-message";
+import type { LookingForType } from "../../types";
 
-const OPTIONS = [
+const OPTIONS: Array<{ id: LookingForType; label: string }> = [
   { id: "connect", label: "Connect to fellow musicians" },
   { id: "promote", label: "Promote my music" },
   { id: "find-band", label: "Find a band to play with" },

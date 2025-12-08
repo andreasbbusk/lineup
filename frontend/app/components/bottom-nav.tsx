@@ -20,7 +20,7 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/", label: "Home", icon: HomeIcon },
+  { href: "/feed", label: "Home", icon: HomeIcon },
   { href: "/services", label: "Services", icon: ShopIcon },
   { href: "/create", label: "Create", icon: AddIcon },
   {
@@ -33,6 +33,11 @@ const NAV_ITEMS: NavItem[] = [
 
 export default function BottomNav() {
   const pathname = usePathname();
+
+  // Hide bottom nav on chat detail and new chat pages
+  if (pathname === "/chats/new" || (pathname?.startsWith("/chats/") && pathname !== "/chats")) {
+    return null;
+  }
 
   return (
     <nav className="fixed bottom-0 left-1/2 z-50 -translate-x-1/2 pb-4">

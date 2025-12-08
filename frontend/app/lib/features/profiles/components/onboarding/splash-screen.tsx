@@ -34,9 +34,7 @@ export function OnboardingSplash() {
     <div className="fixed inset-0 flex h-full w-full items-center justify-center bg-crocus-yellow">
       <div
         className={`transition-all duration-500 ease-in-out motion-reduce:transition-none ${
-          isExiting
-            ? "scale-110 opacity-0"
-            : "scale-100 opacity-100"
+          isExiting ? "scale-110 opacity-0" : "scale-100 opacity-100"
         }`}
       >
         <Image

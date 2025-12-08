@@ -1,32 +1,41 @@
-import { IsEnum, IsOptional, IsBoolean } from "class-validator";
+import { IsEnum, IsOptional, IsString, Length } from "class-validator";
 
 /**
- * DTO for file upload request
+ * DTO for requesting a signed upload URL
  *
- * Used when uploading images or videos for posts or avatars.
- * Supports batch upload (max 4 files).
+ * Used to generate a temporary signed URL for direct client uploads to Supabase Storage.
+ * The client will use this signed URL to upload files directly, bypassing the backend.
  *
  * @example
  * {
- *   "type": "post",
- *   "generateThumbnails": true
+ *   "fileName": "my-image.jpg",
+ *   "fileType": "image/jpeg",
+ *   "uploadType": "post"
  * }
  */
-export class UploadDto {
+export class SignedUrlRequestDto {
+  /**
+   * Original file name (used to determine file extension)
+   * @example "my-image.jpg"
+   */
+  @IsString()
+  @Length(1, 255)
+  fileName!: string;
+
+  /**
+   * MIME type of the file (used for validation)
+   * @example "image/jpeg"
+   */
+  @IsString()
+  fileType!: string;
+
   /**
    * Upload type: "post" for post media, "avatar" for profile pictures
    * @example "post"
    */
-  @IsEnum(["post", "avatar"], {
-    message: "Type must be 'post' or 'avatar'",
-  })
-  type!: "post" | "avatar";
-
-  /**
-   * Whether to generate thumbnails for videos
-   * @example true
-   */
   @IsOptional()
-  @IsBoolean()
-  generateThumbnails?: boolean = false;
+  @IsEnum(["post", "avatar"], {
+    message: "Upload type must be 'post' or 'avatar'",
+  })
+  uploadType?: "post" | "avatar" = "post";
 }

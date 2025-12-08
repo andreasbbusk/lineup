@@ -70,6 +70,7 @@ export function mapConversationToResponse(
     lastMessageId: conversation.last_message_id ?? null,
     lastMessagePreview: conversation.last_message_preview ?? null,
     lastMessageAt: conversation.last_message_at ?? null,
+    lastMessageSenderId: conversation.last_message_sender_id ?? null,
     unreadCount: currentParticipant?.unread_count || 0,
     creator: conversation.creator
       ? mapProfile(conversation.creator)
