@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { PostResponse } from "../types";
@@ -11,10 +12,9 @@ interface PostCardProps {
   className?: string;
 }
 
-function formatDate(dateString: string | null): string {
+function formatDate(dateString: string | null, now: Date): string {
   if (!dateString) return "";
   const date = new Date(dateString);
-  const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
   if (diffInSeconds < 60) return "just now";
@@ -27,6 +27,41 @@ function formatDate(dateString: string | null): string {
     day: "numeric",
     year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
   });
+}
+
+// Client-only date formatter to prevent hydration mismatches
+function RelativeDate({ dateString }: { dateString: string | null }) {
+  const [mounted, setMounted] = useState(false);
+  const [formattedDate, setFormattedDate] = useState<string>("");
+
+  useEffect(() => {
+    setMounted(true);
+    const updateDate = () => {
+      setFormattedDate(formatDate(dateString, new Date()));
+    };
+    updateDate();
+    // Update every minute for relative times
+    const interval = setInterval(updateDate, 60000);
+    return () => clearInterval(interval);
+  }, [dateString]);
+
+  // During SSR and initial render, show a stable format
+  if (!mounted || !dateString) {
+    const date = dateString ? new Date(dateString) : null;
+    if (date) {
+      return (
+        <span suppressHydrationWarning>
+          {date.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+          })}
+        </span>
+      );
+    }
+    return <span suppressHydrationWarning></span>;
+  }
+
+  return <span suppressHydrationWarning>{formattedDate}</span>;
 }
 
 export function PostCard({ post, className = "" }: PostCardProps) {
@@ -64,7 +99,7 @@ export function PostCard({ post, className = "" }: PostCardProps) {
               : author?.username || "Unknown User"}
           </Link>
           <span className="text-sm text-gray-500">
-            {formatDate(post.createdAt)}
+            <RelativeDate dateString={post.createdAt} />
             {post.location && ` · ${post.location}`}
           </span>
         </div>
