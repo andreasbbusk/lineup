@@ -71,7 +71,34 @@ export class ConversationsService {
         code: "DATABASE_ERROR",
       });
 
-    return mapConversationsToResponse(data || [], userId);
+    // Fetch sender IDs for last messages
+    const conversationsWithMessages = data || [];
+    const messageIds = conversationsWithMessages
+      .map((c) => c.last_message_id)
+      .filter(Boolean);
+
+    let messageSenders: Record<string, string> = {};
+    if (messageIds.length > 0) {
+      const { data: messages } = await supabase
+        .from("messages")
+        .select("id, sender_id")
+        .in("id", messageIds as string[]);
+
+      messageSenders = (messages || []).reduce((acc, msg) => {
+        acc[msg.id] = msg.sender_id;
+        return acc;
+      }, {} as Record<string, string>);
+    }
+
+    // Add sender_id to conversations
+    const conversationsWithSenders = conversationsWithMessages.map((conv) => ({
+      ...conv,
+      last_message_sender_id: conv.last_message_id
+        ? messageSenders[conv.last_message_id] || null
+        : null,
+    }));
+
+    return mapConversationsToResponse(conversationsWithSenders, userId);
   }
 
   async getConversationById(
@@ -102,7 +129,21 @@ export class ConversationsService {
         code: "NOT_FOUND",
       });
 
-    return mapConversationToResponse(data, userId);
+    // Fetch sender ID for last message if it exists
+    let lastMessageSenderId = null;
+    if (data.last_message_id) {
+      const { data: message } = await supabase
+        .from("messages")
+        .select("sender_id")
+        .eq("id", data.last_message_id)
+        .single();
+      lastMessageSenderId = message?.sender_id || null;
+    }
+
+    return mapConversationToResponse(
+      { ...data, last_message_sender_id: lastMessageSenderId },
+      userId
+    );
   }
 
   async createConversation(
@@ -157,6 +198,48 @@ export class ConversationsService {
         statusCode: 404,
         code: "NOT_FOUND",
       });
+    }
+
+    // For direct conversations, check if one already exists between these users
+    if (data.type === "direct") {
+      const otherUserId = data.participantIds[0];
+
+      // Find all direct conversations where the current user is a participant
+      const { data: userConversations } = await supabase
+        .from("conversation_participants")
+        .select("conversation_id")
+        .eq("user_id", userId)
+        .is("left_at", null);
+
+      if (userConversations && userConversations.length > 0) {
+        const conversationIds = userConversations.map((c) => c.conversation_id);
+
+        // Check if the other user is also in any of these direct conversations
+        const { data: existingDirectConversation } = await supabase
+          .from("conversations")
+          .select(
+            `
+            id,
+            type,
+            conversation_participants!inner(user_id)
+          `
+          )
+          .in("id", conversationIds)
+          .eq("type", "direct")
+          .eq("conversation_participants.user_id", otherUserId)
+          .is("conversation_participants.left_at", null)
+          .limit(1)
+          .single();
+
+        if (existingDirectConversation) {
+          // Return the existing direct conversation
+          return this.getConversationById(
+            existingDirectConversation.id,
+            userId,
+            token
+          );
+        }
+      }
     }
 
     // Create conversation

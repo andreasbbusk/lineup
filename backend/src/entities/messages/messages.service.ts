@@ -1,6 +1,14 @@
 import { supabase } from "../../config/supabase.config.js";
 import { createHttpError } from "../../utils/error-handler.js";
 import type { SendMessageDto, EditMessageDto } from "./messages.dto.js";
+import {
+  mapMessageToResponse,
+  mapMessagesToResponse,
+} from "./messages.mapper.js";
+import type {
+  PaginatedMessagesResponse,
+  MessageResponse,
+} from "../../types/api.types.js";
 
 const MESSAGE_SELECT = `
   id,
@@ -38,7 +46,7 @@ export class MessagesService {
     userId: string,
     conversationId: string,
     pagination: { before_message_id?: string; limit: number }
-  ) {
+  ): Promise<PaginatedMessagesResponse> {
     if (!(await this.verifyParticipant(conversationId, userId))) {
       throw createHttpError({
         message: "Not a participant",
@@ -47,13 +55,14 @@ export class MessagesService {
       });
     }
 
+    // Fetch one extra message to check if there are more
     let query = supabase
       .from("messages")
       .select(MESSAGE_SELECT)
       .eq("conversation_id", conversationId)
       .eq("is_deleted", false)
       .order("created_at", { ascending: false })
-      .limit(pagination.limit);
+      .limit(pagination.limit + 1);
 
     if (pagination.before_message_id) {
       const { data: cursor } = await supabase
@@ -73,10 +82,35 @@ export class MessagesService {
         code: "DATABASE_ERROR",
       });
 
-    return data?.reverse() || [];
+    const allMessages = data || [];
+
+    // Check if there are more messages (we fetched limit + 1)
+    const hasMore = allMessages.length > pagination.limit;
+
+    // Remove the extra message we fetched for the hasMore check
+    const messagesToReturn = hasMore
+      ? allMessages.slice(0, pagination.limit)
+      : allMessages;
+
+    // Reverse to chronological order (oldest first) and map to camelCase
+    const sortedMessages = messagesToReturn.reverse();
+    const mappedMessages = mapMessagesToResponse(sortedMessages);
+
+    // nextCursor is the oldest message ID (first in the sorted array)
+    const nextCursor =
+      hasMore && mappedMessages.length > 0 ? mappedMessages[0].id : null;
+
+    return {
+      messages: mappedMessages,
+      hasMore,
+      nextCursor,
+    };
   }
 
-  async sendMessage(userId: string, dto: SendMessageDto) {
+  async sendMessage(
+    userId: string,
+    dto: SendMessageDto
+  ): Promise<MessageResponse> {
     if (!(await this.verifyParticipant(dto.conversation_id, userId))) {
       throw createHttpError({
         message: "Not a participant",
@@ -106,7 +140,7 @@ export class MessagesService {
         code: "DATABASE_ERROR",
       });
 
-    return data;
+    return mapMessageToResponse(data);
   }
 
   async editMessage(userId: string, messageId: string, dto: EditMessageDto) {

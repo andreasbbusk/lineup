@@ -1,9 +1,17 @@
 import { apiClient, handleApiError } from "../../api/api-client";
-import type { components } from "@/app/lib/types/api";
+import type {
+  UserProfile,
+  ProfileUpdateRequest,
+  Connection,
+  ConnectionStatus,
+} from "./types";
 
 // Export types from generated schema
 export type UserProfile = components["schemas"]["UserProfile"];
 export type ProfileUpdateRequest = components["schemas"]["UpdateProfileDto"];
+export type Connection = components["schemas"]["Connections"];
+export type ConnectionStatus =
+  components["schemas"]["Connection_Request"];
 export type CollaborationResponse = components["schemas"]["CollaborationResponse"];
 export type ReviewResponse = components["schemas"]["ReviewResponse"];
 export type UserSocialMediaResponse = components["schemas"]["UserSocialMediaResponse"];
@@ -26,6 +34,10 @@ export async function getUserProfile(username: string): Promise<UserProfile> {
     handleApiError(error, response);
   }
 
+  if (!data) {
+    throw new Error("No data returned from API");
+  }
+
   return data;
 }
 
@@ -37,7 +49,6 @@ export async function updateUserProfile(
   username: string,
   updates: ProfileUpdateRequest
 ): Promise<UserProfile> {
-
   const { data, error, response } = await apiClient.PUT("/users/{username}", {
     params: {
       path: { username },
@@ -54,6 +65,205 @@ export async function updateUserProfile(
   }
 
   return data;
+}
+
+// ==================== Connection API Functions ====================
+
+/**
+ * Get all connection requests for the authenticated user
+ * Returns both sent and received connection requests
+ */
+export async function getConnectionRequests(): Promise<Connection[]> {
+  // @ts-expect-error - Connection endpoints not yet in generated types. Regenerate types after running `npm run tsoa` in backend.
+  const { data, error, response } = await apiClient.GET("/connections/", {});
+
+  if (error) {
+    handleApiError(error, response);
+  }
+
+  return (data as Connection[]) || [];
+}
+
+/**
+ * Get accepted connections for a specific user (public endpoint)
+ * Returns only accepted connections for the specified user
+ */
+export async function getUserAcceptedConnections(
+  userId: string
+): Promise<Connection[]> {
+  // Connection endpoints not yet in generated types. Regenerate types after running `npm run tsoa` in backend.
+  const { data, error, response } = await apiClient.GET(
+    "/connections/accepted/{userId}",
+    {
+      params: { path: { userId } },
+    }
+  );
+
+  if (error) {
+    handleApiError(error, response);
+  }
+
+  return (data as Connection[]) || [];
+}
+
+/**
+ * Get connection status between current user and another user
+ * Returns the connection if it exists, null otherwise
+ */
+export async function getConnectionStatus(
+  targetUserId: string
+): Promise<Connection | null> {
+  // Connection endpoints not yet in generated types. Regenerate types after running `npm run tsoa` in backend.
+  const { data, error, response } = await apiClient.GET(
+    "/connections/status/{targetUserId}",
+    {
+      params: { path: { targetUserId } },
+    }
+  );
+
+  if (error) {
+    handleApiError(error, response);
+  }
+
+  // If no connection found, the endpoint returns null
+  // Handle case where data might be null or undefined
+  if (!data) {
+    return null;
+  }
+
+  return data as unknown as Connection;
+}
+
+/**
+ * Send a connection request to another user
+ */
+export async function sendConnectionRequest(
+  recipientId: string
+): Promise<Connection> {
+  // Validate recipientId is a valid UUID format
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(recipientId)) {
+    throw new Error(
+      `Invalid recipientId format: ${recipientId}. Expected UUID format.`
+    );
+  }
+
+  const requestBody = {
+    recipientId,
+  };
+
+  // @ts-expect-error - Connection endpoints not yet in generated types. Regenerate types after running `npm run tsoa` in backend.
+  const { data, error, response } = await apiClient.POST("/connections/", {
+    body: requestBody,
+  });
+
+  if (error) {
+    console.error("Connection request error:", { error, response });
+    handleApiError(error, response);
+  }
+
+  if (!data) {
+    throw new Error("No data returned from API");
+  }
+
+  return data;
+}
+
+/**
+ * Accept a connection request
+ */
+export async function acceptConnectionRequest(
+  requestId: string
+): Promise<Connection> {
+  const { data, error, response } = await apiClient.PUT(
+    "/connections/{requestId}",
+    {
+      params: {
+        path: { requestId },
+      },
+      body: {
+        status: "accepted",
+      },
+    }
+  );
+
+  if (error) {
+    handleApiError(error, response);
+  }
+
+  if (!data) {
+    throw new Error("No data returned from API");
+  }
+
+  return data;
+}
+
+/**
+ * Reject a connection request
+ */
+export async function rejectConnectionRequest(
+  requestId: string
+): Promise<Connection> {
+  const { data, error, response } = await apiClient.PUT(
+    "/connections/{requestId}",
+    {
+      params: {
+        path: { requestId },
+      },
+      body: {
+        status: "rejected",
+      },
+    }
+  );
+
+  if (error) {
+    handleApiError(error, response);
+  }
+
+  if (!data) {
+    throw new Error("No data returned from API");
+  }
+
+  return data;
+}
+
+/**
+ * Cancel a connection request (delete pending request you sent)
+ */
+export async function cancelConnectionRequest(
+  requestId: string
+): Promise<void> {
+  const { error, response } = await apiClient.DELETE(
+    "/connections/{requestId}",
+    {
+      params: {
+        path: { requestId },
+      },
+    }
+  );
+
+  if (error) {
+    handleApiError(error, response);
+  }
+}
+
+/**
+ * Remove an accepted connection (either user can remove)
+ */
+export async function removeConnection(connectionId: string): Promise<void> {
+  const { error, response } = await apiClient.DELETE(
+    "/connections/{requestId}",
+    {
+      params: {
+        path: { requestId: connectionId },
+      },
+    }
+  );
+
+  if (error) {
+    handleApiError(error, response);
+  }
 }
 
 /**

@@ -1,5 +1,4 @@
 import { IsString, IsUUID, IsEnum } from "class-validator";
-import { ConnectionRequestInsert } from "../../utils/supabase-helpers.js";
 import { ConnectionStatus } from "../../types/api.types.js";
 
 /**
@@ -13,13 +12,7 @@ import { ConnectionStatus } from "../../types/api.types.js";
  *   "recipientId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
  * }
  */
-export class CreateConnectionRequestDto
-  implements
-    Omit<
-      ConnectionRequestInsert,
-      "requester_id" | "created_at" | "updated_at" | "id" | "status"
-    >
-{
+export class CreateConnectionRequestDto {
   /**
    * The ID of the user to send the connection request to (UUID format)
    * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"

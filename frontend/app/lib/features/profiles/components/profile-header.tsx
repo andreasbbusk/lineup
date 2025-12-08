@@ -1,12 +1,42 @@
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
+import Link from "next/link";
 import type { CSSProperties } from "react";
 import { Button } from "@/app/components/buttons";
 import { Popover } from "@/app/components/popover";
+import { LoadingSpinner } from "@/app/components/loading-spinner";
+import { useAppStore } from "@/app/lib/stores/app-store";
+import {
+	useConnectionRequests,
+	useMyConnections,
+	useUserConnections,
+} from "@/app/lib/features/profiles";
+import { ConnectionButton } from "./connections/ConnectionButton";
+
+// Lazy load ConnectionsModal to reduce initial bundle size
+const ConnectionsModal = dynamic(
+	() =>
+		import("./connections/ConnectionsModal").then((mod) => ({
+			default: mod.ConnectionsModal,
+		})),
+	{
+		loading: () => (
+			<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+				<div className="flex items-center justify-center">
+					<LoadingSpinner size={40} />
+				</div>
+			</div>
+		),
+		ssr: false,
+	}
+);
 
 type ProfileHeaderProps = {
 	/** Username of the profile */
 	username: string;
+	/** User ID of the profile (for connection functionality) */
+	userId?: string | null;
 	/** Image source URL */
 	imgSrc: string;
 	/** Short biography */
@@ -42,6 +72,45 @@ type ProfileHeaderProps = {
 
 function ProfileHeader(props: ProfileHeaderProps) {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const [isConnectionsModalOpen, setIsConnectionsModalOpen] = useState(false);
+	const currentUserId = useAppStore((state) => state.user?.id);
+	const isOwnProfile = !props.userId || props.userId === currentUserId;
+
+	// Get connections data
+	const { data: myConnections } = useMyConnections({
+		enabled: isOwnProfile,
+	});
+	const { data: userConnections } = useUserConnections({
+		userId: props.userId || null,
+		enabled: !isOwnProfile && !!props.userId,
+	});
+
+	// Get pending connections count for own profile
+	const { data: connectionRequests } = useConnectionRequests();
+	const pendingCount =
+		isOwnProfile && Array.isArray(connectionRequests)
+			? connectionRequests.filter(
+					(conn) =>
+						conn.status === "pending" && conn.recipientId === currentUserId
+			  ).length
+			: 0;
+
+	// Calculate accepted connections count
+	const acceptedConnectionsCount = isOwnProfile
+		? Array.isArray(myConnections)
+			? myConnections.filter((conn) => conn.status === "accepted").length
+			: 0
+		: userConnections?.length ?? 0;
+
+	// Use the calculated count if we have data (even if it's 0), otherwise fall back to the prop
+	// For other profiles, we always use the fetched data if the query has completed
+	const displayConnectionsCount = isOwnProfile
+		? myConnections !== undefined
+			? acceptedConnectionsCount
+			: props.connections ?? 0
+		: userConnections !== undefined
+		? acceptedConnectionsCount
+		: props.connections ?? 0;
 
 	return (
 		<div
@@ -105,10 +174,19 @@ function ProfileHeader(props: ProfileHeaderProps) {
 				/>
 			)}
 			<div className="flex justify-center items-center self-stretch">
-				<div className="flex flex-col items-center flex-[1_0_0]">
-					<p>{props.connections ?? 0}</p>
+				<button
+					onClick={() => setIsConnectionsModalOpen(true)}
+					className="flex flex-col items-center flex-[1_0_0] cursor-pointer hover:opacity-80 transition-opacity">
+					<div className="relative">
+						<p>{displayConnectionsCount}</p>
+						{pendingCount > 0 && (
+							<span className="absolute top-0 -right-2.5 flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-xs font-semibold transform translate-x-1/2 -translate-y-1/2">
+								{pendingCount > 99 ? "99+" : pendingCount}
+							</span>
+						)}
+					</div>
 					<p>Connections</p>
-				</div>
+				</button>
 				<Image
 					src={props.imgSrc}
 					alt={`${props.username}'s avatar`}
@@ -123,7 +201,7 @@ function ProfileHeader(props: ProfileHeaderProps) {
 			</div>
 			<div>
 				<div className="flex justify-center items-start gap-1.5 self-stretch">
-					<h3 className=" text-center [font-family:var(--font-family-helvetica)] text-[1.125rem] not-italic font-normal leading-[1.1875rem] tracking-[0.03125rem]">
+					<h3 className="text-center text-[1.125rem]">
 						{props.firstName} {props.lastName}
 					</h3>
 					{props.verified && (
@@ -136,25 +214,45 @@ function ProfileHeader(props: ProfileHeaderProps) {
 						/>
 					)}
 				</div>
-				<p className="text-[var(--color-melting-glacier)] text-center text-xs not-italic font-normal leading-none tracking-[0.03125rem] self-stretch [font-family:var(--font-family-helvetica)]">
+				<p className="text-[var(--color-melting-glacier)] text-center text-xs leading-none self-stretch">
 					{props.bio}
 				</p>
 			</div>
 			<div className="flex items-center gap-[var(--Spacing-XS---spacing,0.625rem)]">
-				<Button
-					variant="primary"
-					glass
-					icon={props.isOwnProfile ? "" : "add-circle"}
-					onClick={props.onClickConnect ?? (() => {})}>
-					{props.isOwnProfile ? "Edit profile" : "Connect"}
-				</Button>
-				<Button
-					variant="primary"
-					glass
-					onClick={props.onClickMessage ?? (() => {})}>
-					{props.isOwnProfile ? "Share profile" : "Message"}
-				</Button>
+				{isOwnProfile ? (
+					<>
+						<Link href="/profile/edit">
+							<Button variant="primary" glass onClick={() => {}}>
+								Edit Profile
+							</Button>
+						</Link>
+						<Button
+							variant="primary"
+							glass
+							onClick={() => {
+								// TODO: Implement share profile functionality
+							}}>
+							Share Profile
+						</Button>
+					</>
+				) : (
+					<>
+						<ConnectionButton targetUserId={props.userId || null} />
+						<Button
+							variant="primary"
+							glass
+							onClick={props.onClickMessage ?? (() => {})}>
+							Message
+						</Button>
+					</>
+				)}
 			</div>
+			<ConnectionsModal
+				isOpen={isConnectionsModalOpen}
+				onClose={() => setIsConnectionsModalOpen(false)}
+				userId={props.userId || null}
+				username={props.username}
+			/>
 		</div>
 	);
 }

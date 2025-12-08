@@ -186,7 +186,7 @@
 
 	/* Color System - Secondary (Used in customization) */
 	--color-dark-grey-red: oklch(40% 0.012 15);
-	--color-dark-cyan-blue: oklch(35% 0.02 235);
+	--color-dark-cyan-blue: oklch(0.4108 0.0213 229.56);
 	--color-dark-blue: oklch(32% 0.03 275);
 	--color-dark-pink-red: oklch(33% 0.028 15);
 	--color-dark-orange: oklch(37% 0.025 50);
@@ -208,6 +208,9 @@
 }
 
 @theme {
+	/* Font Family */
+	--font-family-helvetica: "Helvetica Now Display", system-ui, -apple-system,
+		sans-serif;
 	/* Font Family */
 	--font-family-helvetica: "Helvetica Now Display", system-ui, -apple-system,
 		sans-serif;
@@ -264,6 +267,7 @@
 
 * {
 	font-family: var(--font-family-helvetica);
+	overscroll-behavior-y: none;
 }
 
 body {
@@ -308,4 +312,26 @@ h3,
 .no-scrollbar {
 	-ms-overflow-style: none;
 	scrollbar-width: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+	width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+	background: rgba(255, 255, 255, 0.3);
+}
+
+.custom-scrollbar {
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }

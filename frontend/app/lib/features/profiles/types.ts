@@ -1,14 +1,14 @@
-// Re-export backend API types from api.ts for convenience
-export type { UserProfile, ProfileUpdateRequest } from "./api";
+// Single source of truth: @/app/lib/types/api.d.ts
+import type { components } from "@/app/lib/types/api";
 
-// Frontend-only types (not in backend API)
+// --- Backend API Types (from api.d.ts) ---
+export type UserProfile = components["schemas"]["UserProfile"];
+export type ProfileUpdateRequest = components["schemas"]["UpdateProfileDto"];
+export type LookingForType = components["schemas"]["LookingForType"];
+export type ConnectionStatus = components["schemas"]["ConnectionStatus"];
+export type Connection = components["schemas"]["Connection"];
 
-export type LookingForType =
-  | "connect"
-  | "promote"
-  | "find-band"
-  | "find-services";
-
+// --- Frontend-only Types ---
 export interface OnboardingData {
   email: string;
   username: string;
@@ -19,6 +19,6 @@ export interface OnboardingData {
   yearOfBirth: number;
   location: string;
   userType: "musician" | "service_provider" | "other";
-  lookingFor: string[];
+  lookingFor: LookingForType[];
   accountCreated?: boolean;
 }

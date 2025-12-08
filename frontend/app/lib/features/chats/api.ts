@@ -91,6 +91,17 @@ export const chatApi = {
     return data;
   },
 
+  deleteMessage: async (messageId: string) => {
+    const { error, response } = await apiClient.DELETE(
+      "/messages/{messageId}",
+      {
+        params: { path: { messageId } },
+      }
+    );
+
+    if (error) return handleApiError(error, response);
+  },
+
   markAsRead: async (messageIds: string[]) => {
     const { error, response } = await apiClient.POST("/messages/read", {
       body: { message_ids: messageIds },
