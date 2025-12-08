@@ -1,9 +1,4 @@
-/**
- * Message grouping utilities for chat UI display logic.
- * Determines when to show avatars, timestamps, and unread dividers based on
- * message sequence, time gaps, and read status.
- */
-
+import { MESSAGE_GROUPING } from "../constants";
 import { Message } from "../types";
 
 type MessageGroupingConfig = {
@@ -16,9 +11,6 @@ export type MessageGroupingInfo = {
   isFirstUnread: boolean;
 };
 
-const DEFAULT_TIMESTAMP_GAP_MS = 5 * 60 * 1000;
-
-// Show avatar at the last message in a group from the same sender
 export function shouldShowAvatar(
   message: Message,
   nextMessage: Message | undefined
@@ -26,17 +18,14 @@ export function shouldShowAvatar(
   return !nextMessage || nextMessage.senderId !== message.senderId;
 }
 
-// Show timestamp when different day or time gap exceeds threshold
 export function shouldShowTimestamp(
   message: Message,
   prevMessage: Message | undefined,
   config: MessageGroupingConfig = {}
 ): boolean {
-  const { timestampGapMs = DEFAULT_TIMESTAMP_GAP_MS } = config;
+  const { timestampGapMs = MESSAGE_GROUPING.TIMESTAMP_GAP_MS } = config;
 
-  if (!prevMessage || !prevMessage.createdAt || !message.createdAt) {
-    return true;
-  }
+  if (!prevMessage?.createdAt || !message.createdAt) return true;
 
   const prevDate = new Date(prevMessage.createdAt);
   const currentDate = new Date(message.createdAt);
@@ -46,21 +35,19 @@ export function shouldShowTimestamp(
     prevDate.getMonth() !== currentDate.getMonth() ||
     prevDate.getFullYear() !== currentDate.getFullYear();
 
-  if (isDifferentDay) return true;
-
-  const timeDiff = currentDate.getTime() - prevDate.getTime();
-  return timeDiff >= timestampGapMs;
+  return (
+    isDifferentDay ||
+    currentDate.getTime() - prevDate.getTime() >= timestampGapMs
+  );
 }
 
-// Show unread divider at first unread message
 export function isFirstUnreadMessage(
   message: Message,
   prevMessage: Message | undefined,
   currentUserId: string,
   messageIndex: number
 ): boolean {
-  const isMe = message.senderId === currentUserId;
-  if (isMe) return false;
+  if (message.senderId === currentUserId) return false;
 
   const isCurrentUnread =
     message.readReceipts &&
@@ -68,13 +55,13 @@ export function isFirstUnreadMessage(
 
   if (!isCurrentUnread) return false;
 
-  const wasPreviousRead =
+  return (
     messageIndex === 0 ||
     (prevMessage?.readReceipts?.some(
       (receipt) => receipt.userId === currentUserId
-    ) ?? false);
-
-  return wasPreviousRead;
+    ) ??
+      false)
+  );
 }
 
 export function getMessageGroupingInfo(

@@ -59,7 +59,6 @@ export async function initializeAuthState(): Promise<InitializedUser | null> {
     if (profileError) {
       // User mid-signup (steps 0-2), profile row not created in DB yet
       if (profileError.code === "PGRST116") {
-        console.log("⚠️ No profile yet - mid-signup");
         return {
           id: session.user.id,
           email: session.user.email!,

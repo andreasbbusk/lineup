@@ -1,0 +1,76 @@
+import React from "react";
+import { Avatar, getInitials } from "@/app/components/avatar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/app/components/radix-popover";
+import { EllipsisVertical, UserCircle, Ban, AlertCircle, ChevronLeft } from "lucide-react";
+
+type ChatHeaderProps = {
+  conversationName?: string;
+  conversationAvatar?: string | null;
+  onBack?: () => void;
+  onMenuAction?: (action: string) => void;
+};
+
+const MENU_OPTIONS = [
+  { icon: UserCircle, label: "Go to profile", action: "profile" },
+  { icon: Ban, label: "Block user", action: "block" },
+  { icon: AlertCircle, label: "Report user", action: "report" },
+];
+
+export function ChatHeader({
+  conversationName,
+  conversationAvatar,
+  onBack,
+  onMenuAction,
+}: ChatHeaderProps) {
+  return (
+    <div className="flex items-center gap-3 px-4 py-8 bg-dark-cyan-blue">
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="p-2 -ml-2 hover:bg-white/10 rounded-full transition-colors"
+        >
+          <ChevronLeft className="text-white" />
+        </button>
+      )}
+      <Avatar
+        src={conversationAvatar}
+        alt={conversationName || "Chat"}
+        fallback={getInitials(
+          conversationName?.split(" ")[0],
+          conversationName?.split(" ")[1]
+        )}
+        size="lg"
+        expandable={true}
+        className="border border-white rounded-full"
+      />
+      <h2 className="text-lg font-semibold flex-1 text-white">
+        {conversationName || "Chat"}
+      </h2>
+      <Popover>
+        <PopoverTrigger asChild>
+          <button className="p-2 -mr-2 hover:bg-white/10 rounded-full transition-colors">
+            <EllipsisVertical className="text-white" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent side="bottom" align="end" sideOffset={8}>
+          <ul className="flex flex-col gap-2.5">
+            {MENU_OPTIONS.map((option, index) => (
+              <React.Fragment key={option.label}>
+                {index > 0 && (
+                  <div className="w-full h-px bg-white opacity-50" />
+                )}
+                <li
+                  className="flex gap-3 cursor-pointer hover:opacity-80 transition-opacity items-center"
+                  onClick={() => onMenuAction?.(option.action)}
+                >
+                  <option.icon className="size-4" />
+                  <p>{option.label}</p>
+                </li>
+              </React.Fragment>
+            ))}
+          </ul>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}

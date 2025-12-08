@@ -18,3 +18,19 @@ export function useCreateConversation() {
     },
   });
 }
+
+/**
+ * Mark messages as read and update unread counts
+ * Refreshes conversation list to clear unread indicators
+ */
+export function useMarkAsRead() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (messageIds: string[]) => chatApi.markAsRead(messageIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: chatKeys.unread() });
+      queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+    },
+  });
+}

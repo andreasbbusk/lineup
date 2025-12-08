@@ -1,9 +1,8 @@
 "use client";
 
 import { UserSearchResult } from "../../types";
-import { Avatar, getInitials } from "../shared/avatar";
+import { Avatar, getInitials } from "../../../../../components/avatar";
 import { Check } from "lucide-react";
-
 
 type UserSuggestionRowProps = {
   user: UserSearchResult;
