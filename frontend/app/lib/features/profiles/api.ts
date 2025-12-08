@@ -222,7 +222,7 @@ export async function rejectConnectionRequest(
 }
 
 /**
- * Cancel a connection request (delete pending request)
+ * Cancel a connection request (delete pending request you sent)
  */
 export async function cancelConnectionRequest(
   requestId: string
@@ -239,4 +239,25 @@ export async function cancelConnectionRequest(
   if (error) {
     handleApiError(error, response);
   }
+}
+
+/**
+ * Remove an accepted connection (either user can remove)
+ */
+export async function removeConnection(connectionId: string): Promise<void> {
+  const { error, response } = await apiClient.DELETE(
+    "/connections/{requestId}",
+    {
+      params: {
+        path: { requestId: connectionId },
+      },
+    }
+  );
+
+  if (error) {
+    handleApiError(error, response);
+  }
+
+  // If we get here, the deletion was successful (204 No Content)
+  // The DELETE endpoint returns void, so no data to return
 }

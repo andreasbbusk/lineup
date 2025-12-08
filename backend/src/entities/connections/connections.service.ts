@@ -411,7 +411,8 @@ export class ConnectionsService {
 
   /**
    * Delete a connection request
-   * Only the requester can delete a pending request
+   * - For pending requests: Only the requester can delete
+   * - For accepted connections: Either user (requester or recipient) can delete
    */
   async deleteConnectionRequest(
     requestId: string,
@@ -421,10 +422,10 @@ export class ConnectionsService {
     // Create authenticated Supabase client for RLS
     const authedSupabase = createAuthenticatedClient(token);
 
-    // Verify the request exists and user is the requester
+    // Verify the request exists
     const { data: request, error: fetchError } = await authedSupabase
       .from("connection_requests")
-      .select("requester_id, status")
+      .select("requester_id, recipient_id, status")
       .eq("id", requestId)
       .single();
 
@@ -436,23 +437,48 @@ export class ConnectionsService {
       });
     }
 
-    if (request.requester_id !== userId) {
-      throw createHttpError({
-        message: "You can only delete connection requests you sent",
-        statusCode: 403,
-        code: "FORBIDDEN",
-      });
+    // Check if user is authorized to delete
+    const isRequester = request.requester_id === userId;
+    const isRecipient = request.recipient_id === userId;
+    const isAuthorized =
+      isRequester || (isRecipient && request.status === "accepted");
+
+    if (!isAuthorized) {
+      if (request.status === "pending") {
+        throw createHttpError({
+          message: "You can only delete connection requests you sent",
+          statusCode: 403,
+          code: "FORBIDDEN",
+        });
+      } else {
+        throw createHttpError({
+          message: `You can only delete connections you are part of. User: ${userId}, Requester: ${request.requester_id}, Recipient: ${request.recipient_id}, Status: ${request.status}`,
+          statusCode: 403,
+          code: "FORBIDDEN",
+        });
+      }
     }
 
     // Delete the connection request
-    const { error } = await authedSupabase
+    const { data: deletedData, error } = await authedSupabase
       .from("connection_requests")
       .delete()
-      .eq("id", requestId);
+      .eq("id", requestId)
+      .select();
 
     if (error) {
       throw createHttpError({
         message: `Failed to delete connection request: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    // Verify deletion was successful
+    if (!deletedData || deletedData.length === 0) {
+      throw createHttpError({
+        message:
+          "Connection request was not deleted (no rows affected). This may be due to RLS policies blocking the deletion.",
         statusCode: 500,
         code: "DATABASE_ERROR",
       });

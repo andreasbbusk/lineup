@@ -8,11 +8,11 @@ import { useAppStore } from "@/app/lib/stores/app-store";
 import {
   useAcceptConnection,
   useRejectConnection,
-  useCancelConnection,
-  useMyProfile,
+  useRemoveConnection,
   useMyConnections,
   useUserConnections,
-} from "@/app/lib/features/profiles";
+} from "@/app/lib/features/profiles/hooks/queries/useConnection";
+import { useMyProfile } from "@/app/lib/features/profiles/hooks/queries/useProfile";
 import type { Connection } from "@/app/lib/features/profiles/api";
 
 interface ConnectionsModalProps {
@@ -46,7 +46,7 @@ export function ConnectionsModal({
 
   const acceptConnection = useAcceptConnection();
   const rejectConnection = useRejectConnection();
-  const cancelConnection = useCancelConnection();
+  const removeConnection = useRemoveConnection();
 
   const connectionsToUse = isOwnProfile ? myConnections : userConnections;
   const isLoading = isOwnProfile
@@ -74,8 +74,9 @@ export function ConnectionsModal({
     rejectConnection.mutate(requestId);
   };
 
-  const handleRemove = (requestId: string) => {
-    cancelConnection.mutate(requestId);
+  const handleRemove = (connection: Connection) => {
+    // Use the connection ID to delete it
+    removeConnection.mutate(connection.id);
   };
 
   const getOtherUser = (connection: Connection) => {
@@ -221,8 +222,8 @@ export function ConnectionsModal({
                               connection={connection}
                               showActions={false}
                               showRemove={isOwnProfile}
-                              onRemove={() => handleRemove(connection.id)}
-                              isRemoving={cancelConnection.isPending}
+                              onRemove={() => handleRemove(connection)}
+                              isRemoving={removeConnection.isPending}
                             />
                           );
                         })}

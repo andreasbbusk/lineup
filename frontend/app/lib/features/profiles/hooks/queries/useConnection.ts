@@ -8,6 +8,7 @@ import {
   acceptConnectionRequest,
   rejectConnectionRequest,
   cancelConnectionRequest,
+  removeConnection,
   getConnectionRequests,
   getUserAcceptedConnections,
   type Connection,
@@ -108,12 +109,19 @@ export function useSendConnection() {
  */
 export function useAcceptConnection() {
   const queryClient = useQueryClient();
+  const currentUserId = useAppStore((state) => state.user?.id);
 
   return useMutation({
     mutationFn: async (requestId: string) => {
       return acceptConnectionRequest(requestId);
     },
-    onSuccess: () => {
+    onSuccess: (connection) => {
+      // Determine the other user's ID (the one who sent the request)
+      const otherUserId =
+        connection.requesterId === currentUserId
+          ? connection.recipientId
+          : connection.requesterId;
+
       queryClient.invalidateQueries({
         queryKey: ["connectionStatus"],
       });
@@ -124,8 +132,16 @@ export function useAcceptConnection() {
       queryClient.invalidateQueries({
         queryKey: ["myConnections"],
       });
+      // Invalidate the other user's connections so their profile shows updated count
+      // Use refetchType: 'active' to ensure active queries refetch immediately
+      queryClient.invalidateQueries({
+        queryKey: ["userConnections", otherUserId],
+        refetchType: "active",
+      });
+      // Also invalidate all userConnections queries as a fallback
       queryClient.invalidateQueries({
         queryKey: ["userConnections"],
+        refetchType: "active",
       });
     },
   });
@@ -160,7 +176,7 @@ export function useRejectConnection() {
 }
 
 /**
- * Hook to cancel a connection request
+ * Hook to cancel a connection request (delete pending request you sent)
  */
 export function useCancelConnection() {
   const queryClient = useQueryClient();
@@ -182,6 +198,41 @@ export function useCancelConnection() {
       });
       queryClient.invalidateQueries({
         queryKey: ["userConnections"],
+        refetchType: "active",
+      });
+    },
+  });
+}
+
+/**
+ * Hook to remove an accepted connection (either user can remove)
+ */
+export function useRemoveConnection() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (connectionId: string) => {
+      return removeConnection(connectionId);
+    },
+    onSuccess: () => {
+      // Invalidate all connection-related queries to ensure both users' counts update
+      queryClient.invalidateQueries({
+        queryKey: ["connectionStatus"],
+        refetchType: "active",
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["connectionRequests"],
+        refetchType: "active",
+      });
+      // Invalidate connections for modal - ensure it refetches immediately
+      queryClient.invalidateQueries({
+        queryKey: ["myConnections"],
+        refetchType: "active",
+      });
+      // Invalidate all userConnections queries (both users' counts will update)
+      queryClient.invalidateQueries({
+        queryKey: ["userConnections"],
+        refetchType: "active",
       });
     },
   });
@@ -235,7 +286,8 @@ export function useUserConnections(options: UseUserConnectionsOptions) {
       if (!userId) return [];
       return getUserAcceptedConnections(userId);
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 50 * 60 * 1000, // 5 minutes
     enabled: enabled && !!userId,
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 }

@@ -4,7 +4,11 @@ import type { CSSProperties } from "react";
 import { Button } from "@/app/components/buttons";
 import { Popover } from "@/app/components/popover";
 import { useAppStore } from "@/app/lib/stores/app-store";
-import { useConnectionRequests } from "@/app/lib/features/profiles";
+import {
+  useConnectionRequests,
+  useMyConnections,
+  useUserConnections,
+} from "@/app/lib/features/profiles";
 import { ConnectionButton } from "./connections/ConnectionButton";
 import { ConnectionsModal } from "./connections/ConnectionsModal";
 
@@ -40,6 +44,15 @@ function ProfileHeader(props: ProfileHeaderProps) {
   const currentUserId = useAppStore((state) => state.user?.id);
   const isOwnProfile = !props.userId || props.userId === currentUserId;
 
+  // Get connections data
+  const { data: myConnections } = useMyConnections({
+    enabled: isOwnProfile,
+  });
+  const { data: userConnections } = useUserConnections({
+    userId: props.userId || null,
+    enabled: !isOwnProfile && !!props.userId,
+  });
+
   // Get pending connections count for own profile
   const { data: connectionRequests } = useConnectionRequests();
   const pendingCount =
@@ -49,6 +62,21 @@ function ProfileHeader(props: ProfileHeaderProps) {
             conn.status === "pending" && conn.recipientId === currentUserId
         ).length
       : 0;
+
+  // Calculate accepted connections count
+  const acceptedConnectionsCount = isOwnProfile
+    ? myConnections?.filter((conn) => conn.status === "accepted").length ?? 0
+    : userConnections?.length ?? 0;
+
+  // Use the calculated count if we have data (even if it's 0), otherwise fall back to the prop
+  // For other profiles, we always use the fetched data if the query has completed
+  const displayConnectionsCount = isOwnProfile
+    ? myConnections !== undefined
+      ? acceptedConnectionsCount
+      : props.connections ?? 0
+    : userConnections !== undefined
+    ? acceptedConnectionsCount
+    : props.connections ?? 0;
 
   const colorClass = {
     default: "1E1E1E",
@@ -129,9 +157,9 @@ function ProfileHeader(props: ProfileHeaderProps) {
           className="flex flex-col items-center flex-[1_0_0] cursor-pointer hover:opacity-80 transition-opacity"
         >
           <div className="relative">
-            <p>{props.connections ?? 0}</p>
+            <p>{displayConnectionsCount}</p>
             {pendingCount > 0 && (
-              <span className="absolute top-0 right-0 flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-xs font-semibold transform translate-x-1/2 -translate-y-1/2">
+              <span className="absolute top-0 -right-2.5 flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-xs font-semibold transform translate-x-1/2 -translate-y-1/2">
                 {pendingCount > 99 ? "99+" : pendingCount}
               </span>
             )}

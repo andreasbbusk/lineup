@@ -17,6 +17,7 @@ export {
   useAcceptConnection,
   useRejectConnection,
   useCancelConnection,
+  useRemoveConnection,
   useConnectionRequests,
   useMyConnections,
   useUserConnections,
