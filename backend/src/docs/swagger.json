@@ -211,6 +211,212 @@
 					"themeColor": "#FF5733"
 				}
 			},
+			"UserSocialMediaResponse": {
+				"description": "API response format for user social media links",
+				"properties": {
+					"userId": {
+						"type": "string"
+					},
+					"instagram": {
+						"type": "string",
+						"nullable": true
+					},
+					"twitter": {
+						"type": "string",
+						"nullable": true
+					},
+					"facebook": {
+						"type": "string",
+						"nullable": true
+					},
+					"youtube": {
+						"type": "string",
+						"nullable": true
+					},
+					"soundcloud": {
+						"type": "string",
+						"nullable": true
+					},
+					"tiktok": {
+						"type": "string",
+						"nullable": true
+					},
+					"bandcamp": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"required": [
+					"userId",
+					"instagram",
+					"twitter",
+					"facebook",
+					"youtube",
+					"soundcloud",
+					"tiktok",
+					"bandcamp"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"userId": "user-123",
+					"instagram": "johndoe",
+					"twitter": "@johndoe",
+					"youtube": "johndoechannel",
+					"soundcloud": null,
+					"facebook": null,
+					"tiktok": null,
+					"bandcamp": null
+				}
+			},
+			"UpdateSocialMediaDto": {
+				"description": "DTO for updating user social media links",
+				"properties": {
+					"instagram": {
+						"type": "string",
+						"nullable": true
+					},
+					"twitter": {
+						"type": "string",
+						"nullable": true
+					},
+					"facebook": {
+						"type": "string",
+						"nullable": true
+					},
+					"youtube": {
+						"type": "string",
+						"nullable": true
+					},
+					"soundcloud": {
+						"type": "string",
+						"nullable": true
+					},
+					"tiktok": {
+						"type": "string",
+						"nullable": true
+					},
+					"bandcamp": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UserFaqResponse": {
+				"description": "API response format for user FAQ answer with question",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"questionId": {
+						"type": "string"
+					},
+					"question": {
+						"type": "string"
+					},
+					"answer": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"required": [
+					"id",
+					"questionId",
+					"question",
+					"answer",
+					"createdAt"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"id": "faq-123",
+					"questionId": "q-456",
+					"question": "What genres do you specialize in?",
+					"answer": "I specialize in electronic and ambient music",
+					"createdAt": "2024-01-20T15:30:00Z"
+				}
+			},
+			"UpsertFaqDto": {
+				"description": "DTO for creating/updating user FAQ answer",
+				"properties": {
+					"questionId": {
+						"type": "string"
+					},
+					"answer": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"questionId",
+					"answer"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UserLookingForResponse": {
+				"description": "API response format for user's \"looking for\" preferences",
+				"properties": {
+					"userId": {
+						"type": "string"
+					},
+					"lookingForValue": {
+						"type": "string",
+						"enum": [
+							"connect",
+							"promote",
+							"find-band",
+							"find-services"
+						]
+					}
+				},
+				"required": [
+					"userId",
+					"lookingForValue"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"userId": "user-123",
+					"lookingForValue": "connect"
+				}
+			},
+			"FaqQuestionResponse": {
+				"description": "API response format for FAQ question",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"question": {
+						"type": "string"
+					},
+					"displayOrder": {
+						"type": "number",
+						"format": "double"
+					},
+					"isActive": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"id",
+					"question",
+					"displayOrder",
+					"isActive"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"id": "q-456",
+					"question": "What genres do you specialize in?",
+					"displayOrder": 1,
+					"isActive": true
+				}
+			},
 			"UploadedFileResponse": {
 				"description": "API response format for a single uploaded file",
 				"properties": {
@@ -2411,6 +2617,277 @@
 						}
 					}
 				}
+			}
+		},
+		"/users/{username}/social-media": {
+			"get": {
+				"operationId": "GetUserSocialMedia",
+				"responses": {
+					"200": {
+						"description": "User's social media links",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserSocialMediaResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get user's social media links\n\nReturns all social media platform links for the specified user.\nThis endpoint is public and does not require authentication.",
+				"summary": "Get user social media",
+				"tags": [
+					"User Details"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The username of the user",
+						"in": "path",
+						"name": "username",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdateUserSocialMedia",
+				"responses": {
+					"200": {
+						"description": "Updated social media links",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserSocialMediaResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Update user's social media links\n\nUpdates the authenticated user's social media links.\nOnly the profile owner can update their own social media.",
+				"summary": "Update user social media",
+				"tags": [
+					"User Details"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The username (must match authenticated user)",
+						"in": "path",
+						"name": "username",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "Social media links to update",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateSocialMediaDto",
+								"description": "Social media links to update"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/users/{username}/faq": {
+			"get": {
+				"operationId": "GetUserFaq",
+				"responses": {
+					"200": {
+						"description": "User's FAQ answers with questions",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/UserFaqResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get user's FAQ answers\n\nReturns all FAQ answers for the specified user with their corresponding questions.\nThis endpoint is public and does not require authentication.",
+				"summary": "Get user FAQ",
+				"tags": [
+					"User Details"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The username of the user",
+						"in": "path",
+						"name": "username",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"post": {
+				"operationId": "UpsertUserFaq",
+				"responses": {
+					"200": {
+						"description": "The created/updated FAQ answer",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserFaqResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create or update user's FAQ answer\n\nAdds or updates an answer to an FAQ question for the authenticated user.\nOnly the profile owner can manage their own FAQ.",
+				"summary": "Upsert user FAQ answer",
+				"tags": [
+					"User Details"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The username (must match authenticated user)",
+						"in": "path",
+						"name": "username",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "Question ID and answer",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpsertFaqDto",
+								"description": "Question ID and answer"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/users/{username}/faq/{questionId}": {
+			"delete": {
+				"operationId": "DeleteUserFaq",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Delete user's FAQ answer\n\nRemoves an answer to an FAQ question for the authenticated user.\nOnly the profile owner can delete their own FAQ answers.",
+				"summary": "Delete user FAQ answer",
+				"tags": [
+					"User Details"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The username (must match authenticated user)",
+						"in": "path",
+						"name": "username",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "The question ID to delete answer for",
+						"in": "path",
+						"name": "questionId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/users/{username}/looking-for": {
+			"get": {
+				"operationId": "GetUserLookingFor",
+				"responses": {
+					"200": {
+						"description": "User's looking for preferences",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/UserLookingForResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get what user is looking for\n\nReturns the user's \"looking for\" preferences (connect, promote, find-band, find-services).\nThis endpoint is public and does not require authentication.",
+				"summary": "Get user looking for preferences",
+				"tags": [
+					"User Details"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The username of the user",
+						"in": "path",
+						"name": "username",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/faq-questions": {
+			"get": {
+				"operationId": "GetAllFaqQuestions",
+				"responses": {
+					"200": {
+						"description": "List of all active FAQ questions",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/FaqQuestionResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all available FAQ questions\n\nReturns all active FAQ questions that users can answer on their profiles.\nThis endpoint is public and does not require authentication.",
+				"summary": "Get all FAQ questions",
+				"tags": [
+					"FAQ Questions"
+				],
+				"security": [],
+				"parameters": []
 			}
 		},
 		"/upload": {

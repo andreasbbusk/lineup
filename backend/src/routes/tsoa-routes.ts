@@ -7,6 +7,10 @@ import {  fetchMiddlewares, ExpressTemplateService } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { UsersController } from './../entities/users/users.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { UserDetailsController } from './../entities/users/user-details.controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { FaqQuestionsController } from './../entities/users/user-details.controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { UploadController } from './../entities/upload/upload.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { MediaController } from './../entities/upload/upload.controller';
@@ -78,6 +82,12 @@ const models: TsoaRoute.Models = {
     "UserProfile": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"username":{"dataType":"string","required":true},"firstName":{"dataType":"string","required":true},"lastName":{"dataType":"string","required":true},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"bio":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"aboutMe":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"phoneCountryCode":{"dataType":"double"},"phoneNumber":{"dataType":"double"},"yearOfBirth":{"dataType":"double"},"location":{"dataType":"string","required":true},"userType":{"dataType":"string","required":true},"themeColor":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"spotifyPlaylistUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"onboardingCompleted":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"updatedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true}},"additionalProperties":false},
     "LookingForType": {"dataType":"refAlias","type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["connect"]},{"dataType":"enum","enums":["promote"]},{"dataType":"enum","enums":["find-band"]},{"dataType":"enum","enums":["find-services"]}],"validators":{}}},
     "UpdateProfileDto": {"dataType":"refObject","properties":{"username":{"dataType":"string"},"firstName":{"dataType":"string"},"lastName":{"dataType":"string"},"bio":{"dataType":"string"},"aboutMe":{"dataType":"string"},"avatarUrl":{"dataType":"string"},"location":{"dataType":"string"},"themeColor":{"dataType":"string"},"spotifyPlaylistUrl":{"dataType":"string"},"phoneCountryCode":{"dataType":"double"},"phoneNumber":{"dataType":"double"},"yearOfBirth":{"dataType":"double"},"userType":{"dataType":"string"},"onboardingCompleted":{"dataType":"boolean"},"lookingFor":{"dataType":"array","array":{"dataType":"refAlias","ref":"LookingForType"}}},"additionalProperties":false},
+    "UserSocialMediaResponse": {"dataType":"refObject","properties":{"userId":{"dataType":"string","required":true},"instagram":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"twitter":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"facebook":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"youtube":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"soundcloud":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"tiktok":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"bandcamp":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true}},"additionalProperties":false},
+    "UpdateSocialMediaDto": {"dataType":"refObject","properties":{"instagram":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"twitter":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"facebook":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"youtube":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"soundcloud":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"tiktok":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"bandcamp":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]}},"additionalProperties":false},
+    "UserFaqResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"questionId":{"dataType":"string","required":true},"question":{"dataType":"string","required":true},"answer":{"dataType":"string","required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true}},"additionalProperties":false},
+    "UpsertFaqDto": {"dataType":"refObject","properties":{"questionId":{"dataType":"string","required":true},"answer":{"dataType":"string","required":true}},"additionalProperties":false},
+    "UserLookingForResponse": {"dataType":"refObject","properties":{"userId":{"dataType":"string","required":true},"lookingForValue":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["connect"]},{"dataType":"enum","enums":["promote"]},{"dataType":"enum","enums":["find-band"]},{"dataType":"enum","enums":["find-services"]}],"required":true}},"additionalProperties":false},
+    "FaqQuestionResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"question":{"dataType":"string","required":true},"displayOrder":{"dataType":"double","required":true},"isActive":{"dataType":"boolean","required":true}},"additionalProperties":false},
     "UploadedFileResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"url":{"dataType":"string","required":true},"thumbnailUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["image"]},{"dataType":"enum","enums":["video"]}],"required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true}},"additionalProperties":false},
     "UploadResponse": {"dataType":"refObject","properties":{"files":{"dataType":"array","array":{"dataType":"refObject","ref":"UploadedFileResponse"},"required":true}},"additionalProperties":false},
     "UserSearchResult": {"dataType":"refObject","properties":{"type":{"dataType":"enum","enums":["user"],"required":true},"id":{"dataType":"string","required":true},"username":{"dataType":"string","required":true},"firstName":{"dataType":"string","required":true},"lastName":{"dataType":"string","required":true},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"bio":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"genres":{"dataType":"any"},"lookingFor":{"dataType":"array","array":{"dataType":"string"}},"isConnected":{"dataType":"boolean","required":true},"relevance":{"dataType":"double","required":true}},"additionalProperties":false},
@@ -194,6 +204,224 @@ export function RegisterRoutes(app: Router,opts?:{multer?:ReturnType<typeof mult
 
               await templateService.apiHandler({
                 methodName: 'updateProfile',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsUserDetailsController_getUserSocialMedia: Record<string, TsoaRoute.ParameterSchema> = {
+                username: {"in":"path","name":"username","required":true,"dataType":"string"},
+        };
+        app.get('/users/:username/social-media',
+            ...(fetchMiddlewares<RequestHandler>(UserDetailsController)),
+            ...(fetchMiddlewares<RequestHandler>(UserDetailsController.prototype.getUserSocialMedia)),
+
+            async function UserDetailsController_getUserSocialMedia(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsUserDetailsController_getUserSocialMedia, request, response });
+
+                const controller = new UserDetailsController();
+
+              await templateService.apiHandler({
+                methodName: 'getUserSocialMedia',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsUserDetailsController_updateUserSocialMedia: Record<string, TsoaRoute.ParameterSchema> = {
+                username: {"in":"path","name":"username","required":true,"dataType":"string"},
+                body: {"in":"body","name":"body","required":true,"ref":"UpdateSocialMediaDto"},
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.put('/users/:username/social-media',
+            authenticateMiddleware([[{"bearerAuth":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(UserDetailsController)),
+            ...(fetchMiddlewares<RequestHandler>(UserDetailsController.prototype.updateUserSocialMedia)),
+
+            async function UserDetailsController_updateUserSocialMedia(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsUserDetailsController_updateUserSocialMedia, request, response });
+
+                const controller = new UserDetailsController();
+
+              await templateService.apiHandler({
+                methodName: 'updateUserSocialMedia',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsUserDetailsController_getUserFaq: Record<string, TsoaRoute.ParameterSchema> = {
+                username: {"in":"path","name":"username","required":true,"dataType":"string"},
+        };
+        app.get('/users/:username/faq',
+            ...(fetchMiddlewares<RequestHandler>(UserDetailsController)),
+            ...(fetchMiddlewares<RequestHandler>(UserDetailsController.prototype.getUserFaq)),
+
+            async function UserDetailsController_getUserFaq(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsUserDetailsController_getUserFaq, request, response });
+
+                const controller = new UserDetailsController();
+
+              await templateService.apiHandler({
+                methodName: 'getUserFaq',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsUserDetailsController_upsertUserFaq: Record<string, TsoaRoute.ParameterSchema> = {
+                username: {"in":"path","name":"username","required":true,"dataType":"string"},
+                body: {"in":"body","name":"body","required":true,"ref":"UpsertFaqDto"},
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.post('/users/:username/faq',
+            authenticateMiddleware([[{"bearerAuth":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(UserDetailsController)),
+            ...(fetchMiddlewares<RequestHandler>(UserDetailsController.prototype.upsertUserFaq)),
+
+            async function UserDetailsController_upsertUserFaq(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsUserDetailsController_upsertUserFaq, request, response });
+
+                const controller = new UserDetailsController();
+
+              await templateService.apiHandler({
+                methodName: 'upsertUserFaq',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsUserDetailsController_deleteUserFaq: Record<string, TsoaRoute.ParameterSchema> = {
+                username: {"in":"path","name":"username","required":true,"dataType":"string"},
+                questionId: {"in":"path","name":"questionId","required":true,"dataType":"string"},
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.delete('/users/:username/faq/:questionId',
+            authenticateMiddleware([[{"bearerAuth":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(UserDetailsController)),
+            ...(fetchMiddlewares<RequestHandler>(UserDetailsController.prototype.deleteUserFaq)),
+
+            async function UserDetailsController_deleteUserFaq(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsUserDetailsController_deleteUserFaq, request, response });
+
+                const controller = new UserDetailsController();
+
+              await templateService.apiHandler({
+                methodName: 'deleteUserFaq',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsUserDetailsController_getUserLookingFor: Record<string, TsoaRoute.ParameterSchema> = {
+                username: {"in":"path","name":"username","required":true,"dataType":"string"},
+        };
+        app.get('/users/:username/looking-for',
+            ...(fetchMiddlewares<RequestHandler>(UserDetailsController)),
+            ...(fetchMiddlewares<RequestHandler>(UserDetailsController.prototype.getUserLookingFor)),
+
+            async function UserDetailsController_getUserLookingFor(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsUserDetailsController_getUserLookingFor, request, response });
+
+                const controller = new UserDetailsController();
+
+              await templateService.apiHandler({
+                methodName: 'getUserLookingFor',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsFaqQuestionsController_getAllFaqQuestions: Record<string, TsoaRoute.ParameterSchema> = {
+        };
+        app.get('/faq-questions',
+            ...(fetchMiddlewares<RequestHandler>(FaqQuestionsController)),
+            ...(fetchMiddlewares<RequestHandler>(FaqQuestionsController.prototype.getAllFaqQuestions)),
+
+            async function FaqQuestionsController_getAllFaqQuestions(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsFaqQuestionsController_getAllFaqQuestions, request, response });
+
+                const controller = new FaqQuestionsController();
+
+              await templateService.apiHandler({
+                methodName: 'getAllFaqQuestions',
                 controller,
                 response,
                 next,

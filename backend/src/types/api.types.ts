@@ -108,6 +108,86 @@ export interface ProfileUpdateRequest {
   lookingFor?: string[];
 }
 
+// ==================== User Details Types ====================
+
+/**
+ * API response format for user social media links
+ *
+ * @example
+ * {
+ *   "userId": "user-123",
+ *   "instagram": "johndoe",
+ *   "twitter": "@johndoe",
+ *   "youtube": "johndoechannel",
+ *   "soundcloud": null,
+ *   "facebook": null,
+ *   "tiktok": null,
+ *   "bandcamp": null
+ * }
+ */
+export interface UserSocialMediaResponse {
+  userId: string;
+  instagram: string | null;
+  twitter: string | null;
+  facebook: string | null;
+  youtube: string | null;
+  soundcloud: string | null;
+  tiktok: string | null;
+  bandcamp: string | null;
+}
+
+/**
+ * API response format for FAQ question
+ *
+ * @example
+ * {
+ *   "id": "q-456",
+ *   "question": "What genres do you specialize in?",
+ *   "displayOrder": 1,
+ *   "isActive": true
+ * }
+ */
+export interface FaqQuestionResponse {
+  id: string;
+  question: string;
+  displayOrder: number;
+  isActive: boolean;
+}
+
+/**
+ * API response format for user FAQ answer with question
+ *
+ * @example
+ * {
+ *   "id": "faq-123",
+ *   "questionId": "q-456",
+ *   "question": "What genres do you specialize in?",
+ *   "answer": "I specialize in electronic and ambient music",
+ *   "createdAt": "2024-01-20T15:30:00Z"
+ * }
+ */
+export interface UserFaqResponse {
+  id: string;
+  questionId: string;
+  question: string;
+  answer: string;
+  createdAt: string | null;
+}
+
+/**
+ * API response format for user's "looking for" preferences
+ *
+ * @example
+ * {
+ *   "userId": "user-123",
+ *   "lookingForValue": "connect"
+ * }
+ */
+export interface UserLookingForResponse {
+  userId: string;
+  lookingForValue: "connect" | "promote" | "find-band" | "find-services";
+}
+
 // ==================== Metadata Types ====================
 /**
  * API response format for metadata item
