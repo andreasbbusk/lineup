@@ -2,7 +2,7 @@
 
 import {
   useMutation,
-  useSuspenseQuery,
+  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import { useMemo } from "react";
@@ -16,13 +16,14 @@ import {
 export function useProfile(username: string) {
   const queryKey = useMemo(() => ["profile", username || null], [username]);
 
-  return useSuspenseQuery({
+  return useQuery({
     queryKey,
     queryFn: async () => {
       if (!username) return null;
       return getUserProfile(username);
     },
     staleTime: 5 * 60 * 1000,
+    enabled: !!username,
   });
 }
 
@@ -31,7 +32,7 @@ export function useMyProfile() {
   const username = user?.username;
   const queryKey = useMemo(() => ["profile", username || null], [username]);
 
-  return useSuspenseQuery({
+  return useQuery({
     queryKey,
     queryFn: async () => {
       if (!username) return null;
@@ -39,6 +40,7 @@ export function useMyProfile() {
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
+    enabled: !!username,
   });
 }
 
