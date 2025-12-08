@@ -19,9 +19,14 @@ lib/features/chats/
 │   └── dateHelpers.ts        # Date formatting utilities
 ├── hooks/
 │   ├── index.ts
-│   ├── useConversations.ts   # Fetch & group conversations
-│   ├── useChatMessages.ts    # Infinite scroll message fetching
-│   └── realtime/
+│   ├── query/                # Data mutations and queries
+│   │   ├── useConversations.ts
+│   │   ├── useConversation.ts
+│   │   ├── useChatMessages.ts
+│   │   ├── useSendMessage.ts
+│   │   ├── useDeleteMessage.ts
+│   │   └── useMarkAsRead.ts
+│   └── realtime/             # Real-time subscriptions
 │       ├── useMessageSubscription.ts
 │       └── useConversationSubscription.ts
 └── components/
@@ -65,13 +70,19 @@ lib/features/chats/
 ### Basic Conversation List
 
 ```tsx
-import { ConversationList } from "@/app/lib/features/chats";
+import { ConversationList, useConversations, useConversationSubscription } from "@/app/lib/features/chats";
 
 function ChatPage() {
   const { user } = useAuth(); // Your auth hook
+  const { data: conversations, isLoading, error } = useConversations();
+  
+  useConversationSubscription(user.id);
 
   return (
     <ConversationList
+      conversations={conversations}
+      isLoading={isLoading}
+      error={error}
       currentUserId={user.id}
       onConversationClick={(conversationId) => {
         // Navigate to chat window
@@ -85,52 +96,32 @@ function ChatPage() {
 ### Chat Window
 
 ```tsx
-import { ChatWindow } from "@/app/lib/features/chats";
+import { ChatWindow, useConversation, useChatMessages, useSendMessage, useMessageSubscription } from "@/app/lib/features/chats";
 
 function ChatPage({ params }: { params: { id: string } }) {
   const { user } = useAuth();
   const { data: conversation } = useConversation(params.id);
+  const { data: messages, fetchNextPage, hasNextPage, isFetchingNextPage } = useChatMessages(params.id);
+  const { mutate: sendMessage } = useSendMessage(params.id);
+
+  useMessageSubscription(params.id);
+
+  // Flatten messages...
 
   return (
     <ChatWindow
       conversationId={params.id}
       currentUserId={user.id}
       conversationName={conversation?.name}
+      messages={allMessages}
+      isLoading={isLoading}
+      fetchNextPage={fetchNextPage}
+      hasNextPage={hasNextPage}
+      isFetchingNextPage={isFetchingNextPage}
+      onSendMessage={sendMessage}
+      onTyping={(isTyping) => { ... }}
       onBack={() => router.back()}
     />
-  );
-}
-```
-
-### Using Hooks Directly
-
-```tsx
-import {
-  useConversations,
-  useChatMessages,
-  useUnreadCount
-} from "@/app/lib/features/chats";
-
-function CustomChatComponent() {
-  // Fetch grouped conversations
-  const { data: conversations, isLoading } = useConversations();
-
-  // Get unread count
-  const { data: unreadCount } = useUnreadCount();
-
-  // Fetch messages with infinite scroll
-  const {
-    data: messages,
-    fetchNextPage,
-    hasNextPage
-  } = useChatMessages("conversation-id");
-
-  return (
-    <div>
-      <p>Unread: {unreadCount}</p>
-      <p>Direct Chats: {conversations?.direct.length}</p>
-      <p>Groups: {conversations?.groups.length}</p>
-    </div>
   );
 }
 ```
@@ -157,7 +148,7 @@ await chatApi.setTyping(conversationId, true);
 
 ## Real-time Subscriptions
 
-Real-time features are automatically enabled in components. To use them directly:
+Real-time features are handled by subscriptions in your page components:
 
 ```tsx
 import {
@@ -176,119 +167,11 @@ function ChatComponent({ conversationId, userId }) {
 }
 ```
 
-## Type Definitions
-
-### Core Types
-
-```typescript
-type Conversation = {
-  id: string;
-  type: "direct" | "group";
-  name?: string;
-  avatarUrl?: string;
-  participants?: Participant[];
-  unreadCount: number;
-  lastMessagePreview?: string;
-  lastMessageAt?: string;
-  // ... more fields
-}
-
-type Message = {
-  id: string;
-  conversationId: string;
-  senderId: string;
-  content: string;
-  createdAt: string;
-  sender?: {
-    id: string;
-    username: string;
-    firstName: string;
-    lastName: string;
-    avatarUrl: string | null;
-  };
-  // ... more fields
-}
-
-type UIMessage = Message & {
-  isSending?: boolean;
-  isError?: boolean;
-}
-```
-
-## Utilities
-
-### Date Formatting
-
-```tsx
-import {
-  formatMessageTime,      // "Just now", "5m ago", "2h ago"
-  formatConversationTime, // "Now", "5m", "2h"
-  formatFullTime,         // "3:45 PM"
-  truncateMessage
-} from "@/app/lib/features/chats";
-
-const time = formatMessageTime(message.createdAt);
-const preview = truncateMessage(message.content, 50);
-```
-
 ## Best Practices
 
-1. **Always use hooks for data fetching** - Don't call API methods directly in components
-2. **Leverage optimistic updates** - Use the `UIMessage` type for pending states
-3. **Handle loading/error states** - All hooks return `isLoading` and `error`
-4. **Use query invalidation sparingly** - Real-time subscriptions handle most updates
-5. **Keep components under 150 lines** - Split complex components as needed
-
-## Customization
-
-### Styling
-All components use Tailwind CSS with CSS variables for theming:
-- `var(--color-crocus-yellow)` - Primary accent color
-- `var(--color-grey)` - Secondary text color
-- `var(--color-black)` - Primary text color
-- `var(--color-white)` - Background color
-
-### Extending Types
-Add UI-specific fields to `types.ts`:
-
-```typescript
-export type UIMessage = Message & {
-  isSending?: boolean;
-  isError?: boolean;
-  isPending?: boolean; // Your custom field
-}
-```
-
-## Troubleshooting
-
-### Messages not updating in real-time
-- Check Supabase credentials in `.env.local`
-- Verify Realtime is enabled in Supabase project
-- Check browser console for subscription errors
-
-### Type errors
-- Run `npm run generate-types` to regenerate API types
-- Ensure `@/app/lib/types/api.d.ts` is up to date
-
-### Infinite scroll not working
-- Check that `getNextPageParam` returns valid cursor
-- Verify API returns messages in correct order
-- Monitor scroll event handler
-
-## Migration from Old Components
-
-If you have existing chat components (`card-message.tsx`, `message.tsx`, `send-message.tsx`), you can safely delete them and replace with this implementation:
-
-1. Replace imports: `import { ChatWindow } from "@/app/lib/features/chats"`
-2. Update props to match new component signatures
-3. Remove manual API calls - use hooks instead
-4. Update styling to match new design system
-
-## Contributing
-
-When adding new features:
-1. Add types to `types.ts` (only if not in API schema)
-2. Add API methods to `api.ts`
-3. Create hooks in `hooks/`
-4. Build components in `components/`
-5. Export everything through `index.ts`
+1. **Orchestrate data at the page level** - Components should be presentational and accept data/callbacks as props.
+2. **Use specific hooks** - Use `useSendMessage`, `useDeleteMessage` etc. instead of manual mutations.
+3. **Leverage optimistic updates** - Use the `UIMessage` type for pending states
+4. **Handle loading/error states** - All hooks return `isLoading` and `error`
+5. **Use query invalidation sparingly** - Real-time subscriptions handle most updates
+6. **Keep components under 150 lines** - Split complex components as needed

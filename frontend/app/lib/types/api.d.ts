@@ -1487,10 +1487,75 @@ export interface components {
       genres: components["schemas"]["MetadataItem"][];
       artists: components["schemas"]["MetadataItem"][];
     };
-    "SelectQueryError_columnstatusdoesnotexistonmessages._": {
-      /** @enum {boolean} */
-      error: true;
-    } & "column 'status' does not exist on 'messages'.";
+    /**
+     * @description API response format for a message
+     *     Represents a message in a conversation with sender info and optional reply
+     */
+    MessageResponse: {
+      id: string;
+      conversationId: string;
+      senderId: string;
+      content: string | null;
+      mediaIds?: string[] | null;
+      isEdited: boolean | null;
+      editedAt?: string | null;
+      isDeleted: boolean | null;
+      deletedAt?: string | null;
+      replyToMessageId?: string | null;
+      createdAt: string | null;
+      sentViaWebsocket: boolean | null;
+      sender?: {
+        avatarUrl?: string | null;
+        lastName?: string | null;
+        firstName?: string | null;
+        username: string;
+        id: string;
+      };
+      replyTo?: components["schemas"]["MessageResponse"] | null;
+      readReceipts?: components["schemas"]["MessageReadReceiptResponse"][];
+      media?: {
+        type: string;
+        thumbnailUrl?: string | null;
+        url: string;
+        id: string;
+      }[];
+    };
+    /**
+     * @description API response format for a message read receipt
+     * @example {
+     *       "messageId": "msg-789",
+     *       "userId": "user-456",
+     *       "readAt": "2024-01-20T16:05:00Z",
+     *       "user": {
+     *         "id": "user-456",
+     *         "username": "janedoe",
+     *         "firstName": "Jane",
+     *         "lastName": "Doe",
+     *         "avatarUrl": "https://..."
+     *       }
+     *     }
+     */
+    MessageReadReceiptResponse: {
+      messageId: string;
+      userId: string;
+      readAt: string | null;
+      user?: {
+        avatarUrl?: string | null;
+        lastName?: string | null;
+        firstName?: string | null;
+        username: string;
+        id: string;
+      };
+    };
+    /**
+     * @description API response format for paginated messages
+     *     Used by GET /messages/:conversationId endpoint
+     */
+    PaginatedMessagesResponse: {
+      messages: components["schemas"]["MessageResponse"][];
+      hasMore: boolean;
+      nextCursor: string | null;
+    };
     SendMessageDto: {
       conversation_id: string;
       content: string;
@@ -1592,6 +1657,7 @@ export interface components {
       lastMessageId?: string | null;
       lastMessagePreview?: string | null;
       lastMessageAt?: string | null;
+      lastMessageSenderId?: string | null;
       /** Format: double */
       unreadCount: number;
       creator?: {
@@ -2318,7 +2384,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["SelectQueryError_columnstatusdoesnotexistonmessages._"][];
+          "application/json": components["schemas"]["PaginatedMessagesResponse"];
         };
       };
     };
@@ -2342,27 +2408,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": {
-            sender: {
-              avatar_url: string;
-              last_name: string;
-              first_name: string;
-              username: string;
-              id: string;
-            };
-            sent_via_websocket: boolean;
-            sender_id: string;
-            reply_to_message_id: string;
-            media_ids: string[];
-            is_edited: boolean;
-            is_deleted: boolean;
-            id: string;
-            edited_at: string;
-            deleted_at: string;
-            created_at: string;
-            conversation_id: string;
-            content: string;
-          };
+          "application/json": components["schemas"]["MessageResponse"];
         };
       };
     };

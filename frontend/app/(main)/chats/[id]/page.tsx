@@ -1,59 +1,99 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ChatWindow, useConversation } from "@/app/lib/features/chats";
+import { use, useEffect, useRef } from "react";
+import {
+  ChatWindow,
+  useConversation,
+  useChatMessages,
+  useSendMessage,
+  useMessageSubscription,
+  useMarkAsRead,
+  chatApi,
+  getConversationDisplayInfo,
+} from "@/app/lib/features/chats";
 import { useAppStore } from "@/app/lib/stores/app-store";
 
 interface ChatPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function ChatPage({ params }: ChatPageProps) {
+  const { id } = use(params);
   const router = useRouter();
   const user = useAppStore((state) => state.user);
-  const { data: conversation } = useConversation(params.id);
 
-  // Handle unauthenticated state
-  if (!user?.id) {
-    return (
-      <main className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">Not Authenticated</h2>
-          <p className="text-grey">Please log in to view this conversation.</p>
-        </div>
-      </main>
-    );
-  }
+  // ============================================================================
+  // Data Fetching
+  // ============================================================================
 
-  // Get conversation display name
-  const getConversationName = () => {
-    if (!conversation) return "Chat";
+  const { data: conversation } = useConversation(id);
+  const { messages, isLoading: messagesLoading, error: messagesError, fetchNextPage, hasNextPage, isFetchingNextPage } = useChatMessages(id);
 
-    if (conversation.type === "group") {
-      return conversation.name || "Group Chat";
+  // ============================================================================
+  // Mutations & Real-time
+  // ============================================================================
+
+  const { mutate: sendMessage } = useSendMessage(id, user?.id ?? "");
+  const { mutate: markAsRead } = useMarkAsRead();
+  useMessageSubscription(id);
+
+  // ============================================================================
+  // Mark Messages as Read
+  // ============================================================================
+
+  // Track which messages we've marked to avoid duplicate API calls
+  const markedAsReadRef = useRef(new Set<string>());
+
+  useEffect(() => {
+    if (!user?.id || messages.length === 0) return;
+
+    // Find unread messages from other users
+    const unreadMessageIds = messages
+      .filter(
+        (message) =>
+          message.senderId !== user.id &&
+          !markedAsReadRef.current.has(message.id)
+      )
+      .map((message) => message.id);
+
+    if (unreadMessageIds.length > 0) {
+      markAsRead(unreadMessageIds);
+      unreadMessageIds.forEach((messageId) =>
+        markedAsReadRef.current.add(messageId)
+      );
     }
+  }, [messages, user?.id, markAsRead]);
 
-    // For direct messages, find the other participant
-    const otherParticipant = conversation.participants?.find(
-      (p) => p.userId !== user.id
-    );
+  // ============================================================================
+  // Derived State & Handlers
+  // ============================================================================
 
-    if (otherParticipant?.user) {
-      return `${otherParticipant.user.firstName} ${otherParticipant.user.lastName}`;
-    }
+  const { name, avatarUrl } = conversation
+    ? getConversationDisplayInfo(conversation, user?.id ?? "")
+    : { name: "Chat", avatarUrl: null };
 
-    return "Chat";
+  const handleTyping = (isTyping: boolean) => {
+    chatApi.setTyping(id, isTyping);
   };
 
   return (
-    <main className="h-[calc(100vh-8rem)]">
-      <div className="h-full max-w-3xl mx-auto bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+    <main className="h-dvh bg-dark-cyan-blue">
+      <div className="h-full flex flex-col">
         <ChatWindow
-          conversationId={params.id}
-          currentUserId={user.id}
-          conversationName={getConversationName()}
+          currentUserId={user?.id ?? ""}
+          conversationName={name}
+          conversationAvatar={avatarUrl}
+          messages={messages}
+          isLoading={messagesLoading}
+          error={messagesError}
+          fetchNextPage={fetchNextPage}
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          onSendMessage={sendMessage}
+          onTyping={handleTyping}
           onBack={() => router.push("/chats")}
         />
       </div>

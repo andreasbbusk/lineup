@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAppStore } from "@/app/lib/stores/app-store";
 import { LoadingSpinner } from "@/app/components/loading-spinner";
@@ -10,34 +10,29 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isInitialized = useAppStore((state) => state.isInitialized);
   const user = useAppStore((state) => state.user);
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  const initializeAuth = useAppStore((state) => state.initializeAuth);
 
-  // Initialize auth immediately on first render (not in useEffect)
-  if (!isInitialized) {
-    // This only runs once because isInitialized becomes true
-    useAppStore.getState().initializeAuth();
-  }
-
-  // Handle redirects after initialization
+  // Initialize auth on mount
   useEffect(() => {
-    if (!isInitialized) return;
-
-    const redirectPath = getRedirectPath(
-      pathname,
-      !!user,
-      user?.onboardingCompleted ?? false
-    );
-
-    if (redirectPath) {
-      setIsRedirecting(true);
-      router.replace(redirectPath);
-    } else {
-      setIsRedirecting(false);
+    if (!isInitialized) {
+      initializeAuth();
     }
-  }, [isInitialized, user, pathname, router]);
+  }, [isInitialized, initializeAuth]);
+
+  // Calculate redirect path
+  const redirectPath = isInitialized
+    ? getRedirectPath(pathname, !!user, user?.onboardingCompleted ?? false)
+    : null;
+
+  // Handle redirects
+  useEffect(() => {
+    if (redirectPath) {
+      router.replace(redirectPath);
+    }
+  }, [redirectPath, router]);
 
   // Show loader while initializing or redirecting
-  if (!isInitialized || isRedirecting) {
+  if (!isInitialized || redirectPath) {
     return <LoadingSpinner variant="rays" />;
   }
 

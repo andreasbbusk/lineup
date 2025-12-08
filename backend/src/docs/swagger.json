@@ -1304,31 +1304,223 @@
 					]
 				}
 			},
-			"SelectQueryError_columnstatusdoesnotexistonmessages._": {
-				"allOf": [
-					{
+			"MessageResponse": {
+				"description": "API response format for a message\nRepresents a message in a conversation with sender info and optional reply",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"conversationId": {
+						"type": "string"
+					},
+					"senderId": {
+						"type": "string"
+					},
+					"content": {
+						"type": "string",
+						"nullable": true
+					},
+					"mediaIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array",
+						"nullable": true
+					},
+					"isEdited": {
+						"type": "boolean",
+						"nullable": true
+					},
+					"editedAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"isDeleted": {
+						"type": "boolean",
+						"nullable": true
+					},
+					"deletedAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"replyToMessageId": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"sentViaWebsocket": {
+						"type": "boolean",
+						"nullable": true
+					},
+					"sender": {
 						"properties": {
-							"error": {
-								"type": "boolean",
-								"enum": [
-									true
-								],
-								"nullable": false
+							"avatarUrl": {
+								"type": "string",
+								"nullable": true
+							},
+							"lastName": {
+								"type": "string",
+								"nullable": true
+							},
+							"firstName": {
+								"type": "string",
+								"nullable": true
+							},
+							"username": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
 							}
 						},
 						"required": [
-							"error"
+							"username",
+							"id"
 						],
 						"type": "object"
 					},
-					{
-						"type": "string",
-						"enum": [
-							"column 'status' does not exist on 'messages'."
+					"replyTo": {
+						"allOf": [
+							{
+								"$ref": "#/components/schemas/MessageResponse"
+							}
 						],
-						"nullable": false
+						"nullable": true
+					},
+					"readReceipts": {
+						"items": {
+							"$ref": "#/components/schemas/MessageReadReceiptResponse"
+						},
+						"type": "array"
+					},
+					"media": {
+						"items": {
+							"properties": {
+								"type": {
+									"type": "string"
+								},
+								"thumbnailUrl": {
+									"type": "string",
+									"nullable": true
+								},
+								"url": {
+									"type": "string"
+								},
+								"id": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"type",
+								"url",
+								"id"
+							],
+							"type": "object"
+						},
+						"type": "array"
 					}
-				]
+				},
+				"required": [
+					"id",
+					"conversationId",
+					"senderId",
+					"content",
+					"isEdited",
+					"isDeleted",
+					"createdAt",
+					"sentViaWebsocket"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"MessageReadReceiptResponse": {
+				"description": "API response format for a message read receipt",
+				"properties": {
+					"messageId": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"readAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"user": {
+						"properties": {
+							"avatarUrl": {
+								"type": "string",
+								"nullable": true
+							},
+							"lastName": {
+								"type": "string",
+								"nullable": true
+							},
+							"firstName": {
+								"type": "string",
+								"nullable": true
+							},
+							"username": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"username",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"messageId",
+					"userId",
+					"readAt"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"messageId": "msg-789",
+					"userId": "user-456",
+					"readAt": "2024-01-20T16:05:00Z",
+					"user": {
+						"id": "user-456",
+						"username": "janedoe",
+						"firstName": "Jane",
+						"lastName": "Doe",
+						"avatarUrl": "https://..."
+					}
+				}
+			},
+			"PaginatedMessagesResponse": {
+				"description": "API response format for paginated messages\nUsed by GET /messages/:conversationId endpoint",
+				"properties": {
+					"messages": {
+						"items": {
+							"$ref": "#/components/schemas/MessageResponse"
+						},
+						"type": "array"
+					},
+					"hasMore": {
+						"type": "boolean"
+					},
+					"nextCursor": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"required": [
+					"messages",
+					"hasMore",
+					"nextCursor"
+				],
+				"type": "object",
+				"additionalProperties": false
 			},
 			"SendMessageDto": {
 				"properties": {
@@ -1696,6 +1888,10 @@
 						"nullable": true
 					},
 					"lastMessageAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"lastMessageSenderId": {
 						"type": "string",
 						"nullable": true
 					},
@@ -3079,10 +3275,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/SelectQueryError_columnstatusdoesnotexistonmessages._"
-									},
-									"type": "array"
+									"$ref": "#/components/schemas/PaginatedMessagesResponse"
 								}
 							}
 						}
@@ -3134,90 +3327,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"properties": {
-										"sender": {
-											"properties": {
-												"avatar_url": {
-													"type": "string"
-												},
-												"last_name": {
-													"type": "string"
-												},
-												"first_name": {
-													"type": "string"
-												},
-												"username": {
-													"type": "string"
-												},
-												"id": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"avatar_url",
-												"last_name",
-												"first_name",
-												"username",
-												"id"
-											],
-											"type": "object"
-										},
-										"sent_via_websocket": {
-											"type": "boolean"
-										},
-										"sender_id": {
-											"type": "string"
-										},
-										"reply_to_message_id": {
-											"type": "string"
-										},
-										"media_ids": {
-											"items": {
-												"type": "string"
-											},
-											"type": "array"
-										},
-										"is_edited": {
-											"type": "boolean"
-										},
-										"is_deleted": {
-											"type": "boolean"
-										},
-										"id": {
-											"type": "string"
-										},
-										"edited_at": {
-											"type": "string"
-										},
-										"deleted_at": {
-											"type": "string"
-										},
-										"created_at": {
-											"type": "string"
-										},
-										"conversation_id": {
-											"type": "string"
-										},
-										"content": {
-											"type": "string"
-										}
-									},
-									"required": [
-										"sender",
-										"sent_via_websocket",
-										"sender_id",
-										"reply_to_message_id",
-										"media_ids",
-										"is_edited",
-										"is_deleted",
-										"id",
-										"edited_at",
-										"deleted_at",
-										"created_at",
-										"conversation_id",
-										"content"
-									],
-									"type": "object"
+									"$ref": "#/components/schemas/MessageResponse"
 								}
 							}
 						}
