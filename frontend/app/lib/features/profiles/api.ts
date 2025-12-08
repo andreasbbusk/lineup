@@ -79,32 +79,19 @@ export async function getConnectionRequests(): Promise<Connection[]> {
 export async function getUserAcceptedConnections(
   userId: string
 ): Promise<Connection[]> {
-  // Get both sent and received connections, then filter for accepted ones
-  const sentResult = (await apiClient.GET("/connections/sent/{userId}", {
-    params: { path: { userId } },
-  })) as { data?: Connection[]; error?: unknown; response?: Response };
-
-  const receivedResult = (await apiClient.GET(
-    "/connections/received/{userId}",
+  // @ts-expect-error - Connection endpoints not yet in generated types. Regenerate types after running `npm run tsoa` in backend.
+  const { data, error, response } = await apiClient.GET(
+    "/connections/accepted/{userId}",
     {
       params: { path: { userId } },
     }
-  )) as { data?: Connection[]; error?: unknown; response?: Response };
+  );
 
-  // Handle errors
-  if (sentResult.error) {
-    handleApiError(sentResult.error, sentResult.response);
-  }
-  if (receivedResult.error) {
-    handleApiError(receivedResult.error, receivedResult.response);
+  if (error) {
+    handleApiError(error, response);
   }
 
-  const sentConnections = (sentResult.data as Connection[]) || [];
-  const receivedConnections = (receivedResult.data as Connection[]) || [];
-
-  // Combine and filter for accepted connections
-  const allConnections = [...sentConnections, ...receivedConnections];
-  return allConnections.filter((conn) => conn.status === "accepted");
+  return (data as Connection[]) || [];
 }
 
 /**
@@ -114,17 +101,25 @@ export async function getUserAcceptedConnections(
 export async function getConnectionStatus(
   targetUserId: string
 ): Promise<Connection | null> {
-  const connections = await getConnectionRequests();
-
-  // Find connection where current user is either requester or recipient
-  const connection = connections.find(
-    (conn) =>
-      (conn.requesterId === targetUserId ||
-        conn.recipientId === targetUserId) &&
-      conn.status !== "rejected"
+  // @ts-expect-error - Connection endpoints not yet in generated types. Regenerate types after running `npm run tsoa` in backend.
+  const { data, error, response } = await apiClient.GET(
+    "/connections/status/{targetUserId}",
+    {
+      params: { path: { targetUserId } },
+    }
   );
 
-  return connection || null;
+  if (error) {
+    handleApiError(error, response);
+  }
+
+  // If no connection found, the endpoint returns null
+  // Handle case where data might be null or undefined
+  if (!data) {
+    return null;
+  }
+
+  return data as unknown as Connection;
 }
 
 /**

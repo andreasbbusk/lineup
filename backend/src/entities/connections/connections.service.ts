@@ -191,6 +191,138 @@ export class ConnectionsService {
   }
 
   /**
+   * Get connection status between the authenticated user and another user
+   * Returns the connection if it exists, null otherwise
+   */
+  async getConnectionStatus(
+    userId: string,
+    targetUserId: string,
+    token: string
+  ): Promise<Connection | null> {
+    // Create authenticated Supabase client for RLS
+    const authedSupabase = createAuthenticatedClient(token);
+
+    // Find connection where current user is either requester or recipient
+    const { data: request, error } = await authedSupabase
+      .from("connection_requests")
+      .select(
+        `
+        *,
+        requester:profiles!connection_requests_requester_id_fkey(
+          id,
+          username,
+          first_name,
+          last_name,
+          avatar_url,
+          bio,
+          location,
+          user_type,
+          theme_color,
+          spotify_playlist_url,
+          onboarding_completed,
+          created_at,
+          updated_at
+        ),
+        recipient:profiles!connection_requests_recipient_id_fkey(
+          id,
+          username,
+          first_name,
+          last_name,
+          avatar_url,
+          bio,
+          location,
+          user_type,
+          theme_color,
+          spotify_playlist_url,
+          onboarding_completed,
+          created_at,
+          updated_at
+        )
+      `
+      )
+      .or(
+        `and(requester_id.eq.${userId},recipient_id.eq.${targetUserId}),and(requester_id.eq.${targetUserId},recipient_id.eq.${userId})`
+      )
+      .neq("status", "rejected")
+      .single();
+
+    if (error) {
+      // If no connection found, return null (not an error)
+      if (error.code === "PGRST116") {
+        return null;
+      }
+      throw createHttpError({
+        message: `Failed to fetch connection status: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    if (!request) {
+      return null;
+    }
+
+    return mapConnectionRequestToResponse(request);
+  }
+
+  /**
+   * Get accepted connections for a specific user (public endpoint)
+   * Returns only accepted connections for the specified user
+   */
+  async getUserAcceptedConnections(userId: string): Promise<Connection[]> {
+    const { data: requests, error } = await supabase
+      .from("connection_requests")
+      .select(
+        `
+        *,
+        requester:profiles!connection_requests_requester_id_fkey(
+          id,
+          username,
+          first_name,
+          last_name,
+          avatar_url,
+          bio,
+          location,
+          user_type,
+          theme_color,
+          spotify_playlist_url,
+          onboarding_completed,
+          created_at,
+          updated_at
+        ),
+        recipient:profiles!connection_requests_recipient_id_fkey(
+          id,
+          username,
+          first_name,
+          last_name,
+          avatar_url,
+          bio,
+          location,
+          user_type,
+          theme_color,
+          spotify_playlist_url,
+          onboarding_completed,
+          created_at,
+          updated_at
+        )
+      `
+      )
+      .or(`requester_id.eq.${userId},recipient_id.eq.${userId}`)
+      .eq("status", "accepted")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      throw createHttpError({
+        message: `Failed to fetch accepted connections: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    return mapConnectionRequestsToResponse(requests || []);
+  }
+
+  /**
    * Create a connection request
    * Only authenticated users can send connection requests
    */

@@ -11,29 +11,34 @@ interface PublicProfilePageProps {
   }>;
 }
 
-function ProfilePageContent({ username }: { username: string }) {
+export default function Page({ params }: PublicProfilePageProps) {
+  const { username } = use(params);
   const { data: profile, isLoading, error } = useProfile(username);
 
   // Handle loading state
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner size={60} />
-      </div>
+      <main className="space-y-4">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <LoadingSpinner size={60} />
+        </div>
+      </main>
     );
   }
 
   // Handle error state
   if (error || !profile) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center space-y-2">
-          <p className="text-h3 font-semibold">User not found</p>
-          <p className="text-body text-grey">
-            The user &quot;{username}&quot; doesn&apos;t exist.
-          </p>
+      <main className="space-y-4">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center space-y-2">
+            <p className="text-h3 font-semibold">User not found</p>
+            <p className="text-body text-grey">
+              The user &quot;{username}&quot; doesn&apos;t exist.
+            </p>
+          </div>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -41,9 +46,11 @@ function ProfilePageContent({ username }: { username: string }) {
   if (!profile.id) {
     console.error("Profile missing ID:", profile);
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-body text-grey">Profile data is invalid</p>
-      </div>
+      <main className="space-y-4">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <p className="text-body text-grey">Profile data is invalid</p>
+        </div>
+      </main>
     );
   }
 
@@ -66,34 +73,26 @@ function ProfilePageContent({ username }: { username: string }) {
     : "default";
 
   return (
-    <div className="space-y-6">
-      <ProfileHeader
-        username={profile.username}
-        userId={profile.id}
-        imgSrc={profile.avatarUrl || "/avatars/default-avatar.png"}
-        bio={profile.bio || undefined}
-        color={color}
-        firstName={profile.firstName}
-        lastName={profile.lastName}
-        connections={0} // TODO: Get actual connection count
-        notes={0} // TODO: Get actual notes count
-      />
-      <div className="space-y-4">
-        <h2 className="text-h2 font-semibold">About</h2>
-        <p className="text-body text-grey">
-          {profile.aboutMe || "No description yet."}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-export default function Page({ params }: PublicProfilePageProps) {
-  const { username } = use(params);
-
-  return (
     <main className="space-y-4">
-      <ProfilePageContent username={username} />
+      <div className="space-y-6">
+        <ProfileHeader
+          username={profile.username}
+          userId={profile.id}
+          imgSrc={profile.avatarUrl || "/avatars/default-avatar.png"}
+          bio={profile.bio || undefined}
+          color={color}
+          firstName={profile.firstName}
+          lastName={profile.lastName}
+          connections={0} // TODO: Get actual connection count
+          notes={0} // TODO: Get actual notes count
+        />
+        <div className="space-y-4">
+          <h2 className="text-h2 font-semibold">About</h2>
+          <p className="text-body text-grey">
+            {profile.aboutMe || "No description yet."}
+          </p>
+        </div>
+      </div>
     </main>
   );
 }
