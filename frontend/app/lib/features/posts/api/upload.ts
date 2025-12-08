@@ -1,5 +1,5 @@
 import { handleApiError } from "@/app/lib/api/api-client";
-import { useAppStore } from "@/app/lib/stores/app-store";
+import { supabase } from "@/app/lib/supabase/client";
 import type { SignedUrlResponse, SignedUrlRequest } from "../types";
 
 /**
@@ -19,7 +19,8 @@ export async function getSignedUploadUrl(
   // Note: The signed-url endpoint may not be in generated types yet
   // We'll use a manual fetch call until types are regenerated
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
-  const token = useAppStore.getState().accessToken;
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
 
   const response = await fetch(`${baseUrl}/api/upload/signed-url`, {
     method: "POST",

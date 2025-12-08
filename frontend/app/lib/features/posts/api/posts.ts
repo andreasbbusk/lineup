@@ -1,5 +1,5 @@
 import { apiClient, handleApiError } from "@/app/lib/api/api-client";
-import { useAppStore } from "@/app/lib/stores/app-store";
+import { supabase } from "@/app/lib/supabase/client";
 import type { components } from "@/app/lib/types/api";
 import type {
   PostResponse,
@@ -56,7 +56,8 @@ export async function listPosts(
   // Note: GET /posts may not be in generated types yet
   // We'll use a manual fetch call until types are regenerated
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
-  const token = useAppStore.getState().accessToken;
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
 
   const queryParams = new URLSearchParams();
   if (params?.type) queryParams.append("type", params.type);
@@ -134,7 +135,8 @@ export async function getPostById(
   // Note: GET /posts/:id may not be in generated types yet
   // We'll use a manual fetch call until types are regenerated
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
-  const token = useAppStore.getState().accessToken;
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
 
   const queryParams = new URLSearchParams();
   if (options?.includeComments)

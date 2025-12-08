@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Modal } from "./modal";
 import { Button } from "@/app/components/buttons";
 import { Combobox } from "@/app/components/combobox";
-import { useAppStore } from "@/app/lib/stores/app-store";
+import { supabase } from "@/app/lib/supabase/client";
 
 interface User {
   id: string;
@@ -55,7 +55,6 @@ export function UserTagger({
   const [searchQuery, setSearchQuery] = useState("");
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const token = useAppStore((state) => state.accessToken); // Get token inside component
 
   // Fetch users when search changes (debounced)
   useEffect(() => {
@@ -64,6 +63,9 @@ export function UserTagger({
     const timeoutId = setTimeout(async () => {
       setIsLoading(true);
       try {
+        // Get token from Supabase session
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
         const fetchedUsers = await fetchFollowedUsers(searchQuery, token || undefined);
         setUsers(fetchedUsers);
       } catch (error) {
@@ -74,7 +76,7 @@ export function UserTagger({
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, isOpen, token]);
+  }, [searchQuery, isOpen]);
 
   const handleToggleUser = (userId: string) => {
     if (selectedUsers.includes(userId)) {
