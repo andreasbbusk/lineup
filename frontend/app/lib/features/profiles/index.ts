@@ -4,6 +4,21 @@ export {
   useMyProfile,
   useUpdateProfile,
 } from "./hooks/queries/useProfile";
+export { useCollaborations } from "./hooks/queries/useCollaborations";
+export {
+	useFavoriteArtists,
+	type Artist,
+} from "./hooks/queries/useFavoriteArtists";
+export { useReviews } from "./hooks/queries/useReviews";
+export { useSocialMedia } from "./hooks/queries/useSocialMedia";
+export { useUpdateSocialMedia } from "./hooks/queries/useUpdateSocialMedia";
+export { useLookingFor } from "./hooks/queries/useLookingFor";
+export { useFaq } from "./hooks/queries/useFaq";
+export { useAllFaqQuestions } from "./hooks/queries/useAllFaqQuestions";
+
+// Hooks - mutations
+export { useUpsertFaq, useDeleteFaq } from "./hooks/mutations/useFaqMutations";
+export { useDeleteCollaboration } from "./hooks/mutations/useCollaborationMutations";
 
 // Hooks - onboarding
 export { useOnboardingNavigation } from "./hooks/onboarding/useOnboardingNavigation";

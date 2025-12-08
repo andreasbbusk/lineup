@@ -37,6 +37,7 @@ export function useMyProfile() {
       return getUserProfile(username);
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1,
     enabled: !!username,
   });
 }

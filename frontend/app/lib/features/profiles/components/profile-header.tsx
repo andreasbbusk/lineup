@@ -8,254 +8,253 @@ import { Popover } from "@/app/components/popover";
 import { LoadingSpinner } from "@/app/components/loading-spinner";
 import { useAppStore } from "@/app/lib/stores/app-store";
 import {
-  useConnectionRequests,
-  useMyConnections,
-  useUserConnections,
+	useConnectionRequests,
+	useMyConnections,
+	useUserConnections,
 } from "@/app/lib/features/profiles";
 import { ConnectionButton } from "./connections/ConnectionButton";
 
 // Lazy load ConnectionsModal to reduce initial bundle size
 const ConnectionsModal = dynamic(
-  () =>
-    import("./connections/ConnectionsModal").then((mod) => ({
-      default: mod.ConnectionsModal,
-    })),
-  {
-    loading: () => (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-        <div className="flex items-center justify-center">
-          <LoadingSpinner size={40} />
-        </div>
-      </div>
-    ),
-    ssr: false,
-  }
+	() =>
+		import("./connections/ConnectionsModal").then((mod) => ({
+			default: mod.ConnectionsModal,
+		})),
+	{
+		loading: () => (
+			<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+				<div className="flex items-center justify-center">
+					<LoadingSpinner size={40} />
+				</div>
+			</div>
+		),
+		ssr: false,
+	}
 );
 
 type ProfileHeaderProps = {
-  /** Username of the profile */
-  username: string;
-  /** User ID of the profile (for connection functionality) */
-  userId?: string | null;
-  /** Image source URL */
-  imgSrc: string;
-  /** Short biography */
-  bio?: string;
-  /** Profile color theme:
-   * "default" | "grey" | "green" | "blue" | "purple" | "red" | "orange"
-   */
-  color: "default" | "grey" | "green" | "blue" | "purple" | "red" | "orange";
-  /** Is the profile verified */
-  verified?: boolean;
-  /** First name */
-  firstName: string;
-  /** Last name */
-  lastName: string;
-  /** Number of connections */
-  connections?: number;
-  /** Number of notes */
-  notes?: number;
-  /** Callback when Message button is clicked */
-  onClickMessage?: () => void;
+	/** Username of the profile */
+	username: string;
+	/** User ID of the profile (for connection functionality) */
+	userId?: string | null;
+	/** Image source URL */
+	imgSrc: string;
+	/** Short biography */
+	bio?: string;
+	/** Profile color theme:
+	 * "default" | "grey" | "green" | "blue" | "purple" | "red" | "orange"
+	 * default: "#1E1E1E",
+		grey: "#575252",
+		green: "#3F4D54",
+		blue: "#3F4254",
+		purple: "#4D3F54",
+		red: "#543F40",
+		orange: "#5D4C43",
+	 */
+	theme: string;
+	/** Is the profile verified */
+	verified?: boolean;
+	/** First name */
+	firstName: string;
+	/** Last name */
+	lastName: string;
+	/** Number of connections */
+	connections?: number;
+	/** Number of notes */
+	notes?: number;
+	/** Callback when Connect button is clicked */
+	onClickConnect?: () => void;
+	/** Callback when Message button is clicked */
+	onClickMessage?: () => void;
+	/** Is the profile the current user's profile */
+	isOwnProfile?: boolean;
 };
+
 function ProfileHeader(props: ProfileHeaderProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isConnectionsModalOpen, setIsConnectionsModalOpen] = useState(false);
-  const currentUserId = useAppStore((state) => state.user?.id);
-  const isOwnProfile = !props.userId || props.userId === currentUserId;
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const [isConnectionsModalOpen, setIsConnectionsModalOpen] = useState(false);
+	const currentUserId = useAppStore((state) => state.user?.id);
+	const isOwnProfile = !props.userId || props.userId === currentUserId;
 
-  // Get connections data
-  const { data: myConnections } = useMyConnections({
-    enabled: isOwnProfile,
-  });
-  const { data: userConnections } = useUserConnections({
-    userId: props.userId || null,
-    enabled: !isOwnProfile && !!props.userId,
-  });
+	// Get connections data
+	const { data: myConnections } = useMyConnections({
+		enabled: isOwnProfile,
+	});
+	const { data: userConnections } = useUserConnections({
+		userId: props.userId || null,
+		enabled: !isOwnProfile && !!props.userId,
+	});
 
-  // Get pending connections count for own profile
-  const { data: connectionRequests } = useConnectionRequests();
-  const pendingCount =
-    isOwnProfile && connectionRequests
-      ? connectionRequests.filter(
-          (conn) =>
-            conn.status === "pending" && conn.recipientId === currentUserId
-        ).length
-      : 0;
+	// Get pending connections count for own profile
+	const { data: connectionRequests } = useConnectionRequests();
+	const pendingCount =
+		isOwnProfile && Array.isArray(connectionRequests)
+			? connectionRequests.filter(
+					(conn) =>
+						conn.status === "pending" && conn.recipientId === currentUserId
+			  ).length
+			: 0;
 
-  // Calculate accepted connections count
-  const acceptedConnectionsCount = isOwnProfile
-    ? myConnections?.filter((conn) => conn.status === "accepted").length ?? 0
-    : userConnections?.length ?? 0;
+	// Calculate accepted connections count
+	const acceptedConnectionsCount = isOwnProfile
+		? Array.isArray(myConnections)
+			? myConnections.filter((conn) => conn.status === "accepted").length
+			: 0
+		: userConnections?.length ?? 0;
 
-  // Use the calculated count if we have data (even if it's 0), otherwise fall back to the prop
-  // For other profiles, we always use the fetched data if the query has completed
-  const displayConnectionsCount = isOwnProfile
-    ? myConnections !== undefined
-      ? acceptedConnectionsCount
-      : props.connections ?? 0
-    : userConnections !== undefined
-    ? acceptedConnectionsCount
-    : props.connections ?? 0;
+	// Use the calculated count if we have data (even if it's 0), otherwise fall back to the prop
+	// For other profiles, we always use the fetched data if the query has completed
+	const displayConnectionsCount = isOwnProfile
+		? myConnections !== undefined
+			? acceptedConnectionsCount
+			: props.connections ?? 0
+		: userConnections !== undefined
+		? acceptedConnectionsCount
+		: props.connections ?? 0;
 
-  const colorClass = {
-    default: "1E1E1E",
-    grey: "575252",
-    green: "3F4D54",
-    blue: "3F4254",
-    purple: "4D3F54",
-    red: "543F40",
-    orange: "5D4C43",
-  }[props.color];
-
-  return (
-    <div
-      className={
-        "relative text-(--color-white) flex w-93.25 py-6.25 flex-col justify-center items-center gap-3.75 rounded-[2.8125rem] bg-(--profile-theme)"
-      }
-      style={{ "--profile-theme": `#${colorClass}` } as CSSProperties}
-    >
-      <span
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        className="absolute top-9 right-7 flex w-5.25 items-center gap-1 cursor-pointer"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="3"
-          height="3"
-          viewBox="0 0 3 3"
-          fill="none"
-        >
-          <circle
-            cx="1"
-            cy="1"
-            r="1"
-            transform="matrix(-1 0 0 1 2.5 0.5)"
-            fill="white"
-            stroke="white"
-          />
-        </svg>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="3"
-          height="3"
-          viewBox="0 0 3 3"
-          fill="none"
-        >
-          <circle
-            cx="1"
-            cy="1"
-            r="1"
-            transform="matrix(-1 0 0 1 2.5 0.5)"
-            fill="white"
-            stroke="white"
-          />
-        </svg>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="3"
-          height="3"
-          viewBox="0 0 3 3"
-          fill="none"
-        >
-          <circle
-            cx="1"
-            cy="1"
-            r="1"
-            transform="matrix(-1 0 0 1 2.5 0.5)"
-            fill="white"
-            stroke="white"
-          />
-        </svg>
-      </span>
-      {isMenuOpen && (
-        <Popover variant="my-profile" className="absolute top-12 right-7" />
-      )}
-      <div className="flex justify-center items-center self-stretch">
-        <button
-          onClick={() => setIsConnectionsModalOpen(true)}
-          className="flex flex-col items-center flex-[1_0_0] cursor-pointer hover:opacity-80 transition-opacity"
-        >
-          <div className="relative">
-            <p>{displayConnectionsCount}</p>
-            {pendingCount > 0 && (
-              <span className="absolute top-0 -right-2.5 flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-xs font-semibold transform translate-x-1/2 -translate-y-1/2">
-                {pendingCount > 99 ? "99+" : pendingCount}
-              </span>
-            )}
-          </div>
-          <p>Connections</p>
-        </button>
-        <Image
-          src={props.imgSrc}
-          alt={`${props.username}'s avatar`}
-          width={146}
-          height={146}
-          className="w-[9.11988rem] h-[9.11988rem] rounded-full border border-(--color-white) object-cover "
-        />
-        <div className="flex flex-col items-center flex-[1_0_0]">
-          <p>{props.notes ?? 0}</p>
-          <p>Notes</p>
-        </div>
-      </div>
-      <div>
-        <div className="flex justify-center items-start gap-1.5 self-stretch">
-          <h3 className=" text-center font-family-helvetica text-[1.125rem] not-italic font-normal leading-4.75 tracking-[0.03125rem]">
-            {props.firstName} {props.lastName}
-          </h3>
-          {props.verified && (
-            <Image
-              src="/icons/twitter-verified-badge.svg"
-              alt="Verified"
-              width={18}
-              height={18}
-              className="invert brightness-0"
-            />
-          )}
-        </div>
-        <p className="text-melting-glacier text-center text-xs not-italic font-normal leading-none tracking-[0.03125rem] self-stretch font-family-helvetica">
-          {props.bio}
-        </p>
-      </div>
-      <div className="flex items-center gap-(--Spacing-XS---spacing,0.625rem)">
-        {isOwnProfile ? (
-          <>
-            <Link href="/profile/edit">
-              <Button variant="primary" glass onClick={() => {}}>
-                Edit Profile
-              </Button>
-            </Link>
-            <Button
-              variant="primary"
-              glass
-              onClick={() => {
-                // TODO: Implement share profile functionality
-              }}
-            >
-              Share Profile
-            </Button>
-          </>
-        ) : (
-          <>
-            <ConnectionButton targetUserId={props.userId || null} />
-            <Button
-              variant="primary"
-              glass
-              onClick={props.onClickMessage ?? (() => {})}
-            >
-              Message
-            </Button>
-          </>
-        )}
-      </div>
-      <ConnectionsModal
-        isOpen={isConnectionsModalOpen}
-        onClose={() => setIsConnectionsModalOpen(false)}
-        userId={props.userId || null}
-        username={props.username}
-      />
-    </div>
-  );
+	return (
+		<div
+			className={
+				"relative text-[var(--color-white)] flex w-[23.3125rem] py-[1.5625rem] flex-col justify-center items-center gap-[0.9375rem] rounded-[2.8125rem] bg-[var(--profile-theme)]"
+			}
+			style={{ "--profile-theme": `${props.theme}` } as CSSProperties}>
+			<span
+				onClick={() => setIsMenuOpen(!isMenuOpen)}
+				className="absolute top-[2.25rem] right-[1.75rem] flex w-[1.3125rem] items-center gap-[0.25rem] cursor-pointer">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="3"
+					height="3"
+					viewBox="0 0 3 3"
+					fill="none">
+					<circle
+						cx="1"
+						cy="1"
+						r="1"
+						transform="matrix(-1 0 0 1 2.5 0.5)"
+						fill="white"
+						stroke="white"
+					/>
+				</svg>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="3"
+					height="3"
+					viewBox="0 0 3 3"
+					fill="none">
+					<circle
+						cx="1"
+						cy="1"
+						r="1"
+						transform="matrix(-1 0 0 1 2.5 0.5)"
+						fill="white"
+						stroke="white"
+					/>
+				</svg>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="3"
+					height="3"
+					viewBox="0 0 3 3"
+					fill="none">
+					<circle
+						cx="1"
+						cy="1"
+						r="1"
+						transform="matrix(-1 0 0 1 2.5 0.5)"
+						fill="white"
+						stroke="white"
+					/>
+				</svg>
+			</span>
+			{isMenuOpen && (
+				<Popover
+					variant="my-profile"
+					className="absolute top-[3rem] right-[1.75rem]"
+				/>
+			)}
+			<div className="flex justify-center items-center self-stretch">
+				<button
+					onClick={() => setIsConnectionsModalOpen(true)}
+					className="flex flex-col items-center flex-[1_0_0] cursor-pointer hover:opacity-80 transition-opacity">
+					<div className="relative">
+						<p>{displayConnectionsCount}</p>
+						{pendingCount > 0 && (
+							<span className="absolute top-0 -right-2.5 flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-xs font-semibold transform translate-x-1/2 -translate-y-1/2">
+								{pendingCount > 99 ? "99+" : pendingCount}
+							</span>
+						)}
+					</div>
+					<p>Connections</p>
+				</button>
+				<Image
+					src={props.imgSrc}
+					alt={`${props.username}'s avatar`}
+					width={146}
+					height={146}
+					className="w-[9.11988rem] h-[9.11988rem] rounded-full border border-[var(--color-white)] object-cover "
+				/>
+				<div className="flex flex-col items-center flex-[1_0_0]">
+					<p>{props.notes ?? 0}</p>
+					<p>Notes</p>
+				</div>
+			</div>
+			<div>
+				<div className="flex justify-center items-start gap-1.5 self-stretch">
+					<h3 className="text-center text-[1.125rem]">
+						{props.firstName} {props.lastName}
+					</h3>
+					{props.verified && (
+						<Image
+							src="/icons/twitter-verified-badge.svg"
+							alt="Verified"
+							width={18}
+							height={18}
+							className="invert brightness-0"
+						/>
+					)}
+				</div>
+				<p className="text-[var(--color-melting-glacier)] text-center text-xs leading-none self-stretch">
+					{props.bio}
+				</p>
+			</div>
+			<div className="flex items-center gap-[var(--Spacing-XS---spacing,0.625rem)]">
+				{isOwnProfile ? (
+					<>
+						<Link href="/profile/edit">
+							<Button variant="primary" glass onClick={() => {}}>
+								Edit Profile
+							</Button>
+						</Link>
+						<Button
+							variant="primary"
+							glass
+							onClick={() => {
+								// TODO: Implement share profile functionality
+							}}>
+							Share Profile
+						</Button>
+					</>
+				) : (
+					<>
+						<ConnectionButton targetUserId={props.userId || null} />
+						<Button
+							variant="primary"
+							glass
+							onClick={props.onClickMessage ?? (() => {})}>
+							Message
+						</Button>
+					</>
+				)}
+			</div>
+			<ConnectionsModal
+				isOpen={isConnectionsModalOpen}
+				onClose={() => setIsConnectionsModalOpen(false)}
+				userId={props.userId || null}
+				username={props.username}
+			/>
+		</div>
+	);
 }
 
 export { ProfileHeader };
@@ -264,7 +263,7 @@ export { ProfileHeader };
 // <ProfileHeader
 //     username="testuser"
 //     imgSrc="/avatars/cd5ba1b2b51aa23578ec39ca57088f729c806336.webp"
-//     color="blue"
+//     theme="blue"
 //     verified={true}
 //     bio="Singer-songwriter, guitarist"
 //     firstName="John"
@@ -273,4 +272,5 @@ export { ProfileHeader };
 //     notes={45}
 //     onClickConnect={() => console.log("Connect clicked")}
 //     onClickMessage={() => console.log("Message clicked")}
+//     isOwnProfile={true}
 // />
