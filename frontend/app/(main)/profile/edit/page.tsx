@@ -133,6 +133,9 @@ export default function EditProfilePage() {
 	const [removedCollaborations, setRemovedCollaborations] = useState<
 		Set<string>
 	>(new Set());
+	const [pendingAction, setPendingAction] = useState<
+		"save" | "addBlock" | null
+	>(null);
 
 	const [socialMediaLinks, setSocialMediaLinks] = useState<
 		Record<string, string>
@@ -235,6 +238,7 @@ export default function EditProfilePage() {
 	const onSubmit = (formData: EditProfileFormData) => {
 		if (!username) return;
 
+		setPendingAction("save");
 		updateProfile(
 			{
 				username,
@@ -265,11 +269,18 @@ export default function EditProfilePage() {
 							onSuccess: () => {
 								// Wait a brief moment for cache invalidation to complete
 								setTimeout(() => {
+									setPendingAction(null);
 									router.push(`/profile/${username}`);
 								}, 100);
 							},
+							onError: () => {
+								setPendingAction(null);
+							},
 						}
 					);
+				},
+				onError: () => {
+					setPendingAction(null);
 				},
 			}
 		);
@@ -619,10 +630,10 @@ export default function EditProfilePage() {
 				icon="add-circle"
 				type="button"
 				variant="primary"
-				disabled={isPending}
+				disabled={pendingAction === "addBlock"}
 				onClick={() => setShowAddBlockModal(true)}
 				className="self-center">
-				{isPending ? "Saving..." : "Add block"}
+				{pendingAction === "addBlock" ? "Saving..." : "Add block"}
 			</Button>
 			{/* Action Buttons */}
 			<div className="flex justify-center gap-4 pt-4">
@@ -632,9 +643,9 @@ export default function EditProfilePage() {
 				<Button
 					type="button"
 					variant="primary"
-					disabled={isPending}
+					disabled={pendingAction === "save"}
 					onClick={handleSubmit(onSubmit)}>
-					{isPending ? "Saving..." : "Save Changes"}
+					{pendingAction === "save" ? "Saving..." : "Save Changes"}
 				</Button>
 			</div>
 
