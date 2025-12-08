@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/app/components/buttons";
 import GlassSurface from "@/app/components/glass-surface";
 import { LoadingSpinner } from "@/app/components/loading-spinner";
@@ -289,7 +290,10 @@ function ConnectionRow({
 
   return (
     <div className="flex items-center justify-between gap-4 py-4">
-      <div className="flex items-center gap-3 flex-1 min-w-0">
+      <Link
+        href={`/profile/${user.username}`}
+        className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity"
+      >
         <Image
           src={user.avatarUrl || "/avatars/default-avatar.png"}
           alt={`${displayName}'s avatar`}
@@ -305,7 +309,7 @@ function ConnectionRow({
             <p className="text-sm text-grey/80 mt-1 line-clamp-2">{user.bio}</p>
           )}
         </div>
-      </div>
+      </Link>
       {showActions && onAccept && onReject && (
         <div className="flex items-center gap-2 shrink-0">
           <Button
