@@ -19,7 +19,6 @@
     "class-validator": "^0.14.3",
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "multer": "^2.0.2",
     "nodemon": "^3.1.11",
     "swagger-ui-express": "^5.0.1",
     "tsoa": "^6.6.0"
@@ -27,7 +26,6 @@
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
-    "@types/multer": "^2.0.0",
     "@types/swagger-ui-express": "^4.1.8",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"

@@ -211,79 +211,61 @@
 					"themeColor": "#FF5733"
 				}
 			},
-			"UploadedFileResponse": {
-				"description": "API response format for a single uploaded file",
+			"SignedUrlResponse": {
+				"description": "API response format for signed upload URL\n\nReturns a temporary signed URL that allows direct client uploads to Supabase Storage.\nThe client uses this URL to upload files directly, bypassing the backend.",
 				"properties": {
-					"id": {
+					"signedUrl": {
 						"type": "string"
 					},
-					"url": {
+					"filePath": {
 						"type": "string"
-					},
-					"thumbnailUrl": {
-						"type": "string",
-						"nullable": true
-					},
-					"type": {
-						"type": "string",
-						"enum": [
-							"image",
-							"video"
-						]
-					},
-					"createdAt": {
-						"type": "string",
-						"nullable": true
 					}
 				},
 				"required": [
-					"id",
-					"url",
-					"type",
-					"createdAt"
+					"signedUrl",
+					"filePath"
 				],
 				"type": "object",
 				"additionalProperties": false,
 				"example": {
-					"id": "media-123",
-					"url": "https://storage.supabase.co/.../image.jpg",
-					"thumbnailUrl": "https://storage.supabase.co/.../thumb.jpg",
-					"type": "image",
-					"createdAt": "2024-01-20T15:30:00Z"
+					"signedUrl": "https://[project].supabase.co/storage/v1/object/sign/posts/user-123/file.jpg?...",
+					"filePath": "posts/user-123/1234567890-abc123.jpg"
 				}
 			},
-			"UploadResponse": {
-				"description": "API response format for batch file upload",
+			"SignedUrlRequestDto": {
+				"description": "DTO for requesting a signed upload URL\n\nUsed to generate a temporary signed URL for direct client uploads to Supabase Storage.\nThe client will use this signed URL to upload files directly, bypassing the backend.",
 				"properties": {
-					"files": {
-						"items": {
-							"$ref": "#/components/schemas/UploadedFileResponse"
-						},
-						"type": "array"
+					"fileName": {
+						"type": "string",
+						"description": "Original file name (used to determine file extension)",
+						"example": "my-image.jpg"
+					},
+					"fileType": {
+						"type": "string",
+						"description": "MIME type of the file (used for validation)",
+						"example": "image/jpeg"
+					},
+					"uploadType": {
+						"type": "string",
+						"enum": [
+							"post",
+							"avatar"
+						],
+						"description": "Upload type: \"post\" for post media, \"avatar\" for profile pictures",
+						"example": "post",
+						"default": "post"
 					}
 				},
 				"required": [
-					"files"
+					"fileName",
+					"fileType"
 				],
 				"type": "object",
 				"additionalProperties": false,
 				"example": {
-					"files": [
-						{
-							"id": "media-123",
-							"url": "https://storage.supabase.co/.../image1.jpg",
-							"thumbnailUrl": null,
-							"type": "image",
-							"createdAt": "2024-01-20T15:30:00Z"
-						},
-						{
-							"id": "media-124",
-							"url": "https://storage.supabase.co/.../image2.jpg",
-							"thumbnailUrl": null,
-							"type": "image",
-							"createdAt": "2024-01-20T15:30:00Z"
-						}
-					]
+					"fileName": "my-image.jpg",
+					"fileType": "image/jpeg",
+					"uploadType": "post"
 				}
 			},
 			"UserSearchResult": {
@@ -1095,6 +1077,118 @@
 							"type": "image"
 						}
 					]
+				}
+			},
+			"PaginatedResponse_PostResponse_": {
+				"description": "Generic paginated response wrapper",
+				"properties": {
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/PostResponse"
+						},
+						"type": "array"
+					},
+					"pagination": {
+						"properties": {
+							"total": {
+								"type": "number",
+								"format": "double"
+							},
+							"hasMore": {
+								"type": "boolean"
+							},
+							"nextCursor": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"hasMore"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"data",
+					"pagination"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CommentResponse": {
+				"description": "API response format for a comment\nRepresents a comment on a post with author information",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"postId": {
+						"type": "string"
+					},
+					"authorId": {
+						"type": "string"
+					},
+					"content": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"updatedAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"author": {
+						"properties": {
+							"avatarUrl": {
+								"type": "string",
+								"nullable": true
+							},
+							"lastName": {
+								"type": "string",
+								"nullable": true
+							},
+							"firstName": {
+								"type": "string",
+								"nullable": true
+							},
+							"username": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"username",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"postId",
+					"authorId",
+					"content",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"id": "comment-123",
+					"postId": "post-123",
+					"authorId": "user-456",
+					"content": "Great track! Love the production.",
+					"createdAt": "2024-01-20T16:00:00Z",
+					"updatedAt": "2024-01-20T16:00:00Z",
+					"author": {
+						"id": "user-456",
+						"username": "janedoe",
+						"firstName": "Jane",
+						"lastName": "Doe",
+						"avatarUrl": "https://..."
+					}
 				}
 			},
 			"NotificationResponse": {
@@ -2094,83 +2188,6 @@
 					"status": "accepted"
 				}
 			},
-			"CommentResponse": {
-				"description": "API response format for a comment\nRepresents a comment on a post with author information",
-				"properties": {
-					"id": {
-						"type": "string"
-					},
-					"postId": {
-						"type": "string"
-					},
-					"authorId": {
-						"type": "string"
-					},
-					"content": {
-						"type": "string"
-					},
-					"createdAt": {
-						"type": "string",
-						"nullable": true
-					},
-					"updatedAt": {
-						"type": "string",
-						"nullable": true
-					},
-					"author": {
-						"properties": {
-							"avatarUrl": {
-								"type": "string",
-								"nullable": true
-							},
-							"lastName": {
-								"type": "string",
-								"nullable": true
-							},
-							"firstName": {
-								"type": "string",
-								"nullable": true
-							},
-							"username": {
-								"type": "string"
-							},
-							"id": {
-								"type": "string"
-							}
-						},
-						"required": [
-							"username",
-							"id"
-						],
-						"type": "object"
-					}
-				},
-				"required": [
-					"id",
-					"postId",
-					"authorId",
-					"content",
-					"createdAt",
-					"updatedAt"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"id": "comment-123",
-					"postId": "post-123",
-					"authorId": "user-456",
-					"content": "Great track! Love the production.",
-					"createdAt": "2024-01-20T16:00:00Z",
-					"updatedAt": "2024-01-20T16:00:00Z",
-					"author": {
-						"id": "user-456",
-						"username": "janedoe",
-						"firstName": "Jane",
-						"lastName": "Doe",
-						"avatarUrl": "https://..."
-					}
-				}
-			},
 			"Pick_CommentInsert.Exclude_keyofCommentInsert.author_id-or-created_at-or-updated_at-or-id__": {
 				"properties": {
 					"post_id": {
@@ -2609,23 +2626,23 @@
 				}
 			}
 		},
-		"/upload": {
+		"/upload/signed-url": {
 			"post": {
-				"operationId": "UploadFiles",
+				"operationId": "GenerateSignedUploadUrl",
 				"responses": {
 					"200": {
-						"description": "Array of uploaded file records with URLs",
+						"description": "Signed URL and file path for direct client upload",
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/UploadResponse"
+									"$ref": "#/components/schemas/SignedUrlResponse"
 								}
 							}
 						}
 					}
 				},
-				"description": "Upload files (images or videos) for posts or avatars\n\nSupports batch upload of up to 4 files.\nFiles are uploaded to Supabase Storage and media records are created in the database.\n\n- **Images**: JPEG, PNG, GIF, WebP (max 50MB each)\n- **Videos**: MP4, WebM, QuickTime (max 50MB each)\n- **Thumbnails**: Can be generated for videos if requested",
-				"summary": "Upload files",
+				"description": "Generate a signed upload URL for direct client uploads\n\nReturns a temporary signed URL that allows clients to upload files directly\nto Supabase Storage, bypassing the backend. This improves scalability by\navoiding large file buffers in the Node.js server.\n\nThe client should:\n1. Call this endpoint to get a signed URL\n2. Upload the file directly to the signed URL using fetch/PUT\n3. Use the returned filePath to construct the public URL\n4. Include the public URL when creating posts or updating avatars\n\n- **Images**: JPEG, PNG, GIF, WebP\n- **Videos**: MP4, WebM, QuickTime\n- **Upload Types**: \"post\" (default) for post media, \"avatar\" for profile pictures",
+				"summary": "Generate signed upload URL",
 				"tags": [
 					"Upload"
 				],
@@ -2636,33 +2653,13 @@
 				],
 				"parameters": [],
 				"requestBody": {
+					"description": "Request body containing fileName, fileType, and optional uploadType",
 					"required": true,
 					"content": {
-						"multipart/form-data": {
+						"application/json": {
 							"schema": {
-								"type": "object",
-								"properties": {
-									"files": {
-										"items": {
-											"type": "string",
-											"format": "binary"
-										},
-										"type": "array",
-										"description": "Array of files to upload (multipart/form-data)"
-									},
-									"type": {
-										"type": "string",
-										"description": "Upload type: \"post\" for post media, \"avatar\" for profile pictures"
-									},
-									"generateThumbnails": {
-										"type": "string",
-										"description": "Whether to generate thumbnails for videos (default: false)"
-									}
-								},
-								"required": [
-									"files",
-									"type"
-								]
+								"$ref": "#/components/schemas/SignedUrlRequestDto",
+								"description": "Request body containing fileName, fileType, and optional uploadType"
 							}
 						}
 					}
@@ -3045,6 +3042,217 @@
 						}
 					}
 				}
+			},
+			"get": {
+				"operationId": "ListPosts",
+				"responses": {
+					"200": {
+						"description": "Paginated list of posts",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PaginatedResponse_PostResponse_"
+								}
+							}
+						}
+					}
+				},
+				"description": "List posts with filters and pagination\n\nReturns a paginated list of posts with optional filters.\nSupports filtering by type, author, location, genres, tags, and paid opportunities.\nCan optionally include engagement data (requires authentication).\n\nPosts are public and can be viewed without authentication, but engagement data\n(likes, comments, bookmarks) requires authentication.",
+				"summary": "List posts",
+				"tags": [
+					"Posts"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "Filter by post type: \"note\", \"request\", or \"story\"",
+						"in": "query",
+						"name": "type",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"enum": [
+								"note",
+								"request",
+								"story"
+							]
+						}
+					},
+					{
+						"description": "Filter by author user ID",
+						"in": "query",
+						"name": "authorId",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "Cursor for pagination (ISO timestamp)",
+						"in": "query",
+						"name": "cursor",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "Maximum number of posts to return (1-100, default: 20)",
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"description": "Whether to include engagement data (requires auth)",
+						"in": "query",
+						"name": "includeEngagement",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					},
+					{
+						"description": "Whether to include media in the response",
+						"in": "query",
+						"name": "includeMedia",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					},
+					{
+						"description": "Filter by genre IDs (array)",
+						"in": "query",
+						"name": "genreIds",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					{
+						"description": "Filter by tag names (array)",
+						"in": "query",
+						"name": "tags",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					{
+						"description": "Filter by location",
+						"in": "query",
+						"name": "location",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "Filter for paid opportunities only",
+						"in": "query",
+						"name": "paidOnly",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					}
+				]
+			}
+		},
+		"/posts/{id}": {
+			"get": {
+				"operationId": "GetPost",
+				"responses": {
+					"200": {
+						"description": "The post with all related data, optional comments, and optional engagement",
+						"content": {
+							"application/json": {
+								"schema": {
+									"allOf": [
+										{
+											"$ref": "#/components/schemas/PostResponse"
+										},
+										{
+											"properties": {
+												"hasBookmarked": {
+													"type": "boolean"
+												},
+												"hasLiked": {
+													"type": "boolean"
+												},
+												"bookmarksCount": {
+													"type": "number",
+													"format": "double"
+												},
+												"commentsCount": {
+													"type": "number",
+													"format": "double"
+												},
+												"likesCount": {
+													"type": "number",
+													"format": "double"
+												},
+												"comments": {
+													"items": {
+														"$ref": "#/components/schemas/CommentResponse"
+													},
+													"type": "array"
+												}
+											},
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "Get a single post by ID\n\nReturns a single post with full details including author, metadata, media, and tagged users.\nCan optionally include comments and engagement data (requires authentication).\n\nPosts are public and can be viewed without authentication, but engagement data\n(likes, comments, bookmarks) requires authentication.",
+				"summary": "Get post by ID",
+				"tags": [
+					"Posts"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "The UUID of the post to retrieve",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "Whether to include comments in the response",
+						"in": "query",
+						"name": "includeComments",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					},
+					{
+						"description": "Maximum number of comments to return (1-100, default: 50)",
+						"in": "query",
+						"name": "commentsLimit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
 			}
 		},
 		"/notifications": {
