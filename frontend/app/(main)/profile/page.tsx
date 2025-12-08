@@ -92,7 +92,7 @@ function MyProfileContent() {
 
 export default function Page() {
   return (
-    <main className="space-y-4">
+    <main className="space-y-4 px-4">
       <MyProfileContent />
     </main>
   );

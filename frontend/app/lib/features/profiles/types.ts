@@ -5,6 +5,8 @@ import type { components } from "@/app/lib/types/api";
 export type UserProfile = components["schemas"]["UserProfile"];
 export type ProfileUpdateRequest = components["schemas"]["UpdateProfileDto"];
 export type LookingForType = components["schemas"]["LookingForType"];
+export type ConnectionStatus = components["schemas"]["ConnectionStatus"];
+export type Connection = components["schemas"]["Connection"];
 
 // --- Frontend-only Types ---
 export interface OnboardingData {

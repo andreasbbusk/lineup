@@ -1,8 +1,13 @@
 import { apiClient, handleApiError } from "../../api/api-client";
-import type { UserProfile, ProfileUpdateRequest } from "./types";
+import type {
+  UserProfile,
+  ProfileUpdateRequest,
+  Connection,
+  ConnectionStatus,
+} from "./types";
 
 // Re-export types for backward compatibility
-export type { UserProfile, ProfileUpdateRequest };
+export type { UserProfile, ProfileUpdateRequest, Connection, ConnectionStatus };
 
 /**
  * Get user profile by username
@@ -76,7 +81,7 @@ export async function getConnectionRequests(): Promise<Connection[]> {
 export async function getUserAcceptedConnections(
   userId: string
 ): Promise<Connection[]> {
-  // @ts-expect-error - Connection endpoints not yet in generated types. Regenerate types after running `npm run tsoa` in backend.
+  // Connection endpoints not yet in generated types. Regenerate types after running `npm run tsoa` in backend.
   const { data, error, response } = await apiClient.GET(
     "/connections/accepted/{userId}",
     {
@@ -98,7 +103,7 @@ export async function getUserAcceptedConnections(
 export async function getConnectionStatus(
   targetUserId: string
 ): Promise<Connection | null> {
-  // @ts-expect-error - Connection endpoints not yet in generated types. Regenerate types after running `npm run tsoa` in backend.
+  // Connection endpoints not yet in generated types. Regenerate types after running `npm run tsoa` in backend.
   const { data, error, response } = await apiClient.GET(
     "/connections/status/{targetUserId}",
     {
@@ -249,7 +254,4 @@ export async function removeConnection(connectionId: string): Promise<void> {
   if (error) {
     handleApiError(error, response);
   }
-
-  // If we get here, the deletion was successful (204 No Content)
-  // The DELETE endpoint returns void, so no data to return
 }
