@@ -27,12 +27,17 @@ interface UserTaggerProps {
 async function fetchFollowedUsers(search?: string, token?: string): Promise<User[]> {
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
   
+  // Ensure baseUrl doesn't already end with /api
+  // If baseUrl is "http://localhost:3001/api", remove /api
+  // If baseUrl is "http://localhost:3001", use as-is
+  const apiBase = baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) : baseUrl;
+  
   const queryParams = new URLSearchParams();
   queryParams.append("type", "following");
   if (search) queryParams.append("search", search);
 
   const response = await fetch(
-    `${baseUrl}/api/users/metadata?${queryParams.toString()}`,
+    `${apiBase}/api/users/metadata?${queryParams.toString()}`,
     {
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),

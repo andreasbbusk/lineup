@@ -183,4 +183,92 @@ export class UsersService {
 
     return mapProfileToAPI(updatedProfile as ProfileRow);
   }
+
+  /**
+   * Get users that the authenticated user is connected to (following)
+   * Queries connection_requests table to get all users with accepted connections
+   * @param userId ID of the authenticated user
+   * @param token Bearer token for RLS
+   * @param search Optional search query to filter users by username
+   */
+  async getFollowingUsers(
+    userId: string,
+    token: string,
+    search?: string
+  ): Promise<{ users: UserProfile[] }> {
+    const authedSupabase = createAuthenticatedClient(token);
+
+    // Get connections where user is requester (accepted)
+    const { data: requesterConnections, error: requesterError } =
+      await authedSupabase
+        .from("connection_requests")
+        .select("recipient_id")
+        .eq("requester_id", userId)
+        .eq("status", "accepted");
+
+    if (requesterError) {
+      throw createHttpError({
+        message: `Failed to fetch connections: ${requesterError.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    // Get connections where user is recipient (accepted)
+    const { data: recipientConnections, error: recipientError } =
+      await authedSupabase
+        .from("connection_requests")
+        .select("requester_id")
+        .eq("recipient_id", userId)
+        .eq("status", "accepted");
+
+    if (recipientError) {
+      throw createHttpError({
+        message: `Failed to fetch connections: ${recipientError.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    // Extract connected user IDs
+    const connectedUserIds = new Set<string>();
+    requesterConnections?.forEach((conn) => {
+      connectedUserIds.add(conn.recipient_id);
+    });
+    recipientConnections?.forEach((conn) => {
+      connectedUserIds.add(conn.requester_id);
+    });
+
+    if (connectedUserIds.size === 0) {
+      return { users: [] };
+    }
+
+    // Query profiles for these user IDs
+    let profilesQuery = authedSupabase
+      .from("profiles")
+      .select("*")
+      .in("id", Array.from(connectedUserIds));
+
+    // Apply search filter if provided
+    if (search) {
+      profilesQuery = profilesQuery.ilike("username", `%${search}%`);
+    }
+
+    const { data: profiles, error: profilesError } = await profilesQuery;
+
+    if (profilesError) {
+      throw createHttpError({
+        message: `Failed to fetch user profiles: ${profilesError.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    // Map the results to UserProfile format
+    const users = (profiles || []).map((profile: ProfileRow) =>
+      mapProfileToAPI(profile, false)
+    );
+
+    return { users };
+  }
 }

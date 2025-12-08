@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Button } from "@/app/components/buttons";
 import { Toggle } from "@/app/components/toggle";
 import { MediaUploader } from "./media-uploader";
@@ -8,7 +9,40 @@ import { MediaUploader } from "./media-uploader";
 import { UserTagger } from "./user-tagger";
 import { Combobox } from "@/app/components/combobox";
 import { useRequestDraftAutoSave } from "../hooks/use-draft-auto-save";
+import { supabase } from "@/app/lib/supabase/client";
 import type { UploadedMedia } from "../types";
+
+interface User {
+  id: string;
+  username: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  avatarUrl?: string | null;
+}
+
+async function fetchFollowedUsers(search?: string, token?: string): Promise<User[]> {
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
+  
+  // Ensure baseUrl doesn't already end with /api
+  const apiBase = baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) : baseUrl;
+  
+  const queryParams = new URLSearchParams();
+  queryParams.append("type", "following");
+  if (search) queryParams.append("search", search);
+
+  const response = await fetch(
+    `${apiBase}/api/users/metadata?${queryParams.toString()}`,
+    {
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    }
+  );
+
+  if (!response.ok) throw new Error("Failed to fetch users");
+  const data = await response.json();
+  return data.users || [];
+}
 
 interface RequestFormProps {
   onSubmit: (data: {
@@ -58,6 +92,7 @@ export function RequestForm({ onSubmit, isSubmitting = false }: RequestFormProps
   const [isUserTaggerOpen, setIsUserTaggerOpen] = useState(false);
   const [isRestoring, setIsRestoring] = useState(true);
   // const [availableGenres, setAvailableGenres] = useState<{ name: string }[]>([]); // Disabled
+  const [taggedUserObjects, setTaggedUserObjects] = useState<User[]>([]);
 
   // Restore draft on mount
   useEffect(() => {
@@ -77,6 +112,31 @@ export function RequestForm({ onSubmit, isSubmitting = false }: RequestFormProps
 
     loadDraft();
   }, [restoreDraft]);
+
+  // Fetch user data for tagged users
+  useEffect(() => {
+    const fetchTaggedUsers = async () => {
+      if (taggedUsers.length === 0) {
+        setTaggedUserObjects([]);
+        return;
+      }
+
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        const allUsers = await fetchFollowedUsers(undefined, token || undefined);
+        
+        // Filter to only include tagged users
+        const tagged = allUsers.filter((user) => taggedUsers.includes(user.id));
+        setTaggedUserObjects(tagged);
+      } catch (error) {
+        console.error("Failed to fetch tagged users:", error);
+        setTaggedUserObjects([]);
+      }
+    };
+
+    fetchTaggedUsers();
+  }, [taggedUsers]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -216,10 +276,39 @@ export function RequestForm({ onSubmit, isSubmitting = false }: RequestFormProps
         >
           + Add people
         </Button>
-        {taggedUsers.length > 0 && (
-          <p className="text-sm text-gray-600">
-            {taggedUsers.length} user{taggedUsers.length > 1 ? "s" : ""} tagged
-          </p>
+        {taggedUserObjects.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {taggedUserObjects.map((user) => (
+              <div
+                key={user.id}
+                className="flex items-center gap-2 rounded-full border border-gray-300 bg-gray-50 px-3 py-1"
+              >
+                {user.avatarUrl ? (
+                  <Image
+                    src={user.avatarUrl}
+                    alt={user.username}
+                    width={24}
+                    height={24}
+                    className="rounded-full"
+                  />
+                ) : (
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 text-xs font-medium">
+                    {(user.firstName || user.username)[0].toUpperCase()}
+                  </div>
+                )}
+                <span className="text-sm">
+                  {user.firstName || user.username}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => updateTaggedUsers(taggedUsers.filter((id) => id !== user.id))}
+                  className="ml-1 text-gray-500 hover:text-gray-700"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
@@ -229,6 +318,7 @@ export function RequestForm({ onSubmit, isSubmitting = false }: RequestFormProps
       {/* Submit */}
       <div className="flex justify-end pt-4">
         <Button
+          className="max-w-[150px]"
           type="submit"
           variant="primary"
           disabled={isSubmitting || !title.trim() || description.trim().length < 10}

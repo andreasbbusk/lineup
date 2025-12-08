@@ -2524,6 +2524,64 @@
 		}
 	},
 	"paths": {
+		"/users/metadata": {
+			"get": {
+				"operationId": "GetUserMetadata",
+				"responses": {
+					"200": {
+						"description": "Array of user profiles",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"users": {
+											"items": {
+												"$ref": "#/components/schemas/UserProfile"
+											},
+											"type": "array"
+										}
+									},
+									"required": [
+										"users"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get user metadata (connections, following, etc.)\n\nReturns different types of user lists based on the type parameter.\n- 'following': Returns users the authenticated user is connected to\n- 'connections': Same as following (alias)",
+				"summary": "Get user metadata",
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The type of metadata to retrieve ('following' or 'connections')",
+						"in": "query",
+						"name": "type",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "Optional search query to filter users",
+						"in": "query",
+						"name": "search",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
 		"/users/{username}": {
 			"get": {
 				"operationId": "GetUser",

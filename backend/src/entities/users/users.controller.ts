@@ -7,6 +7,7 @@ import {
   Header,
   Path,
   Put,
+  Query,
   Request,
   Route,
   Security,
@@ -16,6 +17,7 @@ import { supabase } from "../../config/supabase.config.js";
 import { UserProfile } from "../../types/api.types.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
 import { createHttpError } from "../../utils/error-handler.js";
+import { extractUserId } from "../../utils/auth-helpers.js";
 import { UpdateProfileDto } from "./users.dto.js";
 import { UsersService } from "./users.service.js";
 
@@ -23,6 +25,43 @@ import { UsersService } from "./users.service.js";
 @Tags("Users")
 export class UsersController extends Controller {
   private usersService = new UsersService();
+
+  /**
+   * Get user metadata (connections, following, etc.)
+   *
+   * Returns different types of user lists based on the type parameter.
+   * - 'following': Returns users the authenticated user is connected to
+   * - 'connections': Same as following (alias)
+   *
+   * @summary Get user metadata
+   * @param type The type of metadata to retrieve ('following' or 'connections')
+   * @param search Optional search query to filter users
+   * @returns Array of user profiles
+   * @throws 401 if not authenticated
+   * @throws 400 if invalid type parameter
+   */
+  @Security("bearerAuth")
+  @Get("metadata")
+  public async getUserMetadata(
+    @Query() type: string,
+    @Request() request: ExpressRequest,
+    @Query() search?: string
+  ): Promise<{ users: UserProfile[] }> {
+    return handleControllerRequest(this, async () => {
+      const userId = await extractUserId(request);
+      const token = request.headers.authorization?.replace("Bearer ", "") || "";
+
+      if (type === "following" || type === "connections") {
+        return this.usersService.getFollowingUsers(userId, token, search);
+      }
+
+      throw createHttpError({
+        message: `Invalid type parameter: ${type}. Valid types are: 'following', 'connections'`,
+        statusCode: 400,
+        code: "VALIDATION_ERROR",
+      });
+    });
+  }
 
   /**
    * Get user profile by username

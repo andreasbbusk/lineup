@@ -109,7 +109,7 @@ export function CreateForm() {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-[840px] mx-auto">
       <Tabs variant="create" activeTab={activeTab} onTabChange={setActiveTab}>
         <TabsContent value="note">
           <NoteForm onSubmit={handleNoteSubmit} isSubmitting={isPending} />

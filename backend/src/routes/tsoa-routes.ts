@@ -140,6 +140,39 @@ export function RegisterRoutes(app: Router) {
     // ###########################################################################################################
 
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsUsersController_getUserMetadata: Record<string, TsoaRoute.ParameterSchema> = {
+                type: {"in":"query","name":"type","required":true,"dataType":"string"},
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+                search: {"in":"query","name":"search","dataType":"string"},
+        };
+        app.get('/users/metadata',
+            authenticateMiddleware([[{"bearerAuth":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(UsersController)),
+            ...(fetchMiddlewares<RequestHandler>(UsersController.prototype.getUserMetadata)),
+
+            async function UsersController_getUserMetadata(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsUsersController_getUserMetadata, request, response });
+
+                const controller = new UsersController();
+
+              await templateService.apiHandler({
+                methodName: 'getUserMetadata',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsUsersController_getUser: Record<string, TsoaRoute.ParameterSchema> = {
                 username: {"in":"path","name":"username","required":true,"dataType":"string"},
                 Authorization: {"in":"header","name":"Authorization","dataType":"string"},
