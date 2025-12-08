@@ -19,7 +19,7 @@ export class UserDetailsService {
   async getUserSocialMedia(userId: string): Promise<UserSocialMediaResponse> {
     const { data, error } = await supabase
       .from("user_social_media")
-      .select("*")
+      .select("instagram, twitter, facebook, youtube, soundcloud, tiktok, bandcamp, user_id")
       .eq("user_id", userId)
       .single();
 
