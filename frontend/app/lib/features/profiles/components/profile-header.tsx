@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import type { CSSProperties } from "react";
 import { Button } from "@/app/components/buttons";
 import { Popover } from "@/app/components/popover";
@@ -198,14 +199,35 @@ function ProfileHeader(props: ProfileHeaderProps) {
         </p>
       </div>
       <div className="flex items-center gap-(--Spacing-XS---spacing,0.625rem)">
-        <ConnectionButton targetUserId={props.userId || null} />
-        <Button
-          variant="primary"
-          glass
-          onClick={props.onClickMessage ?? (() => {})}
-        >
-          Message
-        </Button>
+        {isOwnProfile ? (
+          <>
+            <Link href="/profile/edit">
+              <Button variant="primary" glass onClick={() => {}}>
+                Edit Profile
+              </Button>
+            </Link>
+            <Button
+              variant="primary"
+              glass
+              onClick={() => {
+                // TODO: Implement share profile functionality
+              }}
+            >
+              Share Profile
+            </Button>
+          </>
+        ) : (
+          <>
+            <ConnectionButton targetUserId={props.userId || null} />
+            <Button
+              variant="primary"
+              glass
+              onClick={props.onClickMessage ?? (() => {})}
+            >
+              Message
+            </Button>
+          </>
+        )}
       </div>
       <ConnectionsModal
         isOpen={isConnectionsModalOpen}
