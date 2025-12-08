@@ -80,13 +80,16 @@ export async function getUserAcceptedConnections(
   userId: string
 ): Promise<Connection[]> {
   // Get both sent and received connections, then filter for accepted ones
-  const sentResult = await apiClient.GET("/connections/sent/{userId}", {
+  const sentResult = (await apiClient.GET("/connections/sent/{userId}", {
     params: { path: { userId } },
-  });
+  })) as { data?: Connection[]; error?: unknown; response?: Response };
 
-  const receivedResult = await apiClient.GET("/connections/received/{userId}", {
-    params: { path: { userId } },
-  });
+  const receivedResult = (await apiClient.GET(
+    "/connections/received/{userId}",
+    {
+      params: { path: { userId } },
+    }
+  )) as { data?: Connection[]; error?: unknown; response?: Response };
 
   // Handle errors
   if (sentResult.error) {

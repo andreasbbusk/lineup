@@ -5,25 +5,20 @@ import { Button } from "@/app/components/buttons";
 import GlassSurface from "@/app/components/glass-surface";
 import { LoadingSpinner } from "@/app/components/loading-spinner";
 import { useAppStore } from "@/app/lib/stores/app-store";
-// Always using mock data for now
-// import {
-//   useMyConnections,
-//   useUserConnections,
-// } from "../../hooks/queries/useConnection";
 import {
   useAcceptConnection,
   useRejectConnection,
+  useCancelConnection,
+  useMyProfile,
+  useMyConnections,
+  useUserConnections,
 } from "@/app/lib/features/profiles";
 import type { Connection } from "@/app/lib/features/profiles/api";
 
 interface ConnectionsModalProps {
-  /** Whether the modal is open */
   isOpen: boolean;
-  /** Callback to close the modal */
   onClose: () => void;
-  /** User ID of the profile being viewed (null for own profile) */
   userId: string | null;
-  /** Username of the profile being viewed (for display) */
   username: string;
 }
 
@@ -42,191 +37,25 @@ export function ConnectionsModal({
 }: ConnectionsModalProps) {
   const currentUserId = useAppStore((state) => state.user?.id);
   const isOwnProfile = !userId || userId === currentUserId;
+  const { data: currentUserProfile } = useMyProfile();
 
-  // Always using mock data for now, so hooks are commented out
-  // const { data: myConnections, isLoading: isLoadingMyConnections } =
-  //   useMyConnections({ enabled: isOwnProfile && isOpen });
-  // const { data: userConnections, isLoading: isLoadingUserConnections } =
-  //   useUserConnections({ userId, enabled: !isOwnProfile && isOpen });
+  const { data: myConnections, isLoading: isLoadingMyConnections } =
+    useMyConnections({ enabled: isOwnProfile && isOpen });
+  const { data: userConnections, isLoading: isLoadingUserConnections } =
+    useUserConnections({ userId, enabled: !isOwnProfile && isOpen });
 
   const acceptConnection = useAcceptConnection();
   const rejectConnection = useRejectConnection();
+  const cancelConnection = useCancelConnection();
 
-  // Always use mock data for now
-  const useMockData = true;
-  const isLoading = false; // Mock data is instant
-  const mockConnections: Connection[] = useMockData
-    ? [
-        {
-          id: "mock-1",
-          requesterId: "mock-requester-1",
-          recipientId: currentUserId || "current-user",
-          status: "pending",
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          requester: {
-            id: "mock-requester-1",
-            username: "johndoe",
-            firstName: "John",
-            lastName: "Doe",
-            avatarUrl: "/avatars/default-avatar.png",
-            bio: "Guitarist and songwriter",
-            aboutMe: null,
-            location: "",
-            userType: "musician",
-            themeColor: "blue",
-            spotifyPlaylistUrl: null,
-            onboardingCompleted: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-          recipient: {
-            id: currentUserId || "current-user",
-            username: "currentuser",
-            firstName: "Current",
-            lastName: "User",
-            avatarUrl: "/avatars/default-avatar.png",
-            bio: null,
-            aboutMe: null,
-            location: "",
-            userType: "musician",
-            themeColor: "default",
-            spotifyPlaylistUrl: null,
-            onboardingCompleted: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-        },
-        {
-          id: "mock-2",
-          requesterId: "mock-requester-2",
-          recipientId: currentUserId || "current-user",
-          status: "pending",
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          requester: {
-            id: "mock-requester-2",
-            username: "janesmith",
-            firstName: "Jane",
-            lastName: "Smith",
-            avatarUrl: "/avatars/default-avatar.png",
-            bio: "Drummer and producer",
-            aboutMe: null,
-            location: "",
-            userType: "musician",
-            themeColor: "purple",
-            spotifyPlaylistUrl: null,
-            onboardingCompleted: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-          recipient: {
-            id: currentUserId || "current-user",
-            username: "currentuser",
-            firstName: "Current",
-            lastName: "User",
-            avatarUrl: "/avatars/default-avatar.png",
-            bio: null,
-            aboutMe: null,
-            location: "",
-            userType: "musician",
-            themeColor: "default",
-            spotifyPlaylistUrl: null,
-            onboardingCompleted: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-        },
-        {
-          id: "mock-3",
-          requesterId: currentUserId || "current-user",
-          recipientId: "mock-recipient-1",
-          status: "accepted",
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          requester: {
-            id: currentUserId || "current-user",
-            username: "currentuser",
-            firstName: "Current",
-            lastName: "User",
-            avatarUrl: "/avatars/default-avatar.png",
-            bio: null,
-            aboutMe: null,
-            location: "",
-            userType: "musician",
-            themeColor: "default",
-            spotifyPlaylistUrl: null,
-            onboardingCompleted: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-          recipient: {
-            id: "mock-recipient-1",
-            username: "bobwilson",
-            firstName: "Bob",
-            lastName: "Wilson",
-            avatarUrl: "/avatars/default-avatar.png",
-            bio: "Bassist and composer",
-            aboutMe: null,
-            location: "",
-            userType: "musician",
-            themeColor: "green",
-            spotifyPlaylistUrl: null,
-            onboardingCompleted: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-        },
-        {
-          id: "mock-4",
-          requesterId: "mock-requester-3",
-          recipientId: currentUserId || "current-user",
-          status: "accepted",
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          requester: {
-            id: "mock-requester-3",
-            username: "alicebrown",
-            firstName: "Alice",
-            lastName: "Brown",
-            avatarUrl: "/avatars/default-avatar.png",
-            bio: "Vocalist and performer",
-            aboutMe: null,
-            location: "",
-            userType: "musician",
-            themeColor: "red",
-            spotifyPlaylistUrl: null,
-            onboardingCompleted: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-          recipient: {
-            id: currentUserId || "current-user",
-            username: "currentuser",
-            firstName: "Current",
-            lastName: "User",
-            avatarUrl: "/avatars/default-avatar.png",
-            bio: null,
-            aboutMe: null,
-            location: "",
-            userType: "musician",
-            themeColor: "default",
-            spotifyPlaylistUrl: null,
-            onboardingCompleted: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-        },
-      ]
-    : [];
+  const connectionsToUse = isOwnProfile ? myConnections : userConnections;
+  const isLoading = isOwnProfile
+    ? isLoadingMyConnections
+    : isLoadingUserConnections;
 
-  const connectionsToUse = mockConnections;
-
-  // Separate pending and accepted connections
   const pendingConnections =
     isOwnProfile && connectionsToUse
       ? connectionsToUse.filter((conn) => {
-          // Show pending requests where current user is the recipient
           return (
             conn.status === "pending" && conn.recipientId === currentUserId
           );
@@ -245,18 +74,37 @@ export function ConnectionsModal({
     rejectConnection.mutate(requestId);
   };
 
+  const handleRemove = (requestId: string) => {
+    cancelConnection.mutate(requestId);
+  };
+
   const getOtherUser = (connection: Connection) => {
+    let otherUser;
+
     if (isOwnProfile) {
-      // For own profile, show the other user (requester for received, recipient for sent)
-      return connection.recipientId === currentUserId
-        ? connection.requester
-        : connection.recipient;
+      otherUser =
+        connection.recipientId === currentUserId
+          ? connection.requester
+          : connection.recipient;
     } else {
-      // For other profiles, show the other user (not the profile being viewed)
-      return connection.requesterId === userId
-        ? connection.recipient
-        : connection.requester;
+      otherUser =
+        connection.requesterId === userId
+          ? connection.recipient
+          : connection.requester;
     }
+
+    if (otherUser?.id === currentUserId && currentUserProfile) {
+      return {
+        id: currentUserProfile.id,
+        username: currentUserProfile.username,
+        firstName: currentUserProfile.firstName,
+        lastName: currentUserProfile.lastName,
+        avatarUrl: currentUserProfile.avatarUrl,
+        bio: currentUserProfile.bio,
+      };
+    }
+
+    return otherUser;
   };
 
   if (!isOpen) return null;
@@ -291,7 +139,7 @@ export function ConnectionsModal({
               </h2>
               <button
                 onClick={onClose}
-                className="text-white hover:opacity-70 transition-opacity flex-shrink-0"
+                className="text-white hover:opacity-70 transition-opacity shrink-0"
                 aria-label="Close modal"
               >
                 <svg
@@ -325,14 +173,11 @@ export function ConnectionsModal({
                   <LoadingSpinner size={40} />
                 </div>
               ) : (
-                <div className="space-y-6 w-full">
+                <div className="space-y-0 w-full">
                   {/* Pending Connections (only for own profile) */}
                   {isOwnProfile && pendingConnections.length > 0 && (
-                    <div className="space-y-4">
-                      <h3 className="text-h3 font-semibold text-white">
-                        Pending Requests
-                      </h3>
-                      <div className="space-y-3">
+                    <div className="space-y-0">
+                      <div className="space-y-0">
                         {pendingConnections.map((connection) => {
                           const otherUser = getOtherUser(connection);
                           if (!otherUser) return null;
@@ -354,15 +199,17 @@ export function ConnectionsModal({
                     </div>
                   )}
 
+                  {/* Separator line between pending and accepted */}
+                  {isOwnProfile &&
+                    pendingConnections.length > 0 &&
+                    acceptedConnections.length > 0 && (
+                      <div className="border-t border-white/10 my-4" />
+                    )}
+
                   {/* Accepted Connections */}
                   {acceptedConnections.length > 0 ? (
-                    <div className="space-y-4">
-                      <h3 className="text-h3 font-semibold text-white">
-                        {isOwnProfile && pendingConnections.length > 0
-                          ? "Connected"
-                          : "Connections"}
-                      </h3>
-                      <div className="space-y-3">
+                    <div className="space-y-0">
+                      <div className="space-y-0">
                         {acceptedConnections.map((connection) => {
                           const otherUser = getOtherUser(connection);
                           if (!otherUser) return null;
@@ -373,6 +220,9 @@ export function ConnectionsModal({
                               user={otherUser}
                               connection={connection}
                               showActions={false}
+                              showRemove={isOwnProfile}
+                              onRemove={() => handleRemove(connection.id)}
+                              isRemoving={cancelConnection.isPending}
                             />
                           );
                         })}
@@ -415,6 +265,9 @@ interface ConnectionRowProps {
   onReject?: () => void;
   isAccepting?: boolean;
   isRejecting?: boolean;
+  showRemove?: boolean;
+  onRemove?: () => void;
+  isRemoving?: boolean;
 }
 
 function ConnectionRow({
@@ -424,6 +277,9 @@ function ConnectionRow({
   onReject,
   isAccepting = false,
   isRejecting = false,
+  showRemove = false,
+  onRemove,
+  isRemoving = false,
 }: ConnectionRowProps) {
   const displayName =
     user.firstName && user.lastName
@@ -431,28 +287,31 @@ function ConnectionRow({
       : user.username;
 
   return (
-    <div className="flex items-center justify-between gap-4 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+    <div className="flex items-center justify-between gap-4 py-4">
       <div className="flex items-center gap-3 flex-1 min-w-0">
         <Image
           src={user.avatarUrl || "/avatars/default-avatar.png"}
           alt={`${displayName}'s avatar`}
           width={48}
           height={48}
-          className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+          className="w-12 h-12 rounded-full object-cover shrink-0"
         />
         <div className="flex-1 min-w-0">
           <p className="text-body font-medium text-white truncate">
             {displayName}
           </p>
-          {user.bio && <p className="text-sm text-grey truncate">{user.bio}</p>}
+          {user.bio && (
+            <p className="text-sm text-grey/80 mt-1 line-clamp-2">{user.bio}</p>
+          )}
         </div>
       </div>
       {showActions && onAccept && onReject && (
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <Button
             variant="primary"
             onClick={onAccept}
             disabled={isAccepting || isRejecting}
+            className="min-w-[80px]"
           >
             {isAccepting ? "..." : "Accept"}
           </Button>
@@ -460,9 +319,21 @@ function ConnectionRow({
             variant="secondary"
             onClick={onReject}
             disabled={isAccepting || isRejecting}
-            className="bg-white/10 text-white border-white/30 hover:bg-white/20"
+            className="bg-white/10 text-white border-white/30 hover:bg-white/20 min-w-[80px]"
           >
             {isRejecting ? "..." : "Reject"}
+          </Button>
+        </div>
+      )}
+      {showRemove && onRemove && (
+        <div className="flex items-center shrink-0">
+          <Button
+            variant="secondary"
+            onClick={onRemove}
+            disabled={isRemoving}
+            className="bg-white/10 text-white border-white/30 hover:bg-white/20"
+          >
+            {isRemoving ? "..." : "Remove"}
           </Button>
         </div>
       )}

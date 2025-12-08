@@ -3,6 +3,8 @@ import Image from "next/image";
 import type { CSSProperties } from "react";
 import { Button } from "@/app/components/buttons";
 import { Popover } from "@/app/components/popover";
+import { useAppStore } from "@/app/lib/stores/app-store";
+import { useConnectionRequests } from "@/app/lib/features/profiles";
 import { ConnectionButton } from "./connections/ConnectionButton";
 import { ConnectionsModal } from "./connections/ConnectionsModal";
 
@@ -35,6 +37,18 @@ type ProfileHeaderProps = {
 function ProfileHeader(props: ProfileHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isConnectionsModalOpen, setIsConnectionsModalOpen] = useState(false);
+  const currentUserId = useAppStore((state) => state.user?.id);
+  const isOwnProfile = !props.userId || props.userId === currentUserId;
+
+  // Get pending connections count for own profile
+  const { data: connectionRequests } = useConnectionRequests();
+  const pendingCount =
+    isOwnProfile && connectionRequests
+      ? connectionRequests.filter(
+          (conn) =>
+            conn.status === "pending" && conn.recipientId === currentUserId
+        ).length
+      : 0;
 
   const colorClass = {
     default: "1E1E1E",
@@ -49,13 +63,13 @@ function ProfileHeader(props: ProfileHeaderProps) {
   return (
     <div
       className={
-        "relative text-[var(--color-white)] flex w-[23.3125rem] py-[1.5625rem] flex-col justify-center items-center gap-[0.9375rem] rounded-[2.8125rem] bg-[var(--profile-theme)]"
+        "relative text-(--color-white) flex w-93.25 py-6.25 flex-col justify-center items-center gap-3.75 rounded-[2.8125rem] bg-(--profile-theme)"
       }
       style={{ "--profile-theme": `#${colorClass}` } as CSSProperties}
     >
       <span
         onClick={() => setIsMenuOpen(!isMenuOpen)}
-        className="absolute top-[2.25rem] right-[1.75rem] flex w-[1.3125rem] items-center gap-[0.25rem] cursor-pointer"
+        className="absolute top-9 right-7 flex w-5.25 items-center gap-1 cursor-pointer"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -107,17 +121,21 @@ function ProfileHeader(props: ProfileHeaderProps) {
         </svg>
       </span>
       {isMenuOpen && (
-        <Popover
-          variant="my-profile"
-          className="absolute top-[3rem] right-[1.75rem]"
-        />
+        <Popover variant="my-profile" className="absolute top-12 right-7" />
       )}
       <div className="flex justify-center items-center self-stretch">
         <button
           onClick={() => setIsConnectionsModalOpen(true)}
           className="flex flex-col items-center flex-[1_0_0] cursor-pointer hover:opacity-80 transition-opacity"
         >
-          <p>{props.connections ?? 0}</p>
+          <div className="relative">
+            <p>{props.connections ?? 0}</p>
+            {pendingCount > 0 && (
+              <span className="absolute top-0 right-0 flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-xs font-semibold transform translate-x-1/2 -translate-y-1/2">
+                {pendingCount > 99 ? "99+" : pendingCount}
+              </span>
+            )}
+          </div>
           <p>Connections</p>
         </button>
         <Image
@@ -125,7 +143,7 @@ function ProfileHeader(props: ProfileHeaderProps) {
           alt={`${props.username}'s avatar`}
           width={146}
           height={146}
-          className="w-[9.11988rem] h-[9.11988rem] rounded-full border border-[var(--color-white)] object-cover "
+          className="w-[9.11988rem] h-[9.11988rem] rounded-full border border-(--color-white) object-cover "
         />
         <div className="flex flex-col items-center flex-[1_0_0]">
           <p>{props.notes ?? 0}</p>
@@ -134,7 +152,7 @@ function ProfileHeader(props: ProfileHeaderProps) {
       </div>
       <div>
         <div className="flex justify-center items-start gap-1.5 self-stretch">
-          <h3 className=" text-center [font-family:var(--font-family-helvetica)] text-[1.125rem] not-italic font-normal leading-[1.1875rem] tracking-[0.03125rem]">
+          <h3 className=" text-center font-family-helvetica text-[1.125rem] not-italic font-normal leading-4.75 tracking-[0.03125rem]">
             {props.firstName} {props.lastName}
           </h3>
           {props.verified && (
@@ -147,11 +165,11 @@ function ProfileHeader(props: ProfileHeaderProps) {
             />
           )}
         </div>
-        <p className="text-[var(--color-melting-glacier)] text-center text-xs not-italic font-normal leading-none tracking-[0.03125rem] self-stretch [font-family:var(--font-family-helvetica)]">
+        <p className="text-melting-glacier text-center text-xs not-italic font-normal leading-none tracking-[0.03125rem] self-stretch font-family-helvetica">
           {props.bio}
         </p>
       </div>
-      <div className="flex items-center gap-[var(--Spacing-XS---spacing,0.625rem)]">
+      <div className="flex items-center gap-(--Spacing-XS---spacing,0.625rem)">
         <ConnectionButton targetUserId={props.userId || null} />
         <Button
           variant="primary"

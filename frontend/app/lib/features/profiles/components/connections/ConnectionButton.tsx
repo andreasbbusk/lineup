@@ -5,8 +5,6 @@ import {
   useConnectionStatus,
   getConnectionButtonState,
   useSendConnection,
-  useAcceptConnection,
-  useRejectConnection,
   useCancelConnection,
 } from "@/app/lib/features/profiles";
 import { useAppStore } from "@/app/lib/stores/app-store";
@@ -22,12 +20,10 @@ interface ConnectionButtonProps {
 
 /**
  * ConnectionButton component
- *
  * Displays different states based on connection status:
  * - "Connect" - Not connected, can send request
- * - "Pending" - Request sent, waiting for response
- * - "Accept/Reject" - Request received, can accept or reject
- * - "Connected" - Already connected, can remove connection
+ * - "Pending" - Request sent, waiting for response (can cancel)
+ * - "Connected" - Already connected
  */
 export function ConnectionButton({
   targetUserId,
@@ -36,8 +32,6 @@ export function ConnectionButton({
   const currentUserId = useAppStore((state) => state.user?.id);
   const { data: connection, isLoading } = useConnectionStatus(targetUserId);
   const sendConnection = useSendConnection();
-  const acceptConnection = useAcceptConnection();
-  const rejectConnection = useRejectConnection();
   const cancelConnection = useCancelConnection();
 
   // Don't show button if viewing own profile
@@ -62,18 +56,6 @@ export function ConnectionButton({
   const handleConnect = () => {
     if (targetUserId) {
       sendConnection.mutate(targetUserId);
-    }
-  };
-
-  const handleAccept = () => {
-    if (requestId) {
-      acceptConnection.mutate(requestId);
-    }
-  };
-
-  const handleReject = () => {
-    if (requestId) {
-      rejectConnection.mutate(requestId);
     }
   };
 
@@ -117,26 +99,8 @@ export function ConnectionButton({
       );
 
     case "pending_received":
-      return (
-        <div className={`flex items-center gap-2 ${className}`}>
-          <Button
-            variant="primary"
-            glass
-            onClick={handleAccept}
-            disabled={acceptConnection.isPending}
-          >
-            {acceptConnection.isPending ? "Accepting..." : "Accept"}
-          </Button>
-          <Button
-            variant="secondary"
-            glass
-            onClick={handleReject}
-            disabled={rejectConnection.isPending}
-          >
-            {rejectConnection.isPending ? "Rejecting..." : "Reject"}
-          </Button>
-        </div>
-      );
+      // Accept/reject is handled through the connections modal
+      return null;
 
     case "connected":
       return (
