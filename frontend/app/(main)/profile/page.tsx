@@ -1,12 +1,30 @@
-export default function Page() {
-  return (
-    <main className="space-y-4">
-      <h1 className="text-h1 font-semibold">Your profile</h1>
-      <p className="text-body text-grey">
-        Overview of your information, posts and interactions. More details
-        coming soon.
-      </p>
-    </main>
-  );
-}
+"use client";
 
+import { useAppStore } from "@/app/lib/stores/app-store";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+
+export default function Page() {
+	const router = useRouter();
+	const { isAuthenticated, user } = useAppStore();
+
+	useEffect(() => {
+		if (!isAuthenticated) {
+			router.push("/login");
+			return;
+		}
+
+		if (!user?.username) {
+			router.push("/onboarding");
+			return;
+		}
+
+		router.push(`/profile/${user.username}`);
+	}, [isAuthenticated, user, router]);
+
+	return (
+		<div className="flex items-center justify-center min-h-screen">
+			Loading...
+		</div>
+	);
+}
