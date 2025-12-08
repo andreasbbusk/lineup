@@ -77,7 +77,9 @@ export function MessageActionsMenu({
           <div className="flex flex-col p-3 gap-2.5 text-white">
             {menuItems.map((item, index) => (
               <div key={item.label}>
-                {index > 0 && <div className="w-full h-0.25 bg-white opacity-20 -mt-2.5 mb-2.5" />}
+                {index > 0 && (
+                  <div className="w-full h-0.25 bg-white opacity-20 -mt-2.5 mb-2.5" />
+                )}
                 <button
                   onClick={item.onClick}
                   className={`flex items-center gap-2 text-sm hover:opacity-80 transition-opacity w-full text-left ${

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { SCROLL_CONFIG } from "../constants";
 
 type ScrollConfig = {
   autoScrollThreshold?: number;
@@ -18,7 +19,10 @@ export function useMessageScroll(
   fetchNextPage: () => Promise<unknown>,
   config: ScrollConfig = {}
 ): UseMessageScrollReturn {
-  const { autoScrollThreshold = 150, loadMoreThreshold = 100 } = config;
+  const {
+    autoScrollThreshold = SCROLL_CONFIG.AUTO_SCROLL_THRESHOLD,
+    loadMoreThreshold = SCROLL_CONFIG.LOAD_MORE_THRESHOLD,
+  } = config;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);

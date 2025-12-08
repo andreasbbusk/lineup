@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MESSAGE_ACTION_CONFIG } from "../../constants";
+import { MESSAGE_ACTION_CONFIG, MESSAGE_STATES, STYLES } from "../../constants";
 import { Message } from "../../types";
 import { Avatar, getInitials } from "../../../../../components/avatar";
 import { MessageActionsMenu } from "./message-actions";
@@ -12,15 +12,13 @@ type MessageBubbleProps = {
   showAvatar?: boolean;
 };
 
-const DELETED_MESSAGE_TEXT = "This message was deleted.";
-
 export function MessageBubble({
   message,
   isMe,
   showAvatar = true,
 }: MessageBubbleProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const isDeleted = message.content === DELETED_MESSAGE_TEXT;
+  const isDeleted = message.content === MESSAGE_STATES.DELETED_TEXT;
 
   const handlePress = () => {
     if (!isMe || isDeleted) return;
@@ -29,9 +27,11 @@ export function MessageBubble({
   };
 
   const bubbleClass = `px-4 py-2.5 rounded-2xl ${
-    isMe
-      ? "bg-dark-cyan-blue text-white rounded-br-none"
-      : "bg-melting-glacier text-black rounded-bl-none"
+    isDeleted
+      ? STYLES.MESSAGE_BUBBLE.deleted
+      : isMe
+      ? STYLES.MESSAGE_BUBBLE.sent
+      : STYLES.MESSAGE_BUBBLE.received
   }`;
 
   const content = (
@@ -41,7 +41,7 @@ export function MessageBubble({
         isMe && !isDeleted
           ? "cursor-pointer select-none active:scale-95 transition-transform"
           : ""
-      } ${isDeleted ? "italic text-grey border border-light-grey" : ""}`}
+      }`}
     >
       <p className="text-sm wrap-break-word whitespace-pre-wrap">
         {message.content}

@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/app/components/dialog";
-import { useDeleteMessage } from "../../hooks/query/useDeleteMessage";
+import { useDeleteMessage } from "../../hooks/query/messageMutations";
 import { useMessageActionsStore } from "../../stores/messageStore";
 
 interface DeleteConfirmDialogProps {

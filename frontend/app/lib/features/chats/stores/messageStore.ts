@@ -17,7 +17,11 @@ export const useMessageActionsStore = create<MessageActionsState>((set) => ({
   activeMessageAction: null,
   startEdit: (messageId, content) =>
     set({
-      activeMessageAction: { messageId, type: "edit", originalContent: content },
+      activeMessageAction: {
+        messageId,
+        type: "edit",
+        originalContent: content,
+      },
     }),
   startDelete: (messageId) =>
     set({

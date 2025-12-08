@@ -1,3 +1,4 @@
+import { MESSAGE_GROUPING } from "../constants";
 import { Message } from "../types";
 
 type MessageGroupingConfig = {
@@ -9,8 +10,6 @@ export type MessageGroupingInfo = {
   showTimestamp: boolean;
   isFirstUnread: boolean;
 };
-
-const DEFAULT_TIMESTAMP_GAP_MS = 5 * 60 * 1000;
 
 export function shouldShowAvatar(
   message: Message,
@@ -24,7 +23,7 @@ export function shouldShowTimestamp(
   prevMessage: Message | undefined,
   config: MessageGroupingConfig = {}
 ): boolean {
-  const { timestampGapMs = DEFAULT_TIMESTAMP_GAP_MS } = config;
+  const { timestampGapMs = MESSAGE_GROUPING.TIMESTAMP_GAP_MS } = config;
 
   if (!prevMessage?.createdAt || !message.createdAt) return true;
 
