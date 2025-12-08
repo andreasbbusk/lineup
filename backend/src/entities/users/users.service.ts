@@ -20,10 +20,11 @@ export class UsersService {
     username: string,
     authenticatedUserId?: string
   ): Promise<UserProfile> {
+    const trimmedUsername = username.trim();
     const { data: profile, error } = await supabase
       .from("profiles")
       .select("*")
-      .eq("username", username)
+      .filter("username", "ilike", trimmedUsername)
       .single();
 
     if (error || !profile) {
@@ -57,11 +58,12 @@ export class UsersService {
     // Create authenticated Supabase client with user's token
     const authedSupabase = createAuthenticatedClient(token);
 
-    // Check if profile exists - use single() to throw if not found
+    // Check if profile exists - use case-insensitive matching
+    const trimmedUsername = username.trim();
     const { data: profile, error: fetchError } = await authedSupabase
       .from("profiles")
       .select("id, username")
-      .eq("username", username)
+      .filter("username", "ilike", trimmedUsername)
       .single();
 
     if (fetchError || !profile) {

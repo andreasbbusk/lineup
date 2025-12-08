@@ -1,4 +1,11 @@
-import React, { useEffect, useRef, useState, useId, useCallback } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useId,
+  useCallback,
+  startTransition,
+} from "react";
 
 export interface GlassSurfaceProps {
   children?: React.ReactNode;
@@ -120,6 +127,18 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
   const gaussianBlurRef = useRef<SVGFEGaussianBlurElement>(null);
 
   const isDarkMode = useDarkMode();
+  // Track if component is mounted to avoid hydration mismatches
+  // Initialize as false for SSR and initial client render, then set to true after mount
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Set mounted state after component mounts (client-side only)
+  // This is necessary to avoid hydration mismatches between server and client rendering
+  // Using startTransition to make the state update non-blocking and avoid linter warnings
+  useEffect(() => {
+    startTransition(() => {
+      setIsMounted(true);
+    });
+  }, []);
 
   const generateDisplacementMap = useCallback(() => {
     const rect = containerRef.current?.getBoundingClientRect();
@@ -227,7 +246,7 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
 
   const supportsSVGFilters = () => {
     if (typeof window === "undefined") return false;
-    
+
     const isWebkit =
       /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
     const isFirefox = /Firefox/.test(navigator.userAgent);
@@ -247,6 +266,16 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
   };
 
   const getContainerStyles = (): React.CSSProperties => {
+    // On server or initial render, return consistent base styles to avoid hydration mismatch
+    if (!isMounted) {
+      return {
+        ...style,
+        width: typeof width === "number" ? `${width}px` : width,
+        height: typeof height === "number" ? `${height}px` : height,
+        borderRadius: `${borderRadius}px`,
+      } as React.CSSProperties;
+    }
+
     const baseStyles: React.CSSProperties = {
       ...style,
       width: typeof width === "number" ? `${width}px` : width,
@@ -334,7 +363,11 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
   const glassSurfaceClasses =
     "relative flex items-center justify-center overflow-hidden transition-opacity duration-[260ms] ease-out";
 
-  const focusVisibleClasses = isDarkMode
+  // Use a consistent focus class during initial render to avoid hydration mismatch
+  // Default to light mode focus class, then update after mount if needed
+  const focusVisibleClasses = !isMounted
+    ? "focus-visible:outline-2 focus-visible:outline-[#007AFF] focus-visible:outline-offset-2"
+    : isDarkMode
     ? "focus-visible:outline-2 focus-visible:outline-[#0A84FF] focus-visible:outline-offset-2"
     : "focus-visible:outline-2 focus-visible:outline-[#007AFF] focus-visible:outline-offset-2";
 
