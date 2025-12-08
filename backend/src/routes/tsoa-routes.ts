@@ -41,7 +41,6 @@ import { AuthController } from './../entities/auth/auth.controller';
 import { expressAuthentication } from './../middleware/authentication';
 // @ts-ignore - no great way to install types from subpackage
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
-import multer from 'multer';
 
 
 const expressAuthenticationRecasted = expressAuthentication as (req: ExRequest, securityName: string, scopes?: string[], res?: ExResponse) => Promise<any>;
@@ -78,8 +77,8 @@ const models: TsoaRoute.Models = {
     "UserProfile": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"username":{"dataType":"string","required":true},"firstName":{"dataType":"string","required":true},"lastName":{"dataType":"string","required":true},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"bio":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"aboutMe":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"phoneCountryCode":{"dataType":"double"},"phoneNumber":{"dataType":"double"},"yearOfBirth":{"dataType":"double"},"location":{"dataType":"string","required":true},"userType":{"dataType":"string","required":true},"themeColor":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"spotifyPlaylistUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"onboardingCompleted":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"updatedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true}},"additionalProperties":false},
     "LookingForType": {"dataType":"refAlias","type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["connect"]},{"dataType":"enum","enums":["promote"]},{"dataType":"enum","enums":["find-band"]},{"dataType":"enum","enums":["find-services"]}],"validators":{}}},
     "UpdateProfileDto": {"dataType":"refObject","properties":{"username":{"dataType":"string"},"firstName":{"dataType":"string"},"lastName":{"dataType":"string"},"bio":{"dataType":"string"},"aboutMe":{"dataType":"string"},"avatarUrl":{"dataType":"string"},"location":{"dataType":"string"},"themeColor":{"dataType":"string"},"spotifyPlaylistUrl":{"dataType":"string"},"phoneCountryCode":{"dataType":"double"},"phoneNumber":{"dataType":"double"},"yearOfBirth":{"dataType":"double"},"userType":{"dataType":"string"},"onboardingCompleted":{"dataType":"boolean"},"lookingFor":{"dataType":"array","array":{"dataType":"refAlias","ref":"LookingForType"}}},"additionalProperties":false},
-    "UploadedFileResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"url":{"dataType":"string","required":true},"thumbnailUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["image"]},{"dataType":"enum","enums":["video"]}],"required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true}},"additionalProperties":false},
-    "UploadResponse": {"dataType":"refObject","properties":{"files":{"dataType":"array","array":{"dataType":"refObject","ref":"UploadedFileResponse"},"required":true}},"additionalProperties":false},
+    "SignedUrlResponse": {"dataType":"refObject","properties":{"signedUrl":{"dataType":"string","required":true},"filePath":{"dataType":"string","required":true}},"additionalProperties":false},
+    "SignedUrlRequestDto": {"dataType":"refObject","properties":{"fileName":{"dataType":"string","required":true},"fileType":{"dataType":"string","required":true},"uploadType":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["post"]},{"dataType":"enum","enums":["avatar"]}],"default":"post"}},"additionalProperties":false},
     "UserSearchResult": {"dataType":"refObject","properties":{"type":{"dataType":"enum","enums":["user"],"required":true},"id":{"dataType":"string","required":true},"username":{"dataType":"string","required":true},"firstName":{"dataType":"string","required":true},"lastName":{"dataType":"string","required":true},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"bio":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"genres":{"dataType":"any"},"lookingFor":{"dataType":"array","array":{"dataType":"string"}},"isConnected":{"dataType":"boolean","required":true},"relevance":{"dataType":"double","required":true}},"additionalProperties":false},
     "CollaborationSearchResult": {"dataType":"refObject","properties":{"type":{"dataType":"enum","enums":["collaboration"],"required":true},"id":{"dataType":"string","required":true},"title":{"dataType":"string","required":true},"description":{"dataType":"string","required":true},"authorId":{"dataType":"string","required":true},"authorUsername":{"dataType":"string","required":true},"authorAvatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"paidOpportunity":{"dataType":"boolean","required":true},"genres":{"dataType":"any"},"createdAt":{"dataType":"string","required":true},"relevance":{"dataType":"double","required":true}},"additionalProperties":false},
     "TagSearchResult": {"dataType":"refObject","properties":{"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["tag"]},{"dataType":"enum","enums":["genre"]},{"dataType":"enum","enums":["artist"]}],"required":true},"id":{"dataType":"string","required":true},"name":{"dataType":"string","required":true},"usageCount":{"dataType":"double","required":true},"relevance":{"dataType":"double","required":true}},"additionalProperties":false},
@@ -95,6 +94,8 @@ const models: TsoaRoute.Models = {
     "MediaItemDto": {"dataType":"refObject","properties":{"url":{"dataType":"string","required":true},"thumbnailUrl":{"dataType":"string"},"type":{"dataType":"string","required":true}},"additionalProperties":false},
     "Pick_PostInsert.Exclude_keyofPostInsert.id-or-author_id-or-created_at-or-updated_at-or-search_vector__": {"dataType":"refAlias","type":{"dataType":"nestedObjectLiteral","nestedProperties":{"description":{"dataType":"string","required":true},"expires_at":{"dataType":"string"},"location":{"dataType":"string"},"paid_opportunity":{"dataType":"boolean"},"title":{"dataType":"string","required":true},"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["note"]},{"dataType":"enum","enums":["request"]},{"dataType":"enum","enums":["story"]}],"required":true}},"validators":{}}},
     "CreatePostBody": {"dataType":"refObject","properties":{"description":{"dataType":"string","required":true},"expires_at":{"dataType":"string"},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"paid_opportunity":{"dataType":"boolean"},"title":{"dataType":"string","required":true},"type":{"ref":"PostType","required":true},"paidOpportunity":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}]},"expiresAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"tags":{"dataType":"array","array":{"dataType":"string"}},"genres":{"dataType":"array","array":{"dataType":"string"}},"taggedUsers":{"dataType":"array","array":{"dataType":"string"}},"media":{"dataType":"array","array":{"dataType":"refObject","ref":"MediaItemDto"}}},"additionalProperties":false},
+    "PaginatedResponse_PostResponse_": {"dataType":"refObject","properties":{"data":{"dataType":"array","array":{"dataType":"refObject","ref":"PostResponse"},"required":true},"pagination":{"dataType":"nestedObjectLiteral","nestedProperties":{"total":{"dataType":"double"},"hasMore":{"dataType":"boolean","required":true},"nextCursor":{"dataType":"string"}},"required":true}},"additionalProperties":false},
+    "CommentResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"postId":{"dataType":"string","required":true},"authorId":{"dataType":"string","required":true},"content":{"dataType":"string","required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"updatedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"author":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}},"additionalProperties":false},
     "NotificationResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"recipientId":{"dataType":"string","required":true},"actorId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"type":{"dataType":"string","required":true},"entityType":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"entityId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"title":{"dataType":"string","required":true},"body":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"actionUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"isRead":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"isArchived":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"readAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"sentViaWebsocket":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"actor":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}},"additionalProperties":false},
     "UpdateNotificationDto": {"dataType":"refObject","properties":{"isRead":{"dataType":"boolean","required":true}},"additionalProperties":false},
     "MetadataItem": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["tag"]},{"dataType":"enum","enums":["genre"]},{"dataType":"enum","enums":["artist"]}],"required":true},"name":{"dataType":"string","required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true}},"additionalProperties":false},
@@ -113,10 +114,8 @@ const models: TsoaRoute.Models = {
     "UpdateConversationDto": {"dataType":"refObject","properties":{"name":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]}},"additionalProperties":false},
     "ConnectionStatus": {"dataType":"refAlias","type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["pending"]},{"dataType":"enum","enums":["accepted"]},{"dataType":"enum","enums":["rejected"]}],"validators":{}}},
     "Connection": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"requesterId":{"dataType":"string","required":true},"recipientId":{"dataType":"string","required":true},"status":{"ref":"ConnectionStatus","required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"updatedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"requester":{"ref":"UserProfile"},"recipient":{"ref":"UserProfile"}},"additionalProperties":false},
-    "Pick_ConnectionRequestInsert.Exclude_keyofConnectionRequestInsert.requester_id-or-created_at-or-updated_at-or-id-or-status__": {"dataType":"refAlias","type":{"dataType":"nestedObjectLiteral","nestedProperties":{"recipient_id":{"dataType":"string","required":true}},"validators":{}}},
-    "CreateConnectionRequestDto": {"dataType":"refObject","properties":{"recipient_id":{"dataType":"string","required":true},"recipientId":{"dataType":"string","required":true}},"additionalProperties":false},
+    "CreateConnectionRequestDto": {"dataType":"refObject","properties":{"recipientId":{"dataType":"string","required":true}},"additionalProperties":false},
     "UpdateConnectionRequestDto": {"dataType":"refObject","properties":{"status":{"ref":"ConnectionStatus","required":true}},"additionalProperties":false},
-    "CommentResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"postId":{"dataType":"string","required":true},"authorId":{"dataType":"string","required":true},"content":{"dataType":"string","required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"updatedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"author":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}},"additionalProperties":false},
     "Pick_CommentInsert.Exclude_keyofCommentInsert.author_id-or-created_at-or-updated_at-or-id__": {"dataType":"refAlias","type":{"dataType":"nestedObjectLiteral","nestedProperties":{"post_id":{"dataType":"string","required":true},"content":{"dataType":"string","required":true}},"validators":{}}},
     "CreateCommentDto": {"dataType":"refObject","properties":{"post_id":{"dataType":"string","required":true},"content":{"dataType":"string","required":true},"postId":{"dataType":"string","required":true}},"additionalProperties":false},
     "UpdateCommentDto": {"dataType":"refObject","properties":{"content":{"dataType":"string","required":true}},"additionalProperties":false},
@@ -132,14 +131,12 @@ const templateService = new ExpressTemplateService(models, {
     noImplicitAdditionalProperties: 'throw-on-extras',
 });
 
-export function RegisterRoutes(app: Router,opts?:{multer?:ReturnType<typeof multer>}) {
+export function RegisterRoutes(app: Router) {
 
     // ###########################################################################################################
     //  NOTE: If you do not see routes for all of your controllers in this file, then you might not have informed tsoa of where to look
     //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
     // ###########################################################################################################
-
-    const upload = opts?.multer ||  multer({"limits":{"fileSize":8388608}});
 
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsUsersController_getUser: Record<string, TsoaRoute.ParameterSchema> = {
@@ -207,29 +204,27 @@ export function RegisterRoutes(app: Router,opts?:{multer?:ReturnType<typeof mult
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsUploadController_uploadFiles: Record<string, TsoaRoute.ParameterSchema> = {
-                files: {"in":"formData","name":"files","required":true,"dataType":"array","array":{"dataType":"file"}},
-                type: {"in":"formData","name":"type","required":true,"dataType":"string"},
-                generateThumbnails: {"in":"formData","name":"generateThumbnails","dataType":"string"},
+        const argsUploadController_generateSignedUploadUrl: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"ref":"SignedUrlRequestDto"},
                 request: {"in":"request","name":"request","required":true,"dataType":"object"},
         };
-        app.post('/upload',
+        app.post('/upload/signed-url',
             authenticateMiddleware([[{"bearerAuth":[]}]]),
             ...(fetchMiddlewares<RequestHandler>(UploadController)),
-            ...(fetchMiddlewares<RequestHandler>(UploadController.prototype.uploadFiles)),
+            ...(fetchMiddlewares<RequestHandler>(UploadController.prototype.generateSignedUploadUrl)),
 
-            async function UploadController_uploadFiles(request: ExRequest, response: ExResponse, next: any) {
+            async function UploadController_generateSignedUploadUrl(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsUploadController_uploadFiles, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsUploadController_generateSignedUploadUrl, request, response });
 
                 const controller = new UploadController();
 
               await templateService.apiHandler({
-                methodName: 'uploadFiles',
+                methodName: 'generateSignedUploadUrl',
                 controller,
                 response,
                 next,
@@ -490,6 +485,79 @@ export function RegisterRoutes(app: Router,opts?:{multer?:ReturnType<typeof mult
 
               await templateService.apiHandler({
                 methodName: 'createPost',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsPostsController_listPosts: Record<string, TsoaRoute.ParameterSchema> = {
+                type: {"in":"query","name":"type","dataType":"union","subSchemas":[{"dataType":"enum","enums":["note"]},{"dataType":"enum","enums":["request"]},{"dataType":"enum","enums":["story"]}]},
+                authorId: {"in":"query","name":"authorId","dataType":"string"},
+                cursor: {"in":"query","name":"cursor","dataType":"string"},
+                limit: {"in":"query","name":"limit","dataType":"double"},
+                includeEngagement: {"in":"query","name":"includeEngagement","dataType":"boolean"},
+                includeMedia: {"in":"query","name":"includeMedia","dataType":"boolean"},
+                genreIds: {"in":"query","name":"genreIds","dataType":"array","array":{"dataType":"string"}},
+                tags: {"in":"query","name":"tags","dataType":"array","array":{"dataType":"string"}},
+                location: {"in":"query","name":"location","dataType":"string"},
+                paidOnly: {"in":"query","name":"paidOnly","dataType":"boolean"},
+                req: {"in":"request","name":"req","dataType":"object"},
+        };
+        app.get('/posts',
+            ...(fetchMiddlewares<RequestHandler>(PostsController)),
+            ...(fetchMiddlewares<RequestHandler>(PostsController.prototype.listPosts)),
+
+            async function PostsController_listPosts(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsPostsController_listPosts, request, response });
+
+                const controller = new PostsController();
+
+              await templateService.apiHandler({
+                methodName: 'listPosts',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsPostsController_getPost: Record<string, TsoaRoute.ParameterSchema> = {
+                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+                includeComments: {"in":"query","name":"includeComments","dataType":"boolean"},
+                commentsLimit: {"in":"query","name":"commentsLimit","dataType":"double"},
+                req: {"in":"request","name":"req","dataType":"object"},
+        };
+        app.get('/posts/:id',
+            ...(fetchMiddlewares<RequestHandler>(PostsController)),
+            ...(fetchMiddlewares<RequestHandler>(PostsController.prototype.getPost)),
+
+            async function PostsController_getPost(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsPostsController_getPost, request, response });
+
+                const controller = new PostsController();
+
+              await templateService.apiHandler({
+                methodName: 'getPost',
                 controller,
                 response,
                 next,
@@ -1163,6 +1231,68 @@ export function RegisterRoutes(app: Router,opts?:{multer?:ReturnType<typeof mult
 
               await templateService.apiHandler({
                 methodName: 'getReceivedConnectionRequests',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsConnectionsController_getConnectionStatus: Record<string, TsoaRoute.ParameterSchema> = {
+                targetUserId: {"in":"path","name":"targetUserId","required":true,"dataType":"string"},
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.get('/connections/status/:targetUserId',
+            authenticateMiddleware([[{"bearerAuth":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(ConnectionsController)),
+            ...(fetchMiddlewares<RequestHandler>(ConnectionsController.prototype.getConnectionStatus)),
+
+            async function ConnectionsController_getConnectionStatus(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsConnectionsController_getConnectionStatus, request, response });
+
+                const controller = new ConnectionsController();
+
+              await templateService.apiHandler({
+                methodName: 'getConnectionStatus',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsConnectionsController_getUserAcceptedConnections: Record<string, TsoaRoute.ParameterSchema> = {
+                userId: {"in":"path","name":"userId","required":true,"dataType":"string"},
+        };
+        app.get('/connections/accepted/:userId',
+            ...(fetchMiddlewares<RequestHandler>(ConnectionsController)),
+            ...(fetchMiddlewares<RequestHandler>(ConnectionsController.prototype.getUserAcceptedConnections)),
+
+            async function ConnectionsController_getUserAcceptedConnections(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsConnectionsController_getUserAcceptedConnections, request, response });
+
+                const controller = new ConnectionsController();
+
+              await templateService.apiHandler({
+                methodName: 'getUserAcceptedConnections',
                 controller,
                 response,
                 next,

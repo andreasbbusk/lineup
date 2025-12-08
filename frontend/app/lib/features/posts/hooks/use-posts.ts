@@ -1,0 +1,75 @@
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { listPosts, getPostById } from "../api/posts";
+import type { PostsQueryParams, PostResponse } from "../types";
+
+/**
+ * Hook for fetching a list of posts with filters and pagination
+ * 
+ * @param params - Query parameters for filtering and pagination
+ * @returns Query result with posts data
+ * 
+ * @example
+ * ```tsx
+ * const { data, isLoading } = usePosts({ type: "note", limit: 20 });
+ * ```
+ */
+export function usePosts(params?: PostsQueryParams) {
+  return useQuery({
+    queryKey: ["posts", params],
+    queryFn: () => listPosts(params),
+    staleTime: 30 * 1000, // 30 seconds
+    enabled: true, // Always enabled, posts are public
+  });
+}
+
+/**
+ * Hook for fetching posts by a specific author
+ * 
+ * @param authorId - The UUID of the author
+ * @param params - Additional query parameters
+ * @returns Query result with posts data
+ */
+export function usePostsByAuthor(
+  authorId: string,
+  params?: Omit<PostsQueryParams, "authorId">
+) {
+  return useQuery({
+    queryKey: ["posts", "author", authorId, params],
+    queryFn: () => listPosts({ ...params, authorId }),
+    staleTime: 30 * 1000, // 30 seconds
+    enabled: !!authorId,
+  });
+}
+
+/**
+ * Hook for fetching a single post by ID
+ * 
+ * @param postId - The UUID of the post
+ * @param options - Optional parameters for including comments and engagement
+ * @returns Query result with post data
+ * 
+ * @example
+ * ```tsx
+ * const { data: post, isLoading } = usePost(postId, {
+ *   includeComments: true,
+ *   commentsLimit: 50,
+ * });
+ * ```
+ */
+export function usePost(
+  postId: string,
+  options?: {
+    includeComments?: boolean;
+    commentsLimit?: number;
+  }
+) {
+  return useQuery({
+    queryKey: ["posts", postId, options],
+    queryFn: () => getPostById(postId, options),
+    staleTime: 60 * 1000, // 1 minute
+    enabled: !!postId,
+  });
+}
+

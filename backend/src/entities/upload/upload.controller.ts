@@ -7,14 +7,14 @@ import {
   Route,
   Security,
   Tags,
-  UploadedFiles,
-  FormField,
   Request,
+  Body,
 } from "tsoa";
 import { extractUserId } from "../../utils/auth-helpers.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
 import { UploadService } from "./upload.service.js";
-import { UploadResponse } from "../../types/api.types.js";
+import { SignedUrlResponse } from "../../types/api.types.js";
+import { SignedUrlRequestDto } from "./upload.dto.js";
 
 @Route("upload")
 @Tags("Upload")
@@ -22,32 +22,35 @@ export class UploadController extends Controller {
   private uploadService = new UploadService();
 
   /**
-   * Upload files (images or videos) for posts or avatars
+   * Generate a signed upload URL for direct client uploads
    *
-   * Supports batch upload of up to 4 files.
-   * Files are uploaded to Supabase Storage and media records are created in the database.
+   * Returns a temporary signed URL that allows clients to upload files directly
+   * to Supabase Storage, bypassing the backend. This improves scalability by
+   * avoiding large file buffers in the Node.js server.
    *
-   * - **Images**: JPEG, PNG, GIF, WebP (max 50MB each)
-   * - **Videos**: MP4, WebM, QuickTime (max 50MB each)
-   * - **Thumbnails**: Can be generated for videos if requested
+   * The client should:
+   * 1. Call this endpoint to get a signed URL
+   * 2. Upload the file directly to the signed URL using fetch/PUT
+   * 3. Use the returned filePath to construct the public URL
+   * 4. Include the public URL when creating posts or updating avatars
    *
-   * @summary Upload files
-   * @param files Array of files to upload (multipart/form-data)
-   * @param type Upload type: "post" for post media, "avatar" for profile pictures
-   * @param generateThumbnails Whether to generate thumbnails for videos (default: false)
-   * @returns Array of uploaded file records with URLs
-   * @throws 400 if validation fails (file size, type, count)
+   * - **Images**: JPEG, PNG, GIF, WebP
+   * - **Videos**: MP4, WebM, QuickTime
+   * - **Upload Types**: "post" (default) for post media, "avatar" for profile pictures
+   *
+   * @summary Generate signed upload URL
+   * @param body Request body containing fileName, fileType, and optional uploadType
+   * @returns Signed URL and file path for direct client upload
+   * @throws 400 if validation fails (invalid file type)
    * @throws 401 if not authenticated
-   * @throws 500 if upload or database operation fails
+   * @throws 500 if signed URL generation fails
    */
   @Security("bearerAuth")
-  @Post("/")
-  public async uploadFiles(
-    @UploadedFiles() files: Express.Multer.File[],
-    @FormField() type: "post" | "avatar",
-    @FormField() generateThumbnails: boolean = false,
+  @Post("/signed-url")
+  public async generateSignedUploadUrl(
+    @Body() body: SignedUrlRequestDto,
     @Request() request: ExpressRequest
-  ): Promise<UploadResponse> {
+  ): Promise<SignedUrlResponse> {
     return handleControllerRequest(
       this,
       async () => {
@@ -55,15 +58,15 @@ export class UploadController extends Controller {
         const token =
           request.headers.authorization?.replace("Bearer ", "") || "";
 
-        return this.uploadService.uploadFiles(
+        return this.uploadService.generateSignedUploadUrl(
           userId,
-          files || [],
-          type,
-          generateThumbnails || false,
+          body.fileName,
+          body.fileType,
+          body.uploadType || "post",
           token
         );
       },
-      201
+      200
     );
   }
 }

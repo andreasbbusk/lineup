@@ -4,7 +4,7 @@ const LINKS = [
   { href: "/login", label: "Log in" },
   { href: "/signup", label: "Sign up" },
   { href: "/onboarding", label: "Onboarding" },
-  { href: "/", label: "Feed (main)" },
+  { href: "/feed", label: "Feed" },
   { href: "/search", label: "Search" },
   { href: "/create", label: "Create post" },
   { href: "/messages", label: "Messages" },
@@ -41,3 +41,4 @@ export default function Home() {
     </main>
   );
 }
+

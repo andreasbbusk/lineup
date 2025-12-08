@@ -88,6 +88,54 @@ export class ConnectionsController extends Controller {
   }
 
   /**
+   * Get connection status between the authenticated user and another user
+   *
+   * Returns the connection if it exists (pending, accepted), null otherwise.
+   * Rejected connections are not returned.
+   *
+   * @summary Get connection status between two users
+   * @param targetUserId The UUID of the target user
+   * @returns The connection if it exists, null otherwise
+   * @throws 401 if not authenticated
+   */
+  @Security("bearerAuth")
+  @Get("status/{targetUserId}")
+  public async getConnectionStatus(
+    @Path() targetUserId: string,
+    @Request() request: ExpressRequest
+  ): Promise<Connection | null> {
+    return handleControllerRequest(this, async () => {
+      const userId = await extractUserId(request);
+      const token = request.headers.authorization?.replace("Bearer ", "") || "";
+
+      return this.connectionsService.getConnectionStatus(
+        userId,
+        targetUserId,
+        token
+      );
+    });
+  }
+
+  /**
+   * Get accepted connections for a specific user
+   *
+   * Returns only accepted connections for the specified user.
+   * This endpoint can be accessed without authentication.
+   *
+   * @summary Get accepted connections by user
+   * @param userId The UUID of the user to retrieve accepted connections for
+   * @returns Array of accepted connections for the user
+   */
+  @Get("accepted/{userId}")
+  public async getUserAcceptedConnections(
+    @Path() userId: string
+  ): Promise<Connection[]> {
+    return handleControllerRequest(this, async () => {
+      return this.connectionsService.getUserAcceptedConnections(userId);
+    });
+  }
+
+  /**
    * Create a connection request
    *
    * Allows the authenticated user to send a connection request to another user.

@@ -191,6 +191,138 @@ export class ConnectionsService {
   }
 
   /**
+   * Get connection status between the authenticated user and another user
+   * Returns the connection if it exists, null otherwise
+   */
+  async getConnectionStatus(
+    userId: string,
+    targetUserId: string,
+    token: string
+  ): Promise<Connection | null> {
+    // Create authenticated Supabase client for RLS
+    const authedSupabase = createAuthenticatedClient(token);
+
+    // Find connection where current user is either requester or recipient
+    const { data: request, error } = await authedSupabase
+      .from("connection_requests")
+      .select(
+        `
+        *,
+        requester:profiles!connection_requests_requester_id_fkey(
+          id,
+          username,
+          first_name,
+          last_name,
+          avatar_url,
+          bio,
+          location,
+          user_type,
+          theme_color,
+          spotify_playlist_url,
+          onboarding_completed,
+          created_at,
+          updated_at
+        ),
+        recipient:profiles!connection_requests_recipient_id_fkey(
+          id,
+          username,
+          first_name,
+          last_name,
+          avatar_url,
+          bio,
+          location,
+          user_type,
+          theme_color,
+          spotify_playlist_url,
+          onboarding_completed,
+          created_at,
+          updated_at
+        )
+      `
+      )
+      .or(
+        `and(requester_id.eq.${userId},recipient_id.eq.${targetUserId}),and(requester_id.eq.${targetUserId},recipient_id.eq.${userId})`
+      )
+      .neq("status", "rejected")
+      .single();
+
+    if (error) {
+      // If no connection found, return null (not an error)
+      if (error.code === "PGRST116") {
+        return null;
+      }
+      throw createHttpError({
+        message: `Failed to fetch connection status: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    if (!request) {
+      return null;
+    }
+
+    return mapConnectionRequestToResponse(request);
+  }
+
+  /**
+   * Get accepted connections for a specific user (public endpoint)
+   * Returns only accepted connections for the specified user
+   */
+  async getUserAcceptedConnections(userId: string): Promise<Connection[]> {
+    const { data: requests, error } = await supabase
+      .from("connection_requests")
+      .select(
+        `
+        *,
+        requester:profiles!connection_requests_requester_id_fkey(
+          id,
+          username,
+          first_name,
+          last_name,
+          avatar_url,
+          bio,
+          location,
+          user_type,
+          theme_color,
+          spotify_playlist_url,
+          onboarding_completed,
+          created_at,
+          updated_at
+        ),
+        recipient:profiles!connection_requests_recipient_id_fkey(
+          id,
+          username,
+          first_name,
+          last_name,
+          avatar_url,
+          bio,
+          location,
+          user_type,
+          theme_color,
+          spotify_playlist_url,
+          onboarding_completed,
+          created_at,
+          updated_at
+        )
+      `
+      )
+      .or(`requester_id.eq.${userId},recipient_id.eq.${userId}`)
+      .eq("status", "accepted")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      throw createHttpError({
+        message: `Failed to fetch accepted connections: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    return mapConnectionRequestsToResponse(requests || []);
+  }
+
+  /**
    * Create a connection request
    * Only authenticated users can send connection requests
    */
@@ -411,7 +543,8 @@ export class ConnectionsService {
 
   /**
    * Delete a connection request
-   * Only the requester can delete a pending request
+   * - For pending requests: Only the requester can delete
+   * - For accepted connections: Either user (requester or recipient) can delete
    */
   async deleteConnectionRequest(
     requestId: string,
@@ -421,10 +554,10 @@ export class ConnectionsService {
     // Create authenticated Supabase client for RLS
     const authedSupabase = createAuthenticatedClient(token);
 
-    // Verify the request exists and user is the requester
+    // Verify the request exists
     const { data: request, error: fetchError } = await authedSupabase
       .from("connection_requests")
-      .select("requester_id, status")
+      .select("requester_id, recipient_id, status")
       .eq("id", requestId)
       .single();
 
@@ -436,23 +569,48 @@ export class ConnectionsService {
       });
     }
 
-    if (request.requester_id !== userId) {
-      throw createHttpError({
-        message: "You can only delete connection requests you sent",
-        statusCode: 403,
-        code: "FORBIDDEN",
-      });
+    // Check if user is authorized to delete
+    const isRequester = request.requester_id === userId;
+    const isRecipient = request.recipient_id === userId;
+    const isAuthorized =
+      isRequester || (isRecipient && request.status === "accepted");
+
+    if (!isAuthorized) {
+      if (request.status === "pending") {
+        throw createHttpError({
+          message: "You can only delete connection requests you sent",
+          statusCode: 403,
+          code: "FORBIDDEN",
+        });
+      } else {
+        throw createHttpError({
+          message: `You can only delete connections you are part of. User: ${userId}, Requester: ${request.requester_id}, Recipient: ${request.recipient_id}, Status: ${request.status}`,
+          statusCode: 403,
+          code: "FORBIDDEN",
+        });
+      }
     }
 
     // Delete the connection request
-    const { error } = await authedSupabase
+    const { data: deletedData, error } = await authedSupabase
       .from("connection_requests")
       .delete()
-      .eq("id", requestId);
+      .eq("id", requestId)
+      .select();
 
     if (error) {
       throw createHttpError({
         message: `Failed to delete connection request: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    // Verify deletion was successful
+    if (!deletedData || deletedData.length === 0) {
+      throw createHttpError({
+        message:
+          "Connection request was not deleted (no rows affected). This may be due to RLS policies blocking the deletion.",
         statusCode: 500,
         code: "DATABASE_ERROR",
       });
