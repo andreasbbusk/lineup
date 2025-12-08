@@ -38,18 +38,21 @@ export default function Page({ params }: PublicProfilePageProps) {
 
 	const favoriteArtists = [
 		{
-			link: "https://example.com/artist1",
-			imgSrc: "/avatars/girl3.webp",
+			link: "/profile/medina",
+			imgSrc:
+				"https://i.scdn.co/image/ab6761610000e5eb211afd577e27b6cbfb1e5064",
 		},
 		{
-			link: "https://example.com/artist2",
-			imgSrc: "/avatars/boy1.webp",
+			link: "/profile/burhang",
+			imgSrc:
+				"https://cdn-p.smehost.net/sites/ef38b16bfa9341f8994dd4d1bbaa542a/wp-content/uploads/2022/10/0075f4ac75766b99fb91e30007eb4949390a7b5e.jpeg",
 		},
 		{
-			link: "https://example.com/artist3",
-			imgSrc: "/avatars/girl1.webp",
+			link: "/profile/kanyewest",
+			imgSrc:
+				"https://upload.wikimedia.org/wikipedia/commons/5/5c/Kanye_West_at_the_2009_Tribeca_Film_Festival_%28crop_2%29.jpg",
 		},
-	]; // Example data - TODO: Add favorite artists endpoint
+	]; // Hardcoded artists data - matches edit page
 
 	// Check if viewing own profile or someone else's
 	const isOwnProfile = currentUserProfile?.username === username;
