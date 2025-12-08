@@ -22,7 +22,11 @@ export async function getSignedUploadUrl(
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
 
-  const response = await fetch(`${baseUrl}/api/upload/signed-url`, {
+  // Ensure baseUrl doesn't already end with /api
+  // If baseUrl is "http://localhost:3001/api", remove /api
+  // If baseUrl is "http://localhost:3001", use as-is
+  const apiBase = baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) : baseUrl;
+  const response = await fetch(`${apiBase}/api/upload/signed-url`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

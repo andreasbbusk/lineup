@@ -6,6 +6,7 @@ import { Tabs, TabsContent } from "@/app/components/tabs";
 import { NoteForm } from "./note-form";
 import { RequestForm } from "./request-form";
 import { useCreatePost } from "../hooks/use-create-post";
+import { useUpload } from "../hooks/use-upload";
 import type { CreatePostBody, UploadedMedia } from "../types";
 
 export function CreateForm() {
@@ -20,31 +21,57 @@ export function CreateForm() {
       alert(`Failed to create post: ${error.message}`);
     },
   });
+  const { uploadMultipleToSupabase } = useUpload();
 
-  const handleNoteSubmit = (data: {
+  const handleNoteSubmit = async (data: {
     title: string;
     description: string;
     tags?: string[];
     taggedUsers?: string[];
     media?: UploadedMedia[];
   }) => {
-    const postData: CreatePostBody = {
-      type: "note",
-      title: data.title,
-      description: data.description,
-      tags: data.tags,
-      taggedUsers: data.taggedUsers,
-      media: data.media?.map((m) => ({
-        url: m.url,
-        type: m.type,
-        thumbnailUrl: m.thumbnailUrl || undefined, // Convert null to undefined
-      })),
-    };
+    try {
+      // Upload media files to Supabase if they haven't been uploaded yet
+      let uploadedMedia = data.media;
+      if (data.media && data.media.length > 0) {
+        const needsUpload = data.media.some((m) => m.file);
+        console.log("Media upload check:", {
+          mediaCount: data.media.length,
+          needsUpload,
+          mediaUrls: data.media.map((m) => m.url),
+        });
 
-    createPost(postData);
+        if (needsUpload) {
+          console.log("Uploading media to Supabase...");
+          uploadedMedia = await uploadMultipleToSupabase(data.media, "post");
+          console.log("Upload complete! URLs:", uploadedMedia.map((m) => m.url));
+        } else {
+          console.log("Media already uploaded, using existing URLs");
+        }
+      }
+
+      const postData: CreatePostBody = {
+        type: "note",
+        title: data.title,
+        description: data.description,
+        tags: data.tags,
+        taggedUsers: data.taggedUsers,
+        media: uploadedMedia?.map((m) => ({
+          url: m.url,
+          type: m.type,
+          thumbnailUrl: m.thumbnailUrl || undefined, // Convert null to undefined
+        })),
+      };
+
+      console.log("Creating post with media URLs:", postData.media?.map((m) => m.url));
+      createPost(postData);
+    } catch (error) {
+      console.error("Error in handleNoteSubmit:", error);
+      alert(`Failed to upload media: ${error instanceof Error ? error.message : "Unknown error"}`);
+    }
   };
 
-  const handleRequestSubmit = (data: {
+  const handleRequestSubmit = async (data: {
     title: string;
     description: string;
     location?: string;
@@ -53,22 +80,32 @@ export function CreateForm() {
     taggedUsers?: string[];
     media?: UploadedMedia[];
   }) => {
-    const postData: CreatePostBody = {
-      type: "request",
-      title: data.title,
-      description: data.description,
-      location: data.location,
-      genres: data.genres,
-      paidOpportunity: data.paidOpportunity,
-      taggedUsers: data.taggedUsers,
-      media: data.media?.map((m) => ({
-        url: m.url,
-        type: m.type,
-        thumbnailUrl: m.thumbnailUrl || undefined, // Convert null to undefined
-      })),
-    };
+    try {
+      // Upload media files to Supabase if they haven't been uploaded yet
+      let uploadedMedia = data.media;
+      if (data.media && data.media.some((m) => m.file)) {
+        uploadedMedia = await uploadMultipleToSupabase(data.media, "post");
+      }
 
-    createPost(postData);
+      const postData: CreatePostBody = {
+        type: "request",
+        title: data.title,
+        description: data.description,
+        location: data.location,
+        genres: data.genres,
+        paidOpportunity: data.paidOpportunity,
+        taggedUsers: data.taggedUsers,
+        media: uploadedMedia?.map((m) => ({
+          url: m.url,
+          type: m.type,
+          thumbnailUrl: m.thumbnailUrl || undefined, // Convert null to undefined
+        })),
+      };
+
+      createPost(postData);
+    } catch (error) {
+      alert(`Failed to upload media: ${error instanceof Error ? error.message : "Unknown error"}`);
+    }
   };
 
   return (

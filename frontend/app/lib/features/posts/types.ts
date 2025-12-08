@@ -24,13 +24,16 @@ export interface SignedUrlRequest {
 }
 
 /**
- * Media object returned after successful upload
- * Ready to be included in post creation
+ * Media object for both draft and uploaded states
+ * - Draft: contains File object and blobUrl for preview
+ * - Uploaded: contains url (Supabase URL) and filePath for cleanup
  */
 export interface UploadedMedia {
-  url: string;
+  url: string; // blobUrl for drafts, Supabase URL for uploaded
   type: "image" | "video";
   thumbnailUrl?: string | null;
+  file?: File; // Only present for draft media (before upload)
+  filePath?: string; // Path in Supabase storage, set after upload, used for cleanup
 }
 
 /**

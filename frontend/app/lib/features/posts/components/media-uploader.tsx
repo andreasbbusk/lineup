@@ -20,7 +20,7 @@ export function MediaUploader({
   maxFileSizeMB = 50,
 }: MediaUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { uploadFile, isUploading, error } = useUpload();
+  const { createPreviewMedia, cleanupMedia, isUploading, error } = useUpload();
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,14 +65,13 @@ export function MediaUploader({
 
     setUploadErrors([]);
 
-    // Upload files
+    // Create preview media (no upload to Supabase yet)
     try {
-      const uploadPromises = validFiles.map((file) => uploadFile(file, "post"));
-      const uploadedMedia = await Promise.all(uploadPromises);
-      onMediaChange([...media, ...uploadedMedia]);
+      const previewMedia = validFiles.map((file) => createPreviewMedia(file));
+      onMediaChange([...media, ...previewMedia]);
     } catch (err) {
       setUploadErrors([
-        err instanceof Error ? err.message : "Failed to upload files",
+        err instanceof Error ? err.message : "Failed to create preview",
       ]);
     }
 
@@ -82,9 +81,15 @@ export function MediaUploader({
     }
   };
 
-  const handleRemove = (index: number) => {
+  const handleRemove = async (index: number) => {
+    const mediaToRemove = media[index];
     const newMedia = media.filter((_, i) => i !== index);
     onMediaChange(newMedia);
+    
+    // Clean up blob URL and optionally delete from Supabase
+    if (mediaToRemove) {
+      await cleanupMedia([mediaToRemove], !!mediaToRemove.filePath);
+    }
   };
 
   return (
@@ -100,6 +105,7 @@ export function MediaUploader({
       />
 
       <Button
+        type="button"
         variant="secondary"
         onClick={() => fileInputRef.current?.click()}
         disabled={isUploading || media.length >= maxFiles}

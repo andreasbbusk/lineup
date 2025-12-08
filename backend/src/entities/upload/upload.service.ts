@@ -114,7 +114,12 @@ export class UploadService {
     const uniqueFileName = `${Date.now()}-${Math.random()
       .toString(36)
       .substring(7)}.${fileExt}`;
-    const filePath = `${bucket}/${userId}/${uniqueFileName}`;
+    
+    // Path relative to bucket (for upload - doesn't include bucket name)
+    const pathInBucket = `${userId}/${uniqueFileName}`;
+    
+    // Full file path including bucket (for frontend URL construction)
+    const filePath = `${bucket}/${pathInBucket}`;
 
     // Use service role client for generating signed URLs
     // This bypasses RLS which is required for signed URL generation
@@ -122,11 +127,11 @@ export class UploadService {
     const serviceRoleClient = createServiceRoleClient();
 
     // Generate signed upload URL for new file uploads
-    // createSignedUploadUrl is specifically for uploads (doesn't require existing file)
+    // createSignedUploadUrl expects path relative to bucket (not including bucket name)
     const { data: signedUrlData, error: signedUrlError } =
       await serviceRoleClient.storage
         .from(bucket)
-        .createSignedUploadUrl(filePath);
+        .createSignedUploadUrl(pathInBucket);
 
     if (signedUrlError || !signedUrlData) {
       throw createHttpError({

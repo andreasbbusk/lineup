@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import type { PostResponse } from "../types";
 
@@ -39,17 +38,31 @@ export function MediaGrid({
     const item = sortedMedia[0];
     return (
       <>
-        <div className={`${className}`}>
+        <div className={`relative min-h-[200px] ${className}`}>
           {item.type === "image" ? (
-            <Image
-              src={item.url}
-              alt="Post media"
-              width={800}
-              height={600}
-              className="w-full rounded-lg object-cover"
-              onClick={() => handleMediaClick(0)}
-              style={{ cursor: showLightbox ? "pointer" : "default" }}
-            />
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={item.url}
+                alt="Post media"
+                className="w-full rounded-lg object-cover"
+                onClick={() => handleMediaClick(0)}
+                style={{ cursor: showLightbox ? "pointer" : "default", minHeight: "200px" }}
+                onError={(e) => {
+                  console.error("Failed to load image:", item.url, e);
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = "none";
+                }}
+                onLoad={(e) => {
+                  // Ensure image is visible when loaded
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = "block";
+                  console.log("Image loaded successfully:", item.url);
+                }}
+                crossOrigin="anonymous"
+                loading="lazy"
+              />
+            </>
           ) : (
             <video
               src={item.url}
@@ -80,13 +93,19 @@ export function MediaGrid({
           {sortedMedia.map((item, index) => (
             <div key={item.id} className="relative aspect-square">
               {item.type === "image" ? (
-                <Image
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
                   src={item.url}
                   alt={`Media ${index + 1}`}
-                  fill
-                  className="rounded-lg object-cover"
+                  className="absolute inset-0 h-full w-full rounded-lg object-cover"
                   onClick={() => handleMediaClick(index)}
                   style={{ cursor: showLightbox ? "pointer" : "default" }}
+                  onError={(e) => {
+                    console.error("Failed to load image:", item.url);
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = "none";
+                  }}
+                  crossOrigin="anonymous"
                 />
               ) : (
                 <video
@@ -132,13 +151,19 @@ export function MediaGrid({
             } aspect-square`}
           >
             {item.type === "image" ? (
-              <Image
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
                 src={item.url}
                 alt={`Media ${index + 1}`}
-                fill
-                className="rounded-lg object-cover"
+                className="absolute inset-0 h-full w-full rounded-lg object-cover"
                 onClick={() => handleMediaClick(index)}
                 style={{ cursor: showLightbox ? "pointer" : "default" }}
+                onError={(e) => {
+                  console.error("Failed to load image:", item.url);
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = "none";
+                }}
+                crossOrigin="anonymous"
               />
             ) : (
               <video
@@ -162,11 +187,17 @@ export function MediaGrid({
             className="relative aspect-square cursor-pointer"
             onClick={() => handleMediaClick(3)}
           >
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={sortedMedia[3].url}
               alt="Media 4"
-              fill
-              className="rounded-lg object-cover"
+              className="absolute inset-0 h-full w-full rounded-lg object-cover"
+              onError={(e) => {
+                console.error("Failed to load image:", sortedMedia[3].url);
+                const target = e.target as HTMLImageElement;
+                target.style.display = "none";
+              }}
+              crossOrigin="anonymous"
             />
             {sortedMedia.length > 4 && (
               <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 text-white">
@@ -258,11 +289,10 @@ function MediaLightbox({
         onClick={(e) => e.stopPropagation()}
       >
         {currentMedia.type === "image" ? (
-          <Image
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
             src={currentMedia.url}
             alt={`Media ${currentIndex + 1}`}
-            width={1200}
-            height={800}
             className="max-h-[90vh] max-w-[90vw] object-contain"
           />
         ) : (

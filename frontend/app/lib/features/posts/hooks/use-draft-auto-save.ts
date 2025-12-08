@@ -1,38 +1,39 @@
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback } from "react";
 import { useNoteDraftStore } from "../stores/note-draft-store";
 import { useRequestDraftStore } from "../stores/request-draft-store";
 import { storeMediaBlob, getMediaBlob } from "@/app/lib/utils/indexeddb";
 import type { UploadedMedia } from "../types";
-
-const DEBOUNCE_MS = 500;
 
 /**
  * Hook for auto-saving note drafts
  */
 export function useNoteDraftAutoSave() {
   const store = useNoteDraftStore();
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Save media blobs to IndexedDB when media changes
+  // Only save if media has File objects (draft media with blob URLs)
   useEffect(() => {
     const saveMediaBlobs = async () => {
       for (const media of store.media) {
         try {
+          // Only save if it's a draft media (has File object and blob URL)
+          // Don't fetch from Supabase URLs - those are already uploaded
+          if (!media.file || !media.url.startsWith("blob:")) {
+            continue;
+          }
+
           // Check if blob already exists
           const existing = await getMediaBlob(media.url);
           if (existing) continue;
 
-          // Fetch the media file and store as blob
-          const response = await fetch(media.url);
-          if (response.ok) {
-            const blob = await response.blob();
-            await storeMediaBlob(
-              media.url,
-              media.type,
-              media.thumbnailUrl || null,
-              blob
-            );
-          }
+          // Get blob from File object directly (no need to fetch)
+          const blob = new Blob([media.file], { type: media.file.type });
+          await storeMediaBlob(
+            media.url,
+            media.type,
+            media.thumbnailUrl || null,
+            blob
+          );
         } catch (error) {
           console.error("Failed to save media blob:", error);
         }
@@ -44,32 +45,20 @@ export function useNoteDraftAutoSave() {
     }
   }, [store.media]);
 
-  const debouncedUpdate = useCallback(
-    <T,>(updater: (value: T) => void, value: T) => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-
-      debounceTimerRef.current = setTimeout(() => {
-        updater(value);
-      }, DEBOUNCE_MS);
-    },
-    []
-  );
-
+  // Update store immediately for responsive UI, but debounce persistence
+  // Zustand's persist middleware will handle localStorage writes
+  // We update immediately so typing feels instant
   return {
     title: store.title,
     description: store.description,
     tags: store.tags,
     taggedUsers: store.taggedUsers,
     media: store.media,
-    updateTitle: (title: string) => debouncedUpdate(store.updateTitle, title),
-    updateDescription: (description: string) =>
-      debouncedUpdate(store.updateDescription, description),
-    updateTags: (tags: string[]) => debouncedUpdate(store.updateTags, tags),
-    updateTaggedUsers: (users: string[]) =>
-      debouncedUpdate(store.updateTaggedUsers, users),
-    updateMedia: (media: UploadedMedia[]) => store.updateMedia(media), // No debounce for media
+    updateTitle: (title: string) => store.updateTitle(title),
+    updateDescription: (description: string) => store.updateDescription(description),
+    updateTags: (tags: string[]) => store.updateTags(tags),
+    updateTaggedUsers: (users: string[]) => store.updateTaggedUsers(users),
+    updateMedia: (media: UploadedMedia[]) => store.updateMedia(media),
     clearDraft: store.clearDraft,
     restoreDraft: useCallback(async () => {
       const draft = store.getDraft();
@@ -120,28 +109,31 @@ export function useNoteDraftAutoSave() {
  */
 export function useRequestDraftAutoSave() {
   const store = useRequestDraftStore();
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Save media blobs to IndexedDB when media changes
+  // Only save if media has File objects (draft media with blob URLs)
   useEffect(() => {
     const saveMediaBlobs = async () => {
       for (const media of store.media) {
         try {
+          // Only save if it's a draft media (has File object and blob URL)
+          // Don't fetch from Supabase URLs - those are already uploaded
+          if (!media.file || !media.url.startsWith("blob:")) {
+            continue;
+          }
+
           // Check if blob already exists
           const existing = await getMediaBlob(media.url);
           if (existing) continue;
 
-          // Fetch the media file and store as blob
-          const response = await fetch(media.url);
-          if (response.ok) {
-            const blob = await response.blob();
-            await storeMediaBlob(
-              media.url,
-              media.type,
-              media.thumbnailUrl || null,
-              blob
-            );
-          }
+          // Get blob from File object directly (no need to fetch)
+          const blob = new Blob([media.file], { type: media.file.type });
+          await storeMediaBlob(
+            media.url,
+            media.type,
+            media.thumbnailUrl || null,
+            blob
+          );
         } catch (error) {
           console.error("Failed to save media blob:", error);
         }
@@ -153,19 +145,9 @@ export function useRequestDraftAutoSave() {
     }
   }, [store.media]);
 
-  const debouncedUpdate = useCallback(
-    <T,>(updater: (value: T) => void, value: T) => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-
-      debounceTimerRef.current = setTimeout(() => {
-        updater(value);
-      }, DEBOUNCE_MS);
-    },
-    []
-  );
-
+  // Update store immediately for responsive UI, but debounce persistence
+  // Zustand's persist middleware will handle localStorage writes
+  // We update immediately so typing feels instant
   return {
     title: store.title,
     description: store.description,
@@ -174,18 +156,13 @@ export function useRequestDraftAutoSave() {
     paidOpportunity: store.paidOpportunity,
     taggedUsers: store.taggedUsers,
     media: store.media,
-    updateTitle: (title: string) => debouncedUpdate(store.updateTitle, title),
-    updateDescription: (description: string) =>
-      debouncedUpdate(store.updateDescription, description),
-    updateLocation: (location: string) =>
-      debouncedUpdate(store.updateLocation, location),
-    updateGenres: (genres: string[]) =>
-      debouncedUpdate(store.updateGenres, genres),
-    updatePaidOpportunity: (paid: boolean) =>
-      debouncedUpdate(store.updatePaidOpportunity, paid),
-    updateTaggedUsers: (users: string[]) =>
-      debouncedUpdate(store.updateTaggedUsers, users),
-    updateMedia: (media: UploadedMedia[]) => store.updateMedia(media), // No debounce for media
+    updateTitle: (title: string) => store.updateTitle(title),
+    updateDescription: (description: string) => store.updateDescription(description),
+    updateLocation: (location: string) => store.updateLocation(location),
+    updateGenres: (genres: string[]) => store.updateGenres(genres),
+    updatePaidOpportunity: (paid: boolean) => store.updatePaidOpportunity(paid),
+    updateTaggedUsers: (users: string[]) => store.updateTaggedUsers(users),
+    updateMedia: (media: UploadedMedia[]) => store.updateMedia(media),
     clearDraft: store.clearDraft,
     restoreDraft: useCallback(async () => {
       const draft = store.getDraft();

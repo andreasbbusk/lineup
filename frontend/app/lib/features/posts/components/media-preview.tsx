@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { UploadedMedia } from "../types";
 
 interface MediaPreviewProps {
@@ -21,11 +20,11 @@ export function MediaPreview({
       {media.slice(0, maxItems).map((item, index) => (
         <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
           {item.type === "image" ? (
-            <Image
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
               src={item.url}
               alt={`Media ${index + 1}`}
-              fill
-              className="object-cover"
+              className="h-full w-full object-cover"
             />
           ) : (
             <video
