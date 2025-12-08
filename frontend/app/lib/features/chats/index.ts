@@ -49,7 +49,10 @@ export { chatKeys } from "./queryKeys";
 // ============================================================================
 
 export { useChatMessages } from "./hooks/query/useChatMessages";
-export { useConversations, useUnreadCount } from "./hooks/query/useConversations";
+export {
+  useConversations,
+  useUnreadCount,
+} from "./hooks/query/useConversations";
 export { useConversation } from "./hooks/query/useConversation";
 export { useSendMessage } from "./hooks/query/useSendMessage";
 export { useDeleteMessage } from "./hooks/query/useDeleteMessage";
@@ -74,7 +77,7 @@ export { useMessageScroll } from "./hooks/useMessageScroll";
 // Components - Shared
 // ============================================================================
 
-export { Avatar, getInitials } from "./components/shared/avatar";
+export { Avatar, getInitials } from "../../../components/avatar";
 
 // ============================================================================
 // Components - List
@@ -89,6 +92,9 @@ export { ConversationList } from "./components/list/conversation-list";
 
 export { MessageBubble } from "./components/window/message-bubble";
 export { MessageInput } from "./components/window/message-input";
+export { MessageActionsMenu } from "./components/window/message-actions";
+export { EditModeBanner } from "./components/window/edit-mode-banner";
+export { DeleteConfirmDialog } from "./components/window/delete-confirm-dialog";
 export { ChatWindow } from "./components/window/chat-window";
 
 // ============================================================================

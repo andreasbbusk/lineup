@@ -32,3 +32,10 @@ export const STALE_TIME = {
   CONNECTIONS: 300_000, // 5 minutes
   USER_SEARCH: 30_000, // 30 seconds
 } as const;
+
+
+export const MESSAGE_ACTION_CONFIG = {
+  HAPTIC_FEEDBACK_MS: 50,
+  EDITED_LABEL_TEXT: "(edited)",
+  TOAST_DURATION_MS: 3000,
+} as const;

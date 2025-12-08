@@ -1,20 +1,21 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/app/components/buttons";
-import { Popover, PopoverContent, PopoverTrigger } from "@/app/components/radix-popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/app/components/radix-popover";
 import { TYPING_INDICATOR_TIMEOUT_MS } from "../../constants";
-
-// ============================================================================
-// Types & Constants
-// ============================================================================
+import { useMessageActionsStore } from "../../stores/messageStore";
 
 type MessageInputProps = {
   onTyping?: (isTyping: boolean) => void;
   onSendMessage: (content: string) => void;
+  onEditMessage?: (messageId: string, content: string) => void;
   isDisabled?: boolean;
 };
 
-/** Attachment menu options (placeholder for future features) */
 const MENU_ITEMS = [
   { icon: "camera", label: "Attach a picture" },
   { icon: "attachment", label: "Attach a file" },
@@ -22,16 +23,27 @@ const MENU_ITEMS = [
   { icon: "stats-up-square", label: "Survey" },
 ];
 
-// ============================================================================
-// Component
-// ============================================================================
-
-export function MessageInput({ onTyping, onSendMessage, isDisabled }: MessageInputProps) {
+export function MessageInput({
+  onTyping,
+  onSendMessage,
+  onEditMessage,
+  isDisabled,
+}: MessageInputProps) {
   const [content, setContent] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const timeout = useRef<NodeJS.Timeout | undefined>(undefined);
 
-  // Update typing status and notify parent
+  const { activeMessageAction, clearAction } = useMessageActionsStore();
+  const isEditing = activeMessageAction?.type === "edit";
+
+  useEffect(() => {
+    setContent(
+      isEditing && activeMessageAction.originalContent
+        ? activeMessageAction.originalContent
+        : ""
+    );
+  }, [isEditing, activeMessageAction]);
+
   const updateTyping = (typing: boolean) => {
     if (typing !== isTyping) {
       setIsTyping(typing);
@@ -39,18 +51,38 @@ export function MessageInput({ onTyping, onSendMessage, isDisabled }: MessageInp
     }
   };
 
-  // Send message and reset input state
   const handleSend = () => {
-    const trimmedContent = content.trim();
-    if (!trimmedContent || isDisabled) return;
+    const trimmed = content.trim();
+    if (!trimmed || isDisabled) return;
 
-    onSendMessage(trimmedContent);
-    setContent("");
+    if (isEditing && onEditMessage && activeMessageAction) {
+      onEditMessage(activeMessageAction.messageId, trimmed);
+    } else {
+      onSendMessage(trimmed);
+      setContent("");
+    }
+
     clearTimeout(timeout.current);
     updateTyping(false);
   };
 
-  // Cleanup timeout on unmount
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setContent(e.target.value);
+    if (!isEditing) {
+      clearTimeout(timeout.current);
+      updateTyping(true);
+      timeout.current = setTimeout(
+        () => updateTyping(false),
+        TYPING_INDICATOR_TIMEOUT_MS
+      );
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") handleSend();
+    if (e.key === "Escape" && isEditing) clearAction();
+  };
+
   useEffect(() => () => clearTimeout(timeout.current), []);
 
   return (
@@ -58,7 +90,12 @@ export function MessageInput({ onTyping, onSendMessage, isDisabled }: MessageInp
       <Popover>
         <PopoverTrigger asChild>
           <div>
-            <Button variant="icon" onClick={() => {}} icon="plus" disabled={isDisabled} />
+            <Button
+              variant="icon"
+              onClick={() => {}}
+              icon="plus"
+              disabled={isDisabled || isEditing}
+            />
           </div>
         </PopoverTrigger>
         <PopoverContent side="top" align="start" sideOffset={10}>
@@ -84,20 +121,15 @@ export function MessageInput({ onTyping, onSendMessage, isDisabled }: MessageInp
       <input
         className="flex h-10 px-4 flex-1 rounded-full bg-melting-glacier focus:outline-none text-base placeholder:text-input-placeholder text-black"
         value={content}
-        onChange={(e) => {
-          setContent(e.target.value);
-          clearTimeout(timeout.current);
-          updateTyping(true);
-          timeout.current = setTimeout(() => updateTyping(false), TYPING_INDICATOR_TIMEOUT_MS);
-        }}
-        onKeyDown={(e) => e.key === "Enter" && handleSend()}
-        placeholder="Aa"
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        placeholder={isEditing ? "Edit message..." : "Aa"}
         disabled={isDisabled}
       />
       <Button
         variant="icon"
         onClick={handleSend}
-        icon={content ? "send" : "mic"}
+        icon={isEditing ? "send" : content ? "send" : "mic"}
         disabled={isDisabled}
       />
     </div>

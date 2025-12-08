@@ -1,11 +1,14 @@
+import React from "react";
 import { MessageBubbleSkeleton } from "@/app/components/skeleton";
 import Link from "next/link";
 import { useMessageScroll } from "../../hooks/useMessageScroll";
 import { formatMessageSessionTime } from "../../utils/formatting/time";
 import { getMessageGroupingInfo } from "../../utils/messageGrouping";
-import { Avatar, getInitials } from "../shared/avatar";
+import { Avatar, getInitials } from "../../../../../components/avatar";
 import { MessageBubble } from "./message-bubble";
 import { MessageInput } from "./message-input";
+import { EditModeBanner } from "./edit-mode-banner";
+import { DeleteConfirmDialog } from "./delete-confirm-dialog";
 import { Message } from "../../types";
 import {
   EllipsisVertical,
@@ -20,8 +23,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/app/components/radix-popover";
+import { useEditMessage } from "../../hooks/query/useEditMessage";
 
 type ChatWindowProps = {
+  conversationId: string;
   currentUserId: string;
   conversationName?: string;
   conversationAvatar?: string | null;
@@ -37,6 +42,7 @@ type ChatWindowProps = {
 };
 
 export function ChatWindow({
+  conversationId,
   currentUserId,
   conversationName,
   conversationAvatar,
@@ -50,10 +56,7 @@ export function ChatWindow({
   onTyping,
   onBack,
 }: ChatWindowProps) {
-  // ============================================================================
-  // Scroll Management
-  // ============================================================================
-
+  const { mutate: editMessage } = useEditMessage(conversationId);
   const { messagesEndRef, messagesContainerRef, handleScroll } =
     useMessageScroll(
       messages.length,
@@ -62,21 +65,27 @@ export function ChatWindow({
       fetchNextPage
     );
 
+  const menuOptions = [
+    { icon: UserCircle, label: "Go to profile" },
+    { icon: Ban, label: "Block user" },
+    { icon: AlertCircle, label: "Report user" },
+  ];
+
   if (error) {
-    // TODO: Create a custom error component for failed fetch
     return (
       <div className="flex flex-col h-full">
         <div className="flex-1 flex items-center justify-center flex-col gap-4">
           <div className="text-red-500">Failed to load messages</div>
-          <Link className="text-black underline" href="/chats">Go to chats</Link>
+          <Link className="text-black underline" href="/chats">
+            Go to chats
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
+    <div className="flex flex-col h-full relative">
       <div className="flex items-center gap-3 px-4 py-8 bg-dark-cyan-blue">
         {onBack && (
           <button
@@ -94,6 +103,7 @@ export function ChatWindow({
             conversationName?.split(" ")[1]
           )}
           size="lg"
+          expandable={true}
           className="border border-white rounded-full"
         />
         <h2 className="text-lg font-semibold flex-1 text-white">
@@ -107,39 +117,33 @@ export function ChatWindow({
           </PopoverTrigger>
           <PopoverContent side="bottom" align="end" sideOffset={8}>
             <ul className="flex flex-col gap-2.5">
-              <li className="flex gap-3 cursor-pointer hover:opacity-80 transition-opacity items-center">
-                <UserCircle className="size-4" />
-                <p>Go to profile</p>
-              </li>
-              <div className="w-full h-px bg-white opacity-50" />
-              <li className="flex gap-3 cursor-pointer hover:opacity-80 transition-opacity items-center">
-                <Ban className="size-4" />
-                <p>Block user</p>
-              </li>
-              <div className="w-full h-px bg-white opacity-50" />
-              <li className="flex gap-3 cursor-pointer hover:opacity-80 transition-opacity items-center">
-                <AlertCircle className="size-4" />
-                <p>Report user</p>
-              </li>
+              {menuOptions.map((option, index) => (
+                <React.Fragment key={option.label}>
+                  {index > 0 && (
+                    <div className="w-full h-px bg-white opacity-50" />
+                  )}
+                  <li className="flex gap-3 cursor-pointer hover:opacity-80 transition-opacity items-center">
+                    <option.icon className="size-4" />
+                    <p>{option.label}</p>
+                  </li>
+                </React.Fragment>
+              ))}
             </ul>
           </PopoverContent>
         </Popover>
       </div>
 
-      {/* Messages */}
       <div
         ref={messagesContainerRef}
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto px-4 py-6 bg-white rounded-t-3xl no-scrollbar"
       >
-        {/* Load more indicator */}
         {isFetchingNextPage && (
           <div className="text-center py-2">
             <span className="text-sm text-grey">Loading messages...</span>
           </div>
         )}
 
-        {/* Messages list - oldest at top, newest at bottom */}
         {isLoading ? (
           <div className="space-y-4 mt-4">
             {[...Array(12)].map((_, i) => (
@@ -164,22 +168,17 @@ export function ChatWindow({
           <>
             {messages.map((message, index) => {
               const isMe = message.senderId === currentUserId;
-              const prevMessage = messages[index - 1];
-              const nextMessage = messages[index + 1];
-
-              // Get message grouping info using extracted utility
               const { showAvatar, showTimestamp, isFirstUnread } =
                 getMessageGroupingInfo(
                   message,
-                  prevMessage,
-                  nextMessage,
+                  messages[index - 1],
+                  messages[index + 1],
                   currentUserId,
                   index
                 );
 
               return (
                 <div key={message.id}>
-                  {/* Timestamp divider */}
                   {showTimestamp && message.createdAt && (
                     <div className="flex justify-center my-4">
                       <span className="text-xs text-grey bg-white px-3 py-1 rounded-full">
@@ -188,7 +187,6 @@ export function ChatWindow({
                     </div>
                   )}
 
-                  {/* Unread messages divider */}
                   {isFirstUnread && (
                     <div className="flex items-center gap-3 my-4">
                       <div className="flex-1 h-px bg-light-grey" />
@@ -212,8 +210,18 @@ export function ChatWindow({
         )}
       </div>
 
-      {/* Input */}
-      <MessageInput onSendMessage={onSendMessage} onTyping={onTyping} />
+      <div className="bg-white">
+        <EditModeBanner />
+        <MessageInput
+          onSendMessage={onSendMessage}
+          onEditMessage={(messageId, content) =>
+            editMessage({ messageId, content })
+          }
+          onTyping={onTyping}
+        />
+      </div>
+
+      <DeleteConfirmDialog conversationId={conversationId} />
     </div>
   );
 }

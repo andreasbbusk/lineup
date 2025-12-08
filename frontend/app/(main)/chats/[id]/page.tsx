@@ -30,7 +30,14 @@ export default function ChatPage({ params }: ChatPageProps) {
   // ============================================================================
 
   const { data: conversation } = useConversation(id);
-  const { messages, isLoading: messagesLoading, error: messagesError, fetchNextPage, hasNextPage, isFetchingNextPage } = useChatMessages(id);
+  const {
+    messages,
+    isLoading: messagesLoading,
+    error: messagesError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useChatMessages(id);
 
   // ============================================================================
   // Mutations & Real-time
@@ -83,6 +90,7 @@ export default function ChatPage({ params }: ChatPageProps) {
     <main className="h-dvh bg-dark-cyan-blue">
       <div className="h-full flex flex-col">
         <ChatWindow
+          conversationId={id}
           currentUserId={user?.id ?? ""}
           conversationName={name}
           conversationAvatar={avatarUrl}

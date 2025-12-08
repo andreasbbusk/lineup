@@ -1,12 +1,13 @@
-import { useEffect } from "react";
-import { useQueryClient, InfiniteData } from "@tanstack/react-query";
 import { supabase } from "@/app/lib/supabase/client";
+import { InfiniteData, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { chatKeys } from "../../queryKeys";
+import type { PaginatedMessages } from "../../types";
 import {
   mapRealtimeMessage,
   type DbMessageRecord,
 } from "../../utils/realtimeAdapter";
-import { chatKeys } from "../../queryKeys";
-import type { Message, PaginatedMessages } from "../../types";
+import { updateMessageInCache } from "../../utils/cacheUpdates";
 
 /**
  * Subscribe to real-time message updates via Supabase Realtime
@@ -80,20 +81,11 @@ export function useMessageSubscription(conversationId: string | null) {
             payload.new as DbMessageRecord
           );
 
-          queryClient.setQueryData<InfiniteData<PaginatedMessages>>(
-            chatKeys.messages(conversationId),
-            (old) => {
-              if (!old) return old;
-
-              const updatedPages = old.pages.map((page) => ({
-                ...page,
-                messages: page.messages.map((msg: Message) =>
-                  msg.id === updatedMessage.id ? updatedMessage : msg
-                ),
-              }));
-
-              return { ...old, pages: updatedPages };
-            }
+          updateMessageInCache(
+            queryClient,
+            conversationId,
+            updatedMessage.id,
+            () => updatedMessage
           );
         }
       )
@@ -111,20 +103,15 @@ export function useMessageSubscription(conversationId: string | null) {
         (payload) => {
           const deletedMessageId = payload.old.id;
 
-          queryClient.setQueryData<InfiniteData<PaginatedMessages>>(
-            chatKeys.messages(conversationId),
-            (old) => {
-              if (!old) return old;
-
-              const updatedPages = old.pages.map((page) => ({
-                ...page,
-                messages: page.messages.filter(
-                  (msg: Message) => msg.id !== deletedMessageId
-                ),
-              }));
-
-              return { ...old, pages: updatedPages };
-            }
+          updateMessageInCache(
+            queryClient,
+            conversationId,
+            deletedMessageId,
+            (msg) => ({
+              ...msg,
+              isDeleted: true,
+              content: "This message was deleted.",
+            })
           );
         }
       )
