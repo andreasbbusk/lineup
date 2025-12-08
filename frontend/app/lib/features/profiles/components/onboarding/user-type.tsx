@@ -19,25 +19,24 @@ const USER_TYPES = [
     value: "service_provider" as const,
     title: "Not a musician",
     description: "I want to provide services for musicians",
-    disabled: true, // Coming soon
+    disabled: true,
   },
-];
+] as const;
+
+type UserType = (typeof USER_TYPES)[number]["value"];
 
 export function OnboardingUserTypeStep() {
   const { onboarding, updateOnboardingData } = useAppStore();
   const { nextStep } = useOnboardingNavigation();
 
-  const selectedType = onboarding.data.userType;
+  const selectedType = onboarding?.data.userType;
 
-  const handleSelect = (value: "musician" | "service_provider") => {
+  const handleSelect = (value: UserType) => {
     updateOnboardingData({ userType: value });
   };
 
-  const canContinue = !!selectedType;
-
   return (
     <div className="flex w-full max-w-[260px] flex-col items-center gap-16">
-      {/* Logo */}
       <Image
         src={LOGO_ICON}
         alt="LineUp logo"
@@ -46,7 +45,6 @@ export function OnboardingUserTypeStep() {
         className="object-contain"
       />
 
-      {/* Options */}
       <div className="flex w-full flex-col gap-8">
         {USER_TYPES.map((type) => {
           const isSelected = selectedType === type.value;
@@ -77,12 +75,11 @@ export function OnboardingUserTypeStep() {
         })}
       </div>
 
-      {/* Continue Button */}
       <Button
         type="button"
         variant="primary"
         onClick={nextStep}
-        disabled={!canContinue}
+        disabled={!selectedType}
       >
         Continue
       </Button>

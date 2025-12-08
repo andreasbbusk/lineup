@@ -1,4 +1,3 @@
-// lib/features/chats/hooks/realtime/useConversationSubscription.ts
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/app/lib/supabase/client";

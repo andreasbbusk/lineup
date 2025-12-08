@@ -3,11 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useAppStore } from "@/app/lib/stores/app-store";
-import {
-  updateUserProfile,
-  ProfileUpdateRequest,
-  getUserProfile,
-} from "../../api";
+import { updateUserProfile, getUserProfile } from "../../api";
+import type { ProfileUpdateRequest } from "../../types";
 
 export function useProfile(username: string) {
   const queryKey = useMemo(() => ["profile", username || null], [username]);

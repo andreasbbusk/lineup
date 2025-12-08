@@ -1,11 +1,8 @@
 import { apiClient, handleApiError } from "../../api/api-client";
-import type { components } from "@/app/lib/types/api";
+import type { UserProfile, ProfileUpdateRequest } from "./types";
 
-// Export types from generated schema
-export type UserProfile = components["schemas"]["UserProfile"];
-export type ProfileUpdateRequest = components["schemas"]["UpdateProfileDto"];
-export type Connection = components["schemas"]["Connection"];
-export type ConnectionStatus = components["schemas"]["ConnectionStatus"];
+// Re-export types for backward compatibility
+export type { UserProfile, ProfileUpdateRequest };
 
 /**
  * Get user profile by username

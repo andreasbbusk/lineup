@@ -163,46 +163,46 @@
 }
 
 :root {
-  /* Approximate OKLCH equivalent of #F7F6F6 */
+	/* Approximate OKLCH equivalent of #F7F6F6 */
 
-  /* Typography System - Based on 16px base (1rem = 16px) */
-  --font-heading-1: 1.5rem;
-  --font-heading-2: 1.25rem;
-  --font-heading-3: 1.125rem;
-  --font-body: 1rem;
+	/* Typography System - Based on 16px base (1rem = 16px) */
+	--font-heading-1: 1.5rem;
+	--font-heading-2: 1.25rem;
+	--font-heading-3: 1.125rem;
+	--font-body: 1rem;
 
-  /* Color System - Primary */
-  --color-crocus-yellow: oklch(86.8% 0.12 85);
-  --color-blackberry-harvest: oklch(32.5% 0.045 310);
+	/* Color System - Primary */
+	--color-crocus-yellow: oklch(86.8% 0.12 85);
+	--color-blackberry-harvest: oklch(32.5% 0.045 310);
 
-  /* Color System - Neutral */
-  --color-black: oklch(15.2% 0 0);
-  --color-white: oklch(100% 0 0);
-  --color-light-grey: oklch(97.5% 0.002 0);
-  --color-grey: oklch(42% 0 0);
-  --color-melting-glacier: oklch(94.5% 0 0);
+	/* Color System - Neutral */
+	--color-black: oklch(15.2% 0 0);
+	--color-white: oklch(100% 0 0);
+	--color-light-grey: oklch(97.5% 0.002 0);
+	--color-grey: oklch(42% 0 0);
+	--color-melting-glacier: oklch(94.5% 0 0);
 
-  /* Color System - Secondary (Used in customization) */
-  --color-dark-grey-red: oklch(40% 0.012 15);
-  --color-dark-cyan-blue: oklch(35% 0.02 235);
-  --color-dark-blue: oklch(32% 0.03 275);
-  --color-dark-pink-red: oklch(33% 0.028 15);
-  --color-dark-orange: oklch(37% 0.025 50);
+	/* Color System - Secondary (Used in customization) */
+	--color-dark-grey-red: oklch(40% 0.012 15);
+	--color-dark-cyan-blue: oklch(0.4108 0.0213 229.56);
+	--color-dark-blue: oklch(32% 0.03 275);
+	--color-dark-pink-red: oklch(33% 0.028 15);
+	--color-dark-orange: oklch(37% 0.025 50);
 
-  /* Color System - Accent (Used in utility purposes: success, error, attention) */
-  --color-maroon: oklch(30% 0.12 30);
-  --color-deep-aquamarine: oklch(52% 0.06 170);
+	/* Color System - Accent (Used in utility purposes: success, error, attention) */
+	--color-maroon: oklch(30% 0.12 30);
+	--color-deep-aquamarine: oklch(52% 0.06 170);
 
-  /* Transparency Scale - Can be applied to any color */
-  --opacity-100: 1;
-  --opacity-80: 0.8;
-  --opacity-64: 0.64;
-  --opacity-56: 0.56;
-  --opacity-40: 0.4;
-  --opacity-24: 0.24;
-  --opacity-16: 0.16;
-  --opacity-8: 0.08;
-  --opacity-4: 0.04;
+	/* Transparency Scale - Can be applied to any color */
+	--opacity-100: 1;
+	--opacity-80: 0.8;
+	--opacity-64: 0.64;
+	--opacity-56: 0.56;
+	--opacity-40: 0.4;
+	--opacity-24: 0.24;
+	--opacity-16: 0.16;
+	--opacity-8: 0.08;
+	--opacity-4: 0.04;
 }
 
 @theme {
@@ -261,7 +261,8 @@
 }
 
 * {
-  font-family: var(--font-family-helvetica);
+	font-family: var(--font-family-helvetica);
+	overscroll-behavior-y: none;
 }
 
 body {

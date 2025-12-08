@@ -1,5 +1,6 @@
 import createClient from "openapi-fetch";
 import type { paths } from "@/app/lib/types/api";
+import { supabase } from "@/app/lib/supabase/client";
 import { useAppStore } from "@/app/lib/stores/app-store";
 import { ErrorResponse } from "@/app/lib/types/api-types";
 
@@ -11,13 +12,20 @@ export const apiClient = createClient<paths>({
   },
 });
 
-// Middleware to add auth token
+// Middleware to add auth token from Supabase session
 apiClient.use({
   async onRequest({ request }) {
-    const token = useAppStore.getState().accessToken;
+    // Get token directly from Supabase (the source of truth)
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    const token = session?.access_token;
+    
     if (token) {
       request.headers.set("Authorization", `Bearer ${token}`);
     }
+
     return request;
   },
 });
@@ -41,7 +49,10 @@ export function handleApiError(
   response?: Response
 ): never {
   if (response?.status === 401) {
-    useAppStore.getState().clearAuth();
+    // Session expired - trigger logout and reinit
+    const store = useAppStore.getState();
+    store.logout(); // This calls supabase.auth.signOut() + clears state
+
     throw new ApiError(
       401,
       "UNAUTHORIZED",

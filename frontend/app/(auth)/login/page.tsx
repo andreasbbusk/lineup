@@ -1,5 +1,11 @@
-import { LoginWrapper } from "@/app/lib/features/auth";
+"use client";
+
+import { LoginForm } from "@/app/lib/features/auth";
 
 export default function Page() {
-  return <LoginWrapper />;
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <LoginForm />
+    </div>
+  );
 }

@@ -41,7 +41,6 @@ import { AuthController } from './../entities/auth/auth.controller';
 import { expressAuthentication } from './../middleware/authentication';
 // @ts-ignore - no great way to install types from subpackage
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
-import multer from 'multer';
 
 
 const expressAuthenticationRecasted = expressAuthentication as (req: ExRequest, securityName: string, scopes?: string[], res?: ExResponse) => Promise<any>;
@@ -78,8 +77,8 @@ const models: TsoaRoute.Models = {
     "UserProfile": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"username":{"dataType":"string","required":true},"firstName":{"dataType":"string","required":true},"lastName":{"dataType":"string","required":true},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"bio":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"aboutMe":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"phoneCountryCode":{"dataType":"double"},"phoneNumber":{"dataType":"double"},"yearOfBirth":{"dataType":"double"},"location":{"dataType":"string","required":true},"userType":{"dataType":"string","required":true},"themeColor":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"spotifyPlaylistUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"onboardingCompleted":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"updatedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true}},"additionalProperties":false},
     "LookingForType": {"dataType":"refAlias","type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["connect"]},{"dataType":"enum","enums":["promote"]},{"dataType":"enum","enums":["find-band"]},{"dataType":"enum","enums":["find-services"]}],"validators":{}}},
     "UpdateProfileDto": {"dataType":"refObject","properties":{"username":{"dataType":"string"},"firstName":{"dataType":"string"},"lastName":{"dataType":"string"},"bio":{"dataType":"string"},"aboutMe":{"dataType":"string"},"avatarUrl":{"dataType":"string"},"location":{"dataType":"string"},"themeColor":{"dataType":"string"},"spotifyPlaylistUrl":{"dataType":"string"},"phoneCountryCode":{"dataType":"double"},"phoneNumber":{"dataType":"double"},"yearOfBirth":{"dataType":"double"},"userType":{"dataType":"string"},"onboardingCompleted":{"dataType":"boolean"},"lookingFor":{"dataType":"array","array":{"dataType":"refAlias","ref":"LookingForType"}}},"additionalProperties":false},
-    "UploadedFileResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"url":{"dataType":"string","required":true},"thumbnailUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["image"]},{"dataType":"enum","enums":["video"]}],"required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true}},"additionalProperties":false},
-    "UploadResponse": {"dataType":"refObject","properties":{"files":{"dataType":"array","array":{"dataType":"refObject","ref":"UploadedFileResponse"},"required":true}},"additionalProperties":false},
+    "SignedUrlResponse": {"dataType":"refObject","properties":{"signedUrl":{"dataType":"string","required":true},"filePath":{"dataType":"string","required":true}},"additionalProperties":false},
+    "SignedUrlRequestDto": {"dataType":"refObject","properties":{"fileName":{"dataType":"string","required":true},"fileType":{"dataType":"string","required":true},"uploadType":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["post"]},{"dataType":"enum","enums":["avatar"]}],"default":"post"}},"additionalProperties":false},
     "UserSearchResult": {"dataType":"refObject","properties":{"type":{"dataType":"enum","enums":["user"],"required":true},"id":{"dataType":"string","required":true},"username":{"dataType":"string","required":true},"firstName":{"dataType":"string","required":true},"lastName":{"dataType":"string","required":true},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"bio":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"genres":{"dataType":"any"},"lookingFor":{"dataType":"array","array":{"dataType":"string"}},"isConnected":{"dataType":"boolean","required":true},"relevance":{"dataType":"double","required":true}},"additionalProperties":false},
     "CollaborationSearchResult": {"dataType":"refObject","properties":{"type":{"dataType":"enum","enums":["collaboration"],"required":true},"id":{"dataType":"string","required":true},"title":{"dataType":"string","required":true},"description":{"dataType":"string","required":true},"authorId":{"dataType":"string","required":true},"authorUsername":{"dataType":"string","required":true},"authorAvatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"paidOpportunity":{"dataType":"boolean","required":true},"genres":{"dataType":"any"},"createdAt":{"dataType":"string","required":true},"relevance":{"dataType":"double","required":true}},"additionalProperties":false},
     "TagSearchResult": {"dataType":"refObject","properties":{"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["tag"]},{"dataType":"enum","enums":["genre"]},{"dataType":"enum","enums":["artist"]}],"required":true},"id":{"dataType":"string","required":true},"name":{"dataType":"string","required":true},"usageCount":{"dataType":"double","required":true},"relevance":{"dataType":"double","required":true}},"additionalProperties":false},
@@ -95,17 +94,21 @@ const models: TsoaRoute.Models = {
     "MediaItemDto": {"dataType":"refObject","properties":{"url":{"dataType":"string","required":true},"thumbnailUrl":{"dataType":"string"},"type":{"dataType":"string","required":true}},"additionalProperties":false},
     "Pick_PostInsert.Exclude_keyofPostInsert.id-or-author_id-or-created_at-or-updated_at-or-search_vector__": {"dataType":"refAlias","type":{"dataType":"nestedObjectLiteral","nestedProperties":{"description":{"dataType":"string","required":true},"expires_at":{"dataType":"string"},"location":{"dataType":"string"},"paid_opportunity":{"dataType":"boolean"},"title":{"dataType":"string","required":true},"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["note"]},{"dataType":"enum","enums":["request"]},{"dataType":"enum","enums":["story"]}],"required":true}},"validators":{}}},
     "CreatePostBody": {"dataType":"refObject","properties":{"description":{"dataType":"string","required":true},"expires_at":{"dataType":"string"},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"paid_opportunity":{"dataType":"boolean"},"title":{"dataType":"string","required":true},"type":{"ref":"PostType","required":true},"paidOpportunity":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}]},"expiresAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"tags":{"dataType":"array","array":{"dataType":"string"}},"genres":{"dataType":"array","array":{"dataType":"string"}},"taggedUsers":{"dataType":"array","array":{"dataType":"string"}},"media":{"dataType":"array","array":{"dataType":"refObject","ref":"MediaItemDto"}}},"additionalProperties":false},
+    "PaginatedResponse_PostResponse_": {"dataType":"refObject","properties":{"data":{"dataType":"array","array":{"dataType":"refObject","ref":"PostResponse"},"required":true},"pagination":{"dataType":"nestedObjectLiteral","nestedProperties":{"total":{"dataType":"double"},"hasMore":{"dataType":"boolean","required":true},"nextCursor":{"dataType":"string"}},"required":true}},"additionalProperties":false},
+    "CommentResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"postId":{"dataType":"string","required":true},"authorId":{"dataType":"string","required":true},"content":{"dataType":"string","required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"updatedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"author":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}},"additionalProperties":false},
     "NotificationResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"recipientId":{"dataType":"string","required":true},"actorId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"type":{"dataType":"string","required":true},"entityType":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"entityId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"title":{"dataType":"string","required":true},"body":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"actionUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"isRead":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"isArchived":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"readAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"sentViaWebsocket":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"actor":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}},"additionalProperties":false},
     "UpdateNotificationDto": {"dataType":"refObject","properties":{"isRead":{"dataType":"boolean","required":true}},"additionalProperties":false},
     "MetadataItem": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["tag"]},{"dataType":"enum","enums":["genre"]},{"dataType":"enum","enums":["artist"]}],"required":true},"name":{"dataType":"string","required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true}},"additionalProperties":false},
     "MetadataResponse": {"dataType":"refObject","properties":{"tags":{"dataType":"array","array":{"dataType":"refObject","ref":"MetadataItem"},"required":true},"genres":{"dataType":"array","array":{"dataType":"refObject","ref":"MetadataItem"},"required":true},"artists":{"dataType":"array","array":{"dataType":"refObject","ref":"MetadataItem"},"required":true}},"additionalProperties":false},
-    "SelectQueryError_columnstatusdoesnotexistonmessages._": {"dataType":"refAlias","type":{"dataType":"intersection","subSchemas":[{"dataType":"nestedObjectLiteral","nestedProperties":{"error":{"dataType":"enum","enums":[true],"required":true}}},{"dataType":"enum","enums":["column 'status' does not exist on 'messages'."]}],"validators":{}}},
+    "MessageResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"conversationId":{"dataType":"string","required":true},"senderId":{"dataType":"string","required":true},"content":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"mediaIds":{"dataType":"union","subSchemas":[{"dataType":"array","array":{"dataType":"string"}},{"dataType":"enum","enums":[null]}]},"isEdited":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"editedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"isDeleted":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"deletedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"replyToMessageId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"sentViaWebsocket":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"sender":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}},"replyTo":{"dataType":"union","subSchemas":[{"ref":"MessageResponse"},{"dataType":"enum","enums":[null]}]},"readReceipts":{"dataType":"array","array":{"dataType":"refObject","ref":"MessageReadReceiptResponse"}},"media":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"type":{"dataType":"string","required":true},"thumbnailUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"url":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}}},"additionalProperties":false},
+    "MessageReadReceiptResponse": {"dataType":"refObject","properties":{"messageId":{"dataType":"string","required":true},"userId":{"dataType":"string","required":true},"readAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"user":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}},"additionalProperties":false},
+    "PaginatedMessagesResponse": {"dataType":"refObject","properties":{"messages":{"dataType":"array","array":{"dataType":"refObject","ref":"MessageResponse"},"required":true},"hasMore":{"dataType":"boolean","required":true},"nextCursor":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true}},"additionalProperties":false},
     "SendMessageDto": {"dataType":"refObject","properties":{"conversation_id":{"dataType":"string","required":true},"content":{"dataType":"string","required":true},"media_ids":{"dataType":"array","array":{"dataType":"string"}},"reply_to_message_id":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]}},"additionalProperties":false},
     "EditMessageDto": {"dataType":"refObject","properties":{"content":{"dataType":"string","required":true}},"additionalProperties":false},
     "MarkMessagesReadDto": {"dataType":"refObject","properties":{"message_ids":{"dataType":"array","array":{"dataType":"string"},"required":true}},"additionalProperties":false},
     "FeedPostResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["note"]},{"dataType":"enum","enums":["request"]},{"dataType":"enum","enums":["story"]}],"required":true},"title":{"dataType":"string","required":true},"description":{"dataType":"string","required":true},"authorId":{"dataType":"string","required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"updatedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"paidOpportunity":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"expiresAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"metadata":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["tag"]},{"dataType":"enum","enums":["genre"]},{"dataType":"enum","enums":["artist"]}],"required":true},"name":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}},"media":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"displayOrder":{"dataType":"double","required":true},"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["image"]},{"dataType":"enum","enums":["video"]}],"required":true},"thumbnailUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"url":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}},"taggedUsers":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}},"author":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}},"likesCount":{"dataType":"double"},"commentsCount":{"dataType":"double"},"bookmarksCount":{"dataType":"double"},"hasLiked":{"dataType":"boolean"},"hasBookmarked":{"dataType":"boolean"}},"additionalProperties":false},
     "ConversationParticipantResponse": {"dataType":"refObject","properties":{"userId":{"dataType":"string","required":true},"conversationId":{"dataType":"string","required":true},"joinedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"leftAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"isAdmin":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"lastReadMessageId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastReadAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"notificationsEnabled":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"isMuted":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"user":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}},"additionalProperties":false},
-    "ConversationResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["direct"]},{"dataType":"enum","enums":["group"]}],"required":true},"name":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"createdBy":{"dataType":"string","required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"updatedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"lastMessageId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastMessagePreview":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastMessageAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"unreadCount":{"dataType":"double","required":true},"creator":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}},"participants":{"dataType":"array","array":{"dataType":"refObject","ref":"ConversationParticipantResponse"}}},"additionalProperties":false},
+    "ConversationResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["direct"]},{"dataType":"enum","enums":["group"]}],"required":true},"name":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"createdBy":{"dataType":"string","required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"updatedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"lastMessageId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastMessagePreview":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastMessageAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastMessageSenderId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"unreadCount":{"dataType":"double","required":true},"creator":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}},"participants":{"dataType":"array","array":{"dataType":"refObject","ref":"ConversationParticipantResponse"}}},"additionalProperties":false},
     "ConversationType": {"dataType":"refAlias","type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["direct"]},{"dataType":"enum","enums":["group"]}],"validators":{}}},
     "CreateConversationDto": {"dataType":"refObject","properties":{"type":{"ref":"ConversationType","required":true},"name":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"participantIds":{"dataType":"array","array":{"dataType":"string"},"required":true}},"additionalProperties":false},
     "UpdateConversationDto": {"dataType":"refObject","properties":{"name":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]}},"additionalProperties":false},
@@ -114,7 +117,6 @@ const models: TsoaRoute.Models = {
     "Pick_ConnectionRequestInsert.Exclude_keyofConnectionRequestInsert.requester_id-or-created_at-or-updated_at-or-id-or-status__": {"dataType":"refAlias","type":{"dataType":"nestedObjectLiteral","nestedProperties":{"recipient_id":{"dataType":"string","required":true}},"validators":{}}},
     "CreateConnectionRequestDto": {"dataType":"refObject","properties":{"recipient_id":{"dataType":"string","required":true},"recipientId":{"dataType":"string","required":true}},"additionalProperties":false},
     "UpdateConnectionRequestDto": {"dataType":"refObject","properties":{"status":{"ref":"ConnectionStatus","required":true}},"additionalProperties":false},
-    "CommentResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"postId":{"dataType":"string","required":true},"authorId":{"dataType":"string","required":true},"content":{"dataType":"string","required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"updatedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"author":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}},"additionalProperties":false},
     "Pick_CommentInsert.Exclude_keyofCommentInsert.author_id-or-created_at-or-updated_at-or-id__": {"dataType":"refAlias","type":{"dataType":"nestedObjectLiteral","nestedProperties":{"post_id":{"dataType":"string","required":true},"content":{"dataType":"string","required":true}},"validators":{}}},
     "CreateCommentDto": {"dataType":"refObject","properties":{"post_id":{"dataType":"string","required":true},"content":{"dataType":"string","required":true},"postId":{"dataType":"string","required":true}},"additionalProperties":false},
     "UpdateCommentDto": {"dataType":"refObject","properties":{"content":{"dataType":"string","required":true}},"additionalProperties":false},
@@ -130,14 +132,12 @@ const templateService = new ExpressTemplateService(models, {
     noImplicitAdditionalProperties: 'throw-on-extras',
 });
 
-export function RegisterRoutes(app: Router,opts?:{multer?:ReturnType<typeof multer>}) {
+export function RegisterRoutes(app: Router) {
 
     // ###########################################################################################################
     //  NOTE: If you do not see routes for all of your controllers in this file, then you might not have informed tsoa of where to look
     //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
     // ###########################################################################################################
-
-    const upload = opts?.multer ||  multer({"limits":{"fileSize":8388608}});
 
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsUsersController_getUser: Record<string, TsoaRoute.ParameterSchema> = {
@@ -205,29 +205,27 @@ export function RegisterRoutes(app: Router,opts?:{multer?:ReturnType<typeof mult
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsUploadController_uploadFiles: Record<string, TsoaRoute.ParameterSchema> = {
-                files: {"in":"formData","name":"files","required":true,"dataType":"array","array":{"dataType":"file"}},
-                type: {"in":"formData","name":"type","required":true,"dataType":"string"},
-                generateThumbnails: {"in":"formData","name":"generateThumbnails","dataType":"string"},
+        const argsUploadController_generateSignedUploadUrl: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"ref":"SignedUrlRequestDto"},
                 request: {"in":"request","name":"request","required":true,"dataType":"object"},
         };
-        app.post('/upload',
+        app.post('/upload/signed-url',
             authenticateMiddleware([[{"bearerAuth":[]}]]),
             ...(fetchMiddlewares<RequestHandler>(UploadController)),
-            ...(fetchMiddlewares<RequestHandler>(UploadController.prototype.uploadFiles)),
+            ...(fetchMiddlewares<RequestHandler>(UploadController.prototype.generateSignedUploadUrl)),
 
-            async function UploadController_uploadFiles(request: ExRequest, response: ExResponse, next: any) {
+            async function UploadController_generateSignedUploadUrl(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsUploadController_uploadFiles, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsUploadController_generateSignedUploadUrl, request, response });
 
                 const controller = new UploadController();
 
               await templateService.apiHandler({
-                methodName: 'uploadFiles',
+                methodName: 'generateSignedUploadUrl',
                 controller,
                 response,
                 next,
@@ -488,6 +486,79 @@ export function RegisterRoutes(app: Router,opts?:{multer?:ReturnType<typeof mult
 
               await templateService.apiHandler({
                 methodName: 'createPost',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsPostsController_listPosts: Record<string, TsoaRoute.ParameterSchema> = {
+                type: {"in":"query","name":"type","dataType":"union","subSchemas":[{"dataType":"enum","enums":["note"]},{"dataType":"enum","enums":["request"]},{"dataType":"enum","enums":["story"]}]},
+                authorId: {"in":"query","name":"authorId","dataType":"string"},
+                cursor: {"in":"query","name":"cursor","dataType":"string"},
+                limit: {"in":"query","name":"limit","dataType":"double"},
+                includeEngagement: {"in":"query","name":"includeEngagement","dataType":"boolean"},
+                includeMedia: {"in":"query","name":"includeMedia","dataType":"boolean"},
+                genreIds: {"in":"query","name":"genreIds","dataType":"array","array":{"dataType":"string"}},
+                tags: {"in":"query","name":"tags","dataType":"array","array":{"dataType":"string"}},
+                location: {"in":"query","name":"location","dataType":"string"},
+                paidOnly: {"in":"query","name":"paidOnly","dataType":"boolean"},
+                req: {"in":"request","name":"req","dataType":"object"},
+        };
+        app.get('/posts',
+            ...(fetchMiddlewares<RequestHandler>(PostsController)),
+            ...(fetchMiddlewares<RequestHandler>(PostsController.prototype.listPosts)),
+
+            async function PostsController_listPosts(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsPostsController_listPosts, request, response });
+
+                const controller = new PostsController();
+
+              await templateService.apiHandler({
+                methodName: 'listPosts',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsPostsController_getPost: Record<string, TsoaRoute.ParameterSchema> = {
+                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+                includeComments: {"in":"query","name":"includeComments","dataType":"boolean"},
+                commentsLimit: {"in":"query","name":"commentsLimit","dataType":"double"},
+                req: {"in":"request","name":"req","dataType":"object"},
+        };
+        app.get('/posts/:id',
+            ...(fetchMiddlewares<RequestHandler>(PostsController)),
+            ...(fetchMiddlewares<RequestHandler>(PostsController.prototype.getPost)),
+
+            async function PostsController_getPost(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsPostsController_getPost, request, response });
+
+                const controller = new PostsController();
+
+              await templateService.apiHandler({
+                methodName: 'getPost',
                 controller,
                 response,
                 next,

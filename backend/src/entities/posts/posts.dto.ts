@@ -7,6 +7,10 @@ import {
   ValidateNested,
   IsEnum,
   Length,
+  IsUUID,
+  Min,
+  Max,
+  IsInt,
 } from "class-validator";
 import { Type } from "class-transformer";
 import { PostInsert, PostType } from "../../utils/supabase-helpers.js";
@@ -155,4 +159,107 @@ export class CreatePostBody
   @ValidateNested({ each: true })
   @Type(() => MediaItemDto)
   media?: MediaItemDto[];
+}
+
+/**
+ * DTO for querying posts
+ *
+ * Used when listing posts with filters and pagination.
+ * Supports filtering by type, author, location, genres, tags, and paid opportunities.
+ *
+ * @example
+ * {
+ *   "type": "note",
+ *   "authorId": "123e4567-e89b-12d3-a456-426614174000",
+ *   "cursor": "2024-01-20T10:00:00Z",
+ *   "limit": 20,
+ *   "includeEngagement": true,
+ *   "includeMedia": true
+ * }
+ */
+export class PostsQueryDto {
+  /**
+   * Filter by post type: "note", "request", or "story"
+   * @example "note"
+   */
+  @IsOptional()
+  @IsEnum(["note", "request", "story"] as const)
+  type?: PostType;
+
+  /**
+   * Filter by author user ID
+   * @example "123e4567-e89b-12d3-a456-426614174000"
+   */
+  @IsOptional()
+  @IsUUID()
+  authorId?: string;
+
+  /**
+   * Cursor for pagination (ISO timestamp)
+   * @example "2024-01-20T10:00:00Z"
+   */
+  @IsOptional()
+  @IsString()
+  cursor?: string;
+
+  /**
+   * Maximum number of posts to return (1-100, default: 20)
+   * @example 20
+   */
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit?: number = 20;
+
+  /**
+   * Whether to include engagement data (likes, comments, bookmarks)
+   * Requires authentication
+   * @example true
+   */
+  @IsOptional()
+  @IsBoolean()
+  includeEngagement?: boolean = false;
+
+  /**
+   * Whether to include media in the response
+   * @example true
+   */
+  @IsOptional()
+  @IsBoolean()
+  includeMedia?: boolean = true;
+
+  /**
+   * Filter by genre IDs (array of metadata IDs)
+   * @example ["genre-id-1", "genre-id-2"]
+   */
+  @IsOptional()
+  @IsArray()
+  @IsUUID({ each: true })
+  genreIds?: string[];
+
+  /**
+   * Filter by tag names (array of tag names)
+   * @example ["rock", "jazz"]
+   */
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
+
+  /**
+   * Filter by location
+   * @example "New York, NY"
+   */
+  @IsOptional()
+  @IsString()
+  location?: string;
+
+  /**
+   * Filter for paid opportunities only (for "request" type posts)
+   * @example true
+   */
+  @IsOptional()
+  @IsBoolean()
+  paidOnly?: boolean;
 }
