@@ -20,12 +20,11 @@ lib/features/chats/
 ├── hooks/
 │   ├── index.ts
 │   ├── query/                # Data mutations and queries
-│   │   ├── useConversations.ts
-│   │   ├── useConversation.ts
+│   │   ├── conversations.ts      # Conversation & Connection queries
+│   │   ├── mutations.ts          # Conversation mutations
+│   │   ├── messageMutations.ts   # Message edit/delete mutations
 │   │   ├── useChatMessages.ts
-│   │   ├── useSendMessage.ts
-│   │   ├── useDeleteMessage.ts
-│   │   └── useMarkAsRead.ts
+│   │   └── useSendMessage.ts
 │   └── realtime/             # Real-time subscriptions
 │       ├── useMessageSubscription.ts
 │       └── useConversationSubscription.ts
@@ -43,21 +42,25 @@ lib/features/chats/
 ## Key Features
 
 ### Type Safety
+
 - All types derived from OpenAPI schema (`@/app/lib/types/api`)
 - No manual type definitions - types are inferred from backend
 - Snake_case API responses mapped to camelCase for frontend
 
 ### Real-time Updates
+
 - Supabase Realtime integration for instant message delivery
 - Optimistic UI updates for better UX
 - Automatic cache invalidation on changes
 
 ### Performance
+
 - Infinite scroll pagination for messages
 - Query result caching with React Query
 - Efficient re-renders with proper memoization
 
 ### UI/UX
+
 - Direct messages and group chats with tab navigation
 - Unread message badges
 - Typing indicators
@@ -70,12 +73,16 @@ lib/features/chats/
 ### Basic Conversation List
 
 ```tsx
-import { ConversationList, useConversations, useConversationSubscription } from "@/app/lib/features/chats";
+import {
+  ConversationList,
+  useConversations,
+  useConversationSubscription,
+} from "@/app/lib/features/chats";
 
 function ChatPage() {
   const { user } = useAuth(); // Your auth hook
   const { data: conversations, isLoading, error } = useConversations();
-  
+
   useConversationSubscription(user.id);
 
   return (
@@ -140,7 +147,7 @@ await chatApi.sendMessage({
   conversation_id: "...",
   content: "Hello!",
   media_ids: [],
-  reply_to_message_id: null
+  reply_to_message_id: null,
 });
 await chatApi.markAsRead(["message-id-1", "message-id-2"]);
 await chatApi.setTyping(conversationId, true);
@@ -153,7 +160,7 @@ Real-time features are handled by subscriptions in your page components:
 ```tsx
 import {
   useMessageSubscription,
-  useConversationSubscription
+  useConversationSubscription,
 } from "@/app/lib/features/chats";
 
 function ChatComponent({ conversationId, userId }) {

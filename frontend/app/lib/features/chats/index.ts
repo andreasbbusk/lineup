@@ -35,6 +35,11 @@ export {
   DEFAULT_MESSAGES_PAGE_SIZE,
   DEFAULT_SKELETON_COUNT,
   STALE_TIME,
+  MESSAGE_ACTION_CONFIG,
+  MESSAGE_STATES,
+  SCROLL_CONFIG,
+  MESSAGE_GROUPING,
+  STYLES,
 } from "./constants";
 
 // ============================================================================
@@ -48,14 +53,22 @@ export { chatKeys } from "./queryKeys";
 // Hooks - Query & Mutations
 // ============================================================================
 
-export { useChatMessages } from "./hooks/query/useChatMessages";
-export { useConversations, useUnreadCount } from "./hooks/query/useConversations";
-export { useConversation } from "./hooks/query/useConversation";
-export { useSendMessage } from "./hooks/query/useSendMessage";
-export { useDeleteMessage } from "./hooks/query/useDeleteMessage";
-export { useMarkAsRead } from "./hooks/query/useMarkAsRead";
-export { useConnections } from "./hooks/query/useConnections";
-export { useCreateConversation } from "./hooks/query/useCreateConversation";
+export { useChatMessages } from "./hooks/query/messages";
+export {
+  useConversations,
+  useUnreadCount,
+  useConversation,
+  useConnections,
+} from "./hooks/query/conversations";
+export { useSendMessage } from "./hooks/query/messageMutations";
+export {
+  useEditMessage,
+  useDeleteMessage,
+} from "./hooks/query/messageMutations";
+export {
+  useMarkAsRead,
+  useCreateConversation,
+} from "./hooks/query/conversationMutations";
 
 // ============================================================================
 // Hooks - Realtime
@@ -71,32 +84,30 @@ export { useConversationSubscription } from "./hooks/realtime/useConversationSub
 export { useMessageScroll } from "./hooks/useMessageScroll";
 
 // ============================================================================
-// Components - Shared
-// ============================================================================
-
-export { Avatar, getInitials } from "./components/shared/avatar";
-
-// ============================================================================
 // Components - List
 // ============================================================================
 
-export { ChatRow } from "./components/list/chat-row";
-export { ConversationList } from "./components/list/conversation-list";
+export { ChatRow } from "./components/chats-interface/chat-row";
+export { ConversationList } from "./components/chats-interface/conversation-list";
 
 // ============================================================================
 // Components - Window
 // ============================================================================
 
-export { MessageBubble } from "./components/window/message-bubble";
-export { MessageInput } from "./components/window/message-input";
-export { ChatWindow } from "./components/window/chat-window";
+export { ChatHeader } from "./components/message-interface/chat-header";
+export { MessageList } from "./components/message-interface/message-list";
+export { MessageBubble } from "./components/message-interface/message-bubble";
+export { MessageInput } from "./components/message-interface/message-input";
+export { MessageActionsMenu } from "./components/message-interface/message-actions";
+export { EditModeBanner } from "./components/message-interface/edit-mode-banner";
+export { DeleteConfirmDialog } from "./components/message-interface/delete-confirm-dialog";
 
 // ============================================================================
 // Components - New Chat
 // ============================================================================
 
-export { UserSuggestionRow } from "./components/new-chat/user-suggestion-row";
-export { UserSearchList } from "./components/new-chat/user-search-list";
+export { UserSuggestionRow } from "./components/new-interface/user-suggestion-row";
+export { UserSearchList } from "./components/new-interface/user-search-list";
 
 // ============================================================================
 // Utils

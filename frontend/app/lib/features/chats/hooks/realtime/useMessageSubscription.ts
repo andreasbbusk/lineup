@@ -1,12 +1,16 @@
-import { useEffect } from "react";
-import { useQueryClient, InfiniteData } from "@tanstack/react-query";
 import { supabase } from "@/app/lib/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { MESSAGE_STATES } from "../../constants";
+import { chatKeys } from "../../queryKeys";
 import {
   mapRealtimeMessage,
   type DbMessageRecord,
 } from "../../utils/realtimeAdapter";
-import { chatKeys } from "../../queryKeys";
-import type { Message, PaginatedMessages } from "../../types";
+import {
+  updateMessageInCache,
+  addMessageToCache,
+} from "../../utils/cacheUpdates";
 
 /**
  * Subscribe to real-time message updates via Supabase Realtime
@@ -35,32 +39,8 @@ export function useMessageSubscription(conversationId: string | null) {
         (payload) => {
           const newMessage = mapRealtimeMessage(payload.new as DbMessageRecord);
 
-          queryClient.setQueryData<InfiniteData<PaginatedMessages>>(
-            chatKeys.messages(conversationId),
-            (old) => {
-              if (!old) return old;
+          addMessageToCache(queryClient, conversationId, newMessage);
 
-              // Prevent duplicates (message might already exist from optimistic update)
-              const messageExists = old.pages.some((page) =>
-                page.messages.some((msg) => msg.id === newMessage.id)
-              );
-
-              if (messageExists) return old;
-
-              // Add to first page (most recent messages)
-              const updatedPages = [...old.pages];
-              if (updatedPages[0]) {
-                updatedPages[0] = {
-                  ...updatedPages[0],
-                  messages: [...updatedPages[0].messages, newMessage],
-                };
-              }
-
-              return { ...old, pages: updatedPages };
-            }
-          );
-
-          // Update conversation list preview
           queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
         }
       )
@@ -80,20 +60,11 @@ export function useMessageSubscription(conversationId: string | null) {
             payload.new as DbMessageRecord
           );
 
-          queryClient.setQueryData<InfiniteData<PaginatedMessages>>(
-            chatKeys.messages(conversationId),
-            (old) => {
-              if (!old) return old;
-
-              const updatedPages = old.pages.map((page) => ({
-                ...page,
-                messages: page.messages.map((msg: Message) =>
-                  msg.id === updatedMessage.id ? updatedMessage : msg
-                ),
-              }));
-
-              return { ...old, pages: updatedPages };
-            }
+          updateMessageInCache(
+            queryClient,
+            conversationId,
+            updatedMessage.id,
+            () => updatedMessage
           );
         }
       )
@@ -111,20 +82,15 @@ export function useMessageSubscription(conversationId: string | null) {
         (payload) => {
           const deletedMessageId = payload.old.id;
 
-          queryClient.setQueryData<InfiniteData<PaginatedMessages>>(
-            chatKeys.messages(conversationId),
-            (old) => {
-              if (!old) return old;
-
-              const updatedPages = old.pages.map((page) => ({
-                ...page,
-                messages: page.messages.filter(
-                  (msg: Message) => msg.id !== deletedMessageId
-                ),
-              }));
-
-              return { ...old, pages: updatedPages };
-            }
+          updateMessageInCache(
+            queryClient,
+            conversationId,
+            deletedMessageId,
+            (msg) => ({
+              ...msg,
+              isDeleted: true,
+              content: MESSAGE_STATES.DELETED_TEXT,
+            })
           );
         }
       )

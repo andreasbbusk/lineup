@@ -1,14 +1,21 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useRef } from "react";
 import {
-  ChatWindow,
+  ChatHeader,
+  MessageList,
+  MessageInput,
+  EditModeBanner,
+  DeleteConfirmDialog,
   useConversation,
   useChatMessages,
   useSendMessage,
   useMessageSubscription,
   useMarkAsRead,
+  useEditMessage,
+  useMessageScroll,
   chatApi,
   getConversationDisplayInfo,
 } from "@/app/lib/features/chats";
@@ -30,13 +37,21 @@ export default function ChatPage({ params }: ChatPageProps) {
   // ============================================================================
 
   const { data: conversation } = useConversation(id);
-  const { messages, isLoading: messagesLoading, error: messagesError, fetchNextPage, hasNextPage, isFetchingNextPage } = useChatMessages(id);
+  const {
+    messages,
+    isLoading: messagesLoading,
+    error: messagesError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useChatMessages(id);
 
   // ============================================================================
   // Mutations & Real-time
   // ============================================================================
 
   const { mutate: sendMessage } = useSendMessage(id, user?.id ?? "");
+  const { mutate: editMessage } = useEditMessage(id);
   const { mutate: markAsRead } = useMarkAsRead();
   useMessageSubscription(id);
 
@@ -68,6 +83,18 @@ export default function ChatPage({ params }: ChatPageProps) {
   }, [messages, user?.id, markAsRead]);
 
   // ============================================================================
+  // Scroll & UI
+  // ============================================================================
+
+  const { messagesEndRef, messagesContainerRef, handleScroll } =
+    useMessageScroll(
+      messages.length,
+      hasNextPage,
+      isFetchingNextPage,
+      fetchNextPage
+    );
+
+  // ============================================================================
   // Derived State & Handlers
   // ============================================================================
 
@@ -79,23 +106,57 @@ export default function ChatPage({ params }: ChatPageProps) {
     chatApi.setTyping(id, isTyping);
   };
 
+  // ============================================================================
+  // Error State
+  // ============================================================================
+
+  if (messagesError) {
+    return (
+      <main className="h-dvh bg-dark-cyan-blue">
+        <div className="flex flex-col h-full bg-white">
+          <div className="flex-1 flex items-center justify-center flex-col gap-4">
+            <div className="text-red-500">Failed to load messages</div>
+            <Link className="text-black underline" href="/chats">
+              Go to chats
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="h-dvh bg-dark-cyan-blue">
-      <div className="h-full flex flex-col">
-        <ChatWindow
-          currentUserId={user?.id ?? ""}
+      <div className="h-full flex flex-col relative">
+        <ChatHeader
           conversationName={name}
           conversationAvatar={avatarUrl}
-          messages={messages}
-          isLoading={messagesLoading}
-          error={messagesError}
-          fetchNextPage={fetchNextPage}
-          hasNextPage={hasNextPage}
-          isFetchingNextPage={isFetchingNextPage}
-          onSendMessage={sendMessage}
-          onTyping={handleTyping}
           onBack={() => router.push("/chats")}
         />
+
+        <MessageList
+          messages={messages}
+          isLoading={messagesLoading}
+          isFetchingNextPage={isFetchingNextPage}
+          currentUserId={user?.id ?? ""}
+          conversationName={name}
+          messagesContainerRef={messagesContainerRef}
+          messagesEndRef={messagesEndRef}
+          onScroll={handleScroll}
+        />
+
+        <div className="bg-white">
+          <EditModeBanner />
+          <MessageInput
+            onSendMessage={sendMessage}
+            onEditMessage={(messageId, content) =>
+              editMessage({ messageId, content })
+            }
+            onTyping={handleTyping}
+          />
+        </div>
+
+        <DeleteConfirmDialog conversationId={id} />
       </div>
     </main>
   );

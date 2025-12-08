@@ -266,8 +266,8 @@
 }
 
 * {
-	font-family: var(--font-family-helvetica);
-	overscroll-behavior-y: none;
+    font-family: var(--font-family-helvetica);
+    overscroll-behavior-y: none;
 }
 
 body {
