@@ -113,30 +113,29 @@ export function ConnectionsModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-4"
       onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="max-w-lg w-[calc(100%-2rem)] mx-auto"
+        className="max-w-lg w-full sm:w-[calc(100%-2rem)] mx-auto h-[calc(100vh-5rem)] sm:h-[500px] max-h-[80vh] sm:max-h-[500px] mb-4 sm:mb-0"
       >
         <GlassSurface
-          className="relative w-full rounded-3xl overflow-hidden"
-          borderRadius={24}
+          className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden h-full"
+          borderRadius={16}
           width="100%"
-          height="600px"
+          height="100%"
         >
           <div
             className="flex flex-col w-full h-full"
             style={{
               width: "100%",
-              minHeight: "500px",
-              maxHeight: "85vh",
+              minHeight: "400px",
             }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-white/20 w-full">
-              <h2 className="text-h2 font-semibold text-white truncate pr-4">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-white/20 w-full shrink-0">
+              <h2 className="text-lg sm:text-h2 font-semibold text-white truncate pr-2 sm:pr-4">
                 {isOwnProfile ? "My Connections" : `${username}'s Connections`}
               </h2>
               <button
@@ -164,9 +163,9 @@ export function ConnectionsModal({
 
             {/* Content */}
             <div
-              className="flex-1 overflow-y-auto px-6 py-4 w-full"
+              className="flex-1 overflow-y-auto px-4 sm:px-6 py-3 sm:py-4 w-full custom-scrollbar"
               style={{
-                minHeight: "300px",
+                minHeight: "200px",
                 flex: "1 1 auto",
               }}
             >
@@ -289,34 +288,36 @@ function ConnectionRow({
       : user.username;
 
   return (
-    <div className="flex items-center justify-between gap-4 py-4">
+    <div className="flex items-center justify-between gap-2 sm:gap-4 py-3 sm:py-4">
       <Link
         href={`/profile/${user.username}`}
-        className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity"
+        className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity"
       >
         <Image
           src={user.avatarUrl || "/avatars/default-avatar.png"}
           alt={`${displayName}'s avatar`}
           width={48}
           height={48}
-          className="w-12 h-12 rounded-full object-cover shrink-0"
+          className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover shrink-0"
         />
         <div className="flex-1 min-w-0">
-          <p className="text-body font-medium text-white truncate">
+          <p className="text-sm sm:text-body font-medium text-white truncate">
             {displayName}
           </p>
           {user.bio && (
-            <p className="text-sm text-grey/80 mt-1 line-clamp-2">{user.bio}</p>
+            <p className="text-xs sm:text-sm text-grey/80 mt-0.5 sm:mt-1 line-clamp-1 sm:line-clamp-2">
+              {user.bio}
+            </p>
           )}
         </div>
       </Link>
       {showActions && onAccept && onReject && (
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <Button
             variant="primary"
             onClick={onAccept}
             disabled={isAccepting || isRejecting}
-            className="min-w-[80px]"
+            className="min-w-[70px] sm:min-w-[80px] text-xs sm:text-sm px-2 sm:px-4"
           >
             {isAccepting ? "..." : "Accept"}
           </Button>
@@ -324,7 +325,7 @@ function ConnectionRow({
             variant="secondary"
             onClick={onReject}
             disabled={isAccepting || isRejecting}
-            className="bg-white/10 text-white border-white/30 hover:bg-white/20 min-w-[80px]"
+            className="bg-white/10 text-white border-white/30 hover:bg-white/20 min-w-[70px] sm:min-w-[80px] text-xs sm:text-sm px-2 sm:px-4"
           >
             {isRejecting ? "..." : "Reject"}
           </Button>
@@ -336,7 +337,7 @@ function ConnectionRow({
             variant="secondary"
             onClick={onRemove}
             disabled={isRemoving}
-            className="bg-white/10 text-white border-white/30 hover:bg-white/20"
+            className="bg-white/10 text-white border-white/30 hover:bg-white/20 text-xs sm:text-sm px-2 sm:px-4 min-w-[70px] sm:min-w-[80px]"
           >
             {isRemoving ? "..." : "Remove"}
           </Button>

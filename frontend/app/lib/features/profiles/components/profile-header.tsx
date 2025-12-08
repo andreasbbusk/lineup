@@ -1,9 +1,11 @@
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { Button } from "@/app/components/buttons";
 import { Popover } from "@/app/components/popover";
+import { LoadingSpinner } from "@/app/components/loading-spinner";
 import { useAppStore } from "@/app/lib/stores/app-store";
 import {
   useConnectionRequests,
@@ -11,7 +13,24 @@ import {
   useUserConnections,
 } from "@/app/lib/features/profiles";
 import { ConnectionButton } from "./connections/ConnectionButton";
-import { ConnectionsModal } from "./connections/ConnectionsModal";
+
+// Lazy load ConnectionsModal to reduce initial bundle size
+const ConnectionsModal = dynamic(
+  () =>
+    import("./connections/ConnectionsModal").then((mod) => ({
+      default: mod.ConnectionsModal,
+    })),
+  {
+    loading: () => (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="flex items-center justify-center">
+          <LoadingSpinner size={40} />
+        </div>
+      </div>
+    ),
+    ssr: false,
+  }
+);
 
 type ProfileHeaderProps = {
   /** Username of the profile */
