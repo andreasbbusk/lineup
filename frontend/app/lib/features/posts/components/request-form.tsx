@@ -7,6 +7,7 @@ import { MediaUploader } from "./media-uploader";
 // import { TagSelector } from "./tag-selector"; // Disabled - metadata not ready
 import { UserTagger } from "./user-tagger";
 import { Combobox } from "@/app/components/combobox";
+import { useRequestDraftAutoSave } from "../hooks/use-draft-auto-save";
 import type { UploadedMedia } from "../types";
 
 interface RequestFormProps {
@@ -34,25 +35,48 @@ async function fetchGenres() {
 */
 
 export function RequestForm({ onSubmit, isSubmitting = false }: RequestFormProps) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [location, setLocation] = useState("");
-  const [genres, setGenres] = useState<string[]>([]);
-  const [paidOpportunity, setPaidOpportunity] = useState(false);
-  const [taggedUsers, setTaggedUsers] = useState<string[]>([]);
-  const [media, setMedia] = useState<UploadedMedia[]>([]);
+  const {
+    title,
+    description,
+    location,
+    genres,
+    paidOpportunity,
+    taggedUsers,
+    media,
+    updateTitle,
+    updateDescription,
+    updateLocation,
+    updateGenres,
+    updatePaidOpportunity,
+    updateTaggedUsers,
+    updateMedia,
+    clearDraft,
+    restoreDraft,
+  } = useRequestDraftAutoSave();
+
   // const [isGenreSelectorOpen, setIsGenreSelectorOpen] = useState(false); // Disabled
   const [isUserTaggerOpen, setIsUserTaggerOpen] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(true);
   // const [availableGenres, setAvailableGenres] = useState<{ name: string }[]>([]); // Disabled
 
-  // Load genres on mount - DISABLED: Metadata endpoint not ready
-  /*
+  // Restore draft on mount
   useEffect(() => {
-    fetchGenres()
-      .then(setAvailableGenres)
-      .catch(console.error);
-  }, []);
-  */
+    const loadDraft = async () => {
+      try {
+        const draft = await restoreDraft();
+        if (draft.title || draft.description || draft.media.length > 0) {
+          // Draft exists, values are already in store from restoreDraft
+          // The store will have the restored values
+        }
+      } catch (error) {
+        console.error("Failed to restore draft:", error);
+      } finally {
+        setIsRestoring(false);
+      }
+    };
+
+    loadDraft();
+  }, [restoreDraft]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,6 +106,9 @@ export function RequestForm({ onSubmit, isSubmitting = false }: RequestFormProps
       taggedUsers: taggedUsers.length > 0 ? taggedUsers : undefined,
       media: media.length > 0 ? media : undefined,
     });
+
+    // Clear draft after successful submission
+    clearDraft();
   };
 
   const remainingChars = 5000 - description.length;
@@ -93,10 +120,11 @@ export function RequestForm({ onSubmit, isSubmitting = false }: RequestFormProps
         <input
           type="text"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => updateTitle(e.target.value)}
           placeholder="Write a title..."
           maxLength={100}
-          className="w-full rounded-lg border border-gray-300 px-4 py-3 text-base placeholder:text-gray-400 focus:border-crocus-yellow focus:outline-none focus:ring-2 focus:ring-crocus-yellow/20"
+          disabled={isRestoring}
+          className="w-full rounded-lg border border-gray-300 px-4 py-3 text-base placeholder:text-gray-400 focus:border-crocus-yellow focus:outline-none focus:ring-2 focus:ring-crocus-yellow/20 disabled:opacity-50"
         />
         <p className="mt-1 text-right text-sm text-gray-500">
           {title.length} / 100
@@ -107,11 +135,12 @@ export function RequestForm({ onSubmit, isSubmitting = false }: RequestFormProps
       <div>
         <textarea
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={(e) => updateDescription(e.target.value)}
           placeholder="Write a description..."
           rows={6}
           maxLength={5000}
-          className="w-full rounded-lg border border-gray-300 px-4 py-3 text-base placeholder:text-gray-400 focus:border-crocus-yellow focus:outline-none focus:ring-2 focus:ring-crocus-yellow/20"
+          disabled={isRestoring}
+          className="w-full rounded-lg border border-gray-300 px-4 py-3 text-base placeholder:text-gray-400 focus:border-crocus-yellow focus:outline-none focus:ring-2 focus:ring-crocus-yellow/20 disabled:opacity-50"
         />
         <p
           className={`mt-1 text-right text-sm ${
@@ -126,7 +155,7 @@ export function RequestForm({ onSubmit, isSubmitting = false }: RequestFormProps
       <div>
         <Combobox
           value={location}
-          onAction={setLocation}
+          onAction={updateLocation}
           options={[]} // TODO: Add location autocomplete
           placeholder="Location (optional)"
         />
@@ -174,7 +203,7 @@ export function RequestForm({ onSubmit, isSubmitting = false }: RequestFormProps
         </div>
         <Toggle
           isOn={paidOpportunity}
-          onToggle={() => setPaidOpportunity(!paidOpportunity)}
+          onToggle={() => updatePaidOpportunity(!paidOpportunity)}
         />
       </div>
 
@@ -195,7 +224,7 @@ export function RequestForm({ onSubmit, isSubmitting = false }: RequestFormProps
       </div>
 
       {/* Media */}
-      <MediaUploader media={media} onMediaChange={setMedia} />
+      <MediaUploader media={media} onMediaChange={updateMedia} />
 
       {/* Submit */}
       <div className="flex justify-end pt-4">
@@ -222,7 +251,7 @@ export function RequestForm({ onSubmit, isSubmitting = false }: RequestFormProps
 
       <UserTagger
         selectedUsers={taggedUsers}
-        onUsersChange={setTaggedUsers}
+        onUsersChange={updateTaggedUsers}
         isOpen={isUserTaggerOpen}
         onClose={() => setIsUserTaggerOpen(false)}
       />

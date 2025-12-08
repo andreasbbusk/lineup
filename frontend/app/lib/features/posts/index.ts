@@ -6,6 +6,7 @@ export * from "./api/posts";
 export * from "./hooks/use-upload";
 export * from "./hooks/use-create-post";
 export * from "./hooks/use-posts";
+export * from "./hooks/use-draft-auto-save";
 
 // Components
 export * from "./components/post-card";
