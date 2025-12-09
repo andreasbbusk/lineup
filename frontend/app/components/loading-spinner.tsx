@@ -16,7 +16,7 @@ export function LoadingSpinner({
       {variant === "dots" && <DotsSpinner size={size} />}
       {variant === "ring" && <RingSpinner size={size} />}
       {variant === "rays" && <RaysSpinner size={size} />}
-    </>
+    </div>
   );
 }
 
