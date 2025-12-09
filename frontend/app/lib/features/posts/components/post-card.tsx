@@ -77,7 +77,7 @@ export function PostCard({ post, ...props }: PostCardProps) {
 	const [isCommentOpen, setIsCommentOpen] = useState(false);
 
 	return type === "note" ? (
-		<article className="relative bg-white p-4 rounded-(--Corner-Radius-M---Corner-Radius,1.5625rem)">
+		<article className="relative bg-white p-4">
 			<Image
 				src="/icons/more.svg"
 				alt="More options"
@@ -86,9 +86,9 @@ export function PostCard({ post, ...props }: PostCardProps) {
 				className="absolute right-2 top-2"
 			/>
 			{/* Author Header */}
-			<div className="mb-3 px-2.5 flex items-center </article>gap-3">
+			<div className="mb-3 px-2.5 flex items-center gap-1.25">
 				<div className="flex flex-row items-center gap-1.25">
-					<div className="flex -space-x-2">
+					<div className="flex space-x-2">
 						<Link href={`/users/${author?.id}`}>
 							<Avatar
 								size="xs"
