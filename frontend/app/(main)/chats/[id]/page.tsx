@@ -109,6 +109,31 @@ export default function ChatPage({ params }: ChatPageProps) {
     chatApi.setTyping(id, isTyping);
   };
 
+  const handleMenuAction = (action: string) => {
+    switch (action) {
+      case "groupInfo":
+        // TODO: Open GroupInfoModal
+        console.log("Opening group info modal...");
+        break;
+      case "leaveGroup":
+        // TODO: Call leave group API
+        console.log("Leaving group...");
+        break;
+      case "profile":
+        // TODO: Navigate to user profile
+        console.log("Navigating to profile...");
+        break;
+      case "block":
+        // TODO: Block user
+        console.log("Blocking user...");
+        break;
+      case "report":
+        // TODO: Report user
+        console.log("Reporting user...");
+        break;
+    }
+  };
+
   // ============================================================================
   // Error State
   // ============================================================================
@@ -134,7 +159,10 @@ export default function ChatPage({ params }: ChatPageProps) {
         <ChatHeader
           conversationName={name}
           conversationAvatar={avatarUrl}
+          conversation={conversation}
+          currentUserId={user?.id}
           onBack={() => router.push("/chats")}
+          onMenuAction={handleMenuAction}
         />
 
         <MessageList
