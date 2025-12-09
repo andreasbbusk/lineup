@@ -24,6 +24,7 @@ type TagsProps = {
 		orange: "#5D4C43",
 	 */
 	color?: string;
+	className?: string;
 };
 
 function Tags(props: TagsProps) {
@@ -50,18 +51,14 @@ function Tags(props: TagsProps) {
 		<div
 			style={{ "--profile-theme": `${props.color}` } as CSSProperties}
 			className={` ${
-				props.hashTag === true ? "py-0.5 px-2 text-xs" : "px-[0.6875rem] py-2"
+				props.hashTag === true ? "py-1 px-2" : "px-2.75 py-2"
 			} inline-flex justify-center items-center rounded-[1.1875rem] border text-center font-medium leading-[100%] ${
 				isSelected === true
-					? "border-[var(--color-blackberry-harvest)] bg-[var(--color-blackberry-harvest)] text-[var(--color-white)]"
-					: "border-[var(--color-grey)] text-[var(--color-grey)]"
+					? "border-blackberry-harvest bg-blackberry-harvest text-white"
+					: "border-grey text-grey"
 			}
-			${
-				props.color
-					? "bg-[var(--profile-theme)] text-[var(--color-white)] border-[var(--profile-theme)]"
-					: ""
-			}
-			`}
+			${props.color ? "bg-(--profile-theme) text-white border-(--profile-theme)" : ""}
+			${props.className ?? ""}`}
 			onClick={handleClick}>
 			{props.hashTag && "#"}
 			{props.text}
