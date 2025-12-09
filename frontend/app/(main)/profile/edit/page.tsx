@@ -21,7 +21,7 @@ import {
 } from "@/app/modules/features/profiles";
 import { Button } from "@/app/modules/components/buttons";
 import { ErrorMessage } from "@/app/modules/components/error-message";
-import { useAppStore } from "@/app/modules/stores/app-store";
+import { useAppStore } from "@/app/modules/stores/Store";
 import { Tags } from "@/app/modules/components/tags";
 
 import { Divider } from "@/app/modules/features/profiles/components/edit/divider";

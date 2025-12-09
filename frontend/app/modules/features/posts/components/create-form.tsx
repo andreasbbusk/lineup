@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { Tabs, TabsContent } from "@/app/modules/components/tabs";
 import { NoteForm } from "./note-form";
 import { RequestForm } from "./request-form";
-import { useCreatePost } from "../hooks/use-create-post";
-import { useUpload } from "../hooks/use-upload";
+import { useCreatePost } from "../hooks/useCreatePost";
+import { useUpload } from "../hooks/useUpload";
 import type { CreatePostBody, UploadedMedia } from "../types";
 
 export function CreateForm() {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAppStore } from "@/app/modules/stores/app-store";
+import { useAppStore } from "@/app/modules/stores/Store";
 import { useUpdateProfile } from "../queries/useProfile";
 import type { ProfileUpdateRequest, LookingForType } from "../../types";
 

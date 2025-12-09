@@ -1,4 +1,4 @@
-import { apiClient, handleApiError } from "@/app/modules/api/api-client";
+import { apiClient, handleApiError } from "@/app/modules/api/apiClient";
 import { supabase } from "@/app/modules/supabase/client";
 import type { components } from "@/app/modules/types/api";
 import type {

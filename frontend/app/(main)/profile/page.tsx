@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppStore } from "@/app/modules/stores/app-store";
+import { useAppStore } from "@/app/modules/stores/Store";
 import { useRouter } from "next/navigation";
 import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
 import { useEffect } from "react";

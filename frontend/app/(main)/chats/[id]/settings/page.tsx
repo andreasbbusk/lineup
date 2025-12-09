@@ -7,7 +7,7 @@ import {
   useConversation,
   useLeaveConversation,
 } from "@/app/modules/features/chats";
-import { useAppStore } from "@/app/modules/stores/app-store";
+import { useAppStore } from "@/app/modules/stores/Store";
 import { GroupInfoSection } from "@/app/modules/features/chats/components/settings-interface/group-info-section";
 import { MembersSection } from "@/app/modules/features/chats/components/settings-interface/members-section";
 import { AddMembersSection } from "@/app/modules/features/chats/components/settings-interface/add-members-section";

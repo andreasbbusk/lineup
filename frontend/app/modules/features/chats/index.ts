@@ -47,11 +47,11 @@ export { chatKeys } from "./queryKeys";
 // ============================================================================
 
 export { useChatMessages } from "./hooks/query/messages";
+export { useConnectedUsers } from "@/app/modules/hooks/queries";
 export {
+  useConversation,
   useConversations,
   useUnreadCount,
-  useConversation,
-  useConnections,
 } from "./hooks/query/conversations";
 export { useSendMessage } from "./hooks/query/messageMutations";
 export {

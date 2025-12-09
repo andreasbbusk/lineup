@@ -24,7 +24,7 @@ import {
   chatApi,
   getConversationDisplayInfo,
 } from "@/app/modules/features/chats";
-import { useAppStore } from "@/app/modules/stores/app-store";
+import { useAppStore } from "@/app/modules/stores/Store";
 
 interface ChatPageProps {
   params: Promise<{

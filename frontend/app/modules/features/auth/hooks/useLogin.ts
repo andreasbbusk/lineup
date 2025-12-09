@@ -2,8 +2,8 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { signInWithAuth } from "../api";
-import { useAppStore } from "../../../stores/app-store";
-import { ApiError } from "../../../api/api-client";
+import { useAppStore } from "../../../stores/Store";
+import { ApiError } from "../../../api/apiClient";
 
 export function useLogin() {
   const { initializeAuth } = useAppStore();

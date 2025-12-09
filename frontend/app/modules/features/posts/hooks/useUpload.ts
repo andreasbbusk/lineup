@@ -6,7 +6,7 @@ import { supabase } from "@/app/modules/supabase/client";
 import {
   compressMedia,
   shouldCompress,
-} from "@/app/modules/utils/media-compression";
+} from "@/app/modules/utils/mediaCompression";
 import type { UploadedMedia, SignedUrlRequest } from "../types";
 
 /**

@@ -1,5 +1,5 @@
 import { supabase } from "../../supabase/client";
-import { ApiError, apiClient, handleApiError } from "../../api/api-client";
+import { ApiError, apiClient, handleApiError } from "../../api/apiClient";
 
 // Local types (Supabase-specific, not in backend)
 export interface SignupWithAuthRequest {

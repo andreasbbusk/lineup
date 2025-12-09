@@ -1,4 +1,4 @@
-import { apiClient, handleApiError } from "../../api/api-client";
+import { apiClient, handleApiError } from "../../api/apiClient";
 import type {
   UserProfile,
   ProfileUpdateRequest,
@@ -8,7 +8,7 @@ import type {
   UserFaqResponse,
   FaqQuestionResponse,
   UserLookingForResponse,
-  Connection
+  Connection,
 } from "./types";
 
 /**
@@ -262,12 +262,17 @@ export async function removeConnection(connectionId: string): Promise<void> {
  * Get user's collaborations by user ID
  * Public endpoint - returns all collaborations for a user
  */
-export async function getUserCollaborations(userId: string): Promise<CollaborationResponse[]> {
-  const { data, error, response } = await apiClient.GET("/collaborations/{userId}", {
-    params: {
-      path: { userId },
-    },
-  });
+export async function getUserCollaborations(
+  userId: string
+): Promise<CollaborationResponse[]> {
+  const { data, error, response } = await apiClient.GET(
+    "/collaborations/{userId}",
+    {
+      params: {
+        path: { userId },
+      },
+    }
+  );
 
   if (error) {
     handleApiError(error, response);
@@ -280,12 +285,17 @@ export async function getUserCollaborations(userId: string): Promise<Collaborati
  * Delete a collaboration
  * Requires authentication
  */
-export async function deleteCollaboration(collaborationId: string): Promise<void> {
-  const { error, response } = await apiClient.DELETE("/collaborations/{collaborationId}", {
-    params: {
-      path: { collaborationId },
-    },
-  });
+export async function deleteCollaboration(
+  collaborationId: string
+): Promise<void> {
+  const { error, response } = await apiClient.DELETE(
+    "/collaborations/{collaborationId}",
+    {
+      params: {
+        path: { collaborationId },
+      },
+    }
+  );
 
   if (error) {
     handleApiError(error, response);
@@ -296,12 +306,17 @@ export async function deleteCollaboration(collaborationId: string): Promise<void
  * Get user's reviews by username
  * Public endpoint - returns all reviews for a user
  */
-export async function getUserReviews(username: string): Promise<ReviewResponse[]> {
-  const { data, error, response } = await apiClient.GET("/users/{username}/reviews", {
-    params: {
-      path: { username },
-    },
-  });
+export async function getUserReviews(
+  username: string
+): Promise<ReviewResponse[]> {
+  const { data, error, response } = await apiClient.GET(
+    "/users/{username}/reviews",
+    {
+      params: {
+        path: { username },
+      },
+    }
+  );
 
   if (error) {
     handleApiError(error, response);
@@ -314,12 +329,17 @@ export async function getUserReviews(username: string): Promise<ReviewResponse[]
  * Get user's social media links by username
  * Public endpoint - returns all social media links for a user
  */
-export async function getUserSocialMedia(username: string): Promise<UserSocialMediaResponse> {
-  const { data, error, response } = await apiClient.GET("/users/{username}/social-media", {
-    params: {
-      path: { username },
-    },
-  });
+export async function getUserSocialMedia(
+  username: string
+): Promise<UserSocialMediaResponse> {
+  const { data, error, response } = await apiClient.GET(
+    "/users/{username}/social-media",
+    {
+      params: {
+        path: { username },
+      },
+    }
+  );
 
   if (error) {
     handleApiError(error, response);
@@ -334,14 +354,17 @@ export async function getUserSocialMedia(username: string): Promise<UserSocialMe
  */
 export async function updateUserSocialMedia(
   username: string,
-  updates: Partial<Omit<UserSocialMediaResponse, 'userId'>>
+  updates: Partial<Omit<UserSocialMediaResponse, "userId">>
 ): Promise<UserSocialMediaResponse> {
-  const { data, error, response } = await apiClient.PUT("/users/{username}/social-media", {
-    params: {
-      path: { username },
-    },
-    body: updates,
-  });
+  const { data, error, response } = await apiClient.PUT(
+    "/users/{username}/social-media",
+    {
+      params: {
+        path: { username },
+      },
+      body: updates,
+    }
+  );
 
   if (error) {
     handleApiError(error, response);
@@ -359,11 +382,14 @@ export async function updateUserSocialMedia(
  * Public endpoint - returns all FAQ answers with questions for a user
  */
 export async function getUserFaq(username: string): Promise<UserFaqResponse[]> {
-  const { data, error, response } = await apiClient.GET("/users/{username}/faq", {
-    params: {
-      path: { username },
-    },
-  });
+  const { data, error, response } = await apiClient.GET(
+    "/users/{username}/faq",
+    {
+      params: {
+        path: { username },
+      },
+    }
+  );
 
   if (error) {
     handleApiError(error, response);
@@ -380,12 +406,15 @@ export async function upsertUserFaq(
   username: string,
   faqData: { questionId: string; answer: string }
 ): Promise<UserFaqResponse> {
-  const { data, error, response } = await apiClient.POST("/users/{username}/faq", {
-    params: {
-      path: { username },
-    },
-    body: faqData,
-  });
+  const { data, error, response } = await apiClient.POST(
+    "/users/{username}/faq",
+    {
+      params: {
+        path: { username },
+      },
+      body: faqData,
+    }
+  );
 
   if (error) {
     handleApiError(error, response);
@@ -402,12 +431,18 @@ export async function upsertUserFaq(
  * Delete user's FAQ answer
  * Requires authentication
  */
-export async function deleteUserFaq(username: string, questionId: string): Promise<void> {
-  const { error, response } = await apiClient.DELETE("/users/{username}/faq/{questionId}", {
-    params: {
-      path: { username, questionId },
-    },
-  });
+export async function deleteUserFaq(
+  username: string,
+  questionId: string
+): Promise<void> {
+  const { error, response } = await apiClient.DELETE(
+    "/users/{username}/faq/{questionId}",
+    {
+      params: {
+        path: { username, questionId },
+      },
+    }
+  );
 
   if (error) {
     handleApiError(error, response);
@@ -418,12 +453,17 @@ export async function deleteUserFaq(username: string, questionId: string): Promi
  * Get user's looking for preferences by username
  * Public endpoint - returns what the user is looking for
  */
-export async function getUserLookingFor(username: string): Promise<UserLookingForResponse[]> {
-  const { data, error, response } = await apiClient.GET("/users/{username}/looking-for", {
-    params: {
-      path: { username },
-    },
-  });
+export async function getUserLookingFor(
+  username: string
+): Promise<UserLookingForResponse[]> {
+  const { data, error, response } = await apiClient.GET(
+    "/users/{username}/looking-for",
+    {
+      params: {
+        path: { username },
+      },
+    }
+  );
 
   if (error) {
     handleApiError(error, response);

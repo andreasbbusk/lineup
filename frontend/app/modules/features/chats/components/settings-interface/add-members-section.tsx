@@ -2,10 +2,8 @@
 
 import { useState } from "react";
 import { UserPlus } from "lucide-react";
-import {
-  useConnections,
-  UserSearchList,
-} from "@/app/modules/features/chats";
+import { UserSearchList } from "@/app/modules/features/chats";
+import { useConnectedUsers } from "@/app/modules/hooks/queries";
 import { useUserSearch } from "@/app/modules/hooks/queries";
 import { useAddParticipants } from "../../hooks/query/conversationMutations";
 import type { components } from "@/app/modules/types/api";
@@ -27,7 +25,7 @@ export function AddMembersSection({
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Fetch connections for suggestions (only when search is empty)
-  const { data: connections, isLoading: connectionsLoading } = useConnections();
+  const { data: connections, isLoading: connectionsLoading } = useConnectedUsers();
 
   // Search users (only when there's a query)
   const { data: searchResults, isLoading: searchLoading } = useUserSearch(

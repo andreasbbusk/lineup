@@ -6,7 +6,7 @@ import { Button } from "@/app/modules/components/buttons";
 import { MediaUploader } from "./media-uploader";
 // import { TagSelector } from "./tag-selector"; // Disabled - metadata not ready
 import { UserTagger } from "./user-tagger";
-import { useNoteDraftAutoSave } from "../hooks/use-draft-auto-save";
+import { useNoteDraftAutoSave } from "../hooks/useDraftAutoSave";
 import type { UploadedMedia } from "../types";
 
 interface NoteFormProps {

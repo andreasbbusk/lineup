@@ -1,4 +1,4 @@
-import { apiClient, handleApiError } from "@/app/modules/api/api-client";
+import { apiClient, handleApiError } from "@/app/modules/api/apiClient";
 
 /**
  * Search API

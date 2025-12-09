@@ -1,8 +1,8 @@
 import createClient from "openapi-fetch";
 import type { paths } from "@/app/modules/types/api";
 import { supabase } from "@/app/modules/supabase/client";
-import { useAppStore } from "@/app/modules/stores/app-store";
-import { ErrorResponse } from "@/app/modules/types/api-types";
+import { useAppStore } from "@/app/modules/stores/Store";
+import { ErrorResponse } from "@/app/modules/types/apiTypes";
 
 // Create the typed client
 export const apiClient = createClient<paths>({

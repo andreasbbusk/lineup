@@ -7,7 +7,7 @@ import { MediaUploader } from "./media-uploader";
 // import { TagSelector } from "./tag-selector"; // Disabled - metadata not ready
 import { UserTagger } from "./user-tagger";
 import { Combobox } from "@/app/modules/components/combobox";
-import { useRequestDraftAutoSave } from "../hooks/use-draft-auto-save";
+import { useRequestDraftAutoSave } from "../hooks/useDraftAutoSave";
 import type { UploadedMedia } from "../types";
 
 interface RequestFormProps {

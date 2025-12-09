@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppStore } from "@/app/modules/stores/app-store";
+import { useAppStore } from "@/app/modules/stores/Store";
 import { useOnboardingNavigation } from "../../hooks/onboarding/useOnboardingNavigation";
 import { Button } from "@/app/modules/components/buttons";
 import { CheckboxCircle } from "@/app/modules/components/checkbox-circle";

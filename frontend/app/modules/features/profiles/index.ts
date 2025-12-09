@@ -6,8 +6,8 @@ export {
 } from "./hooks/queries/useProfile";
 export { useCollaborations } from "./hooks/queries/useCollaborations";
 export {
-	useFavoriteArtists,
-	type Artist,
+  useFavoriteArtists,
+  type Artist,
 } from "./hooks/queries/useFavoriteArtists";
 export { useReviews } from "./hooks/queries/useReviews";
 export { useSocialMedia } from "./hooks/queries/useSocialMedia";
@@ -25,19 +25,22 @@ export { useOnboardingNavigation } from "./hooks/onboarding/useOnboardingNavigat
 export { useOnboardingSubmission } from "./hooks/onboarding/useOnboardingSubmission";
 
 // Hooks - connections
+export { useConnectionButton } from "./hooks/useConnectionButton";
+
 export {
-  useConnectionStatus,
-  getConnectionButtonState,
-  useConnectionButton,
   useSendConnection,
   useAcceptConnection,
   useRejectConnection,
   useCancelConnection,
   useRemoveConnection,
+} from "@/app/modules/hooks/mutations";
+
+export {
   useConnectionRequests,
   useMyConnections,
   useUserConnections,
-} from "./hooks/queries/useConnection";
+} from "@/app/modules/hooks/queries";
+
 export { ConnectionsModal } from "./components/connections/ConnectionsModal";
 
 // Onboarding Components

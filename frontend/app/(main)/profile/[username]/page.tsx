@@ -1,6 +1,6 @@
 "use client";
 import { use } from "react";
-import { useAppStore } from "@/app/modules/stores/app-store";
+import { useAppStore } from "@/app/modules/stores/Store";
 import { ProfileHeader } from "@/app/modules/features/profiles/components/profile-header";
 import { ProfileBody } from "@/app/modules/features/profiles/components/profile-body";
 import { useRouter } from "next/navigation";

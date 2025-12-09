@@ -1,5 +1,5 @@
 // lib/features/chats/api.ts
-import { apiClient, handleApiError } from "@/app/modules/api/api-client";
+import { apiClient, handleApiError } from "@/app/modules/api/apiClient";
 import type {
   CreateConversationDto,
   UpdateConversationDto,

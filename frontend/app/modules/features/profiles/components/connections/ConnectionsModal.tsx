@@ -6,15 +6,17 @@ import Link from "next/link";
 import { Button } from "@/app/modules/components/buttons";
 import GlassSurface from "@/app/modules/components/glass-surface";
 import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
-import { useAppStore } from "@/app/modules/stores/app-store";
+import { useAppStore } from "@/app/modules/stores/Store";
 import type { Connection } from "../../types";
 import {
   useAcceptConnection,
   useRejectConnection,
   useRemoveConnection,
+} from "@/app/modules/hooks/mutations";
+import {
   useMyConnections,
   useUserConnections,
-} from "@/app/modules/features/profiles/hooks/queries/useConnection";
+} from "@/app/modules/hooks/queries";
 import { useMyProfile } from "@/app/modules/features/profiles/hooks/queries/useProfile";
 
 interface ConnectionsModalProps {

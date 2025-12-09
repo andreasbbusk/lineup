@@ -1,4 +1,4 @@
-import { handleApiError } from "@/app/modules/api/api-client";
+import { handleApiError } from "@/app/modules/api/apiClient";
 import { supabase } from "@/app/modules/supabase/client";
 import type { SignedUrlResponse, SignedUrlRequest } from "../types";
 

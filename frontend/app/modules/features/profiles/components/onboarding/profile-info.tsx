@@ -5,7 +5,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { basicInfoSchema, type BasicInfoFormData } from "../../schemas";
 import { useOnboardingNavigation } from "../../hooks/onboarding/useOnboardingNavigation";
-import { useAppStore } from "@/app/modules/stores/app-store";
+import { useAppStore } from "@/app/modules/stores/Store";
 import { Button } from "@/app/modules/components/buttons";
 import { CustomSelect } from "@/app/modules/components/select";
 import { Combobox } from "@/app/modules/components/combobox";

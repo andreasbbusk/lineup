@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  useConnections,
   useCreateConversation,
   UserSearchList,
 } from "@/app/modules/features/chats";
+import { useConnectedUsers } from "@/app/modules/hooks/queries";
 import { useUserSearch } from "@/app/modules/hooks/queries";
 import type { components } from "@/app/modules/types/api";
 import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
@@ -22,7 +22,8 @@ export default function NewChatPage() {
   const [groupName, setGroupName] = useState("");
 
   // Fetch connections for suggestions (only when search is empty)
-  const { data: connections, isLoading: connectionsLoading } = useConnections();
+  const { data: connections, isLoading: connectionsLoading } =
+    useConnectedUsers();
 
   // Search users (only when there's a query)
   const { data: searchResults, isLoading: searchLoading } = useUserSearch(

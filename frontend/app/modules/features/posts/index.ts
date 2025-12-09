@@ -3,10 +3,10 @@ export * from "./api/upload";
 export * from "./api/posts";
 
 // Hooks
-export * from "./hooks/use-upload";
-export * from "./hooks/use-create-post";
-export * from "./hooks/use-posts";
-export * from "./hooks/use-draft-auto-save";
+export * from "./hooks/useUpload";
+export * from "./hooks/useCreatePost";
+export * from "./hooks/usePosts";
+export * from "./hooks/useDraftAutoSave";
 
 // Components
 export * from "./components/post-card";
@@ -19,4 +19,3 @@ export * from "./components/request-form";
 
 // Types
 export * from "./types";
-

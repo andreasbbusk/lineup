@@ -1,7 +1,7 @@
 import { useEffect, useCallback } from "react";
-import { useNoteDraftStore } from "../stores/note-draft-store";
-import { useRequestDraftStore } from "../stores/request-draft-store";
-import { storeMediaBlob, getMediaBlob } from "@/app/modules/utils/indexeddb";
+import { useNoteDraftStore } from "../stores/noteDraftStore";
+import { useRequestDraftStore } from "../stores/requestDraftStore";
+import { storeMediaBlob, getMediaBlob } from "@/app/modules/utils/indexedDb";
 import type { UploadedMedia } from "../types";
 
 /**

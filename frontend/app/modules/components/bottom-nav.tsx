@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import type { ComponentType, SVGProps } from "react";
 import { motion } from "framer-motion";
 import GlassSurface from "./glass-surface";
-import { cn } from "@/app/modules/utils";
+import { cn } from "@/app/modules/utils/twUtil";
 import HomeIcon from "../../../public/icons/home-icon";
 import ShopIcon from "../../../public/icons/shop-icon";
 import AddIcon from "../../../public/icons/add-icon";

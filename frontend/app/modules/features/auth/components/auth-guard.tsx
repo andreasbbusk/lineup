@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { useAppStore } from "@/app/modules/stores/app-store";
+import { useAppStore } from "@/app/modules/stores/Store";
 import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {

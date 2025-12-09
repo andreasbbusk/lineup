@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/app/modules/utils";
+import { cn } from "@/app/modules/utils/twUtil";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import * as React from "react";
 
