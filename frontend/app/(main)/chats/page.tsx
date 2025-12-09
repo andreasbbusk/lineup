@@ -7,8 +7,8 @@ import {
   ConversationList,
   useConversations,
   useConversationSubscription,
-} from "@/app/lib/features/chats";
-import { useAppStore } from "@/app/lib/stores/app-store";
+} from "@/app/modules/features/chats";
+import { useAppStore } from "@/app/modules/stores/app-store";
 
 export default function ChatsPage() {
   const router = useRouter();

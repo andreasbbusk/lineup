@@ -23,8 +23,8 @@ import {
   useMessageActionsStore,
   chatApi,
   getConversationDisplayInfo,
-} from "@/app/lib/features/chats";
-import { useAppStore } from "@/app/lib/stores/app-store";
+} from "@/app/modules/features/chats";
+import { useAppStore } from "@/app/modules/stores/app-store";
 
 interface ChatPageProps {
   params: Promise<{

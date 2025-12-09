@@ -1,6 +1,6 @@
 "use client";
 
-import { LoginForm } from "@/app/lib/features/auth";
+import { LoginForm } from "@/app/modules/features/auth";
 
 export default function Page() {
   return (

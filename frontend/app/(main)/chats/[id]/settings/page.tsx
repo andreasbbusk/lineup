@@ -6,11 +6,11 @@ import { ChevronLeft } from "lucide-react";
 import {
   useConversation,
   useLeaveConversation,
-} from "@/app/lib/features/chats";
-import { useAppStore } from "@/app/lib/stores/app-store";
-import { GroupInfoSection } from "@/app/lib/features/chats/components/settings-interface/group-info-section";
-import { MembersSection } from "@/app/lib/features/chats/components/settings-interface/members-section";
-import { AddMembersSection } from "@/app/lib/features/chats/components/settings-interface/add-members-section";
+} from "@/app/modules/features/chats";
+import { useAppStore } from "@/app/modules/stores/app-store";
+import { GroupInfoSection } from "@/app/modules/features/chats/components/settings-interface/group-info-section";
+import { MembersSection } from "@/app/modules/features/chats/components/settings-interface/members-section";
+import { AddMembersSection } from "@/app/modules/features/chats/components/settings-interface/add-members-section";
 
 interface GroupSettingsPageProps {
   params: Promise<{
