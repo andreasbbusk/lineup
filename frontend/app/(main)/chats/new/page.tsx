@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   useConnections,
-  useUserSearch,
   useCreateConversation,
   UserSearchList,
 } from "@/app/modules/features/chats";
+import { useUserSearch } from "@/app/modules/hooks/queries";
 import type { components } from "@/app/modules/types/api";
 import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
 import { ChevronLeft, ArrowRight } from "lucide-react";

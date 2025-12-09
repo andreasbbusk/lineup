@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { chatApi } from "../../api";
 import { chatKeys } from "../../queryKeys";
 import { STALE_TIME } from "../../constants";
-import { searchApi } from "@/app/modules/features/search";
+import { searchApi } from "@/app/modules/api/search-api";
 import type { components } from "@/app/modules/types/api";
 
 type UserSearchResult = components["schemas"]["UserSearchResult"];

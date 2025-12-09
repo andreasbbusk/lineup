@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { searchApi } from "../api";
+import { searchApi } from "@/app/modules/api/search-api";
 
 /**
  * Generic hook to search for users

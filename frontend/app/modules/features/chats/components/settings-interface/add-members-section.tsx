@@ -4,9 +4,9 @@ import { useState } from "react";
 import { UserPlus } from "lucide-react";
 import {
   useConnections,
-  useUserSearch,
   UserSearchList,
 } from "@/app/modules/features/chats";
+import { useUserSearch } from "@/app/modules/hooks/queries";
 import { useAddParticipants } from "../../hooks/query/conversationMutations";
 import type { components } from "@/app/modules/types/api";
 
