@@ -76,6 +76,8 @@ export {
 
 export { useMessageSubscription } from "./hooks/realtime/useMessageSubscription";
 export { useConversationSubscription } from "./hooks/realtime/useConversationSubscription";
+export { useTypingSubscription } from "./hooks/realtime/useTypingSubscription";
+export { useTypingStore } from "./stores/typingStore";
 
 // ============================================================================
 // Hooks - UI
@@ -98,6 +100,7 @@ export { ChatHeader } from "./components/message-interface/chat-header";
 export { MessageList } from "./components/message-interface/message-list";
 export { MessageBubble } from "./components/message-interface/message-bubble";
 export { MessageInput } from "./components/message-interface/message-input";
+export { TypingIndicator } from "./components/message-interface/typing-indicator";
 export { MessageActionsMenu } from "./components/message-interface/message-actions";
 export { EditModeBanner } from "./components/message-interface/edit-mode-banner";
 export { DeleteConfirmDialog } from "./components/message-interface/delete-confirm-dialog";

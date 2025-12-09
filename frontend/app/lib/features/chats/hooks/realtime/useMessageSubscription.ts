@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { MESSAGE_STATES } from "../../constants";
 import { chatKeys } from "../../queryKeys";
+import { useTypingStore } from "../../stores/typingStore";
 import {
   mapRealtimeMessage,
   type DbMessageRecord,
@@ -19,6 +20,7 @@ import {
  */
 export function useMessageSubscription(conversationId: string | null) {
   const queryClient = useQueryClient();
+  const setTyping = useTypingStore((state) => state.setTyping);
 
   useEffect(() => {
     if (!conversationId) return;
@@ -40,6 +42,9 @@ export function useMessageSubscription(conversationId: string | null) {
           const newMessage = mapRealtimeMessage(payload.new as DbMessageRecord);
 
           addMessageToCache(queryClient, conversationId, newMessage);
+
+          // If we receive a message from a user, stop showing them as typing
+          setTyping(conversationId, newMessage.senderId, false);
 
           queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
         }
@@ -99,5 +104,5 @@ export function useMessageSubscription(conversationId: string | null) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId, queryClient]);
+  }, [conversationId, queryClient, setTyping]);
 }
