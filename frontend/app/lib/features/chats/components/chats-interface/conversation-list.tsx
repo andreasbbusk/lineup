@@ -86,7 +86,9 @@ const renderContent = (
       <div className="flex flex-col items-center justify-center py-12 w-full">
         <p className="text-grey text-center font-medium">{emptyMsg}</p>
         <p className="text-sm text-grey text-center mt-2">
-          {isDirectChats ? "Start a conversation with someone!" : "Create or join a group!"}
+          {isDirectChats
+            ? "Start a conversation with someone!"
+            : "Create or join a group!"}
         </p>
       </div>
     );
@@ -125,25 +127,41 @@ export function ConversationList({
     );
 
   return (
-    <Tabs variant="chat" activeTab={activeTab} onTabChange={onTabChange}>
-      <TabsContent value="chats" className="pb-16 no-scrollbar">
-        {renderContent(
-          filterConversations(conversations?.direct, searchQuery, currentUserId),
-          isLoading,
-          "No direct chats yet",
-          currentUserId,
-          onConversationClick
-        )}
-      </TabsContent>
-      <TabsContent value="groups" className="pb-16 no-scrollbar">
-        {renderContent(
-          filterConversations(conversations?.groups, searchQuery, currentUserId),
-          isLoading,
-          "No group chats yet",
-          currentUserId,
-          onConversationClick
-        )}
-      </TabsContent>
-    </Tabs>
+    <div className="h-full [&>div]:flex [&>div]:flex-col [&>div]:h-full [&>div>ul]:shrink-0 [&>div>ul]:bg-white [&>div>ul]:will-change-auto [&>div>div]:flex-1 [&>div>div]:min-h-0 [&>div>div]:relative">
+      <Tabs variant="chat" activeTab={activeTab} onTabChange={onTabChange}>
+        <TabsContent
+          value="chats"
+          className="block! h-full! w-full! overflow-y-auto! overflow-x-hidden! bg-white! px-0! pt-0! gap-0! pb-16! no-scrollbar"
+        >
+          {renderContent(
+            filterConversations(
+              conversations?.direct,
+              searchQuery,
+              currentUserId
+            ),
+            isLoading,
+            "No direct chats yet",
+            currentUserId,
+            onConversationClick
+          )}
+        </TabsContent>
+        <TabsContent
+          value="groups"
+          className="block! h-full! w-full! overflow-y-auto! overflow-x-hidden! bg-white! px-0! pt-0! gap-0! pb-16! no-scrollbar"
+        >
+          {renderContent(
+            filterConversations(
+              conversations?.groups,
+              searchQuery,
+              currentUserId
+            ),
+            isLoading,
+            "No group chats yet",
+            currentUserId,
+            onConversationClick
+          )}
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }
