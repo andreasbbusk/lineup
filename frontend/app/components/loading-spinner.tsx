@@ -12,11 +12,11 @@ export function LoadingSpinner({
   variant = "rays",
 }: LoadingSpinnerProps) {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-white">
+    <>
       {variant === "dots" && <DotsSpinner size={size} />}
       {variant === "ring" && <RingSpinner size={size} />}
       {variant === "rays" && <RaysSpinner size={size} />}
-    </div>
+    </>
   );
 }
 
