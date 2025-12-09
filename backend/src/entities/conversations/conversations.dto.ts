@@ -36,3 +36,9 @@ export class UpdateConversationDto {
   @IsString()
   avatarUrl?: string | null;
 }
+
+export class AddParticipantsDto {
+  @IsArray()
+  @IsUUID(4, { each: true })
+  participantIds!: string[];
+}

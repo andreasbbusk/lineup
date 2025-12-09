@@ -2,15 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { use, useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef } from "react";
 import {
   ChatHeader,
   MessageList,
   MessageInput,
   TypingIndicator,
   EditModeBanner,
-  DeleteConfirmDialog,
-  GroupInfoModal,
+  ConfirmationDialog,
   useConversation,
   useChatMessages,
   useSendMessage,
@@ -20,6 +19,8 @@ import {
   useEditMessage,
   useMessageScroll,
   useLeaveConversation,
+  useDeleteMessage,
+  useMessageActionsStore,
   chatApi,
   getConversationDisplayInfo,
 } from "@/app/lib/features/chats";
@@ -35,7 +36,6 @@ export default function ChatPage({ params }: ChatPageProps) {
   const { id } = use(params);
   const router = useRouter();
   const user = useAppStore((state) => state.user);
-  const [isGroupInfoModalOpen, setIsGroupInfoModalOpen] = useState(false);
 
   // ============================================================================
   // Data Fetching
@@ -57,11 +57,16 @@ export default function ChatPage({ params }: ChatPageProps) {
 
   const { mutate: sendMessage } = useSendMessage(id, user?.id ?? "");
   const { mutate: editMessage } = useEditMessage(id);
+  const { mutate: deleteMessage, isPending: isDeletingMessage } =
+    useDeleteMessage(id);
   const { mutate: markAsRead } = useMarkAsRead();
   const { mutate: leaveConversation, isPending: isLeavingConversation } =
     useLeaveConversation();
+
   useMessageSubscription(id);
   useTypingSubscription(id);
+
+  const { activeMessageAction, clearAction } = useMessageActionsStore();
 
   // ============================================================================
   // Mark Messages as Read
@@ -124,10 +129,16 @@ export default function ChatPage({ params }: ChatPageProps) {
     });
   };
 
+  const handleDeleteMessage = () => {
+    if (activeMessageAction?.messageId) {
+      deleteMessage(activeMessageAction.messageId);
+    }
+  };
+
   const handleMenuAction = (action: string) => {
     switch (action) {
       case "groupInfo":
-        setIsGroupInfoModalOpen(true);
+        router.push(`/chats/${id}/settings`);
         break;
       case "leaveGroup":
         handleLeaveGroup();
@@ -208,12 +219,16 @@ export default function ChatPage({ params }: ChatPageProps) {
           />
         </div>
 
-        <DeleteConfirmDialog conversationId={id} />
-        <GroupInfoModal
-          conversation={conversation}
-          currentUserId={user?.id ?? ""}
-          open={isGroupInfoModalOpen}
-          onOpenChange={setIsGroupInfoModalOpen}
+        <ConfirmationDialog
+          open={activeMessageAction?.type === "delete"}
+          title="Delete message?"
+          description="Are you sure you want to delete this message?"
+          confirmText="Delete"
+          cancelText="Cancel"
+          onConfirm={handleDeleteMessage}
+          onCancel={clearAction}
+          isDestructive={true}
+          isLoading={isDeletingMessage}
         />
       </div>
     </main>

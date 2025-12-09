@@ -12,6 +12,9 @@ export type PaginatedMessages =
 // --- DTOs (from api.d.ts) ---
 export type CreateConversationDto =
   components["schemas"]["CreateConversationDto"];
+export type UpdateConversationDto =
+  components["schemas"]["UpdateConversationDto"];
+export type AddParticipantsDto = components["schemas"]["AddParticipantsDto"];
 export type SendMessageDto = components["schemas"]["SendMessageDto"];
 export type EditMessageDto = components["schemas"]["EditMessageDto"];
 export type MarkMessagesReadDto = components["schemas"]["MarkMessagesReadDto"];

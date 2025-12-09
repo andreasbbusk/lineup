@@ -122,6 +122,7 @@ const models: TsoaRoute.Models = {
     "ConversationType": {"dataType":"refAlias","type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["direct"]},{"dataType":"enum","enums":["group"]}],"validators":{}}},
     "CreateConversationDto": {"dataType":"refObject","properties":{"type":{"ref":"ConversationType","required":true},"name":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"participantIds":{"dataType":"array","array":{"dataType":"string"},"required":true}},"additionalProperties":false},
     "UpdateConversationDto": {"dataType":"refObject","properties":{"name":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]}},"additionalProperties":false},
+    "AddParticipantsDto": {"dataType":"refObject","properties":{"participantIds":{"dataType":"array","array":{"dataType":"string"},"required":true}},"additionalProperties":false},
     "ConnectionStatus": {"dataType":"refAlias","type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["pending"]},{"dataType":"enum","enums":["accepted"]},{"dataType":"enum","enums":["rejected"]}],"validators":{}}},
     "Connection": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"requesterId":{"dataType":"string","required":true},"recipientId":{"dataType":"string","required":true},"status":{"ref":"ConnectionStatus","required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"updatedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"requester":{"ref":"UserProfile"},"recipient":{"ref":"UserProfile"}},"additionalProperties":false},
     "CreateConnectionRequestDto": {"dataType":"refObject","properties":{"recipientId":{"dataType":"string","required":true}},"additionalProperties":false},
@@ -1368,6 +1369,72 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'deleteConversation',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsConversationsController_addParticipants: Record<string, TsoaRoute.ParameterSchema> = {
+                conversationId: {"in":"path","name":"conversationId","required":true,"dataType":"string"},
+                body: {"in":"body","name":"body","required":true,"ref":"AddParticipantsDto"},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+        };
+        app.post('/conversations/:conversationId/participants',
+            authenticateMiddleware([[{"bearerAuth":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(ConversationsController)),
+            ...(fetchMiddlewares<RequestHandler>(ConversationsController.prototype.addParticipants)),
+
+            async function ConversationsController_addParticipants(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsConversationsController_addParticipants, request, response });
+
+                const controller = new ConversationsController();
+
+              await templateService.apiHandler({
+                methodName: 'addParticipants',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsConversationsController_removeParticipant: Record<string, TsoaRoute.ParameterSchema> = {
+                conversationId: {"in":"path","name":"conversationId","required":true,"dataType":"string"},
+                userId: {"in":"path","name":"userId","required":true,"dataType":"string"},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+        };
+        app.delete('/conversations/:conversationId/participants/:userId',
+            authenticateMiddleware([[{"bearerAuth":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(ConversationsController)),
+            ...(fetchMiddlewares<RequestHandler>(ConversationsController.prototype.removeParticipant)),
+
+            async function ConversationsController_removeParticipant(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsConversationsController_removeParticipant, request, response });
+
+                const controller = new ConversationsController();
+
+              await templateService.apiHandler({
+                methodName: 'removeParticipant',
                 controller,
                 response,
                 next,

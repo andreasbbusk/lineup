@@ -2,6 +2,8 @@
 import { apiClient, handleApiError } from "@/app/lib/api/api-client";
 import type {
   CreateConversationDto,
+  UpdateConversationDto,
+  AddParticipantsDto,
   SendMessageDto,
   EditMessageDto,
 } from "./types";
@@ -54,6 +56,46 @@ export const chatApi = {
       "/conversations/{conversationId}",
       {
         params: { path: { conversationId } },
+      }
+    );
+
+    if (error) return handleApiError(error, response);
+  },
+
+  updateConversation: async (
+    conversationId: string,
+    body: UpdateConversationDto
+  ) => {
+    const { data, error, response } = await apiClient.PUT(
+      "/conversations/{conversationId}",
+      {
+        params: { path: { conversationId } },
+        body,
+      }
+    );
+
+    if (error) return handleApiError(error, response);
+    return data;
+  },
+
+  addParticipants: async (conversationId: string, body: AddParticipantsDto) => {
+    const { data, error, response } = await apiClient.POST(
+      "/conversations/{conversationId}/participants",
+      {
+        params: { path: { conversationId } },
+        body,
+      }
+    );
+
+    if (error) return handleApiError(error, response);
+    return data;
+  },
+
+  removeParticipant: async (conversationId: string, userId: string) => {
+    const { error, response } = await apiClient.DELETE(
+      "/conversations/{conversationId}/participants/{userId}",
+      {
+        params: { path: { conversationId, userId } },
       }
     );
 
