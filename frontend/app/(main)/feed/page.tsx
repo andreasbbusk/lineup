@@ -3,6 +3,7 @@
 import { LoadingSpinner } from "@/app/components/loading-spinner";
 import { usePosts } from "@/app/lib/features/posts";
 import { PostCard } from "@/app/lib/features/posts/components/post-card";
+import { RequestCarousel } from "@/app/lib/features/posts/components/request-carousel";
 
 export default function FeedPage() {
 	const { data, isLoading, error } = usePosts({ limit: 20, type: "note" });
@@ -29,12 +30,12 @@ export default function FeedPage() {
 	const posts = (data?.data || []).filter((post) => post.type === "note");
 
 	return (
-		<main className="space-y-4">
+		<main className="max-w-[100vw]">
 			<div>Stories section</div>
-			<div>Collaborations carousel</div>
+			<RequestCarousel />
 
 			{posts.length > 0 ? (
-				<div className="">
+				<div>
 					{posts.map((post) => (
 						<PostCard key={post.id} post={post} />
 					))}
