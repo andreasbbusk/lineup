@@ -1,10 +1,10 @@
 "use client";
 import { use } from "react";
-import { useAppStore } from "@/app/lib/stores/app-store";
-import { ProfileHeader } from "@/app/lib/features/profiles/components/profile-header";
-import { ProfileBody } from "@/app/lib/features/profiles/components/profile-body";
+import { useAppStore } from "@/app/modules/stores/Store";
+import { ProfileHeader } from "@/app/modules/features/profiles/components/profile-header";
+import { ProfileBody } from "@/app/modules/features/profiles/components/profile-body";
 import { useRouter } from "next/navigation";
-import { LoadingSpinner } from "@/app/components/loading-spinner";
+import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
 import {
   useProfile,
   useCollaborations,
@@ -15,7 +15,7 @@ import {
   useConnectionRequests,
   useMyConnections,
   useUserConnections,
-} from "@/app/lib/features/profiles";
+} from "@/app/modules/features/profiles";
 
 interface PublicProfilePageProps {
   params: Promise<{

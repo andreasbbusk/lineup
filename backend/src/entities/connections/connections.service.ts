@@ -358,15 +358,31 @@ export class ConnectionsService {
       });
     }
 
+    // Profile fields to select for connection requests
+    const profileSelect = `
+      *,
+      requester:profiles!connection_requests_requester_id_fkey(
+        id, username, first_name, last_name, avatar_url, bio, location,
+        user_type, theme_color, spotify_playlist_url, onboarding_completed,
+        created_at, updated_at
+      ),
+      recipient:profiles!connection_requests_recipient_id_fkey(
+        id, username, first_name, last_name, avatar_url, bio, location,
+        user_type, theme_color, spotify_playlist_url, onboarding_completed,
+        created_at, updated_at
+      )
+    `;
+
     // Check if connection request already exists (in either direction)
     const { data: existingRequest } = await authedSupabase
       .from("connection_requests")
-      .select("id, status")
+      .select("id, status, requester_id")
       .or(
         `and(requester_id.eq.${userId},recipient_id.eq.${data.recipientId}),and(requester_id.eq.${data.recipientId},recipient_id.eq.${userId})`
       )
       .single();
 
+    // Handle existing requests
     if (existingRequest) {
       if (existingRequest.status === "accepted") {
         throw createHttpError({
@@ -375,58 +391,49 @@ export class ConnectionsService {
           code: "CONFLICT",
         });
       }
-      throw createHttpError({
-        message: "Connection request already exists",
-        statusCode: 409,
-        code: "CONFLICT",
-      });
+      if (existingRequest.status === "pending") {
+        throw createHttpError({
+          message: "Connection request already exists",
+          statusCode: 409,
+          code: "CONFLICT",
+        });
+      }
+      // If rejected and current user was original requester, update to pending
+      if (existingRequest.requester_id !== userId) {
+        throw createHttpError({
+          message:
+            "A previous connection request exists. The other user must send a new request.",
+          statusCode: 409,
+          code: "CONFLICT",
+        });
+      }
+
+      const { data: updatedRequest, error: updateError } = await authedSupabase
+        .from("connection_requests")
+        .update({ status: "pending" })
+        .eq("id", existingRequest.id)
+        .select(profileSelect)
+        .single();
+
+      if (updateError || !updatedRequest) {
+        throw createHttpError({
+          message: `Failed to resend connection request: ${updateError?.message}`,
+          statusCode: 500,
+          code: "DATABASE_ERROR",
+        });
+      }
+      return mapConnectionRequestToResponse(updatedRequest);
     }
 
-    // Create the connection request
-    const requestInsert: ConnectionRequestInsert = {
-      requester_id: userId,
-      recipient_id: data.recipientId,
-      status: "pending",
-    };
-
+    // Create new connection request
     const { data: request, error } = await authedSupabase
       .from("connection_requests")
-      .insert(requestInsert)
-      .select(
-        `
-        *,
-        requester:profiles!connection_requests_requester_id_fkey(
-          id,
-          username,
-          first_name,
-          last_name,
-          avatar_url,
-          bio,
-          location,
-          user_type,
-          theme_color,
-          spotify_playlist_url,
-          onboarding_completed,
-          created_at,
-          updated_at
-        ),
-        recipient:profiles!connection_requests_recipient_id_fkey(
-          id,
-          username,
-          first_name,
-          last_name,
-          avatar_url,
-          bio,
-          location,
-          user_type,
-          theme_color,
-          spotify_playlist_url,
-          onboarding_completed,
-          created_at,
-          updated_at
-        )
-      `
-      )
+      .insert({
+        requester_id: userId,
+        recipient_id: data.recipientId,
+        status: "pending",
+      })
+      .select(profileSelect)
       .single();
 
     if (error || !request) {

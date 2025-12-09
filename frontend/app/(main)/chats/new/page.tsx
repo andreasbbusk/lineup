@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  useConnections,
-  useUserSearch,
   useCreateConversation,
   UserSearchList,
-} from "@/app/lib/features/chats";
-import type { components } from "@/app/lib/types/api";
-import { LoadingSpinner } from "@/app/components/loading-spinner";
+} from "@/app/modules/features/chats";
+import { useConnectedUsers } from "@/app/modules/hooks/queries";
+import { useUserSearch } from "@/app/modules/hooks/queries";
+import type { components } from "@/app/modules/types/api";
+import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
 import { ChevronLeft, ArrowRight } from "lucide-react";
 
 type UserSearchResult = components["schemas"]["UserSearchResult"];
@@ -22,7 +22,8 @@ export default function NewChatPage() {
   const [groupName, setGroupName] = useState("");
 
   // Fetch connections for suggestions (only when search is empty)
-  const { data: connections, isLoading: connectionsLoading } = useConnections();
+  const { data: connections, isLoading: connectionsLoading } =
+    useConnectedUsers();
 
   // Search users (only when there's a query)
   const { data: searchResults, isLoading: searchLoading } = useUserSearch(
@@ -204,7 +205,9 @@ export default function NewChatPage() {
           {/* Action Button */}
           <button
             onClick={handleContinue}
-            disabled={isCreating || (selectedUserIds.length > 1 && !groupName.trim())}
+            disabled={
+              isCreating || (selectedUserIds.length > 1 && !groupName.trim())
+            }
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm rounded-full bg-crocus-yellow text-black font-semibold hover:bg-crocus-yellow/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span>

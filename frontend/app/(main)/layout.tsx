@@ -3,8 +3,8 @@
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
-import BottomNav from "@/app/components/bottom-nav";
-import Header from "@/app/components/header";
+import BottomNav from "@/app/modules/components/bottom-nav";
+import Header from "@/app/modules/components/header";
 
 interface MainLayoutProps {
   children: ReactNode;
