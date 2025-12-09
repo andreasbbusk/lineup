@@ -7,12 +7,14 @@ import {
   ChatHeader,
   MessageList,
   MessageInput,
+  TypingIndicator,
   EditModeBanner,
   DeleteConfirmDialog,
   useConversation,
   useChatMessages,
   useSendMessage,
   useMessageSubscription,
+  useTypingSubscription,
   useMarkAsRead,
   useEditMessage,
   useMessageScroll,
@@ -54,6 +56,7 @@ export default function ChatPage({ params }: ChatPageProps) {
   const { mutate: editMessage } = useEditMessage(id);
   const { mutate: markAsRead } = useMarkAsRead();
   useMessageSubscription(id);
+  useTypingSubscription(id);
 
   // ============================================================================
   // Mark Messages as Read
@@ -143,7 +146,15 @@ export default function ChatPage({ params }: ChatPageProps) {
           messagesContainerRef={messagesContainerRef}
           messagesEndRef={messagesEndRef}
           onScroll={handleScroll}
-        />
+        >
+          {conversation && (
+            <TypingIndicator
+              conversationId={id}
+              currentUserId={user?.id ?? ""}
+              participants={conversation.participants ?? []}
+            />
+          )}
+        </MessageList>
 
         <div className="bg-white">
           <EditModeBanner />

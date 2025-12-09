@@ -4,6 +4,7 @@ import { getMessageGroupingInfo } from "../../utils/messageGrouping";
 import { Message } from "../../types";
 import { MessageBubble } from "./message-bubble";
 import { MessageCircle } from "lucide-react";
+import { ReactNode } from "react";
 
 type MessageListProps = {
   messages: Message[];
@@ -14,6 +15,7 @@ type MessageListProps = {
   messagesContainerRef: React.RefObject<HTMLDivElement | null>;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
   onScroll: () => void;
+  children?: ReactNode;
 };
 
 export function TimestampDivider({ timestamp }: { timestamp: string }) {
@@ -67,6 +69,7 @@ export function MessageList({
   messagesContainerRef,
   messagesEndRef,
   onScroll,
+  children,
 }: MessageListProps) {
   return (
     <div
@@ -119,6 +122,7 @@ export function MessageList({
               </div>
             );
           })}
+          {children}
           <div ref={messagesEndRef} />
         </>
       )}

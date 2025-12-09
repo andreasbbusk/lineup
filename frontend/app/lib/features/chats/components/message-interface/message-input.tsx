@@ -36,13 +36,16 @@ export function MessageInput({
   const { activeMessageAction, clearAction } = useMessageActionsStore();
   const isEditing = activeMessageAction?.type === "edit";
 
+  // Sync content when entering/exiting edit mode
   useEffect(() => {
-    setContent(
-      isEditing && activeMessageAction.originalContent
-        ? activeMessageAction.originalContent
-        : ""
-    );
-  }, [isEditing, activeMessageAction]);
+    if (isEditing && activeMessageAction?.originalContent) {
+      setContent(activeMessageAction.originalContent);
+    } else if (!isEditing) {
+      setContent("");
+    }
+    // We only want to run this when the *mode* changes, not on every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditing, activeMessageAction?.messageId]);
 
   const updateTyping = (typing: boolean) => {
     if (typing !== isTyping) {
@@ -67,14 +70,28 @@ export function MessageInput({
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setContent(e.target.value);
+    const newValue = e.target.value;
+    setContent(newValue);
+
     if (!isEditing) {
       clearTimeout(timeout.current);
-      updateTyping(true);
-      timeout.current = setTimeout(
-        () => updateTyping(false),
-        TYPING_INDICATOR_TIMEOUT_MS
-      );
+
+      if (newValue.trim().length > 0) {
+        updateTyping(true);
+        timeout.current = setTimeout(
+          () => updateTyping(false),
+          TYPING_INDICATOR_TIMEOUT_MS
+        );
+      } else {
+        updateTyping(false);
+      }
+    }
+  };
+
+  const handleBlur = () => {
+    if (!isEditing && isTyping) {
+      clearTimeout(timeout.current);
+      updateTyping(false);
     }
   };
 
@@ -123,6 +140,7 @@ export function MessageInput({
         value={content}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
         placeholder={isEditing ? "Edit message..." : "Aa"}
         disabled={isDisabled}
       />
