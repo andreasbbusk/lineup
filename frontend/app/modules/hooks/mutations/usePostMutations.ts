@@ -1,18 +1,18 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createPost } from "../api/posts";
-import type { CreatePostBody, PostResponse } from "../types";
+import { createPost } from "@/app/modules/api/postsApi";
+import type { CreatePostBody, PostResponse } from "@/app/modules/api/postsApi";
 
 /**
  * Hook for creating a new post
- * 
+ *
  * Handles post creation with automatic cache invalidation and optimistic updates.
- * 
+ *
  * @example
  * ```tsx
  * const { mutate: createPost, isPending } = useCreatePost();
- * 
+ *
  * createPost({
  *   type: "note",
  *   title: "My Post",
@@ -32,19 +32,24 @@ export function useCreatePost(options?: {
       return createPost(postData);
     },
     onSuccess: (newPost) => {
+      // Optimistic update: manually set the data for this post
+      // This makes it available immediately without a refetch
+      queryClient.setQueryData(["posts", newPost.id], newPost);
+
       // Invalidate posts queries to refetch with new post
-      queryClient.invalidateQueries({
+      // Using void to ignore the promise returned by invalidateQueries
+      void queryClient.invalidateQueries({
         queryKey: ["posts"],
       });
 
-      // Invalidate feed queries
-      queryClient.invalidateQueries({
+      // Invalidate feed queries if they exist
+      void queryClient.invalidateQueries({
         queryKey: ["feed"],
       });
 
       // Invalidate author's posts if we have authorId
       if (newPost.authorId) {
-        queryClient.invalidateQueries({
+        void queryClient.invalidateQueries({
           queryKey: ["posts", "author", newPost.authorId],
         });
       }
@@ -57,4 +62,3 @@ export function useCreatePost(options?: {
     },
   });
 }
-

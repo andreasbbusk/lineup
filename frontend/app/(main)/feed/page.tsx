@@ -1,7 +1,7 @@
 "use client";
 
 import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
-import { usePosts } from "@/app/modules/features/posts";
+import { usePosts } from "@/app/modules/hooks/queries";
 import { PostCard } from "@/app/modules/features/posts/components/post-card";
 import { RequestCarousel } from "@/app/modules/features/posts/components/request-carousel";
 import { StoriesCarousel } from "@/app/modules/features/posts/components/stories-carousel";

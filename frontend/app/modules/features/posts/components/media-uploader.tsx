@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useUpload } from "../hooks/useUpload";
+import { useUpload } from "@/app/modules/hooks/useUpload";
 import { MediaPreview } from "./media-preview";
 import { Button } from "@/app/modules/components/buttons";
 import type { UploadedMedia } from "../types";

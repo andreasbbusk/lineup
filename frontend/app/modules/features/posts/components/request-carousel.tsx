@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/app/modules/components/buttons";
 import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
-import { usePosts } from "../hooks/usePosts";
+import { usePosts } from "@/app/modules/hooks/queries";
 import { PostCard } from "./post-card";
 
 function RequestCarousel() {

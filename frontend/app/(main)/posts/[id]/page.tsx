@@ -1,6 +1,6 @@
 "use client";
 
-import { usePost } from "@/app/modules/features/posts";
+import { usePost } from "@/app/modules/hooks/queries";
 import { PostDetail } from "@/app/modules/features/posts/components/post-detail";
 
 interface PostDetailsPageProps {

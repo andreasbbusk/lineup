@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { getSignedUploadUrl } from "../api/upload";
+import { getSignedUploadUrl } from "@/app/modules/api/uploadApi";
 import { supabase } from "@/app/modules/supabase/client";
 import {
   compressMedia,
   shouldCompress,
 } from "@/app/modules/utils/mediaCompression";
-import type { UploadedMedia, SignedUrlRequest } from "../types";
+import type {
+  SignedUrlRequest,
+  UploadedMedia,
+} from "@/app/modules/api/uploadApi";
 
 /**
  * Hook for handling file selection and upload
