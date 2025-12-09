@@ -11,6 +11,7 @@ export const getConversationDisplayInfo = (
     return {
       name: conversation.name,
       avatarUrl: conversation.avatarUrl,
+      otherUser: null,
     };
   }
 
@@ -25,5 +26,6 @@ export const getConversationDisplayInfo = (
   return {
     name: `${otherUser.firstName} ${otherUser.lastName}`,
     avatarUrl: otherUser.avatarUrl,
+    otherUser,
   };
 };
