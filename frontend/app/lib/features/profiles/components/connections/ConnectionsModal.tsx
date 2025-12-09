@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/app/components/buttons";
@@ -36,6 +37,10 @@ export function ConnectionsModal({
 	userId,
 	username,
 }: ConnectionsModalProps) {
+	const [acceptingId, setAcceptingId] = useState<string | null>(null);
+	const [rejectingId, setRejectingId] = useState<string | null>(null);
+	const [removingId, setRemovingId] = useState<string | null>(null);
+
 	const currentUserId = useAppStore((state) => state.user?.id);
 	const isOwnProfile = !userId || userId === currentUserId;
 	const { data: currentUserProfile } = useMyProfile();
@@ -68,16 +73,31 @@ export function ConnectionsModal({
 		: [];
 
 	const handleAccept = (requestId: string) => {
-		acceptConnection.mutate(requestId);
+		setAcceptingId(requestId);
+		acceptConnection.mutate(requestId, {
+			onSettled: () => {
+				setAcceptingId((prev) => (prev === requestId ? null : prev));
+			},
+		});
 	};
 
 	const handleReject = (requestId: string) => {
-		rejectConnection.mutate(requestId);
+		setRejectingId(requestId);
+		rejectConnection.mutate(requestId, {
+			onSettled: () => {
+				setRejectingId((prev) => (prev === requestId ? null : prev));
+			},
+		});
 	};
 
 	const handleRemove = (connection: Connection) => {
 		// Use the connection ID to delete it
-		removeConnection.mutate(connection.id);
+		setRemovingId(connection.id);
+		removeConnection.mutate(connection.id, {
+			onSettled: () => {
+				setRemovingId((prev) => (prev === connection.id ? null : prev));
+			},
+		});
 	};
 
 	const getOtherUser = (connection: Connection) => {
@@ -184,8 +204,8 @@ export function ConnectionsModal({
 															showActions={isOwnProfile}
 															onAccept={() => handleAccept(connection.id)}
 															onReject={() => handleReject(connection.id)}
-															isAccepting={acceptConnection.isPending}
-															isRejecting={rejectConnection.isPending}
+															isAccepting={acceptingId === connection.id}
+															isRejecting={rejectingId === connection.id}
 														/>
 													);
 												})}
@@ -216,7 +236,7 @@ export function ConnectionsModal({
 															showActions={false}
 															showRemove={isOwnProfile}
 															onRemove={() => handleRemove(connection)}
-															isRemoving={removeConnection.isPending}
+															isRemoving={removingId === connection.id}
 														/>
 													);
 												})}
@@ -310,7 +330,7 @@ function ConnectionRow({
 						glass
 						onClick={onAccept}
 						disabled={isAccepting || isRejecting}
-						className="min-w-[70px] sm:min-w-[80px] text-xs sm:text-sm px-2 sm:px-4 text-center">
+						className="text-black min-w-[70px] sm:min-w-[80px] text-xs sm:text-sm px-2 py-1.25 sm:px-4 text-center">
 						{isAccepting ? "..." : "Accept"}
 					</Button>
 					<Button
