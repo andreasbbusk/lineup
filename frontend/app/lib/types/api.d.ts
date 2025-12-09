@@ -38,18 +38,13 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
     "/users/{username}/social-media": {
-=======
-    "/upload/signed-url": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
         /**
          * Get user social media
          * @description Get user's social media links
@@ -67,7 +62,118 @@ export interface paths {
          */
         put: operations["UpdateUserSocialMedia"];
         post?: never;
-=======
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{username}/faq": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get user FAQ
+         * @description Get user's FAQ answers
+         *
+         *     Returns all FAQ answers for the specified user with their corresponding questions.
+         *     This endpoint is public and does not require authentication.
+         */
+        get: operations["GetUserFaq"];
+        put?: never;
+        /**
+         * Upsert user FAQ answer
+         * @description Create or update user's FAQ answer
+         *
+         *     Adds or updates an answer to an FAQ question for the authenticated user.
+         *     Only the profile owner can manage their own FAQ.
+         */
+        post: operations["UpsertUserFaq"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{username}/faq/{questionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete user FAQ answer
+         * @description Delete user's FAQ answer
+         *
+         *     Removes an answer to an FAQ question for the authenticated user.
+         *     Only the profile owner can delete their own FAQ answers.
+         */
+        delete: operations["DeleteUserFaq"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{username}/looking-for": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get user looking for preferences
+         * @description Get what user is looking for
+         *
+         *     Returns the user's "looking for" preferences (connect, promote, find-band, find-services).
+         *     This endpoint is public and does not require authentication.
+         */
+        get: operations["GetUserLookingFor"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/faq-questions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all FAQ questions
+         * @description Get all available FAQ questions
+         *
+         *     Returns all active FAQ questions that users can answer on their profiles.
+         *     This endpoint is public and does not require authentication.
+         */
+        get: operations["GetAllFaqQuestions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/upload/signed-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         get?: never;
         put?: never;
         /**
@@ -89,44 +195,19 @@ export interface paths {
          *     - **Upload Types**: "post" (default) for post media, "avatar" for profile pictures
          */
         post: operations["GenerateSignedUploadUrl"];
->>>>>>> dev
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/users/{username}/faq": {
-=======
     "/media/{mediaId}": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        /**
-         * Get user FAQ
-         * @description Get user's FAQ answers
-         *
-         *     Returns all FAQ answers for the specified user with their corresponding questions.
-         *     This endpoint is public and does not require authentication.
-         */
-        get: operations["GetUserFaq"];
-        put?: never;
-        /**
-         * Upsert user FAQ answer
-         * @description Create or update user's FAQ answer
-         *
-         *     Adds or updates an answer to an FAQ question for the authenticated user.
-         *     Only the profile owner can manage their own FAQ.
-         */
-        post: operations["UpsertUserFaq"];
-        delete?: never;
-=======
         get?: never;
         put?: never;
         post?: never;
@@ -138,36 +219,18 @@ export interface paths {
          *     Only authenticated users can delete media.
          */
         delete: operations["DeleteMedia"];
->>>>>>> dev
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/users/{username}/faq/{questionId}": {
-=======
     "/search": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Delete user FAQ answer
-         * @description Delete user's FAQ answer
-         *
-         *     Removes an answer to an FAQ question for the authenticated user.
-         *     Only the profile owner can delete their own FAQ answers.
-         */
-        delete: operations["DeleteUserFaq"];
-=======
         /**
          * Search across users, posts, and tags
          * @description Search for users, posts, or tags
@@ -184,17 +247,12 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
->>>>>>> dev
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/users/{username}/looking-for": {
-=======
     "/users/{username}/reviews": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
@@ -202,17 +260,6 @@ export interface paths {
             cookie?: never;
         };
         /**
-<<<<<<< HEAD
-         * Get user looking for preferences
-         * @description Get what user is looking for
-         *
-         *     Returns the user's "looking for" preferences (connect, promote, find-band, find-services).
-         *     This endpoint is public and does not require authentication.
-         */
-        get: operations["GetUserLookingFor"];
-        put?: never;
-        post?: never;
-=======
          * Get user reviews
          * @description Get all reviews for a user
          *
@@ -229,18 +276,13 @@ export interface paths {
          *     Prevents self-reviews and duplicate reviews.
          */
         post: operations["CreateReview"];
->>>>>>> dev
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/faq-questions": {
-=======
     "/reviews/{reviewId}": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
@@ -248,24 +290,6 @@ export interface paths {
             cookie?: never;
         };
         /**
-<<<<<<< HEAD
-         * Get all FAQ questions
-         * @description Get all available FAQ questions
-         *
-         *     Returns all active FAQ questions that users can answer on their profiles.
-         *     This endpoint is public and does not require authentication.
-         */
-        get: operations["GetAllFaqQuestions"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/upload": {
-=======
          * Get review by ID
          * @description Get a review by ID
          *
@@ -296,29 +320,12 @@ export interface paths {
         trace?: never;
     };
     "/posts": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        get?: never;
-        put?: never;
-        /**
-         * Upload files
-         * @description Upload files (images or videos) for posts or avatars
-         *
-         *     Supports batch upload of up to 4 files.
-         *     Files are uploaded to Supabase Storage and media records are created in the database.
-         *
-         *     - **Images**: JPEG, PNG, GIF, WebP (max 50MB each)
-         *     - **Videos**: MP4, WebM, QuickTime (max 50MB each)
-         *     - **Thumbnails**: Can be generated for videos if requested
-         */
-        post: operations["UploadFiles"];
-=======
         /**
          * List posts
          * @description List posts with filters and pagination
@@ -344,37 +351,19 @@ export interface paths {
          *     All post types can include media and tagged users.
          */
         post: operations["CreatePost"];
->>>>>>> dev
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/media/{mediaId}": {
-=======
     "/posts/{id}": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Delete media
-         * @description Delete a media file
-         *
-         *     Removes the file from Supabase Storage and deletes the media record from the database.
-         *     Only authenticated users can delete media.
-         */
-        delete: operations["DeleteMedia"];
-=======
         /**
          * Get post by ID
          * @description Get a single post by ID
@@ -389,17 +378,12 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
->>>>>>> dev
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/search": {
-=======
     "/notifications": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
@@ -407,20 +391,6 @@ export interface paths {
             cookie?: never;
         };
         /**
-<<<<<<< HEAD
-         * Search across users, posts, and tags
-         * @description Search for users, posts, or tags
-         *
-         *     Performs a search across different entity types based on the specified tab.
-         *     Returns polymorphic results that vary by tab type.
-         *
-         *     - **for_you**: Personalized results combining people and collaboration requests
-         *     - **people**: Search for users with filters (location, genres, looking for)
-         *     - **collaborations**: Search for collaboration request posts
-         *     - **tags**: Search for metadata (tags, genres, artists)
-         */
-        get: operations["Search"];
-=======
          * Get user notifications
          * @description Get notifications for the authenticated user
          *
@@ -429,7 +399,6 @@ export interface paths {
          *     Archived notifications are excluded by default.
          */
         get: operations["GetNotifications"];
->>>>>>> dev
         put?: never;
         post?: never;
         delete?: never;
@@ -438,11 +407,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/users/{username}/reviews": {
-=======
     "/notifications/{notificationId}": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
@@ -450,31 +415,6 @@ export interface paths {
             cookie?: never;
         };
         /**
-<<<<<<< HEAD
-         * Get user reviews
-         * @description Get all reviews for a user
-         *
-         *     Returns all reviews for a specific user with reviewer information.
-         *     This endpoint is public and does not require authentication.
-         */
-        get: operations["GetUserReviews"];
-        put?: never;
-        /**
-         * Create a review
-         * @description Create a review for a user
-         *
-         *     Allows the authenticated user to write a review for another user.
-         *     Prevents self-reviews and duplicate reviews.
-         */
-        post: operations["CreateReview"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reviews/{reviewId}": {
-=======
          * Get notification by ID
          * @description Get a notification by ID
          *
@@ -505,7 +445,6 @@ export interface paths {
         trace?: never;
     };
     "/metadata": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
@@ -513,38 +452,6 @@ export interface paths {
             cookie?: never;
         };
         /**
-<<<<<<< HEAD
-         * Get review by ID
-         * @description Get a review by ID
-         *
-         *     Returns a specific review with reviewer information.
-         *     This endpoint is public and does not require authentication.
-         */
-        get: operations["GetReview"];
-        put?: never;
-        post?: never;
-        /**
-         * Delete a review
-         * @description Delete a review
-         *
-         *     Permanently deletes a review.
-         *     Only the reviewer can delete their own review.
-         */
-        delete: operations["DeleteReview"];
-        options?: never;
-        head?: never;
-        /**
-         * Update a review
-         * @description Update a review
-         *
-         *     Updates the rating and/or description of a review.
-         *     Only the reviewer can update their own review.
-         */
-        patch: operations["UpdateReview"];
-        trace?: never;
-    };
-    "/posts": {
-=======
          * Get all metadata
          * @description Get all metadata
          *
@@ -562,117 +469,44 @@ export interface paths {
         trace?: never;
     };
     "/messages/{conversationId}": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        get?: never;
-        put?: never;
-        /**
-         * Create a post
-         * @description Create a new post
-         *
-         *     Creates a new post (note, request, or story) with optional metadata, media,
-         *     and tagged users. The post is automatically associated with the authenticated user.
-         *
-         *     For "note" type posts, you can include tags.
-         *     For "request" type posts, you can include genres and paid_opportunity flag.
-         *     All post types can include media and tagged users.
-         */
-        post: operations["CreatePost"];
-=======
         get: operations["GetMessages"];
         put?: never;
         post?: never;
->>>>>>> dev
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/notifications": {
-=======
     "/messages": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        /**
-         * Get user notifications
-         * @description Get notifications for the authenticated user
-         *
-         *     Returns notifications for the authenticated user with optional filters.
-         *     Supports filtering by type and unread status, with cursor-based pagination.
-         *     Archived notifications are excluded by default.
-         */
-        get: operations["GetNotifications"];
-        put?: never;
-        post?: never;
-=======
         get?: never;
         put?: never;
         post: operations["SendMessage"];
->>>>>>> dev
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/notifications/{notificationId}": {
-=======
     "/messages/{messageId}": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        /**
-         * Get notification by ID
-         * @description Get a notification by ID
-         *
-         *     Returns a specific notification with actor information.
-         *     Only the recipient can access their own notifications.
-         */
-        get: operations["GetNotification"];
-        put?: never;
-        post?: never;
-        /**
-         * Delete a notification
-         * @description Delete a notification
-         *
-         *     Permanently deletes a notification.
-         *     Only the recipient can delete their own notifications.
-         */
-        delete: operations["DeleteNotification"];
-        options?: never;
-        head?: never;
-        /**
-         * Mark notification as read/unread
-         * @description Update a notification
-         *
-         *     Marks a notification as read or unread.
-         *     Only the recipient can update their own notifications.
-         */
-        patch: operations["UpdateNotification"];
-        trace?: never;
-    };
-    "/metadata": {
-=======
         get?: never;
         put: operations["EditMessage"];
         post?: never;
@@ -683,78 +517,44 @@ export interface paths {
         trace?: never;
     };
     "/messages/read": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        /**
-         * Get all metadata
-         * @description Get all metadata
-         *
-         *     Returns all tags, genres, and artists grouped by type.
-         *     Used for dropdowns, autocomplete, and tag/genre selectors.
-         *     This endpoint is public and does not require authentication.
-         */
-        get: operations["GetMetadata"];
-        put?: never;
-        post?: never;
-=======
         get?: never;
         put?: never;
         post: operations["MarkAsRead"];
->>>>>>> dev
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/messages/{conversationId}": {
-=======
     "/messages/typing/{conversationId}": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        get: operations["GetMessages"];
-        put?: never;
-        post?: never;
-=======
         get?: never;
         put?: never;
         post: operations["SetTyping"];
->>>>>>> dev
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/messages": {
-=======
     "/feed": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        get?: never;
-        put?: never;
-        post: operations["SendMessage"];
-=======
         /**
          * Get home feed
          * @description Get home feed
@@ -770,98 +570,61 @@ export interface paths {
         get: operations["GetFeed"];
         put?: never;
         post?: never;
->>>>>>> dev
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/messages/{messageId}": {
-=======
     "/conversations": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        get?: never;
-        put: operations["EditMessage"];
-        post?: never;
-        delete: operations["DeleteMessage"];
-=======
         get: operations["GetConversations"];
         put?: never;
         post: operations["CreateConversation"];
         delete?: never;
->>>>>>> dev
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/messages/read": {
-=======
     "/conversations/unread-count": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        get?: never;
-        put?: never;
-        post: operations["MarkAsRead"];
-=======
         get: operations["GetUnreadCount"];
         put?: never;
         post?: never;
->>>>>>> dev
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/messages/typing/{conversationId}": {
-=======
     "/conversations/{conversationId}": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        get?: never;
-        put?: never;
-        post: operations["SetTyping"];
-        delete?: never;
-=======
         get: operations["GetConversation"];
         put: operations["UpdateConversation"];
         post?: never;
         delete: operations["DeleteConversation"];
->>>>>>> dev
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/feed": {
-=======
     "/connections": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
@@ -869,22 +632,6 @@ export interface paths {
             cookie?: never;
         };
         /**
-<<<<<<< HEAD
-         * Get home feed
-         * @description Get home feed
-         *
-         *     Returns feed content based on the specified component:
-         *     - "posts": Posts from users you follow (with pagination)
-         *     - "recommendations": Collaboration request recommendations
-         *     - "stories": Stories from followed users (coming soon)
-         *
-         *     Posts feed includes engagement data (likes, comments, bookmarks counts)
-         *     and user interaction state (hasLiked, hasBookmarked).
-         */
-        get: operations["GetFeed"];
-        put?: never;
-        post?: never;
-=======
          * Get user's connection requests
          * @description Get all connection requests for the authenticated user
          *
@@ -901,29 +648,19 @@ export interface paths {
          *     The recipient must exist and there must not be an existing connection request.
          */
         post: operations["CreateConnectionRequest"];
->>>>>>> dev
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/conversations": {
-=======
     "/connections/sent/{userId}": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        get: operations["GetConversations"];
-        put?: never;
-        post: operations["CreateConversation"];
-=======
         /**
          * Get sent connection requests by user
          * @description Get connection requests sent by a user
@@ -934,27 +671,19 @@ export interface paths {
         get: operations["GetSentConnectionRequests"];
         put?: never;
         post?: never;
->>>>>>> dev
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/conversations/unread-count": {
-=======
     "/connections/received/{userId}": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        get: operations["GetUnreadCount"];
-=======
         /**
          * Get received connection requests by user
          * @description Get connection requests received by a user
@@ -963,7 +692,6 @@ export interface paths {
          *     This endpoint can be accessed without authentication.
          */
         get: operations["GetReceivedConnectionRequests"];
->>>>>>> dev
         put?: never;
         post?: never;
         delete?: never;
@@ -972,23 +700,13 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/conversations/{conversationId}": {
-=======
     "/connections/status/{targetUserId}": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        get: operations["GetConversation"];
-        put: operations["UpdateConversation"];
-        post?: never;
-        delete: operations["DeleteConversation"];
-=======
         /**
          * Get connection status between two users
          * @description Get connection status between the authenticated user and another user
@@ -1000,17 +718,12 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
->>>>>>> dev
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/connections": {
-=======
     "/connections/accepted/{userId}": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
@@ -1018,24 +731,6 @@ export interface paths {
             cookie?: never;
         };
         /**
-<<<<<<< HEAD
-         * Get user's connection requests
-         * @description Get all connection requests for the authenticated user
-         *
-         *     Returns both sent and received connection requests for the authenticated user.
-         *     Each request includes requester and recipient profile information.
-         */
-        get: operations["GetConnectionRequests"];
-        put?: never;
-        /**
-         * Send a connection request
-         * @description Create a connection request
-         *
-         *     Allows the authenticated user to send a connection request to another user.
-         *     The recipient must exist and there must not be an existing connection request.
-         */
-        post: operations["CreateConnectionRequest"];
-=======
          * Get accepted connections by user
          * @description Get accepted connections for a specific user
          *
@@ -1045,37 +740,19 @@ export interface paths {
         get: operations["GetUserAcceptedConnections"];
         put?: never;
         post?: never;
->>>>>>> dev
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/connections/sent/{userId}": {
-=======
     "/connections/{requestId}": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        /**
-         * Get sent connection requests by user
-         * @description Get connection requests sent by a user
-         *
-         *     Returns all connection requests sent by the specified user.
-         *     This endpoint can be accessed without authentication.
-         */
-        get: operations["GetSentConnectionRequests"];
-        put?: never;
-        post?: never;
-        delete?: never;
-=======
         get?: never;
         /**
          * Accept or reject a connection request
@@ -1093,17 +770,12 @@ export interface paths {
          *     Removes a connection request. Only the requester can delete a pending request.
          */
         delete: operations["DeleteConnectionRequest"];
->>>>>>> dev
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/connections/received/{userId}": {
-=======
     "/comments/post/{postId}": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
@@ -1111,15 +783,6 @@ export interface paths {
             cookie?: never;
         };
         /**
-<<<<<<< HEAD
-         * Get received connection requests by user
-         * @description Get connection requests received by a user
-         *
-         *     Returns all connection requests received by the specified user.
-         *     This endpoint can be accessed without authentication.
-         */
-        get: operations["GetReceivedConnectionRequests"];
-=======
          * Get comments for a post
          * @description Get all comments for a post
          *
@@ -1127,7 +790,6 @@ export interface paths {
          *     Each comment includes the author's profile information.
          */
         get: operations["GetPostComments"];
->>>>>>> dev
         put?: never;
         post?: never;
         delete?: never;
@@ -1136,36 +798,13 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/connections/{requestId}": {
-=======
     "/comments/user/{userId}": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        get?: never;
-        /**
-         * Accept or reject a connection request
-         * @description Update a connection request status
-         *
-         *     Allows the recipient to accept or reject a connection request.
-         *     Only the recipient can update the status, and only pending requests can be updated.
-         */
-        put: operations["UpdateConnectionRequest"];
-        post?: never;
-        /**
-         * Delete a connection request
-         * @description Delete a connection request
-         *
-         *     Removes a connection request. Only the requester can delete a pending request.
-         */
-        delete: operations["DeleteConnectionRequest"];
-=======
         /**
          * Get comments by user
          * @description Get all comments by a user
@@ -1177,35 +816,18 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
->>>>>>> dev
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/comments/post/{postId}": {
-=======
     "/comments": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        /**
-         * Get comments for a post
-         * @description Get all comments for a post
-         *
-         *     Returns all comments on a specific post, ordered by creation date (oldest first).
-         *     Each comment includes the author's profile information.
-         */
-        get: operations["GetPostComments"];
-        put?: never;
-        post?: never;
-=======
         get?: never;
         put?: never;
         /**
@@ -1216,37 +838,19 @@ export interface paths {
          *     The post must exist and the comment content must be between 1 and 1000 characters.
          */
         post: operations["CreateComment"];
->>>>>>> dev
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/comments/user/{userId}": {
-=======
     "/comments/{commentId}": {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        /**
-         * Get comments by user
-         * @description Get all comments by a user
-         *
-         *     Returns all comments created by a specific user, ordered by creation date (newest first).
-         *     Each comment includes the author's profile information.
-         */
-        get: operations["GetUserComments"];
-        put?: never;
-        post?: never;
-        delete?: never;
-=======
         get?: never;
         /**
          * Update a comment
@@ -1264,107 +868,11 @@ export interface paths {
          *     Removes a comment. Only the comment author can delete their own comment.
          */
         delete: operations["DeleteComment"];
->>>>>>> dev
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-<<<<<<< HEAD
-    "/comments": {
-=======
-    "/collaborations": {
->>>>>>> dev
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-<<<<<<< HEAD
-        get?: never;
-        put?: never;
-        /**
-         * Create a comment
-         * @description Create a comment on a post
-         *
-         *     Allows the authenticated user to create a comment on a post.
-         *     The post must exist and the comment content must be between 1 and 1000 characters.
-         */
-        post: operations["CreateComment"];
-=======
-        /**
-         * Get user's collaborations
-         * @description Get all collaborations for the authenticated user
-         *
-         *     Returns a list of all collaborations where the authenticated user is involved.
-         *     Each collaboration includes the collaborator's profile information.
-         */
-        get: operations["GetCollaborations"];
-        put?: never;
-        /**
-         * Create a collaboration
-         * @description Create a collaboration
-         *
-         *     Allows the authenticated user to record a past collaboration with another user.
-         *     The collaborator must exist and the collaboration must not already exist.
-         */
-        post: operations["CreateCollaboration"];
->>>>>>> dev
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-<<<<<<< HEAD
-    "/comments/{commentId}": {
-=======
-    "/collaborations/{userId}": {
->>>>>>> dev
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-<<<<<<< HEAD
-        get?: never;
-        /**
-         * Update a comment
-         * @description Update a comment
-         *
-         *     Allows the authenticated user to update their own comment.
-         *     Only the comment author can update their comment.
-         */
-        put: operations["UpdateComment"];
-        post?: never;
-        /**
-         * Delete a comment
-         * @description Delete a comment
-         *
-         *     Removes a comment. Only the comment author can delete their own comment.
-         */
-        delete: operations["DeleteComment"];
-=======
-        /**
-         * Get collaborations by user ID
-         * @description Get collaborations for a specific user
-         *
-         *     Returns all collaborations for the specified user. This endpoint can be
-         *     accessed without authentication to view public collaboration information.
-         */
-        get: operations["GetUserCollaborations"];
-        put?: never;
-        post?: never;
-        delete?: never;
->>>>>>> dev
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-<<<<<<< HEAD
     "/collaborations": {
         parameters: {
             query?: never;
@@ -1418,8 +926,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-=======
->>>>>>> dev
     "/collaborations/{collaborationId}": {
         parameters: {
             query?: never;
@@ -1660,7 +1166,6 @@ export interface components {
             lookingFor?: components["schemas"]["LookingForType"][];
         };
         /**
-<<<<<<< HEAD
          * @description API response format for user social media links
          * @example {
          *       "userId": "user-123",
@@ -1744,47 +1249,6 @@ export interface components {
             isActive: boolean;
         };
         /**
-         * @description API response format for a single uploaded file
-         * @example {
-         *       "id": "media-123",
-         *       "url": "https://storage.supabase.co/.../image.jpg",
-         *       "thumbnailUrl": "https://storage.supabase.co/.../thumb.jpg",
-         *       "type": "image",
-         *       "createdAt": "2024-01-20T15:30:00Z"
-         *     }
-         */
-        UploadedFileResponse: {
-            id: string;
-            url: string;
-            thumbnailUrl?: string | null;
-            /** @enum {string} */
-            type: "image" | "video";
-            createdAt: string | null;
-        };
-        /**
-         * @description API response format for batch file upload
-         * @example {
-         *       "files": [
-         *         {
-         *           "id": "media-123",
-         *           "url": "https://storage.supabase.co/.../image1.jpg",
-         *           "thumbnailUrl": null,
-         *           "type": "image",
-         *           "createdAt": "2024-01-20T15:30:00Z"
-         *         },
-         *         {
-         *           "id": "media-124",
-         *           "url": "https://storage.supabase.co/.../image2.jpg",
-         *           "thumbnailUrl": null,
-         *           "type": "image",
-         *           "createdAt": "2024-01-20T15:30:00Z"
-         *         }
-         *       ]
-         *     }
-         */
-        UploadResponse: {
-            files: components["schemas"]["UploadedFileResponse"][];
-=======
          * @description API response format for signed upload URL
          *
          *     Returns a temporary signed URL that allows direct client uploads to Supabase Storage.
@@ -1827,7 +1291,6 @@ export interface components {
              * @enum {string}
              */
             uploadType: "post" | "avatar";
->>>>>>> dev
         };
         /**
          * @description Search result for a user (from search_people)
@@ -2231,8 +1694,6 @@ export interface components {
              */
             media?: components["schemas"]["MediaItemDto"][];
         };
-<<<<<<< HEAD
-=======
         /** @description Generic paginated response wrapper */
         PaginatedResponse_PostResponse_: {
             data: components["schemas"]["PostResponse"][];
@@ -2277,7 +1738,6 @@ export interface components {
                 id: string;
             };
         };
->>>>>>> dev
         /**
          * @description API response format for a notification
          *     Represents a notification with actor information
@@ -2371,12 +1831,6 @@ export interface components {
             genres: components["schemas"]["MetadataItem"][];
             artists: components["schemas"]["MetadataItem"][];
         };
-<<<<<<< HEAD
-        "SelectQueryError_columnstatusdoesnotexistonmessages._": {
-            /** @enum {boolean} */
-            error: true;
-        } & "column 'status' does not exist on 'messages'.";
-=======
         /**
          * @description API response format for a message
          *     Represents a message in a conversation with sender info and optional reply
@@ -2446,7 +1900,6 @@ export interface components {
             hasMore: boolean;
             nextCursor: string | null;
         };
->>>>>>> dev
         SendMessageDto: {
             conversation_id: string;
             content: string;
@@ -2548,10 +2001,7 @@ export interface components {
             lastMessageId?: string | null;
             lastMessagePreview?: string | null;
             lastMessageAt?: string | null;
-<<<<<<< HEAD
-=======
             lastMessageSenderId?: string | null;
->>>>>>> dev
             /** Format: double */
             unreadCount: number;
             creator?: {
@@ -2594,13 +2044,6 @@ export interface components {
             requester?: components["schemas"]["UserProfile"];
             recipient?: components["schemas"]["UserProfile"];
         };
-<<<<<<< HEAD
-        /** @description From T, pick a set of properties whose keys are in the union K */
-        "Pick_ConnectionRequestInsert.Exclude_keyofConnectionRequestInsert.requester_id-or-created_at-or-updated_at-or-id-or-status__": {
-            recipient_id: string;
-        };
-=======
->>>>>>> dev
         /**
          * @description DTO for creating a connection request
          *
@@ -2611,10 +2054,6 @@ export interface components {
          *     }
          */
         CreateConnectionRequestDto: {
-<<<<<<< HEAD
-            recipient_id: string;
-=======
->>>>>>> dev
             /**
              * @description The ID of the user to send the connection request to (UUID format)
              * @example a1b2c3d4-e5f6-7890-1234-567890abcdef
@@ -2637,43 +2076,6 @@ export interface components {
              */
             status: components["schemas"]["ConnectionStatus"];
         };
-<<<<<<< HEAD
-        /**
-         * @description API response format for a comment
-         *     Represents a comment on a post with author information
-         * @example {
-         *       "id": "comment-123",
-         *       "postId": "post-123",
-         *       "authorId": "user-456",
-         *       "content": "Great track! Love the production.",
-         *       "createdAt": "2024-01-20T16:00:00Z",
-         *       "updatedAt": "2024-01-20T16:00:00Z",
-         *       "author": {
-         *         "id": "user-456",
-         *         "username": "janedoe",
-         *         "firstName": "Jane",
-         *         "lastName": "Doe",
-         *         "avatarUrl": "https://..."
-         *       }
-         *     }
-         */
-        CommentResponse: {
-            id: string;
-            postId: string;
-            authorId: string;
-            content: string;
-            createdAt: string | null;
-            updatedAt: string | null;
-            author?: {
-                avatarUrl?: string | null;
-                lastName?: string | null;
-                firstName?: string | null;
-                username: string;
-                id: string;
-            };
-        };
-=======
->>>>>>> dev
         /** @description From T, pick a set of properties whose keys are in the union K */
         "Pick_CommentInsert.Exclude_keyofCommentInsert.author_id-or-created_at-or-updated_at-or-id__": {
             post_id: string;
@@ -2906,7 +2308,6 @@ export interface operations {
             };
         };
     };
-<<<<<<< HEAD
     GetUserSocialMedia: {
         parameters: {
             query?: never;
@@ -2966,7 +2367,115 @@ export interface operations {
                 /** @description The username of the user */
                 username: string;
             };
-=======
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description User's FAQ answers with questions */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserFaqResponse"][];
+                };
+            };
+        };
+    };
+    UpsertUserFaq: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The username (must match authenticated user) */
+                username: string;
+            };
+            cookie?: never;
+        };
+        /** @description Question ID and answer */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertFaqDto"];
+            };
+        };
+        responses: {
+            /** @description The created/updated FAQ answer */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserFaqResponse"];
+                };
+            };
+        };
+    };
+    DeleteUserFaq: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The username (must match authenticated user) */
+                username: string;
+                /** @description The question ID to delete answer for */
+                questionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetUserLookingFor: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The username of the user */
+                username: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description User's looking for preferences */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserLookingForResponse"][];
+                };
+            };
+        };
+    };
+    GetAllFaqQuestions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of all active FAQ questions */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FaqQuestionResponse"][];
+                };
+            };
+        };
+    };
     GenerateSignedUploadUrl: {
         parameters: {
             query?: never;
@@ -3035,92 +2544,31 @@ export interface operations {
             };
             header?: never;
             path?: never;
->>>>>>> dev
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-<<<<<<< HEAD
-            /** @description User's FAQ answers with questions */
-=======
             /** @description Search results based on the selected tab */
->>>>>>> dev
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-<<<<<<< HEAD
-                    "application/json": components["schemas"]["UserFaqResponse"][];
-=======
                     "application/json": components["schemas"]["SearchResponse"];
->>>>>>> dev
                 };
             };
         };
     };
-<<<<<<< HEAD
-    UpsertUserFaq: {
-=======
     GetUserReviews: {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path: {
-<<<<<<< HEAD
-                /** @description The username (must match authenticated user) */
-=======
                 /** @description The username of the user to retrieve reviews for */
->>>>>>> dev
                 username: string;
             };
             cookie?: never;
         };
-<<<<<<< HEAD
-        /** @description Question ID and answer */
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpsertFaqDto"];
-            };
-        };
-        responses: {
-            /** @description The created/updated FAQ answer */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserFaqResponse"];
-                };
-            };
-        };
-    };
-    DeleteUserFaq: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The username (must match authenticated user) */
-                username: string;
-                /** @description The question ID to delete answer for */
-                questionId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    GetUserLookingFor: {
-=======
         requestBody?: never;
         responses: {
             /** @description Array of reviews with reviewer details */
@@ -3163,49 +2611,28 @@ export interface operations {
         };
     };
     GetReview: {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path: {
-<<<<<<< HEAD
-                /** @description The username of the user */
-                username: string;
-=======
                 /** @description The UUID of the review to retrieve */
                 reviewId: string;
->>>>>>> dev
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-<<<<<<< HEAD
-            /** @description User's looking for preferences */
-=======
             /** @description The review with reviewer details */
->>>>>>> dev
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-<<<<<<< HEAD
-                    "application/json": components["schemas"]["UserLookingForResponse"][];
-=======
                     "application/json": components["schemas"]["ReviewResponse"];
->>>>>>> dev
                 };
             };
         };
     };
-<<<<<<< HEAD
-    GetAllFaqQuestions: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-=======
     DeleteReview: {
         parameters: {
             query?: never;
@@ -3214,45 +2641,10 @@ export interface operations {
                 /** @description The UUID of the review to delete */
                 reviewId: string;
             };
->>>>>>> dev
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-<<<<<<< HEAD
-            /** @description List of all active FAQ questions */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FaqQuestionResponse"][];
-                };
-            };
-        };
-    };
-    UploadFiles: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": {
-                    /** @description Array of files to upload (multipart/form-data) */
-                    files: string[];
-                    /** @description Upload type: "post" for post media, "avatar" for profile pictures */
-                    type: string;
-                    /** @description Whether to generate thumbnails for videos (default: false) */
-                    generateThumbnails?: string;
-                };
-            };
-        };
-        responses: {
-            /** @description Array of uploaded file records with URLs */
-=======
             /** @description No content */
             204: {
                 headers: {
@@ -3280,31 +2672,16 @@ export interface operations {
         };
         responses: {
             /** @description The updated review */
->>>>>>> dev
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-<<<<<<< HEAD
-                    "application/json": components["schemas"]["UploadResponse"];
-=======
                     "application/json": components["schemas"]["ReviewResponse"];
->>>>>>> dev
                 };
             };
         };
     };
-<<<<<<< HEAD
-    DeleteMedia: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The UUID of the media to delete */
-                mediaId: string;
-            };
-=======
     ListPosts: {
         parameters: {
             query?: {
@@ -3331,42 +2708,10 @@ export interface operations {
             };
             header?: never;
             path?: never;
->>>>>>> dev
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-<<<<<<< HEAD
-            /** @description No content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    Search: {
-        parameters: {
-            query?: {
-                /** @description Search query string */
-                q?: string;
-                /** @description Search tab: "for_you", "people", "collaborations", or "tags" (default: "for_you") */
-                tab?: "for_you" | "people" | "collaborations" | "tags";
-                /** @description Filter by location */
-                location?: string;
-                /** @description Filter by genres (array) */
-                genres?: string[];
-                /** @description Filter by looking for types (for people tab) */
-                lookingFor?: string[];
-                /** @description Filter for paid opportunities only (for collaborations tab) */
-                paidOnly?: boolean;
-                /** @description Maximum number of results (1-100, default: 20) */
-                limit?: number;
-                /** @description Offset for pagination (default: 0) */
-                offset?: number;
-            };
-=======
             /** @description Paginated list of posts */
             200: {
                 headers: {
@@ -3381,67 +2726,10 @@ export interface operations {
     CreatePost: {
         parameters: {
             query?: never;
->>>>>>> dev
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        requestBody?: never;
-        responses: {
-            /** @description Search results based on the selected tab */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SearchResponse"];
-                };
-            };
-        };
-    };
-    GetUserReviews: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The username of the user to retrieve reviews for */
-                username: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Array of reviews with reviewer details */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReviewResponse"][];
-                };
-            };
-        };
-    };
-    CreateReview: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The username of the user being reviewed */
-                username: string;
-            };
-            cookie?: never;
-        };
-        /** @description Review data including rating (1-5) and optional description */
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateReviewDto"];
-            };
-        };
-        responses: {
-            /** @description The newly created review */
-=======
         /** @description The post data including type, title, description, and optional fields */
         requestBody: {
             content: {
@@ -3517,80 +2805,49 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Notifications with pagination cursor */
->>>>>>> dev
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-<<<<<<< HEAD
-                    "application/json": components["schemas"]["ReviewResponse"];
-=======
                     "application/json": {
                         nextCursor?: string;
                         notifications: components["schemas"]["NotificationResponse"][];
                     };
->>>>>>> dev
                 };
             };
         };
     };
-<<<<<<< HEAD
-    GetReview: {
-=======
     GetNotification: {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path: {
-<<<<<<< HEAD
-                /** @description The UUID of the review to retrieve */
-                reviewId: string;
-=======
                 /** @description The UUID of the notification to retrieve */
                 notificationId: string;
->>>>>>> dev
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-<<<<<<< HEAD
-            /** @description The review with reviewer details */
-=======
             /** @description The notification with actor information */
->>>>>>> dev
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-<<<<<<< HEAD
-                    "application/json": components["schemas"]["ReviewResponse"];
-=======
                     "application/json": components["schemas"]["NotificationResponse"];
->>>>>>> dev
                 };
             };
         };
     };
-<<<<<<< HEAD
-    DeleteReview: {
-=======
     DeleteNotification: {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path: {
-<<<<<<< HEAD
-                /** @description The UUID of the review to delete */
-                reviewId: string;
-=======
                 /** @description The UUID of the notification to delete */
                 notificationId: string;
->>>>>>> dev
             };
             cookie?: never;
         };
@@ -3605,30 +2862,11 @@ export interface operations {
             };
         };
     };
-<<<<<<< HEAD
-    UpdateReview: {
-=======
     UpdateNotification: {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path: {
-<<<<<<< HEAD
-                /** @description The UUID of the review to update */
-                reviewId: string;
-            };
-            cookie?: never;
-        };
-        /** @description Updated review data (rating and/or description) */
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateReviewDto"];
-            };
-        };
-        responses: {
-            /** @description The updated review */
-=======
                 /** @description The UUID of the notification to update */
                 notificationId: string;
             };
@@ -3642,97 +2880,23 @@ export interface operations {
         };
         responses: {
             /** @description The updated notification */
->>>>>>> dev
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-<<<<<<< HEAD
-                    "application/json": components["schemas"]["ReviewResponse"];
-=======
                     "application/json": components["schemas"]["NotificationResponse"];
->>>>>>> dev
                 };
             };
         };
     };
-<<<<<<< HEAD
-    CreatePost: {
-=======
     GetMetadata: {
->>>>>>> dev
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-<<<<<<< HEAD
-        /** @description The post data including type, title, description, and optional fields */
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreatePostBody"];
-            };
-        };
-        responses: {
-            /** @description The created post with all related data (metadata, media, tagged users, author) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PostResponse"];
-                };
-            };
-        };
-    };
-    GetNotifications: {
-        parameters: {
-            query?: {
-                /** @description Filter by notification type */
-                type?: string;
-                /** @description If true, only return unread notifications */
-                unreadOnly?: boolean;
-                /** @description Cursor for pagination (ISO timestamp) */
-                cursor?: string;
-                /** @description Maximum number of notifications to return (1-100, default: 50) */
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Notifications with pagination cursor */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        nextCursor?: string;
-                        notifications: components["schemas"]["NotificationResponse"][];
-                    };
-                };
-            };
-        };
-    };
-    GetNotification: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The UUID of the notification to retrieve */
-                notificationId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The notification with actor information */
-=======
         requestBody?: never;
         responses: {
             /** @description Metadata grouped by type (tags, genres, artists) */
@@ -3785,218 +2949,12 @@ export interface operations {
         };
         responses: {
             /** @description Ok */
->>>>>>> dev
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-<<<<<<< HEAD
-                    "application/json": components["schemas"]["NotificationResponse"];
-=======
                     "application/json": components["schemas"]["MessageResponse"];
->>>>>>> dev
-                };
-            };
-        };
-    };
-<<<<<<< HEAD
-    DeleteNotification: {
-=======
-    EditMessage: {
->>>>>>> dev
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-<<<<<<< HEAD
-                /** @description The UUID of the notification to delete */
-                notificationId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UpdateNotification: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The UUID of the notification to update */
-                notificationId: string;
-            };
-            cookie?: never;
-        };
-        /** @description Update data including isRead status */
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateNotificationDto"];
-            };
-        };
-        responses: {
-            /** @description The updated notification */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NotificationResponse"];
-                };
-            };
-        };
-    };
-    GetMetadata: {
-=======
-                messageId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EditMessageDto"];
-            };
-        };
-        responses: {
-            /** @description Ok */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        sent_via_websocket: boolean;
-                        sender_id: string;
-                        reply_to_message_id: string;
-                        media_ids: string[];
-                        is_edited: boolean;
-                        is_deleted: boolean;
-                        id: string;
-                        edited_at: string;
-                        deleted_at: string;
-                        created_at: string;
-                        conversation_id: string;
-                        content: string;
-                    };
-                };
-            };
-        };
-    };
-    DeleteMessage: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                messageId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    MarkAsRead: {
->>>>>>> dev
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-<<<<<<< HEAD
-        requestBody?: never;
-        responses: {
-            /** @description Metadata grouped by type (tags, genres, artists) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MetadataResponse"];
-                };
-            };
-        };
-    };
-    GetMessages: {
-        parameters: {
-            query?: {
-                limit?: number;
-                before_message_id?: string;
-            };
-            header?: never;
-            path: {
-                conversationId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Ok */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SelectQueryError_columnstatusdoesnotexistonmessages._"][];
-                };
-            };
-        };
-    };
-    SendMessage: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SendMessageDto"];
-            };
-        };
-        responses: {
-            /** @description Ok */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        sender: {
-                            avatar_url: string;
-                            last_name: string;
-                            first_name: string;
-                            username: string;
-                            id: string;
-                        };
-                        sent_via_websocket: boolean;
-                        sender_id: string;
-                        reply_to_message_id: string;
-                        media_ids: string[];
-                        is_edited: boolean;
-                        is_deleted: boolean;
-                        id: string;
-                        edited_at: string;
-                        deleted_at: string;
-                        created_at: string;
-                        conversation_id: string;
-                        content: string;
-                    };
                 };
             };
         };
@@ -4067,8 +3025,6 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-=======
->>>>>>> dev
         requestBody: {
             content: {
                 "application/json": components["schemas"]["MarkMessagesReadDto"];
@@ -4370,8 +3326,6 @@ export interface operations {
             };
         };
     };
-<<<<<<< HEAD
-=======
     GetConnectionStatus: {
         parameters: {
             query?: never;
@@ -4418,7 +3372,6 @@ export interface operations {
             };
         };
     };
->>>>>>> dev
     UpdateConnectionRequest: {
         parameters: {
             query?: never;

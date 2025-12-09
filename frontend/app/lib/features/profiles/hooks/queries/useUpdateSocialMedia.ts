@@ -2,7 +2,8 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAppStore } from "@/app/lib/stores/app-store";
-import { updateUserSocialMedia, UserSocialMediaResponse } from "../../api";
+import { updateUserSocialMedia } from "../../api";
+import type { UserSocialMediaResponse } from "../../types";
 
 export function useUpdateSocialMedia() {
   const queryClient = useQueryClient();

@@ -11,8 +11,8 @@ import {
   removeConnection,
   getConnectionRequests,
   getUserAcceptedConnections,
-  type Connection,
 } from "../../api";
+import type { Connection } from "../../types";
 
 // ==================== Connection Status ====================
 

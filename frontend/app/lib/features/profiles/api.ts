@@ -2,22 +2,14 @@ import { apiClient, handleApiError } from "../../api/api-client";
 import type {
   UserProfile,
   ProfileUpdateRequest,
-  Connection,
-  ConnectionStatus,
+  CollaborationResponse,
+  ReviewResponse,
+  UserSocialMediaResponse,
+  UserFaqResponse,
+  FaqQuestionResponse,
+  UserLookingForResponse,
+  Connection
 } from "./types";
-
-// Export types from generated schema
-export type UserProfile = components["schemas"]["UserProfile"];
-export type ProfileUpdateRequest = components["schemas"]["UpdateProfileDto"];
-export type Connection = components["schemas"]["Connections"];
-export type ConnectionStatus =
-  components["schemas"]["Connection_Request"];
-export type CollaborationResponse = components["schemas"]["CollaborationResponse"];
-export type ReviewResponse = components["schemas"]["ReviewResponse"];
-export type UserSocialMediaResponse = components["schemas"]["UserSocialMediaResponse"];
-export type UserFaqResponse = components["schemas"]["UserFaqResponse"];
-export type FaqQuestionResponse = components["schemas"]["FaqQuestionResponse"];
-export type UserLookingForResponse = components["schemas"]["UserLookingForResponse"];
 
 /**
  * Get user profile by username

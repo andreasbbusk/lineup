@@ -6,6 +6,7 @@ import { Button } from "@/app/components/buttons";
 import GlassSurface from "@/app/components/glass-surface";
 import { LoadingSpinner } from "@/app/components/loading-spinner";
 import { useAppStore } from "@/app/lib/stores/app-store";
+import type { Connection } from "../../types";
 import {
   useAcceptConnection,
   useRejectConnection,
@@ -14,7 +15,6 @@ import {
   useUserConnections,
 } from "@/app/lib/features/profiles/hooks/queries/useConnection";
 import { useMyProfile } from "@/app/lib/features/profiles/hooks/queries/useProfile";
-import type { Connection } from "@/app/lib/features/profiles/api";
 
 interface ConnectionsModalProps {
   isOpen: boolean;
