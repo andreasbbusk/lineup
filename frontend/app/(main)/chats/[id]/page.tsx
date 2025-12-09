@@ -111,9 +111,9 @@ export default function ChatPage({ params }: ChatPageProps) {
   // Derived State & Handlers
   // ============================================================================
 
-  const { name, avatarUrl } = conversation
+  const { name, avatarUrl, otherUser } = conversation
     ? getConversationDisplayInfo(conversation, user?.id ?? "")
-    : { name: "Chat", avatarUrl: null };
+    : { name: "Chat", avatarUrl: null, otherUser: null };
 
   const handleTyping = (isTyping: boolean) => {
     chatApi.setTyping(id, isTyping);
@@ -144,8 +144,9 @@ export default function ChatPage({ params }: ChatPageProps) {
         handleLeaveGroup();
         break;
       case "profile":
-        // TODO: Navigate to user profile
-        console.log("Navigating to profile...");
+        if (otherUser?.username) {
+          router.push(`/profile/${otherUser.username}`);
+        }
         break;
       case "block":
         // TODO: Block user
