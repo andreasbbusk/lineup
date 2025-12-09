@@ -11,6 +11,7 @@ interface MediaUploaderProps {
   onMediaChange: (media: UploadedMedia[]) => void;
   maxFiles?: number;
   maxFileSizeMB?: number;
+  uploadType?: "post" | "avatar";
 }
 
 export function MediaUploader({
@@ -18,9 +19,17 @@ export function MediaUploader({
   onMediaChange,
   maxFiles = 4,
   maxFileSizeMB = 50,
+  uploadType = "post",
 }: MediaUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { createPreviewMedia, cleanupMedia, isUploading, error } = useUpload();
+  const { 
+    createPreviewMedia, 
+    cleanupMedia, 
+    isUploading, 
+    isCompressing,
+    compressionProgress,
+    error 
+  } = useUpload();
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,13 +74,16 @@ export function MediaUploader({
 
     setUploadErrors([]);
 
-    // Create preview media (no upload to Supabase yet)
+    // Create preview media with compression (now async)
     try {
-      const previewMedia = validFiles.map((file) => createPreviewMedia(file));
+      const previewMediaPromises = validFiles.map((file) => 
+        createPreviewMedia(file, uploadType)
+      );
+      const previewMedia = await Promise.all(previewMediaPromises);
       onMediaChange([...media, ...previewMedia]);
     } catch (err) {
       setUploadErrors([
-        err instanceof Error ? err.message : "Failed to create preview",
+        err instanceof Error ? err.message : "Failed to process files",
       ]);
     }
 
@@ -101,17 +113,31 @@ export function MediaUploader({
         multiple
         onChange={handleFileSelect}
         className="hidden"
-        disabled={isUploading || media.length >= maxFiles}
+        disabled={isUploading || isCompressing || media.length >= maxFiles}
       />
 
       <Button
         type="button"
         variant="secondary"
         onClick={() => fileInputRef.current?.click()}
-        disabled={isUploading || media.length >= maxFiles}
+        disabled={isUploading || isCompressing || media.length >= maxFiles}
       >
-        {isUploading ? "Uploading..." : "+ Add Media"}
+        {isCompressing 
+          ? `Compressing... ${Math.round(compressionProgress)}%` 
+          : isUploading 
+          ? "Uploading..." 
+          : "+ Add Media"}
       </Button>
+
+      {/* Compression progress indicator */}
+      {isCompressing && compressionProgress > 0 && (
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            style={{ width: `${compressionProgress}%` }}
+          />
+        </div>
+      )}
 
       {uploadErrors.length > 0 && (
         <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
