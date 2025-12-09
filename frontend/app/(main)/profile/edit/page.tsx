@@ -105,7 +105,7 @@ export default function EditProfilePage() {
   const { data: socialMediaData } = useSocialMedia(username);
   const { data: faqData } = useFaq(username);
   const { data: allFaqQuestions } = useAllFaqQuestions();
-  const { mutate: updateProfile, isPending } = useUpdateProfile();
+  const { mutate: updateProfile } = useUpdateProfile();
   const { mutate: updateSocialMedia } = useUpdateSocialMedia();
   const { mutate: upsertFaq } = useUpsertFaq(username || "");
   const { mutate: deleteFaq } = useDeleteFaq(username || "");
