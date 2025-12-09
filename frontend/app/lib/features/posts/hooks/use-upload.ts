@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { getSignedUploadUrl } from "../api/upload";
 import { supabase } from "@/app/lib/supabase/client";
+import { compressMedia, shouldCompress } from "@/app/lib/utils/media-compression";
 import type { UploadedMedia, SignedUrlRequest } from "../types";
 
 /**
@@ -14,10 +15,10 @@ import type { UploadedMedia, SignedUrlRequest } from "../types";
  * 
  * @example
  * ```tsx
- * const { createPreviewMedia, uploadToSupabase, isUploading, error } = useUpload();
+ * const { createPreviewMedia, uploadToSupabase, isUploading, isCompressing, error } = useUpload();
  * 
- * // For preview (draft)
- * const media = createPreviewMedia(file);
+ * // For preview (draft) - now async due to compression
+ * const media = await createPreviewMedia(file, "post");
  * 
  * // When submitting post
  * const uploadedMedia = await uploadToSupabase(media);
@@ -25,28 +26,76 @@ import type { UploadedMedia, SignedUrlRequest } from "../types";
  */
 export function useUpload() {
   const [isUploading, setIsUploading] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressionProgress, setCompressionProgress] = useState(0);
   const [error, setError] = useState<Error | null>(null);
 
   /**
    * Create a preview media object with blob URL (no upload to Supabase)
+   * Now includes automatic compression for images
    * 
    * @param file - The file to create preview for
-   * @returns Media object with blob URL and File reference
+   * @param uploadType - "post" or "avatar" (default: "post")
+   * @returns Media object with blob URL and File reference (compressed if applicable)
    */
-  const createPreviewMedia = (file: File): UploadedMedia => {
-    // Create blob URL for preview
-    const blobUrl = URL.createObjectURL(file);
-    
-    // Determine media type
-    const isImage = file.type.startsWith("image/");
-    const mediaType: "image" | "video" = isImage ? "image" : "video";
+  const createPreviewMedia = async (
+    file: File,
+    uploadType: "post" | "avatar" = "post"
+  ): Promise<UploadedMedia> => {
+    setIsCompressing(true);
+    setCompressionProgress(0);
+    setError(null);
 
-    return {
-      url: blobUrl,
-      type: mediaType,
-      thumbnailUrl: null,
-      file, // Store File object for later upload
-    };
+    try {
+      let processedFile = file;
+
+      // Compress if needed
+      if (shouldCompress(file, uploadType)) {
+        console.log(`Compressing ${uploadType} file: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+        
+        processedFile = await compressMedia(
+          file,
+          uploadType,
+          (progress) => setCompressionProgress(progress)
+        );
+        
+        console.log(`Compression complete: ${(processedFile.size / 1024 / 1024).toFixed(2)}MB`);
+      } else {
+        console.log(`Skipping compression for ${file.name}`);
+      }
+
+      // Create blob URL for preview
+      const blobUrl = URL.createObjectURL(processedFile);
+      
+      // Determine media type
+      const isImage = processedFile.type.startsWith("image/");
+      const mediaType: "image" | "video" = isImage ? "image" : "video";
+
+      return {
+        url: blobUrl,
+        type: mediaType,
+        thumbnailUrl: null,
+        file: processedFile, // Store compressed File object
+      };
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error("Failed to process file");
+      console.error("Error in createPreviewMedia:", error);
+      setError(error);
+      
+      // Fallback: return original file if compression fails
+      const blobUrl = URL.createObjectURL(file);
+      const isImage = file.type.startsWith("image/");
+      
+      return {
+        url: blobUrl,
+        type: isImage ? "image" : "video",
+        thumbnailUrl: null,
+        file,
+      };
+    } finally {
+      setIsCompressing(false);
+      setCompressionProgress(0);
+    }
   };
 
   /**
@@ -203,6 +252,8 @@ export function useUpload() {
     uploadMultipleToSupabase,
     cleanupMedia,
     isUploading,
+    isCompressing,
+    compressionProgress,
     error,
   };
 }
