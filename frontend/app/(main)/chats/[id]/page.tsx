@@ -9,7 +9,7 @@ import {
   MessageInput,
   TypingIndicator,
   EditModeBanner,
-  DeleteConfirmDialog,
+  ConfirmationDialog,
   useConversation,
   useChatMessages,
   useSendMessage,
@@ -18,6 +18,9 @@ import {
   useMarkAsRead,
   useEditMessage,
   useMessageScroll,
+  useLeaveConversation,
+  useDeleteMessage,
+  useMessageActionsStore,
   chatApi,
   getConversationDisplayInfo,
 } from "@/app/lib/features/chats";
@@ -54,9 +57,16 @@ export default function ChatPage({ params }: ChatPageProps) {
 
   const { mutate: sendMessage } = useSendMessage(id, user?.id ?? "");
   const { mutate: editMessage } = useEditMessage(id);
+  const { mutate: deleteMessage, isPending: isDeletingMessage } =
+    useDeleteMessage(id);
   const { mutate: markAsRead } = useMarkAsRead();
+  const { mutate: leaveConversation, isPending: isLeavingConversation } =
+    useLeaveConversation();
+
   useMessageSubscription(id);
   useTypingSubscription(id);
+
+  const { activeMessageAction, clearAction } = useMessageActionsStore();
 
   // ============================================================================
   // Mark Messages as Read
@@ -109,6 +119,45 @@ export default function ChatPage({ params }: ChatPageProps) {
     chatApi.setTyping(id, isTyping);
   };
 
+  const handleLeaveGroup = () => {
+    if (isLeavingConversation) return;
+
+    leaveConversation(id, {
+      onSuccess: () => {
+        router.push("/chats?tab=groups");
+      },
+    });
+  };
+
+  const handleDeleteMessage = () => {
+    if (activeMessageAction?.messageId) {
+      deleteMessage(activeMessageAction.messageId);
+    }
+  };
+
+  const handleMenuAction = (action: string) => {
+    switch (action) {
+      case "groupInfo":
+        router.push(`/chats/${id}/settings`);
+        break;
+      case "leaveGroup":
+        handleLeaveGroup();
+        break;
+      case "profile":
+        // TODO: Navigate to user profile
+        console.log("Navigating to profile...");
+        break;
+      case "block":
+        // TODO: Block user
+        console.log("Blocking user...");
+        break;
+      case "report":
+        // TODO: Report user
+        console.log("Reporting user...");
+        break;
+    }
+  };
+
   // ============================================================================
   // Error State
   // ============================================================================
@@ -134,7 +183,10 @@ export default function ChatPage({ params }: ChatPageProps) {
         <ChatHeader
           conversationName={name}
           conversationAvatar={avatarUrl}
+          conversation={conversation}
+          currentUserId={user?.id}
           onBack={() => router.push("/chats")}
+          onMenuAction={handleMenuAction}
         />
 
         <MessageList
@@ -167,7 +219,17 @@ export default function ChatPage({ params }: ChatPageProps) {
           />
         </div>
 
-        <DeleteConfirmDialog conversationId={id} />
+        <ConfirmationDialog
+          open={activeMessageAction?.type === "delete"}
+          title="Delete message?"
+          description="Are you sure you want to delete this message?"
+          confirmText="Delete"
+          cancelText="Cancel"
+          onConfirm={handleDeleteMessage}
+          onCancel={clearAction}
+          isDestructive={true}
+          isLoading={isDeletingMessage}
+        />
       </div>
     </main>
   );

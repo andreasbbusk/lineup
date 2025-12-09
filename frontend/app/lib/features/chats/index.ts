@@ -19,6 +19,8 @@ export type {
   GroupedConversations,
   PaginatedMessages,
   CreateConversationDto,
+  UpdateConversationDto,
+  AddParticipantsDto,
   SendMessageDto,
   EditMessageDto,
   MarkMessagesReadDto,
@@ -68,6 +70,10 @@ export {
 export {
   useMarkAsRead,
   useCreateConversation,
+  useLeaveConversation,
+  useUpdateConversation,
+  useAddParticipants,
+  useRemoveParticipant,
 } from "./hooks/query/conversationMutations";
 
 // ============================================================================
@@ -78,6 +84,7 @@ export { useMessageSubscription } from "./hooks/realtime/useMessageSubscription"
 export { useConversationSubscription } from "./hooks/realtime/useConversationSubscription";
 export { useTypingSubscription } from "./hooks/realtime/useTypingSubscription";
 export { useTypingStore } from "./stores/typingStore";
+export { useMessageActionsStore } from "./stores/messageStore";
 
 // ============================================================================
 // Hooks - UI
@@ -103,7 +110,6 @@ export { MessageInput } from "./components/message-interface/message-input";
 export { TypingIndicator } from "./components/message-interface/typing-indicator";
 export { MessageActionsMenu } from "./components/message-interface/message-actions";
 export { EditModeBanner } from "./components/message-interface/edit-mode-banner";
-export { DeleteConfirmDialog } from "./components/message-interface/delete-confirm-dialog";
 
 // ============================================================================
 // Components - New Chat
@@ -111,6 +117,15 @@ export { DeleteConfirmDialog } from "./components/message-interface/delete-confi
 
 export { UserSuggestionRow } from "./components/new-interface/user-suggestion-row";
 export { UserSearchList } from "./components/new-interface/user-search-list";
+
+// ============================================================================
+// Components - Settings
+// ============================================================================
+
+export { GroupInfoSection } from "./components/settings-interface/group-info-section";
+export { MembersSection } from "./components/settings-interface/members-section";
+export { AddMembersSection } from "./components/settings-interface/add-members-section";
+export { ConfirmationDialog } from "./components/confirmation-dialog";
 
 // ============================================================================
 // Utils

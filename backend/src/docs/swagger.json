@@ -2292,6 +2292,21 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"AddParticipantsDto": {
+				"properties": {
+					"participantIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"participantIds"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"ConnectionStatus": {
 				"type": "string",
 				"enum": [
@@ -4530,6 +4545,87 @@
 					{
 						"in": "path",
 						"name": "conversationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/conversations/{conversationId}/participants": {
+			"post": {
+				"operationId": "AddParticipants",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ConversationResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Conversations"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "conversationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/AddParticipantsDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/conversations/{conversationId}/participants/{userId}": {
+			"delete": {
+				"operationId": "RemoveParticipant",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"tags": [
+					"Conversations"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "conversationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "userId",
 						"required": true,
 						"schema": {
 							"type": "string"

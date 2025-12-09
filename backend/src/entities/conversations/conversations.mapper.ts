@@ -75,7 +75,10 @@ export function mapConversationToResponse(
     creator: conversation.creator
       ? mapProfile(conversation.creator)
       : undefined,
-    participants: conversation.participants?.map(mapParticipant),
+    participants: (conversation.type === "group"
+      ? conversation.participants?.filter((p: any) => !p.left_at)
+      : conversation.participants
+    )?.map(mapParticipant),
   };
 }
 
