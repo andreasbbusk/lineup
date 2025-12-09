@@ -68,6 +68,7 @@ export {
 export {
   useMarkAsRead,
   useCreateConversation,
+  useLeaveConversation,
 } from "./hooks/query/conversationMutations";
 
 // ============================================================================
@@ -104,6 +105,7 @@ export { TypingIndicator } from "./components/message-interface/typing-indicator
 export { MessageActionsMenu } from "./components/message-interface/message-actions";
 export { EditModeBanner } from "./components/message-interface/edit-mode-banner";
 export { DeleteConfirmDialog } from "./components/message-interface/delete-confirm-dialog";
+export { GroupInfoModal } from "./components/message-interface/group-info-modal";
 
 // ============================================================================
 // Components - New Chat

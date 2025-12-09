@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { use, useEffect, useRef } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import {
   ChatHeader,
   MessageList,
@@ -10,6 +10,7 @@ import {
   TypingIndicator,
   EditModeBanner,
   DeleteConfirmDialog,
+  GroupInfoModal,
   useConversation,
   useChatMessages,
   useSendMessage,
@@ -18,6 +19,7 @@ import {
   useMarkAsRead,
   useEditMessage,
   useMessageScroll,
+  useLeaveConversation,
   chatApi,
   getConversationDisplayInfo,
 } from "@/app/lib/features/chats";
@@ -33,6 +35,7 @@ export default function ChatPage({ params }: ChatPageProps) {
   const { id } = use(params);
   const router = useRouter();
   const user = useAppStore((state) => state.user);
+  const [isGroupInfoModalOpen, setIsGroupInfoModalOpen] = useState(false);
 
   // ============================================================================
   // Data Fetching
@@ -55,6 +58,8 @@ export default function ChatPage({ params }: ChatPageProps) {
   const { mutate: sendMessage } = useSendMessage(id, user?.id ?? "");
   const { mutate: editMessage } = useEditMessage(id);
   const { mutate: markAsRead } = useMarkAsRead();
+  const { mutate: leaveConversation, isPending: isLeavingConversation } =
+    useLeaveConversation();
   useMessageSubscription(id);
   useTypingSubscription(id);
 
@@ -109,15 +114,23 @@ export default function ChatPage({ params }: ChatPageProps) {
     chatApi.setTyping(id, isTyping);
   };
 
+  const handleLeaveGroup = () => {
+    if (isLeavingConversation) return;
+
+    leaveConversation(id, {
+      onSuccess: () => {
+        router.push("/chats?tab=groups");
+      },
+    });
+  };
+
   const handleMenuAction = (action: string) => {
     switch (action) {
       case "groupInfo":
-        // TODO: Open GroupInfoModal
-        console.log("Opening group info modal...");
+        setIsGroupInfoModalOpen(true);
         break;
       case "leaveGroup":
-        // TODO: Call leave group API
-        console.log("Leaving group...");
+        handleLeaveGroup();
         break;
       case "profile":
         // TODO: Navigate to user profile
@@ -196,6 +209,12 @@ export default function ChatPage({ params }: ChatPageProps) {
         </div>
 
         <DeleteConfirmDialog conversationId={id} />
+        <GroupInfoModal
+          conversation={conversation}
+          currentUserId={user?.id ?? ""}
+          open={isGroupInfoModalOpen}
+          onOpenChange={setIsGroupInfoModalOpen}
+        />
       </div>
     </main>
   );

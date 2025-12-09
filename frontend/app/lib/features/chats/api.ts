@@ -49,6 +49,17 @@ export const chatApi = {
     return data;
   },
 
+  leaveConversation: async (conversationId: string) => {
+    const { error, response } = await apiClient.DELETE(
+      "/conversations/{conversationId}",
+      {
+        params: { path: { conversationId } },
+      }
+    );
+
+    if (error) return handleApiError(error, response);
+  },
+
   // --- Messages ---
 
   getMessages: async (
