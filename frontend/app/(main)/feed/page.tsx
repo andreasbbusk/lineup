@@ -4,6 +4,7 @@ import { LoadingSpinner } from "@/app/components/loading-spinner";
 import { usePosts } from "@/app/lib/features/posts";
 import { PostCard } from "@/app/lib/features/posts/components/post-card";
 import { RequestCarousel } from "@/app/lib/features/posts/components/request-carousel";
+import { StoriesCarousel } from "@/app/lib/features/posts/components/stories-carousel";
 
 export default function FeedPage() {
 	const { data, isLoading, error } = usePosts({ limit: 20, type: "note" });
@@ -31,7 +32,7 @@ export default function FeedPage() {
 
 	return (
 		<main className="max-w-[100vw]">
-			<div>Stories section</div>
+			<StoriesCarousel />
 			<RequestCarousel />
 
 			{posts.length > 0 ? (
