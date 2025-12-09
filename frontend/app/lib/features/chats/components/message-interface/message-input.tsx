@@ -45,7 +45,7 @@ export function MessageInput({
     }
     // We only want to run this when the *mode* changes, not on every render
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditing, activeMessageAction?.messageId]);
+  }, [isEditing]);
 
   const updateTyping = (typing: boolean) => {
     if (typing !== isTyping) {
