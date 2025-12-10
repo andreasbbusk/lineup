@@ -1,625 +1,383 @@
-# Search Feature Specification
+# Global Search – Concept & Feature Design
 
-## Overview
+## 1. Purpose of Search
 
-Search is **infrastructure**, not just a feature. It provides a unified way to discover users, collaboration requests, services, and tags across the platform using a single query that applies across multiple tabs.
+Search is a **core discovery surface** that lets users find:
+- People to connect and collaborate with
+- Collaboration requests (posts) to respond to
+- Generic music-related services
+- Tags used across content
 
-### Core Principle: Universal Query, Tab-Specific Filtering
+Search is both:
+- **Infrastructure:** Shared search logic, relevance, and storage used across multiple features.
+- **Feature:** A dedicated, full-page search experience with tabs, recent searches, and specific result presentations.
 
-One search string applies across all tabs. Tabs are different **lenses** on the same query.
-
-**Example:** User searches "guitarist"
-- **For You:** Mixed results (top people, collabs, tags, services)
-- **People:** Only profiles matching "guitarist"
-- **Collaborations:** Only requests (posts type='request') matching "guitarist"
-- **Services:** Only services matching "guitarist"
-- **Tags:** Only tags matching "guitarist"
-
----
-
-## Architecture Overview
-
-### Data Model
-
-#### Searchable Entities
-
-1. **Profiles** (`profiles.search_vector`)
-   - Indexed: username, first_name, last_name, bio, about_me, location
-   - Returns user cards with: avatar, name, bio, connect button
-
-2. **Collaboration Requests** (`posts.search_vector` WHERE type='request')
-   - Indexed: title, description
-   - Returns existing post cards
-   - Includes: author info, location, paid opportunity badge, genres
-
-3. **Services** (`services.search_vector`)
-   - Indexed: title, description
-   - Generic reference data (no specific provider considerations)
-   - Returns: title, description, service type badge
-   - Future: Can link to user providers via provider_id
-
-4. **Tags/Metadata** (`metadata.search_vector` WHERE type='tag'`)
-   - Indexed: name
-   - Pulled from `post_metadata` (used in at least one post)
-   - Returns: tag name with usage count
-   - Click behavior: Filter feed by tag
-
-5. **Recent Searches** (`recent_searches` table)
-   - Stores: query, tab context, optional entity reference
-   - Deduplicates identical query+tab combinations
-   - Shown in empty state (no active query)
-
-### Database Tables
-
-All searchable entities already have:
-- `search_vector` tsvector column
-- GIN index on search_vector
-- Trigger to auto-update search_vector on insert/update
-
-`recent_searches` table structure:
-```sql
-id uuid PRIMARY KEY
-user_id uuid (FK profiles)
-search_query text
-search_tab text (enum: 'for_you', 'people', 'collaborations', 'services', 'tags')
-entity_type text (optional)
-entity_id uuid (optional)
-created_at timestamp
-```
+This document focuses **only on concepts and feature behavior**, not implementation details or file structure.
 
 ---
 
-## UI/UX Specification
+## 2. High-Level Mental Model
 
-### Search Page Layout
+### 2.1 Single Query, Multiple Lenses
 
-```
-┌─────────────────────────────────────────────────┐
-│  🔍 Search query input (autofocus)             │
-├─────────────────────────────────────────────────┤
-│  [For You] [People] [Collabs] [Services] [Tags]
-├─────────────────────────────────────────────────┤
-│                                                 │
-│  Recent Searches (when empty):                  │
-│  • guitarist · People · 2h ago                 │
-│  • jazz fusion · Tags · Yesterday               │
-│                                                 │
-│  OR                                             │
-│                                                 │
-│  Search Results (when query exists):            │
-│  [Card 1] [Card 2] [Card 3]...                 │
-│                                                 │
-└─────────────────────────────────────────────────┘
-```
+- There is **one search query string**.
+- The query applies across all content types.
+- Tabs act as **lenses** over that same query, not separate searches.
 
-### Tab Specifications
+Example: User searches for "guitarist"
+- **For You:** Curated mix of people, collaboration requests, services, and tags relevant to "guitarist".
+- **People:** Only user profiles that match "guitarist".
+- **Collaborations:** Only collaboration requests mentioning "guitarist".
+- **Services:** Only services relevant to "guitarist".
+- **Tags:** Only tags that relate to "guitarist".
 
-#### For You Tab
-**Empty state (no query):**
-- Show personalized recommendations
-- Algorithm: user's genres → people in those genres → active collabs → trending tags → popular services
+### 2.2 What Search Is Not
 
-**With query:**
-- Aggregate best matches from all other tabs
-- Top 3 people, top 3 collabs, top 2 services, top 2 tags
-- Sort globally by relevance score
-- Show category badge on each card (Person, Collaboration, Service, Tag)
-
-#### People Tab
-**Results display:**
-- Avatar
-- Full name
-- Bio (single line, truncated)
-- "Connect" button if not connected, or "Connected" indicator if already connected
-
-**No additional info needed** (no genres, location, etc.)
-
-#### Collaborations Tab
-**Results display:**
-- Reuse existing post/request card component
-- Just filter post IDs from search and pass to existing component
-- Already includes: title, description, author, location, paid badge, genres
-
-#### Services Tab
-**Results display:**
-- Title
-- Description snippet
-- Service type badge
-- Generic reference data (no provider-specific logic yet)
-
-#### Tags Tab
-**Results display:**
-- Tag name prefixed with # (in UI only, not stored)
-- Usage count (how many posts use this tag)
-- Click behavior: Navigate to tag feed showing all posts with that tag
-
-### Recent Searches Behavior
-
-**When shown:**
-- Active when search input is empty/focused
-- Displays last 15 searches chronologically (most recent first)
-
-**Interaction:**
-- Click entry → Restores that query in that tab (URL: `/search?q={query}&tab={tab}`)
-- X button → Delete individual search
-- "Clear all" button → Bulk delete all
-
-**Deduplication:**
-- If user searches "guitarist" in People tab twice, delete old entry, create new
-- Keeps most recent at top naturally
-
-**Storage:**
-- One entry per unique query+tab combination
-- Include optional entity_id if user clicked through to specific result (future enhancement)
+- Search does **not** expose extra filter UIs (no filter panels, dropdowns, etc.).
+- Search does **not** depend on complex client-side filtering logic.
+- Search does **not** maintain different queries per tab; the query remains global.
 
 ---
 
-## Implementation Phases
+## 3. Tabs & Their Roles
 
-### INFRASTRUCTURE PHASES
+The search page has five tabs:
+- For You
+- People
+- Collaborations
+- Services
+- Tags
 
-These phases build reusable infrastructure that will be used across the platform.
+Each tab represents a **type of entity** and how results are presented.
 
----
+### 3.1 For You – Aggregated Discovery
 
-#### Phase 1: Search Service - All Tabs
+**Goal:** Provide the best overall matches and recommendations for the user.
 
-**Classification:** INFRASTRUCTURE - Core search logic reused across platform
+Behavior:
+- Uses the same query as other tabs, but **aggregates** results from:
+  - People
+  - Collaborations
+  - Services
+  - Tags
+- When a query is present:
+  - Fetches top results from each type.
+  - Combines them into a single list.
+  - Sorts by a unified relevance score.
+  - Shows a visual indication of which type each result is (e.g., “Person”, “Collaboration”, “Service”, “Tag”).
+- When there is **no query**:
+  - Shows **personalized recommendations**, not search results.
+  - Recommendations can include:
+    - People that match the user’s genres/location.
+    - Active collaboration requests related to the user’s interests.
+    - Frequently used or trending tags.
+    - Services that are broadly useful (e.g., mixing, mastering).
 
-**Goal:** Implement all search service methods used by any search context
-
-**What gets built:**
-- SearchService methods for each entity type:
-  - `searchPeople(query, filters?, limit, offset)` - Reusable people search
-  - `searchCollaborations(query, filters?, limit, offset)` - Reusable collaboration search
-  - `searchServices(query, filters?, limit, offset)` - Reusable services search
-  - `searchTags(query, filters?, limit, offset)` - Reusable tags search
-  - `searchForYou(query, userId, limit, offset)` - Aggregates all above
-  - `getRecommendations(userId)` - Personalized recommendations
-- Call existing RPC functions where available (search_people, search_collaborations, search_tags)
-- Add new RPC function for searchServices
-- Response mappers for each entity type
-
-**Why infrastructure:**
-- These methods will be called from:
-  - Search page (For You tab, individual tabs)
-  - Feed filters
-  - Discovery pages
-  - Recommendation systems
-  - Any future discovery feature
-- Core business logic, not UI-specific
-
-**Deliverable:**
-- SearchService class with all methods
-- Methods tested and returning correct response types
-- No endpoints exposed yet
-
-**Files:**
-- `backend/src/entities/search/search.service.ts` (update existing)
-- `backend/src/entities/search/search.mapper.ts` (update for services)
+Key principles:
+- The user should not need to know which tab to pick to "start" their exploration.
+- For You provides a **default, intelligent** view of the most relevant items for any given query.
 
 ---
 
-#### Phase 2: Recent Searches Service
+### 3.2 People – Profile Discovery
 
-**Classification:** INFRASTRUCTURE - Reusable history/persistence layer
+**Goal:** Help users find other users to connect and collaborate with.
 
-**Goal:** Implement recent searches CRUD operations as persistent service
+What it searches:
+- User profiles and related metadata.
+- The query can match:
+  - Username
+  - First and last name
+  - Bio / about text
+  - Location
+  - Possibly genres or roles via connected metadata
 
-**What gets built:**
-- RecentSearchesService with methods:
-  - `getRecentSearches(userId)` → Array of recent searches
-  - `saveSearch(userId, query, tab, entityType?, entityId?)` → void (with deduplication)
-  - `deleteRecentSearch(userId, searchId)` → void
-  - `clearAllRecentSearches(userId)` → void
+How results should feel:
+- Focused on **identity and connection**.
+- Cards show:
+  - Avatar
+  - Name
+  - Short bio (truncated if long)
+  - A connect button when not already connected, or a “Connected” label when they are.
 
-**Database requirement:**
-- Add index: `CREATE INDEX idx_recent_searches_user_created ON recent_searches(user_id, created_at DESC)`
-
-**Why infrastructure:**
-- Recent search persistence could be used in:
-  - Search page
-  - Mobile app
-  - Search widget in header
-  - User settings page (view/manage search history)
-  - Analytics (track user search patterns)
-- Generic CRUD service, not tied to any UI
-
-**Deliverable:**
-- RecentSearchesService class with all methods
-- Handles deduplication logic
-- Methods tested
-
-**Files:**
-- `backend/src/entities/search/recent-searches.service.ts`
+Important constraints:
+- Keep presentation minimal and scannable.
+- Avoid overloading with extra fields.
 
 ---
 
-#### Phase 3: Search Controller & API
+### 3.3 Collaborations – Request Discovery
 
-**Classification:** INFRASTRUCTURE - API contract for search functionality
+**Goal:** Find collaboration opportunities.
 
-**Goal:** Expose search and recent searches as reusable API endpoints
+What it searches:
+- Collaboration requests represented as posts.
+- The query can match the post:
+  - Title
+  - Description
 
-**What gets built:**
-- SearchController endpoints:
-  - `GET /search?q={query}&tab={tab}&limit=20&offset=0` → SearchResponse
-  - `GET /search/recent` → Array<RecentSearch>
-  - `POST /search/recent` → {query, tab, entityType?, entityId?}
-  - `DELETE /search/recent/:id` → void
-  - `DELETE /search/recent/clear` → void
+Behavior:
+- Results are **request posts only** (no feed items that aren’t requests).
+- Each result should be rendered as the **standard request card**, exactly as used elsewhere in the app.
+  - Title
+  - Description preview
+  - Author info
+  - Location (if provided)
+  - Paid opportunity badge (if applicable)
+  - Associated genres or tags
 
-**TSOA decorators:** Add proper @Get, @Post, @Delete, @Security decorators
-
-**Why infrastructure:**
-- These endpoints are the contract for all search functionality
-- Any client (web, mobile, third-party) uses these endpoints
-- Can be called from multiple UI contexts
-- Version independently from UI changes
-
-**Deliverable:**
-- All endpoints functional
-- Proper error handling
-- Endpoints tested
-
-**Files:**
-- `backend/src/entities/search/search.controller.ts` (update existing)
+Key principle:
+- Search does not invent new visual treatment; it simply filters the set of request posts and displays them using the **existing** request card UI.
 
 ---
 
-### FEATURE PHASES
+### 3.4 Services – Generic Service Types
 
-These phases build the search page feature specifically, using the infrastructure above.
+**Goal:** Help users discover **types of services** relevant to musicians, not specific one-off offers.
 
----
+What it searches:
+- A dedicated services data source containing generic, **seeded** entries (not created by regular users in the UI).
+- Each service has:
+  - Title
+  - Description
+  - Optional media
+  - Optional location
+  - Optional provider information (present in schema, but feature behavior treats services as generic for now)
+  - Service type (an enum/classification)
 
-#### Phase 4: Search Page - Core Layout
+Conceptual behavior:
+- Results are **categories or generic offerings**, such as:
+  - "Mixing & Mastering"
+  - "Session Drumming"
+  - "Music Video Production"
+  - "Live Sound Engineering"
+- Search matches primarily on title and description.
+- This tab is about discovering **what kinds of help exist**, not about browsing individual providers in detail.
 
-**Classification:** FEATURE - Search page specific UI
-
-**Goal:** Build SearchPage container with routing, state management, and tab structure
-
-**What gets built:**
-- SearchPage component with:
-  - SearchBar input (with 300ms debounce)
-  - SearchTabs navigation (5 tabs)
-  - State management: query, activeTab, results, loading
-  - URL sync: `/search?q={query}&tab={tab}`
-  - Fetch search results on query/tab change
-  - Integration with RecentSearchesService for fetch/save/delete
-
-**No result rendering yet** - just show placeholder loading state
-
-**Deliverable:**
-- SearchPage navigable from app
-- Query and tab synced to URL
-- API calls working with loading states
-- Recent searches fetched
-- Ready for result renderers
-
-**Files:**
-- `frontend/src/pages/search-page.tsx`
-- `frontend/src/components/search/search-bar.tsx`
-- `frontend/src/components/search/search-tabs.tsx`
-- Update routing to include `/search`
+Future-friendly idea (not required now):
+- Later, services could link to profiles that offer that service, but the current concept treats them as generic reference items.
 
 ---
 
-#### Phase 5: Recent Searches - Display & Management
+### 3.5 Tags – Content Labels
 
-**Classification:** FEATURE - Search page specific display component
+**Goal:** Help users discover and navigate via tags used on posts.
 
-**Goal:** Display and manage recent searches on search page
+What it searches:
+- Tags that are attached to posts via metadata.
+- Each tag has:
+  - A name (stored without the `#` prefix).
+  - A type that indicates it is a tag (not a genre or artist).
+  - Usage count (how many posts use this tag).
 
-**What gets built:**
-- RecentSearches component:
-  - Shows when query is empty
-  - List of recent searches with query text and tab context
-  - Click to restore search (updates SearchPage state)
-  - Individual delete (X button)
-  - "Clear all" button
-- Integration into SearchPage
-- Save recent search when user performs search
+Behavior:
+- The query matches tag names.
+- Results are **tag entries** showing:
+  - `#tag-name` (the `#` is added in the UI only).
+  - Usage count to indicate popularity.
+- When a tag is selected:
+  - Navigate to a tag-specific view or feed showing all posts that have that tag.
 
-**Deliverable:**
-- RecentSearches component fully functional
-- Integrated into SearchPage
-- Save/clear operations working via infrastructure service
-
-**Files:**
-- `frontend/src/components/search/recent-searches.tsx`
-- Update `frontend/src/pages/search-page.tsx`
+Key principle:
+- Tags are a navigational primitive: search helps discover them; clicking a tag switches the user into a tag-centric content view.
 
 ---
 
-#### Phase 6: Search Results - People & Collaborations
+## 4. Recent Searches
 
-**Classification:** FEATURE - Search page specific result renderers
+**Goal:** Improve UX by remembering what the user searched for recently and making it instantly reusable.
 
-**Goal:** Display search results for People and Collaborations tabs
+What is stored for each recent search:
+- The user who made the search.
+- The raw search query string.
+- The tab context in which the search was performed.
+- Optional entity references (for future enhancement): the type and ID of the item the user interacted with after the search.
+- Timestamp of when the search was made.
 
-**What gets built:**
-- PeopleResults component:
-  - User card: avatar, name, bio, connect button
-  - Reuse or create minimal user card component
-- CollaborationsResults component:
-  - Pass post IDs to existing post card component
-  - Let existing component handle rendering
-- Integration into SearchPage (render based on activeTab)
+Behavior on the search page:
+- When the search input is **focused and empty**:
+  - Show a list of the user’s recent searches.
+- When the user **starts typing**, recent searches are hidden and replaced by search results.
 
-**Deliverable:**
-- People and Collaborations tabs showing correct results
-- Connect button functional
-- Cards styled and responsive
+Display rules:
+- Show up to a small, recent set (e.g., last 10–15 searches).
+- Order by most recent first.
+- For each entry, show:
+  - The query string.
+  - The tab where it was originally run (e.g., People, Tags).
+- Provide:
+  - A way to restore a search by clicking on it.
+  - A way to remove individual entries.
+  - A “Clear all” action to remove all stored recent searches.
 
-**Files:**
-- `frontend/src/components/search/people-results.tsx`
-- `frontend/src/components/search/collaborations-results.tsx`
-- Update `frontend/src/pages/search-page.tsx`
+Deduplication behavior:
+- If the user repeats the same query on the same tab:
+  - Remove the older record.
+  - Insert a new one, so it appears at the top.
 
----
-
-#### Phase 7: Search Results - Services & Tags
-
-**Classification:** FEATURE - Search page specific result renderers
-
-**Goal:** Display search results for Services and Tags tabs
-
-**What gets built:**
-- ServicesResults component:
-  - Service card: title, description snippet, type badge
-  - Generic display (no provider logic)
-- TagsResults component:
-  - Tag list item: # + name, usage count
-  - Click → Navigate to tag feed page
-- Integration into SearchPage (render based on activeTab)
-
-**Deliverable:**
-- Services and Tags tabs showing correct results
-- Tag navigation working
-
-**Files:**
-- `frontend/src/components/search/services-results.tsx`
-- `frontend/src/components/search/tags-results.tsx`
-- Update `frontend/src/pages/search-page.tsx`
+Privacy assumptions:
+- Recent searches are private to each user.
+- There is no global visibility of a user’s search history.
 
 ---
 
-#### Phase 8: Search Results - For You Tab
+## 5. Relevance & Ranking – Conceptual Rules
 
-**Classification:** FEATURE - Search page specific aggregation display
+### 5.1 Base Relevance (Text Matching)
 
-**Goal:** Implement For You tab with aggregation and recommendations
+Base relevance is provided by the underlying full-text search capabilities and considers:
+- How well the text matches the query.
+- Which fields are matched (e.g., username vs bio vs description).
+- Frequency and position of matches.
 
-**What gets built:**
-- ForYouResults component:
-  - Show mixed result types (person, collaboration, service, tag)
-  - Category badge on each card
-  - Sort by relevance
-- Empty state recommendations:
-  - Call backend getRecommendations
-  - Display personalized content
-- Integration into SearchPage (render based on activeTab)
+In practice, this means:
+- Exact username or title matches rank very high.
+- Matches in primary identity fields (name, title) rank higher than descriptive fields (bio, description, about text).
+- Shorter content that matches well can be ranked above longer content with weaker matches.
 
-**Deliverable:**
-- For You tab fully functional
-- Aggregation working correctly
-- Empty state showing recommendations
+### 5.2 Additional Business Signals
 
-**Files:**
-- `frontend/src/components/search/for-you-results.tsx`
-- Update `frontend/src/pages/search-page.tsx`
+Beyond text matching, search can apply **business rules** to adjust relevance scores:
 
----
+For **people**:
+- Boost results where:
+  - The name closely matches the query.
+  - The user shares genres with the searching user.
+  - The user shares a location with the searching user.
+- Optionally de-prioritize:
+  - Users the searching user is already connected with (if the goal is discovery of new people).
 
-## Infrastructure vs Feature Summary
+For **collaborations**:
+- Boost:
+  - Recent posts (newer requests higher).
+  - Paid opportunities, if they tend to be more serious.
+  - Requests that share genres or tags with the searching user.
 
-### Infrastructure (Reusable Across Platform)
-- SearchService methods (search-people, search-collaborations, search-services, search-tags, search-for-you, get-recommendations)
-- RecentSearchesService (CRUD operations)
-- Search API endpoints (GET /search, POST/DELETE /search/recent)
-- Response mappers (format database results to API response)
-- Database indexes and triggers
+For **services**:
+- Boost:
+  - Clear title matches.
+  - Services that are broadly relevant or used often.
 
-**Used by:**
-- Search page (all tabs)
-- Feed filters (future)
-- Discovery pages (future)
-- Mobile app (future)
-- Any feature needing to search or track search history
+For **tags**:
+- Boost:
+  - Tags with higher usage count.
+  - Tags that closely or exactly match the query.
 
-### Feature (Search Page Specific)
-- SearchPage container component
-- SearchBar component
-- SearchTabs component
-- RecentSearches component
-- ForYouResults component
-- PeopleResults component
-- CollaborationsResults component
-- ServicesResults component
-- TagsResults component
-- Search page routing and URL sync
+### 5.3 Aggregation in For You
 
-**Used by:**
-- Only the search page
-- Exclusive to search page UI/UX
+When combining results from different types in **For You**:
+- Normalize relevance scores across types to a comparable scale.
+- Apply a **type-level weight** to reflect platform priorities. Example:
+  - People: highest weight (core of the platform).
+  - Collaborations: slightly lower but still high.
+  - Services: medium.
+  - Tags: lower (discovery, not end-goal).
+
+Conceptual ordering:
+- Within For You, the list is sorted primarily by this combined relevance score.
+- Ties (or near-ties) can be broken by recency or secondary signals.
 
 ---
 
-## Code Standards
+## 6. Search Page Behavior
 
-### Naming & Structure
+### 6.1 Core Interactions
 
-- **Over brevity:** Use full words. Prefer `searchQuery` over `q`, `activeTab` over `tab`
-- **Clarity first:** Function names describe what they do: `saveRecentSearch()`, not `save()`
-- **Signal over silence:** Comments only for non-obvious "why", not "what" the code does
-- **Minimal code:** Each file does one thing well. No god classes.
+- The search page is a **dedicated full-screen experience**.
+- It contains:
+  - A single search input at the top.
+  - A row of tabs below the input.
+  - A main content area that shows either:
+    - Recent searches (when no query), or
+    - Search results for the active tab (when there is a query).
 
-### File Naming Convention
+### 6.2 Query Lifecycle
 
-- **TypeScript services/controllers:** `kebab-case.ts`
-  - `search.service.ts`
-  - `search.controller.ts`
-  - `recent-searches.service.ts`
+1. User opens the search page.
+2. The search input is empty and focused.
+3. Recent searches are displayed.
+4. User types a query:
+   - After a short pause (debounce), a search is performed.
+   - Results for the active tab are shown.
+5. User switches tabs:
+   - The same query is used.
+   - Results are re-fetched for the newly active tab.
+6. User clears the input:
+   - Search results disappear.
+   - Recent searches appear again.
 
-- **React components:** `kebab-case.tsx`
-  - `search-page.tsx`
-  - `search-bar.tsx`
-  - `recent-searches.tsx`
-  - `for-you-results.tsx`
+### 6.3 Per-Tab Behavior Summary
 
-### Example Code Style
+- **For You:**
+  - With query: mixed, relevance-ordered list across types.
+  - Without query: personalized recommendations.
 
-```typescript
-// ✓ GOOD: Clear names, obvious flow
-async function saveRecentSearch(
-  userId: string,
-  searchQuery: string,
-  selectedTab: string,
-  token: string
-): Promise<void> {
-  // Deduplicate: delete existing identical search to move it to top
-  await deleteExistingSearch(userId, searchQuery, selectedTab);
-  
-  const { error } = await client
-    .from("recent_searches")
-    .insert({
-      user_id: userId,
-      search_query: searchQuery,
-      search_tab: selectedTab,
-    });
+- **People:**
+  - With query: list of people cards matching the query.
+  - Without query: either nothing or a future recommendation pattern; conceptually, empty is acceptable.
 
-  if (error) throw createHttpError({
-    message: `Failed to save search: ${error.message}`,
-    statusCode: 500,
-    code: "DATABASE_ERROR",
-  });
-}
+- **Collaborations:**
+  - With query: list of collaboration request cards filtered by the query.
+  - Without query: optionally nothing or a future “active near you / matching your genres” view.
 
-// ✓ GOOD: Minimal, focused component
-export function SearchBar({ value, onChange, placeholder }) {
-  return (
-    <input
-      type="text"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      autoFocus
-    />
-  );
-}
+- **Services:**
+  - With query: list of generic service types relevant to the query.
+  - Without query: list of broadly useful services (e.g., mixing, mastering, session players).
 
-// ✗ BAD: Abbreviated, unclear
-async function srvSrch(q, t, c) {
-  const d = await c.from("s").select("*").match({ q });
-  return d;
-}
+- **Tags:**
+  - With query: list of tags with usage counts.
+  - Without query: potentially trending or popular tags.
 
-// ✗ BAD: Over-explained
-// This function takes a userId string parameter
-// and returns an array of recent searches
-// It queries the recent_searches table
-async function getRecentSearches(userId) {
-  // ...
-}
-```
-
-### File Organization
-
-```
-backend/src/entities/search/
-├── search.controller.ts          // All endpoints
-├── search.service.ts             // Search logic
-├── search.mapper.ts              // Response mapping
-├── recent-searches.service.ts    // Recent searches CRUD
-└── search.dto.ts                 // Request DTOs
-
-frontend/src/pages/
-└── search-page.tsx               // Container component
-
-frontend/src/components/search/
-├── search-bar.tsx                // Input with debounce
-├── search-tabs.tsx               // Tab navigation
-├── recent-searches.tsx           // Recent searches display
-├── for-you-results.tsx           // For You renderer
-├── people-results.tsx            // People renderer
-├── collaborations-results.tsx    // Collaborations renderer
-├── services-results.tsx          // Services renderer
-└── tags-results.tsx              // Tags renderer
-```
+The **minimum requirement** is defined, while recommendation-based enhancements can be introduced incrementally.
 
 ---
 
-## API Specification
+## 7. Conceptual Separation: Infrastructure vs Feature
 
-### Endpoints
+Even though this document does not talk about code structure, it is important to conceptually separate:
 
-#### Search
-```
-GET /api/search?q={query}&tab={tab}&limit=20&offset=0
+### 7.1 Infrastructure (Reused Logic)
 
-Response: SearchResponse {
-  results: Array<ForYouResult | UserResult | CollaborationResult | ServiceResult | TagResult>
-}
-```
+- Core search logic for each entity type (people, collaborations, services, tags).
+- The For You aggregation and recommendation behavior.
+- The relevance and ranking logic (text scores + business signals).
+- Storage and retrieval of recent searches.
+- Public search endpoints that any client can call.
 
-#### Recent Searches
-```
-GET /api/search/recent
-Response: Array<RecentSearch>
+These concepts are **not tied** to a specific page. They can support:
+- The main search page.
+- Inline/compact search experiences elsewhere.
+- Mobile apps.
+- Future discovery features.
 
-POST /api/search/recent
-Body: { query: string, tab: string, entityType?: string, entityId?: string }
-Response: 204 No Content
+### 7.2 Feature (Search Page Experience)
 
-DELETE /api/search/recent/:id
-Response: 204 No Content
+- The full-page search experience with tabs.
+- How recent searches are visually presented and interacted with.
+- How results are grouped and rendered within each tab.
+- The exact empty states and microcopy.
 
-DELETE /api/search/recent/clear
-Response: 204 No Content
-```
+These concepts are **specific** to the main search page and can evolve independently of core search logic.
 
 ---
 
-## Testing Checklist
+## 8. Future Extensions (Conceptual Only)
 
-### Backend
-- [ ] searchPeople returns correct user cards
-- [ ] searchCollaborations returns correct post IDs
-- [ ] searchServices returns generic service results
-- [ ] searchTags returns tags with usage counts
-- [ ] searchForYou with query returns mixed results sorted by relevance
-- [ ] searchForYou without query returns recommendations
-- [ ] Recent searches deduplication works
-- [ ] Recent searches ordered by created_at DESC
+These are **not required now**, but are natural extensions of the concepts:
 
-### Frontend
-- [ ] Search page navigable and renders all tabs
-- [ ] Debouncing works (300ms delay)
-- [ ] Query synced to URL params
-- [ ] Recent searches shown when empty
-- [ ] Recent searches delete works
-- [ ] Clear all recent searches works
-- [ ] Each tab renders correct card types
-- [ ] Connect button functional on people cards
-- [ ] Tag click navigates to tag feed
-- [ ] Loading states show during requests
+- Autocomplete / Suggestions:
+  - Suggest people, tags, or services as the user types, before pressing enter.
 
----
+- Trending / Popular Searches:
+  - A global or location-based list of what is being searched for frequently.
 
-## Future Enhancements
+- Service Providers:
+  - Linking generic services to specific users who offer them.
 
-- Search suggestions/autocomplete (reuses infrastructure)
-- Trending searches across all users (reuses infrastructure)
-- User-offered services (reuses infrastructure)
-- Search analytics (reuses infrastructure)
-- Advanced filters (if needed)
-- Search history expiration (30 days)
+- Analytics:
+  - Aggregating trends in search behavior to guide product decisions.
 
----
+- Advanced Filters:
+  - Opt-in filters (time, location, genres) for power users, layered on top of simple query.
 
-## Related Files
-
-- `docs/DATABASE_SCHEMA.md` - Full schema reference
-- `backend/src/entities/search/` - Search implementation
-- `frontend/src/pages/search-page.tsx` - Search UI entry point
+These should reuse the same infrastructure concepts without changing the high-level mental model of search.
