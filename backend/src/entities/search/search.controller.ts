@@ -98,7 +98,7 @@ export class SearchController extends Controller {
    * @returns Array of recent searches
    */
   @Get("/recent")
-  @Security("jwt")
+  @Security("bearerAuth")
   public async getRecentSearches(
     @Query() limit?: number,
     @Request() request?: ExpressRequest
@@ -121,7 +121,7 @@ export class SearchController extends Controller {
    * @param body Search details to save
    */
   @Post("/recent")
-  @Security("jwt")
+  @Security("bearerAuth")
   public async saveRecentSearch(
     @Body() body: SaveRecentSearchDto,
     @Request() request?: ExpressRequest
@@ -151,7 +151,7 @@ export class SearchController extends Controller {
    * @summary Clear all recent searches
    */
   @Delete("/recent/clear")
-  @Security("jwt")
+  @Security("bearerAuth")
   public async clearAllRecentSearches(
     @Request() request?: ExpressRequest
   ): Promise<void> {
@@ -174,7 +174,7 @@ export class SearchController extends Controller {
    * @param id The ID of the recent search to delete
    */
   @Delete("/recent/{id}")
-  @Security("jwt")
+  @Security("bearerAuth")
   public async deleteRecentSearch(
     @Path() id: string,
     @Request() request?: ExpressRequest

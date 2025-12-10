@@ -266,7 +266,9 @@ export class SearchService {
 
     const { data, error } = await client
       .from("recent_searches")
-      .select("*")
+      .select(
+        "id, user_id, search_query, search_tab, entity_type, entity_id, created_at"
+      )
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(limit);
