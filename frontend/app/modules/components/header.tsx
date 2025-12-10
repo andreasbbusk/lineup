@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { ChevronLeft, Search, Bell, Menu } from "lucide-react";
+import { useUnreadCount } from "@/app/modules/features/notifications";
 
 interface HeaderProps {
   variant?: "home" | "default";
@@ -16,8 +17,8 @@ interface HeaderProps {
 export default function Header({ variant = "default" }: HeaderProps) {
   const pathname = usePathname();
 
-  // Don't render on messenger/chats routes
-  if (pathname?.startsWith("/chats")) {
+  // Don't render on messenger/chats routes or notifications page (has its own header)
+  if (pathname?.startsWith("/chats") || pathname === "/notifications") {
     return null;
   }
 
@@ -32,6 +33,13 @@ export default function Header({ variant = "default" }: HeaderProps) {
  * Header variant for home/feed page
  */
 function HomeHeader() {
+  const router = useRouter();
+  const { data: unreadCount } = useUnreadCount();
+
+  const handleNotificationsClick = () => {
+    router.push("/notifications");
+  };
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-light-grey bg-white">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
@@ -53,13 +61,13 @@ function HomeHeader() {
             <Search size={24} />
           </button>
           <button
+            onClick={handleNotificationsClick}
             className="relative flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
             aria-label="Notifications"
           >
             <Bell size={24} />
-            {/* Notification badge - only show when there are notifications */}
-            {/* TODO: Replace false with actual notification count check when implemented */}
-            {false && (
+            {/* Notification badge - show when there are unread notifications */}
+            {unreadCount && unreadCount > 0 && (
               <span className="absolute right-0 top-0 h-3 w-3 rounded-full bg-crocus-yellow" />
             )}
           </button>
@@ -80,9 +88,14 @@ function HomeHeader() {
  */
 function DefaultHeader() {
   const router = useRouter();
+  const { data: unreadCount } = useUnreadCount();
 
   const handleBack = () => {
     router.back();
+  };
+
+  const handleNotificationsClick = () => {
+    router.push("/notifications");
   };
 
   return (
@@ -106,13 +119,13 @@ function DefaultHeader() {
             <Search size={24} />
           </button>
           <button
+            onClick={handleNotificationsClick}
             className="relative flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
             aria-label="Notifications"
           >
             <Bell size={24} />
-            {/* Notification badge - only show when there are notifications */}
-            {/* TODO: Replace false with actual notification count check when implemented */}
-            {false && (
+            {/* Notification badge - show when there are unread notifications */}
+            {unreadCount && unreadCount > 0 && (
               <span className="absolute right-0 top-0 h-3 w-3 rounded-full bg-crocus-yellow" />
             )}
           </button>
