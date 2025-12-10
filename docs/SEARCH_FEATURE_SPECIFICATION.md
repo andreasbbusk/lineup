@@ -74,22 +74,22 @@ created_at timestamp
 ### Search Page Layout
 
 ```
-┌─────────────────────────────────────────┐
-│  🔍 Search query input (autofocus)     │
-├─────────────────────────────────────────┤
+┌─────────────────────────────────────────────────┐
+│  🔍 Search query input (autofocus)             │
+├─────────────────────────────────────────────────┤
 │  [For You] [People] [Collabs] [Services] [Tags]
-├─────────────────────────────────────────┤
-│                                         │
-│  Recent Searches (when empty):          │
-│  • guitarist · People · 2h ago         │
-│  • jazz fusion · Tags · Yesterday       │
-│                                         │
-│  OR                                     │
-│                                         │
-│  Search Results (when query exists):    │
-│  [Card 1] [Card 2] [Card 3]...         │
-│                                         │
-└─────────────────────────────────────────┘
+├─────────────────────────────────────────────────┤
+│                                                 │
+│  Recent Searches (when empty):                  │
+│  • guitarist · People · 2h ago                 │
+│  • jazz fusion · Tags · Yesterday               │
+│                                                 │
+│  OR                                             │
+│                                                 │
+│  Search Results (when query exists):            │
+│  [Card 1] [Card 2] [Card 3]...                 │
+│                                                 │
+└─────────────────────────────────────────────────┘
 ```
 
 ### Tab Specifications
@@ -156,23 +156,42 @@ created_at timestamp
 
 ## Implementation Phases
 
-Each phase represents a feature branch that should compile and function independently.
+### INFRASTRUCTURE PHASES
 
-### Phase 1: Backend Search Service
+These phases build reusable infrastructure that will be used across the platform.
 
-**Branch:** `feature/search-service-base`
+---
 
-**Goal:** Implement all search service methods without API endpoints
+#### Phase 1: Search Service - All Tabs
+
+**Classification:** INFRASTRUCTURE - Core search logic reused across platform
+
+**Goal:** Implement all search service methods used by any search context
 
 **What gets built:**
-- SearchService methods for each tab (people, collaborations, services, tags, forYou)
+- SearchService methods for each entity type:
+  - `searchPeople(query, filters?, limit, offset)` - Reusable people search
+  - `searchCollaborations(query, filters?, limit, offset)` - Reusable collaboration search
+  - `searchServices(query, filters?, limit, offset)` - Reusable services search
+  - `searchTags(query, filters?, limit, offset)` - Reusable tags search
+  - `searchForYou(query, userId, limit, offset)` - Aggregates all above
+  - `getRecommendations(userId)` - Personalized recommendations
 - Call existing RPC functions where available (search_people, search_collaborations, search_tags)
 - Add new RPC function for searchServices
-- Add ForYou recommendation logic (query aggregation when search exists, personalized recommendations when empty)
+- Response mappers for each entity type
+
+**Why infrastructure:**
+- These methods will be called from:
+  - Search page (For You tab, individual tabs)
+  - Feed filters
+  - Discovery pages
+  - Recommendation systems
+  - Any future discovery feature
+- Core business logic, not UI-specific
 
 **Deliverable:**
-- SearchService class fully implemented
-- All methods tested and returning correct response types
+- SearchService class with all methods
+- Methods tested and returning correct response types
 - No endpoints exposed yet
 
 **Files:**
@@ -181,11 +200,11 @@ Each phase represents a feature branch that should compile and function independ
 
 ---
 
-### Phase 2: Recent Searches Service
+#### Phase 2: Recent Searches Service
 
-**Branch:** `feature/recent-searches-backend`
+**Classification:** INFRASTRUCTURE - Reusable history/persistence layer
 
-**Goal:** Implement recent searches CRUD operations
+**Goal:** Implement recent searches CRUD operations as persistent service
 
 **What gets built:**
 - RecentSearchesService with methods:
@@ -197,8 +216,17 @@ Each phase represents a feature branch that should compile and function independ
 **Database requirement:**
 - Add index: `CREATE INDEX idx_recent_searches_user_created ON recent_searches(user_id, created_at DESC)`
 
+**Why infrastructure:**
+- Recent search persistence could be used in:
+  - Search page
+  - Mobile app
+  - Search widget in header
+  - User settings page (view/manage search history)
+  - Analytics (track user search patterns)
+- Generic CRUD service, not tied to any UI
+
 **Deliverable:**
-- RecentSearchesService class fully implemented
+- RecentSearchesService class with all methods
 - Handles deduplication logic
 - Methods tested
 
@@ -207,14 +235,14 @@ Each phase represents a feature branch that should compile and function independ
 
 ---
 
-### Phase 3: Search Controller & API
+#### Phase 3: Search Controller & API
 
-**Branch:** `feature/search-api-endpoints`
+**Classification:** INFRASTRUCTURE - API contract for search functionality
 
-**Goal:** Expose search and recent searches as API endpoints
+**Goal:** Expose search and recent searches as reusable API endpoints
 
 **What gets built:**
-- Update SearchController with endpoints:
+- SearchController endpoints:
   - `GET /search?q={query}&tab={tab}&limit=20&offset=0` → SearchResponse
   - `GET /search/recent` → Array<RecentSearch>
   - `POST /search/recent` → {query, tab, entityType?, entityId?}
@@ -222,6 +250,12 @@ Each phase represents a feature branch that should compile and function independ
   - `DELETE /search/recent/clear` → void
 
 **TSOA decorators:** Add proper @Get, @Post, @Delete, @Security decorators
+
+**Why infrastructure:**
+- These endpoints are the contract for all search functionality
+- Any client (web, mobile, third-party) uses these endpoints
+- Can be called from multiple UI contexts
+- Version independently from UI changes
 
 **Deliverable:**
 - All endpoints functional
@@ -233,76 +267,85 @@ Each phase represents a feature branch that should compile and function independ
 
 ---
 
-### Phase 4: Frontend Search Page Shell
+### FEATURE PHASES
 
-**Branch:** `feature/search-page-component`
+These phases build the search page feature specifically, using the infrastructure above.
 
-**Goal:** Build SearchPage container with routing and state management
+---
+
+#### Phase 4: Search Page - Core Layout
+
+**Classification:** FEATURE - Search page specific UI
+
+**Goal:** Build SearchPage container with routing, state management, and tab structure
 
 **What gets built:**
 - SearchPage component with:
-  - SearchBar input (with debounce 300ms)
+  - SearchBar input (with 300ms debounce)
   - SearchTabs navigation (5 tabs)
-  - State: query, activeTab, results, loading
+  - State management: query, activeTab, results, loading
   - URL sync: `/search?q={query}&tab={tab}`
   - Fetch search results on query/tab change
+  - Integration with RecentSearchesService for fetch/save/delete
 
-**No result rendering yet** - just show raw results in debug view
+**No result rendering yet** - just show placeholder loading state
 
 **Deliverable:**
 - SearchPage navigable from app
 - Query and tab synced to URL
 - API calls working with loading states
+- Recent searches fetched
 - Ready for result renderers
 
 **Files:**
-- `frontend/src/pages/SearchPage.tsx`
-- `frontend/src/components/search/SearchBar.tsx`
-- `frontend/src/components/search/SearchTabs.tsx`
+- `frontend/src/pages/search-page.tsx`
+- `frontend/src/components/search/search-bar.tsx`
+- `frontend/src/components/search/search-tabs.tsx`
 - Update routing to include `/search`
 
 ---
 
-### Phase 5: Recent Searches Frontend
+#### Phase 5: Recent Searches - Display & Management
 
-**Branch:** `feature/search-recent-searches`
+**Classification:** FEATURE - Search page specific display component
 
-**Goal:** Display and manage recent searches
+**Goal:** Display and manage recent searches on search page
 
 **What gets built:**
 - RecentSearches component:
   - Shows when query is empty
   - List of recent searches with query text and tab context
-  - Click to restore search
+  - Click to restore search (updates SearchPage state)
   - Individual delete (X button)
   - "Clear all" button
-- Fetch recent searches on component mount
+- Integration into SearchPage
 - Save recent search when user performs search
 
 **Deliverable:**
 - RecentSearches component fully functional
 - Integrated into SearchPage
-- Save/clear operations working
+- Save/clear operations working via infrastructure service
 
 **Files:**
-- `frontend/src/components/search/RecentSearches.tsx`
-- Update SearchPage to fetch and handle recent searches
+- `frontend/src/components/search/recent-searches.tsx`
+- Update `frontend/src/pages/search-page.tsx`
 
 ---
 
-### Phase 6: Result Renderers - People & Collaborations
+#### Phase 6: Search Results - People & Collaborations
 
-**Branch:** `feature/search-results-people-collabs`
+**Classification:** FEATURE - Search page specific result renderers
 
 **Goal:** Display search results for People and Collaborations tabs
 
 **What gets built:**
-- PeopleResults renderer:
+- PeopleResults component:
   - User card: avatar, name, bio, connect button
-  - Reuse existing user card component or create minimal version
-- CollaborationsResults renderer:
+  - Reuse or create minimal user card component
+- CollaborationsResults component:
   - Pass post IDs to existing post card component
   - Let existing component handle rendering
+- Integration into SearchPage (render based on activeTab)
 
 **Deliverable:**
 - People and Collaborations tabs showing correct results
@@ -310,51 +353,53 @@ Each phase represents a feature branch that should compile and function independ
 - Cards styled and responsive
 
 **Files:**
-- `frontend/src/components/search/PeopleResults.tsx`
-- `frontend/src/components/search/CollaborationsResults.tsx`
-- Update SearchPage to render based on activeTab
+- `frontend/src/components/search/people-results.tsx`
+- `frontend/src/components/search/collaborations-results.tsx`
+- Update `frontend/src/pages/search-page.tsx`
 
 ---
 
-### Phase 7: Result Renderers - Services & Tags
+#### Phase 7: Search Results - Services & Tags
 
-**Branch:** `feature/search-results-services-tags`
+**Classification:** FEATURE - Search page specific result renderers
 
 **Goal:** Display search results for Services and Tags tabs
 
 **What gets built:**
-- ServicesResults renderer:
+- ServicesResults component:
   - Service card: title, description snippet, type badge
   - Generic display (no provider logic)
-- TagsResults renderer:
+- TagsResults component:
   - Tag list item: # + name, usage count
   - Click → Navigate to tag feed page
+- Integration into SearchPage (render based on activeTab)
 
 **Deliverable:**
 - Services and Tags tabs showing correct results
 - Tag navigation working
 
 **Files:**
-- `frontend/src/components/search/ServicesResults.tsx`
-- `frontend/src/components/search/TagsResults.tsx`
-- Update SearchPage to render based on activeTab
+- `frontend/src/components/search/services-results.tsx`
+- `frontend/src/components/search/tags-results.tsx`
+- Update `frontend/src/pages/search-page.tsx`
 
 ---
 
-### Phase 8: For You Tab & Polish
+#### Phase 8: Search Results - For You Tab
 
-**Branch:** `feature/search-for-you-tab`
+**Classification:** FEATURE - Search page specific aggregation display
 
 **Goal:** Implement For You tab with aggregation and recommendations
 
 **What gets built:**
-- ForYouResults renderer:
+- ForYouResults component:
   - Show mixed result types (person, collaboration, service, tag)
   - Category badge on each card
   - Sort by relevance
 - Empty state recommendations:
-  - Call backend getRecommendations endpoint
+  - Call backend getRecommendations
   - Display personalized content
+- Integration into SearchPage (render based on activeTab)
 
 **Deliverable:**
 - For You tab fully functional
@@ -362,8 +407,42 @@ Each phase represents a feature branch that should compile and function independ
 - Empty state showing recommendations
 
 **Files:**
-- `frontend/src/components/search/ForYouResults.tsx`
-- Update SearchPage to handle For You logic
+- `frontend/src/components/search/for-you-results.tsx`
+- Update `frontend/src/pages/search-page.tsx`
+
+---
+
+## Infrastructure vs Feature Summary
+
+### Infrastructure (Reusable Across Platform)
+- SearchService methods (search-people, search-collaborations, search-services, search-tags, search-for-you, get-recommendations)
+- RecentSearchesService (CRUD operations)
+- Search API endpoints (GET /search, POST/DELETE /search/recent)
+- Response mappers (format database results to API response)
+- Database indexes and triggers
+
+**Used by:**
+- Search page (all tabs)
+- Feed filters (future)
+- Discovery pages (future)
+- Mobile app (future)
+- Any feature needing to search or track search history
+
+### Feature (Search Page Specific)
+- SearchPage container component
+- SearchBar component
+- SearchTabs component
+- RecentSearches component
+- ForYouResults component
+- PeopleResults component
+- CollaborationsResults component
+- ServicesResults component
+- TagsResults component
+- Search page routing and URL sync
+
+**Used by:**
+- Only the search page
+- Exclusive to search page UI/UX
 
 ---
 
@@ -375,6 +454,19 @@ Each phase represents a feature branch that should compile and function independ
 - **Clarity first:** Function names describe what they do: `saveRecentSearch()`, not `save()`
 - **Signal over silence:** Comments only for non-obvious "why", not "what" the code does
 - **Minimal code:** Each file does one thing well. No god classes.
+
+### File Naming Convention
+
+- **TypeScript services/controllers:** `kebab-case.ts`
+  - `search.service.ts`
+  - `search.controller.ts`
+  - `recent-searches.service.ts`
+
+- **React components:** `kebab-case.tsx`
+  - `search-page.tsx`
+  - `search-bar.tsx`
+  - `recent-searches.tsx`
+  - `for-you-results.tsx`
 
 ### Example Code Style
 
@@ -442,16 +534,18 @@ backend/src/entities/search/
 ├── recent-searches.service.ts    // Recent searches CRUD
 └── search.dto.ts                 // Request DTOs
 
+frontend/src/pages/
+└── search-page.tsx               // Container component
+
 frontend/src/components/search/
-├── SearchPage.tsx                // Container component
-├── SearchBar.tsx                 // Input with debounce
-├── SearchTabs.tsx                // Tab navigation
-├── RecentSearches.tsx            // Recent searches display
-├── ForYouResults.tsx             // For You renderer
-├── PeopleResults.tsx             // People renderer
-├── CollaborationsResults.tsx     // Collaborations renderer
-├── ServicesResults.tsx           // Services renderer
-└── TagsResults.tsx               // Tags renderer
+├── search-bar.tsx                // Input with debounce
+├── search-tabs.tsx               // Tab navigation
+├── recent-searches.tsx           // Recent searches display
+├── for-you-results.tsx           // For You renderer
+├── people-results.tsx            // People renderer
+├── collaborations-results.tsx    // Collaborations renderer
+├── services-results.tsx          // Services renderer
+└── tags-results.tsx              // Tags renderer
 ```
 
 ---
@@ -515,10 +609,10 @@ Response: 204 No Content
 
 ## Future Enhancements
 
-- Search suggestions/autocomplete
-- Trending searches across all users
-- User-offered services (link provider_id)
-- Search analytics (what users search for)
+- Search suggestions/autocomplete (reuses infrastructure)
+- Trending searches across all users (reuses infrastructure)
+- User-offered services (reuses infrastructure)
+- Search analytics (reuses infrastructure)
 - Advanced filters (if needed)
 - Search history expiration (30 days)
 
@@ -528,4 +622,4 @@ Response: 204 No Content
 
 - `docs/DATABASE_SCHEMA.md` - Full schema reference
 - `backend/src/entities/search/` - Search implementation
-- `frontend/src/pages/SearchPage.tsx` - Search UI entry point
+- `frontend/src/pages/search-page.tsx` - Search UI entry point
