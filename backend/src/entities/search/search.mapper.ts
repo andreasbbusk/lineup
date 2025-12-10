@@ -2,6 +2,7 @@ import {
   ForYouSearchResult,
   UserSearchResult,
   CollaborationSearchResult,
+  ServiceSearchResult,
   TagSearchResult,
 } from "../../types/api.types.js";
 
@@ -61,6 +62,17 @@ type SearchTagsResult = {
   name: string;
   type: string;
   usage_count: number;
+  relevance: number;
+};
+
+/**
+ * Type for search_services RPC function result
+ */
+type SearchServicesResult = {
+  id: string;
+  title: string;
+  description: string;
+  service_type: string | null;
   relevance: number;
 };
 
@@ -138,6 +150,22 @@ export function mapTagResultToResponse(
     id: item.id,
     name: item.name,
     usageCount: item.usage_count || 0,
+    relevance: item.relevance,
+  };
+}
+
+/**
+ * Maps search_services RPC result to API format
+ */
+export function mapServiceResultToResponse(
+  item: SearchServicesResult
+): ServiceSearchResult {
+  return {
+    type: "service",
+    id: item.id,
+    title: item.title || "",
+    description: item.description || "",
+    serviceType: item.service_type ?? null,
     relevance: item.relevance,
   };
 }

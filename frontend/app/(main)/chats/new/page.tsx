@@ -7,7 +7,7 @@ import {
   UserSearchList,
 } from "@/app/modules/features/chats";
 import { useConnectedUsers } from "@/app/modules/hooks/queries";
-import { useUserSearch } from "@/app/modules/hooks/queries";
+import { useSearch } from "@/app/modules/hooks";
 import type { components } from "@/app/modules/types/api";
 import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
 import { ChevronLeft, ArrowRight } from "lucide-react";
@@ -26,10 +26,11 @@ export default function NewChatPage() {
     useConnectedUsers();
 
   // Search users (only when there's a query)
-  const { data: searchResults, isLoading: searchLoading } = useUserSearch(
-    searchQuery,
-    searchQuery.length > 0
-  );
+  const { data: searchResults, isLoading: searchLoading } = useSearch({
+    query: searchQuery,
+    tab: "people",
+    enabled: searchQuery.length > 0,
+  });
 
   // Create conversation mutation
   const { mutate: createConversation, isPending: isCreating } =
