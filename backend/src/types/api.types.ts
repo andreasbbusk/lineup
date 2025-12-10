@@ -759,6 +759,36 @@ export interface NotificationResponse {
   };
 }
 
+/**
+ * API response format for grouped notifications
+ * Returns notifications organized by type for easy filtering in the frontend
+ * Uses Record type to ensure all notification types are included
+ *
+ * @example
+ * {
+ *   "like": [
+ *     { "id": "notif-1", "type": "like", ... },
+ *     { "id": "notif-2", "type": "like", ... }
+ *   ],
+ *   "comment": [
+ *     { "id": "notif-3", "type": "comment", ... }
+ *   ],
+ *   "connection_request": [],
+ *   "message": [...]
+ * }
+ */
+export type GroupedNotificationsResponse = Record<
+  | "like"
+  | "comment"
+  | "connection_request"
+  | "connection_accepted"
+  | "tagged_in_post"
+  | "review"
+  | "collaboration_request"
+  | "message",
+  NotificationResponse[]
+>;
+
 // ==================== Review Types ====================
 
 /**

@@ -1,14 +1,15 @@
 import { createAuthenticatedClient } from "../../config/supabase.config.js";
-import {
-  NotificationUpdate,
-  NotificationType,
-} from "../../utils/supabase-helpers.js";
+import { NotificationUpdate, NotificationType } from "../../utils/supabase-helpers.js";
 import { createHttpError } from "../../utils/error-handler.js";
 import {
   mapNotificationsToResponse,
   mapNotificationToResponse,
+  groupNotificationsByType,
 } from "./notifications.mapper.js";
-import { NotificationResponse } from "../../types/api.types.js";
+import {
+  NotificationResponse,
+  GroupedNotificationsResponse,
+} from "../../types/api.types.js";
 import { UpdateNotificationDto } from "./notifications.dto.js";
 
 export class NotificationsService {
@@ -16,6 +17,7 @@ export class NotificationsService {
    * Get notifications for the authenticated user
    * Returns notifications with actor information
    * Supports filtering by type and unread status
+   * Can return either flat array or grouped by type
    */
   async getUserNotifications(
     userId: string,
@@ -23,8 +25,12 @@ export class NotificationsService {
     type?: string,
     unreadOnly?: boolean,
     cursor?: string,
-    limit: number = 50
-  ): Promise<{ notifications: NotificationResponse[]; nextCursor?: string }> {
+    limit: number = 50,
+    grouped: boolean = false
+  ): Promise<
+    | { notifications: NotificationResponse[]; nextCursor?: string }
+    | { notifications: GroupedNotificationsResponse; nextCursor?: string }
+  > {
     const authedSupabase = createAuthenticatedClient(token);
 
     // Build query
@@ -72,6 +78,11 @@ export class NotificationsService {
     }
 
     if (!notifications || notifications.length === 0) {
+      if (grouped) {
+        return {
+          notifications: groupNotificationsByType([]),
+        };
+      }
       return { notifications: [] };
     }
 
@@ -85,8 +96,20 @@ export class NotificationsService {
         undefined
       : undefined;
 
+    const mappedNotifications = mapNotificationsToResponse(
+      notificationsToReturn as any
+    );
+
+    // If grouped is requested, return grouped by type
+    if (grouped) {
+      return {
+        notifications: groupNotificationsByType(mappedNotifications),
+        nextCursor,
+      };
+    }
+
     return {
-      notifications: mapNotificationsToResponse(notificationsToReturn as any),
+      notifications: mappedNotifications,
       nextCursor,
     };
   }
