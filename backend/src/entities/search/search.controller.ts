@@ -144,6 +144,28 @@ export class SearchController extends Controller {
   }
 
   /**
+   * Clear all recent searches
+   *
+   * Removes all search entries from the user's recent search history.
+   *
+   * @summary Clear all recent searches
+   */
+  @Delete("/recent/clear")
+  @Security("jwt")
+  public async clearAllRecentSearches(
+    @Request() request?: ExpressRequest
+  ): Promise<void> {
+    return handleControllerRequest(this, async () => {
+      const userId = await extractUserId(request!);
+      const token = request!.headers.authorization?.replace("Bearer ", "") || "";
+
+      await this.searchService.clearAllRecentSearches(userId, token);
+
+      this.setStatus(204);
+    });
+  }
+
+  /**
    * Delete a specific recent search
    *
    * Removes a single search entry from the user's recent search history.
@@ -162,28 +184,6 @@ export class SearchController extends Controller {
       const token = request!.headers.authorization?.replace("Bearer ", "") || "";
 
       await this.searchService.deleteRecentSearch(userId, id, token);
-
-      this.setStatus(204);
-    });
-  }
-
-  /**
-   * Clear all recent searches
-   *
-   * Removes all search entries from the user's recent search history.
-   *
-   * @summary Clear all recent searches
-   */
-  @Delete("/recent/clear")
-  @Security("jwt")
-  public async clearAllRecentSearches(
-    @Request() request?: ExpressRequest
-  ): Promise<void> {
-    return handleControllerRequest(this, async () => {
-      const userId = await extractUserId(request!);
-      const token = request!.headers.authorization?.replace("Bearer ", "") || "";
-
-      await this.searchService.clearAllRecentSearches(userId, token);
 
       this.setStatus(204);
     });
