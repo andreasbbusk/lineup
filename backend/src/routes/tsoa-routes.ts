@@ -91,10 +91,13 @@ const models: TsoaRoute.Models = {
     "SignedUrlRequestDto": {"dataType":"refObject","properties":{"fileName":{"dataType":"string","required":true},"fileType":{"dataType":"string","required":true},"uploadType":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["post"]},{"dataType":"enum","enums":["avatar"]}],"default":"post"}},"additionalProperties":false},
     "UserSearchResult": {"dataType":"refObject","properties":{"type":{"dataType":"enum","enums":["user"],"required":true},"id":{"dataType":"string","required":true},"username":{"dataType":"string","required":true},"firstName":{"dataType":"string","required":true},"lastName":{"dataType":"string","required":true},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"bio":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"genres":{"dataType":"any"},"lookingFor":{"dataType":"array","array":{"dataType":"string"}},"isConnected":{"dataType":"boolean","required":true},"relevance":{"dataType":"double","required":true}},"additionalProperties":false},
     "CollaborationSearchResult": {"dataType":"refObject","properties":{"type":{"dataType":"enum","enums":["collaboration"],"required":true},"id":{"dataType":"string","required":true},"title":{"dataType":"string","required":true},"description":{"dataType":"string","required":true},"authorId":{"dataType":"string","required":true},"authorUsername":{"dataType":"string","required":true},"authorAvatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"paidOpportunity":{"dataType":"boolean","required":true},"genres":{"dataType":"any"},"createdAt":{"dataType":"string","required":true},"relevance":{"dataType":"double","required":true}},"additionalProperties":false},
+    "ServiceSearchResult": {"dataType":"refObject","properties":{"type":{"dataType":"enum","enums":["service"],"required":true},"id":{"dataType":"string","required":true},"title":{"dataType":"string","required":true},"description":{"dataType":"string","required":true},"serviceType":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"relevance":{"dataType":"double","required":true}},"additionalProperties":false},
     "TagSearchResult": {"dataType":"refObject","properties":{"type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["tag"]},{"dataType":"enum","enums":["genre"]},{"dataType":"enum","enums":["artist"]}],"required":true},"id":{"dataType":"string","required":true},"name":{"dataType":"string","required":true},"usageCount":{"dataType":"double","required":true},"relevance":{"dataType":"double","required":true}},"additionalProperties":false},
-    "ForYouSearchResult": {"dataType":"refObject","properties":{"type":{"dataType":"enum","enums":["for_you"],"required":true},"entityType":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["user"]},{"dataType":"enum","enums":["collaboration"]}],"required":true},"entityId":{"dataType":"string","required":true},"title":{"dataType":"string","required":true},"subtitle":{"dataType":"string","required":true},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"matchReason":{"dataType":"string","required":true},"additionalInfo":{"dataType":"any"},"relevance":{"dataType":"double","required":true}},"additionalProperties":false},
-    "SearchResult": {"dataType":"refAlias","type":{"dataType":"union","subSchemas":[{"ref":"UserSearchResult"},{"ref":"CollaborationSearchResult"},{"ref":"TagSearchResult"},{"ref":"ForYouSearchResult"}],"validators":{}}},
+    "ForYouSearchResult": {"dataType":"refObject","properties":{"type":{"dataType":"enum","enums":["for_you"],"required":true},"entityType":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["user"]},{"dataType":"enum","enums":["collaboration"]},{"dataType":"enum","enums":["service"]},{"dataType":"enum","enums":["tag"]}],"required":true},"entityId":{"dataType":"string","required":true},"title":{"dataType":"string","required":true},"subtitle":{"dataType":"string","required":true},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"matchReason":{"dataType":"string","required":true},"additionalInfo":{"dataType":"any"},"relevance":{"dataType":"double","required":true}},"additionalProperties":false},
+    "SearchResult": {"dataType":"refAlias","type":{"dataType":"union","subSchemas":[{"ref":"UserSearchResult"},{"ref":"CollaborationSearchResult"},{"ref":"ServiceSearchResult"},{"ref":"TagSearchResult"},{"ref":"ForYouSearchResult"}],"validators":{}}},
     "SearchResponse": {"dataType":"refObject","properties":{"results":{"dataType":"array","array":{"dataType":"refAlias","ref":"SearchResult"},"required":true},"total":{"dataType":"double"}},"additionalProperties":false},
+    "RecentSearch": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"userId":{"dataType":"string","required":true},"searchQuery":{"dataType":"string","required":true},"searchTab":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["for_you"]},{"dataType":"enum","enums":["people"]},{"dataType":"enum","enums":["collaborations"]},{"dataType":"enum","enums":["services"]},{"dataType":"enum","enums":["tags"]}],"required":true},"entityType":{"dataType":"string"},"entityId":{"dataType":"string"},"createdAt":{"dataType":"string","required":true}},"additionalProperties":false},
+    "SaveRecentSearchDto": {"dataType":"refObject","properties":{"query":{"dataType":"string","required":true},"tab":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["for_you"]},{"dataType":"enum","enums":["people"]},{"dataType":"enum","enums":["collaborations"]},{"dataType":"enum","enums":["services"]},{"dataType":"enum","enums":["tags"]}],"required":true},"entityType":{"dataType":"string"},"entityId":{"dataType":"string"}},"additionalProperties":false},
     "ReviewResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"userId":{"dataType":"string","required":true},"reviewerId":{"dataType":"string","required":true},"rating":{"dataType":"double","required":true},"description":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"reviewer":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}},"additionalProperties":false},
     "Pick_ReviewInsert.Exclude_keyofReviewInsert.reviewer_id-or-user_id-or-created_at-or-id__": {"dataType":"refAlias","type":{"dataType":"nestedObjectLiteral","nestedProperties":{"description":{"dataType":"string"},"rating":{"dataType":"double","required":true}},"validators":{}}},
     "CreateReviewDto": {"dataType":"refObject","properties":{"description":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"rating":{"dataType":"double","required":true}},"additionalProperties":false},
@@ -499,7 +502,7 @@ export function RegisterRoutes(app: Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsSearchController_search: Record<string, TsoaRoute.ParameterSchema> = {
                 q: {"in":"query","name":"q","dataType":"string"},
-                tab: {"in":"query","name":"tab","dataType":"union","subSchemas":[{"dataType":"enum","enums":["for_you"]},{"dataType":"enum","enums":["people"]},{"dataType":"enum","enums":["collaborations"]},{"dataType":"enum","enums":["tags"]}]},
+                tab: {"in":"query","name":"tab","dataType":"union","subSchemas":[{"dataType":"enum","enums":["for_you"]},{"dataType":"enum","enums":["people"]},{"dataType":"enum","enums":["collaborations"]},{"dataType":"enum","enums":["services"]},{"dataType":"enum","enums":["tags"]}]},
                 location: {"in":"query","name":"location","dataType":"string"},
                 genres: {"in":"query","name":"genres","dataType":"array","array":{"dataType":"string"}},
                 lookingFor: {"in":"query","name":"lookingFor","dataType":"array","array":{"dataType":"string"}},
@@ -524,6 +527,133 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'search',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsSearchController_getRecentSearches: Record<string, TsoaRoute.ParameterSchema> = {
+                limit: {"in":"query","name":"limit","dataType":"double"},
+                request: {"in":"request","name":"request","dataType":"object"},
+        };
+        app.get('/search/recent',
+            authenticateMiddleware([[{"jwt":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(SearchController)),
+            ...(fetchMiddlewares<RequestHandler>(SearchController.prototype.getRecentSearches)),
+
+            async function SearchController_getRecentSearches(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsSearchController_getRecentSearches, request, response });
+
+                const controller = new SearchController();
+
+              await templateService.apiHandler({
+                methodName: 'getRecentSearches',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsSearchController_saveRecentSearch: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"ref":"SaveRecentSearchDto"},
+                request: {"in":"request","name":"request","dataType":"object"},
+        };
+        app.post('/search/recent',
+            authenticateMiddleware([[{"jwt":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(SearchController)),
+            ...(fetchMiddlewares<RequestHandler>(SearchController.prototype.saveRecentSearch)),
+
+            async function SearchController_saveRecentSearch(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsSearchController_saveRecentSearch, request, response });
+
+                const controller = new SearchController();
+
+              await templateService.apiHandler({
+                methodName: 'saveRecentSearch',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsSearchController_deleteRecentSearch: Record<string, TsoaRoute.ParameterSchema> = {
+                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+                request: {"in":"request","name":"request","dataType":"object"},
+        };
+        app.delete('/search/recent/:id',
+            authenticateMiddleware([[{"jwt":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(SearchController)),
+            ...(fetchMiddlewares<RequestHandler>(SearchController.prototype.deleteRecentSearch)),
+
+            async function SearchController_deleteRecentSearch(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsSearchController_deleteRecentSearch, request, response });
+
+                const controller = new SearchController();
+
+              await templateService.apiHandler({
+                methodName: 'deleteRecentSearch',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsSearchController_clearAllRecentSearches: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"request","name":"request","dataType":"object"},
+        };
+        app.delete('/search/recent/clear',
+            authenticateMiddleware([[{"jwt":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(SearchController)),
+            ...(fetchMiddlewares<RequestHandler>(SearchController.prototype.clearAllRecentSearches)),
+
+            async function SearchController_clearAllRecentSearches(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsSearchController_clearAllRecentSearches, request, response });
+
+                const controller = new SearchController();
+
+              await templateService.apiHandler({
+                methodName: 'clearAllRecentSearches',
                 controller,
                 response,
                 next,

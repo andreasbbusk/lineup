@@ -3,15 +3,29 @@ import {
   supabase,
 } from "../../config/supabase.config.js";
 import { createHttpError } from "../../utils/error-handler.js";
-import { SearchResponse } from "../../types/api.types.js";
+import { SearchResponse, RecentSearch } from "../../types/api.types.js";
 import { SearchQueryDto } from "./search.dto.js";
 import { LookingForType } from "../../utils/supabase-helpers.js";
 import {
   mapForYouResultToResponse,
   mapPeopleResultToResponse,
   mapCollaborationResultToResponse,
+  mapServiceResultToResponse,
   mapTagResultToResponse,
 } from "./search.mapper.js";
+
+/**
+ * Type for recent search database record
+ */
+type RecentSearchRecord = {
+  id: string;
+  user_id: string;
+  search_query: string;
+  search_tab: string | null;
+  entity_type: string | null;
+  entity_id: string | null;
+  created_at: string | null;
+};
 
 export class SearchService {
   /**
@@ -62,6 +76,8 @@ export class SearchService {
           offset,
           client
         );
+      case "services":
+        return this.searchServices(searchQuery, limit, offset, client);
       case "tags":
         return this.searchTags(
           searchQuery,
@@ -79,9 +95,9 @@ export class SearchService {
   }
 
   /**
-   * Search "For You" tab - personalized results
+   * Search "For You" tab - personalized results or recommendations
    */
-  private async searchForYou(
+  public async searchForYou(
     userId: string,
     query: string,
     limit: number,
@@ -111,7 +127,7 @@ export class SearchService {
   /**
    * Search people tab - search for users
    */
-  private async searchPeople(
+  public async searchPeople(
     userId: string,
     query: string,
     location?: string,
@@ -147,7 +163,7 @@ export class SearchService {
   /**
    * Search collaborations tab - search for collaboration requests
    */
-  private async searchCollaborations(
+  public async searchCollaborations(
     userId: string,
     query: string,
     location?: string,
@@ -183,7 +199,7 @@ export class SearchService {
   /**
    * Search tags tab - search for metadata (tags, genres, artists)
    */
-  private async searchTags(
+  public async searchTags(
     query: string,
     filterType?: "tag" | "genre" | "artist",
     limit: number = 20,
@@ -207,5 +223,183 @@ export class SearchService {
     const results = (data || []).map(mapTagResultToResponse);
 
     return { results };
+  }
+
+  /**
+   * Search services tab - search for services
+   */
+  public async searchServices(
+    query: string,
+    limit: number = 20,
+    offset: number = 0,
+    client: any = supabase
+  ): Promise<SearchResponse> {
+    const { data, error } = await client.rpc("search_services", {
+      search_query: query || null,
+      limit_count: limit,
+      offset_count: offset,
+    });
+
+    if (error) {
+      throw createHttpError({
+        message: `Failed to search services: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    const results = (data || []).map(mapServiceResultToResponse);
+
+    return { results };
+  }
+
+  /**
+   * Get recent searches for a user
+   * Returns searches ordered by most recent first
+   */
+  public async getRecentSearches(
+    userId: string,
+    limit: number = 15,
+    token?: string
+  ): Promise<RecentSearch[]> {
+    const client = token ? createAuthenticatedClient(token) : supabase;
+
+    const { data, error } = await client
+      .from("recent_searches")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      throw createHttpError({
+        message: `Failed to fetch recent searches: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    return (data || []).map(this.mapRecentSearchToResponse);
+  }
+
+  /**
+   * Save a recent search
+   * Deduplicates by deleting existing identical query+tab combination
+   */
+  public async saveSearch(
+    userId: string,
+    searchQuery: string,
+    searchTab: "for_you" | "people" | "collaborations" | "services" | "tags",
+    entityType?: string,
+    entityId?: string,
+    token?: string
+  ): Promise<void> {
+    const client = token ? createAuthenticatedClient(token) : supabase;
+
+    // Delete existing identical search to move it to top
+    await this.deleteExistingSearch(userId, searchQuery, searchTab, client);
+
+    // Insert new search record
+    const { error } = await client.from("recent_searches").insert({
+      user_id: userId,
+      search_query: searchQuery,
+      search_tab: searchTab,
+      entity_type: entityType || null,
+      entity_id: entityId || null,
+    });
+
+    if (error) {
+      throw createHttpError({
+        message: `Failed to save recent search: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+  }
+
+  /**
+   * Delete a specific recent search by ID
+   */
+  public async deleteRecentSearch(
+    userId: string,
+    searchId: string,
+    token?: string
+  ): Promise<void> {
+    const client = token ? createAuthenticatedClient(token) : supabase;
+
+    const { error } = await client
+      .from("recent_searches")
+      .delete()
+      .eq("id", searchId)
+      .eq("user_id", userId);
+
+    if (error) {
+      throw createHttpError({
+        message: `Failed to delete recent search: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+  }
+
+  /**
+   * Clear all recent searches for a user
+   */
+  public async clearAllRecentSearches(
+    userId: string,
+    token?: string
+  ): Promise<void> {
+    const client = token ? createAuthenticatedClient(token) : supabase;
+
+    const { error } = await client
+      .from("recent_searches")
+      .delete()
+      .eq("user_id", userId);
+
+    if (error) {
+      throw createHttpError({
+        message: `Failed to clear recent searches: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+  }
+
+  /**
+   * Private helper to delete existing search with same query+tab
+   * Used for deduplication when saving new search
+   */
+  private async deleteExistingSearch(
+    userId: string,
+    searchQuery: string,
+    searchTab: string,
+    client: any
+  ): Promise<void> {
+    const { error } = await client
+      .from("recent_searches")
+      .delete()
+      .eq("user_id", userId)
+      .eq("search_query", searchQuery)
+      .eq("search_tab", searchTab);
+
+    if (error) {
+      // Log but don't throw - this is a non-critical operation
+      console.error("Failed to delete existing search:", error.message);
+    }
+  }
+
+  /**
+   * Map database record to API response format
+   */
+  private mapRecentSearchToResponse(record: RecentSearchRecord): RecentSearch {
+    return {
+      id: record.id,
+      userId: record.user_id,
+      searchQuery: record.search_query,
+      searchTab: (record.search_tab as any) || "for_you",
+      entityType: record.entity_type || undefined,
+      entityId: record.entity_id || undefined,
+      createdAt: record.created_at || new Date().toISOString(),
+    };
   }
 }

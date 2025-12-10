@@ -889,8 +889,30 @@ export interface TagSearchResult {
 }
 
 /**
+ * Search result for services (from search_services)
+ *
+ * @example
+ * {
+ *   "type": "service",
+ *   "id": "service-123",
+ *   "title": "Mixing & Mastering",
+ *   "description": "Professional audio mixing and mastering services",
+ *   "serviceType": "mixing",
+ *   "relevance": 0.85
+ * }
+ */
+export interface ServiceSearchResult {
+  type: "service";
+  id: string;
+  title: string;
+  description: string;
+  serviceType: string | null;
+  relevance: number;
+}
+
+/**
  * Search result for "For You" tab (from search_for_you)
- * Polymorphic result that can be a user or collaboration
+ * Polymorphic result that can be a user, collaboration, service, or tag
  *
  * @example
  * {
@@ -907,7 +929,7 @@ export interface TagSearchResult {
  */
 export interface ForYouSearchResult {
   type: "for_you";
-  entityType: "user" | "collaboration";
+  entityType: "user" | "collaboration" | "service" | "tag";
   entityId: string;
   title: string;
   subtitle: string;
@@ -923,6 +945,7 @@ export interface ForYouSearchResult {
 export type SearchResult =
   | UserSearchResult
   | CollaborationSearchResult
+  | ServiceSearchResult
   | TagSearchResult
   | ForYouSearchResult;
 
@@ -941,6 +964,30 @@ export type SearchResult =
 export interface SearchResponse {
   results: SearchResult[];
   total?: number;
+}
+
+/**
+ * API response format for a recent search entry
+ *
+ * @example
+ * {
+ *   "id": "search-123",
+ *   "userId": "user-456",
+ *   "searchQuery": "guitarist",
+ *   "searchTab": "people",
+ *   "entityType": "user",
+ *   "entityId": "user-789",
+ *   "createdAt": "2024-01-20T15:30:00Z"
+ * }
+ */
+export interface RecentSearch {
+  id: string;
+  userId: string;
+  searchQuery: string;
+  searchTab: "for_you" | "people" | "collaborations" | "services" | "tags";
+  entityType?: string;
+  entityId?: string;
+  createdAt: string;
 }
 
 // ==================== Upload Types ====================
