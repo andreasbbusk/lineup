@@ -16,6 +16,39 @@ export function NotificationsPage() {
   const router = useRouter();
   const { data, isLoading, error } = useNotifications();
 
+  const notifications = data?.notifications;
+
+  // Memoize combined notification arrays (must be called before early returns)
+  const connectionRequests = useMemo(
+    () => {
+      if (!notifications) return [];
+      return [
+        ...notifications.connection_request,
+        ...notifications.connection_accepted,
+      ];
+    },
+    [notifications?.connection_request, notifications?.connection_accepted]
+  );
+
+  // Profile interactions: likes, comments, tagged_in_post, review
+  const profileInteractions = useMemo(
+    () => {
+      if (!notifications) return [];
+      return [
+        ...notifications.like,
+        ...notifications.comment,
+        ...notifications.tagged_in_post,
+        ...notifications.review,
+      ];
+    },
+    [
+      notifications?.like,
+      notifications?.comment,
+      notifications?.tagged_in_post,
+      notifications?.review,
+    ]
+  );
+
   const handleClose = () => {
     router.back();
   };
@@ -56,8 +89,6 @@ export function NotificationsPage() {
     );
   }
 
-  const notifications = data?.notifications;
-
   if (!notifications) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#f7f6f6]">
@@ -65,31 +96,6 @@ export function NotificationsPage() {
       </div>
     );
   }
-
-  // Memoize combined notification arrays
-  const connectionRequests = useMemo(
-    () => [
-      ...notifications.connection_request,
-      ...notifications.connection_accepted,
-    ],
-    [notifications.connection_request, notifications.connection_accepted]
-  );
-
-  // Profile interactions: likes, comments, tagged_in_post, review
-  const profileInteractions = useMemo(
-    () => [
-      ...notifications.like,
-      ...notifications.comment,
-      ...notifications.tagged_in_post,
-      ...notifications.review,
-    ],
-    [
-      notifications.like,
-      notifications.comment,
-      notifications.tagged_in_post,
-      notifications.review,
-    ]
-  );
 
   return (
     <div className="min-h-screen bg-[#f7f6f6] pb-20">
