@@ -11,6 +11,7 @@ import { ActionBar } from "./action-bar";
 import { Divider } from "../../profiles/components/edit/divider";
 import { Button } from "@/app/modules/components/buttons";
 import { Comments } from "./comments";
+import { Popover } from "@/app/modules/components/popover";
 
 interface PostCardProps {
 	post: PostResponse & {
@@ -82,16 +83,21 @@ export function PostCard({ post, ...props }: PostCardProps) {
 
 	const [isLiked, setIsLiked] = useState(false);
 	const [isCommentOpen, setIsCommentOpen] = useState(false);
+	const [showOption, setShowOption] = useState(false);
 
 	return type === "note" ? (
 		<article className="relative bg-white p-4">
 			<Image
+				onClick={() => setShowOption(!showOption)}
 				src="/icons/more.svg"
 				alt="More options"
 				width={24}
 				height={24}
 				className="absolute right-2 top-2"
 			/>
+			{showOption && (
+				<Popover className="absolute right-2 top-8 z-100" variant="note" />
+			)}
 			{/* Author Header */}
 			<div className="mb-3 px-2.5 flex items-center gap-1.25">
 				<div className="flex flex-row items-center gap-1.25">
