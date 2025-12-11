@@ -126,7 +126,7 @@ export function CreateForm() {
 
 	return (
 		<Tabs
-			className="bg-white"
+			className="bg-white min-h-full"
 			variant="create"
 			activeTab={activeTab}
 			onTabChange={setActiveTab}>
