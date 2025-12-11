@@ -10,6 +10,7 @@ import { useNoteDraftAutoSave } from "../hooks/useDraftAutoSave";
 import type { UploadedMedia } from "../types";
 import { Avatar } from "@/app/modules/components/avatar";
 import { useMyProfile } from "@/app/modules/features/profiles/hooks/queries/useProfile";
+import Image from "next/image";
 
 interface NoteFormProps {
 	onSubmit: (data: {
@@ -98,7 +99,7 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 	return (
 		<form
 			onSubmit={handleSubmit}
-			className="w-full border-t border-gray-200 pt-6">
+			className="flex flex-col gap-[1.5625rem] w-full min-h-full border-t border-gray-200 pt-6">
 			<div
 				className={
 					isUserTaggerOpen
@@ -188,69 +189,35 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 				)}
 			</div>
 
+			<button className="flex items-center gap-[0.2125rem]">
+				<Image src="/icons/plus.svg" alt="Add tags" width={24} height={24} />
+				Add tags
+			</button>
+
 			{/* Title */}
-			<div>
-				<input
-					type="text"
-					value={title}
-					onChange={(e) => updateTitle(e.target.value)}
-					placeholder="Write a title..."
-					maxLength={100}
-					disabled={isRestoring}
-					className="w-full rounded-lg border border-gray-300 px-4 py-3 text-base placeholder:text-gray-400 focus:border-crocus-yellow focus:outline-none focus:ring-2 focus:ring-crocus-yellow/20 disabled:opacity-50"
-				/>
-				<p className="mt-1 text-right text-sm text-gray-500">
-					{title.length} / 100
-				</p>
-			</div>
-
-			{/* Description */}
-			<div>
-				<textarea
-					value={description}
-					onChange={(e) => updateDescription(e.target.value)}
-					placeholder="Write a description..."
-					rows={6}
-					maxLength={5000}
-					disabled={isRestoring}
-					className="w-full rounded-lg border border-gray-300 px-4 py-3 text-base placeholder:text-gray-400 focus:border-crocus-yellow focus:outline-none focus:ring-2 focus:ring-crocus-yellow/20 disabled:opacity-50"
-				/>
-				<p
-					className={`mt-1 text-right text-sm ${
-						remainingChars < 100 ? "text-red-500" : "text-gray-500"
-					}`}>
-					{remainingChars} characters remaining
-				</p>
-			</div>
-
-			{/* Tags - DISABLED: Metadata endpoint not ready */}
-			{/* 
-      <div className="space-y-2">
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => setIsTagSelectorOpen(true)}
-        >
-          + Add tags
-        </Button>
-        {tags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag) => (
-              <Tags
-                key={tag}
-                text={tag}
-                hashTag={true}
-                selected={true}
-                onClick={() => setTags(tags.filter((t) => t !== tag))}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-      */}
+			<input
+				type="text"
+				value={title}
+				onChange={(e) => updateTitle(e.target.value)}
+				placeholder="Write a title..."
+				maxLength={100}
+				disabled={isRestoring}
+				className="flex h-[3.75rem] p-[0.625rem] items-center gap-[0.625rem] flex-[1_0_0] rounded-[0.5rem] bg-[#F1F1F1]"
+			/>
 
 			{/* Media */}
 			<MediaUploader media={media} onMediaChange={updateMedia} />
+
+			{/* Description */}
+			<textarea
+				value={description}
+				onChange={(e) => updateDescription(e.target.value)}
+				placeholder="Write a description..."
+				rows={6}
+				maxLength={5000}
+				disabled={isRestoring}
+				className="flex p-[0.625rem] items-center gap-[0.625rem] rounded-[0.5rem] bg-[#F1F1F1]"
+			/>
 
 			{/* Submit */}
 			<div className="flex justify-end pt-4">
@@ -261,21 +228,10 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 						isSubmitting || !title.trim() || description.trim().length < 10
 					}
 					onClick={() => {}} // Required by Button component, form handles submit
-				>
+					className="w-[6.85rem] items-center justify-center ">
 					{isSubmitting ? "Posting..." : "Post"}
 				</Button>
 			</div>
-
-			{/* Modals */}
-			{/* TagSelector disabled - metadata not ready */}
-			{/* 
-      <TagSelector
-        selectedTags={tags}
-        onTagsChange={setTags}
-        isOpen={isTagSelectorOpen}
-        onClose={() => setIsTagSelectorOpen(false)}
-      />
-      */}
 		</form>
 	);
 }
