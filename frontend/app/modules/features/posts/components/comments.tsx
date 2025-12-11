@@ -4,10 +4,14 @@ import Image from "next/image";
 import { usePosts } from "@/app/modules/hooks";
 
 const MAX_COMMENT_DEPTH = 3;
+const limitPerLevel = 2;
 
 function Comments() {
-	const { data } = usePosts({ limit: 3 });
+	// CHANGE POSTS DATA TO COMMENTS DATA LATER
+	const [commentLimit, setCommentLimit] = useState(limitPerLevel);
+	const { data } = usePosts({ limit: commentLimit });
 	const comments = data?.data || [];
+	const totalComments = data?.totalCount || 0;
 	const [commentText, setCommentText] = useState("");
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -64,6 +68,13 @@ function Comments() {
 					/>
 				);
 			})}
+			{totalComments > commentLimit && (
+				<button
+					onClick={() => setCommentLimit(commentLimit + limitPerLevel)}
+					className="text-[#555] font-sans text-[0.875rem] font-medium leading-[1.18125rem] tracking-[0.03125rem] hover:text-black transition-colors">
+					Show more comments ({totalComments - commentLimit} remaining)
+				</button>
+			)}
 		</div>
 	);
 }
@@ -76,6 +87,7 @@ type Comment = {
 		firstName?: string;
 		avatarUrl?: string;
 	};
+	likesCount?: number;
 	// Add other fields as needed
 };
 
@@ -84,9 +96,11 @@ function CommentItem({ comment, depth }: { comment: Comment; depth: number }) {
 	const [showReplies, setShowReplies] = useState(true);
 	const [showReplyInput, setShowReplyInput] = useState(false);
 	const [replyText, setReplyText] = useState("");
+	const [replyLimit, setReplyLimit] = useState(limitPerLevel);
 
-	const { data } = usePosts({ limit: 3 });
+	const { data } = usePosts({ limit: replyLimit });
 	const replies = data?.data || [];
+	const totalReplies = data?.totalCount || 0;
 
 	const canHaveReplies = depth <= MAX_COMMENT_DEPTH;
 
@@ -156,7 +170,7 @@ function CommentItem({ comment, depth }: { comment: Comment; depth: number }) {
 							/>
 						</svg>
 					)}
-					<p className="text-[#555] text-xs">10</p>
+					<p className="text-[#555] text-xs">{comment.likesCount ?? 0}</p>
 				</div>
 				{canHaveReplies && (
 					<button
@@ -215,7 +229,6 @@ function CommentItem({ comment, depth }: { comment: Comment; depth: number }) {
 					</button>
 				</form>
 			)}
-
 			{depth < MAX_COMMENT_DEPTH && replies.length > 0 && showReplies && (
 				<div className="flex flex-col gap-[0.625rem] items-start self-stretch border-l border-black/20 pl-[1.25rem] mt-[0.9375rem]">
 					{replies.map((reply) => {
@@ -238,6 +251,13 @@ function CommentItem({ comment, depth }: { comment: Comment; depth: number }) {
 							/>
 						);
 					})}
+					{totalReplies > replyLimit && (
+						<button
+							onClick={() => setReplyLimit(replyLimit + limitPerLevel)}
+							className="text-[#555] font-sans text-[0.875rem] font-medium leading-[1.18125rem] tracking-[0.03125rem] hover:text-black transition-colors">
+							Show more replies ({totalReplies - replyLimit} remaining)
+						</button>
+					)}
 				</div>
 			)}
 		</div>
