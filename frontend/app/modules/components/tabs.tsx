@@ -66,7 +66,7 @@ const TAB_CONFIGS = {
 const TabsContent = ({ value, children, className }: TabsContentProps) => {
 	return (
 		<div
-			className={`flex px-[0.9375rem] pt-2.5 pb-32.5 flex-col items-start gap-[1.875rem] self-stretch bg-white ${className}`}
+			className={`flex px-[0.9375rem] min-h-full pt-2.5 pb-32.5 flex-col items-start gap-[1.875rem] self-stretch bg-white ${className}`}
 			data-value={value}>
 			{children}
 		</div>
@@ -150,7 +150,7 @@ const Tabs = (props: TabsProps) => {
 					</button>
 				))}
 			</ul>
-			<div>{renderContent()}</div>
+			{renderContent()}
 		</div>
 	);
 };
