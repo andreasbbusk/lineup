@@ -13,7 +13,13 @@ import { Button } from "@/app/modules/components/buttons";
 import { Comments } from "./comments";
 
 interface PostCardProps {
-	post: PostResponse;
+	post: PostResponse & {
+		commentsCount?: number;
+		likesCount?: number;
+		bookmarksCount?: number;
+		hasLiked?: boolean;
+		hasBookmarked?: boolean;
+	};
 	compact?: boolean;
 }
 
@@ -154,14 +160,10 @@ export function PostCard({ post, ...props }: PostCardProps) {
 					isLiked={isLiked}
 					isCommentOpen={isCommentOpen}
 					setIsCommentOpen={setIsCommentOpen}
+					commentsCount={post.commentsCount}
+					likesCount={post.likesCount}
 				/>
-				{isCommentOpen && (
-					<Comments
-						// NEEDS COMMENT DATA!
-						isCommentOpen={isCommentOpen}
-						setIsCommentOpen={setIsCommentOpen}
-					/>
-				)}
+				{isCommentOpen && <Comments />}
 			</div>
 		</article>
 	) : props.compact ? (
