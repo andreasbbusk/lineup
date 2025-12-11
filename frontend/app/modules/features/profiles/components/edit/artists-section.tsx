@@ -1,3 +1,4 @@
+import { Avatar } from "@/app/modules/components/avatar";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -56,7 +57,7 @@ export function ArtistsSection({
 	);
 
 	return (
-		<div className="relative self-stretch rounded-[1.5625rem] border border-black/10 py-9 px-[0.9375rem]">
+		<div className="relative self-stretch rounded-[1.5625rem] border border-black/10 py-9 px-3.75">
 			<Image
 				src={"/icons/close.svg"}
 				width={24}
@@ -66,7 +67,7 @@ export function ArtistsSection({
 				onClick={() => setShowArtistsSection(false)}
 			/>
 			<div className={`flex items-center `}>
-				<h4 className="w-full max-w-[6rem] font-semibold">
+				<h4 className="w-full max-w-24 font-semibold">
 					Artists
 					<br />I like
 				</h4>
@@ -78,13 +79,13 @@ export function ArtistsSection({
 							{filteredArtists.map((artist) => (
 								<li key={artist.id} className="flex flex-col items-center">
 									<div className="relative">
-										<Image
-											src={artist.avatarUrl || "/avatars/boy1.webp"}
-											alt={artist.username}
-											width={77}
-											height={77}
+										<Avatar
+											size="xl"
+											fallback={artist?.username?.charAt(0)?.toUpperCase()}
+											src={artist?.avatarUrl}
 											className="rounded-full border-3 border-white aspect-square object-cover drop-shadow-[0_2px_8px_rgba(99,99,99,0.20)]"
-										/>
+											alt={`${artist?.username}'s avatar`}></Avatar>
+
 										<button
 											type="button"
 											onClick={() => {
@@ -93,7 +94,7 @@ export function ArtistsSection({
 												});
 											}}
 											style={{ background: themeColorValue }}
-											className={`absolute -top-0 -right-0 rounded-full p-0.5 transition`}>
+											className={`absolute top-0 right-0 rounded-full p-0.5 transition`}>
 											<Image
 												src="/icons/close.svg"
 												width={16}
@@ -103,7 +104,7 @@ export function ArtistsSection({
 											/>
 										</button>
 									</div>
-									<p className="text-sm font-medium text-center text-[var(--color-grey)] max-w-[90px] truncate">
+									<p className="text-sm font-medium text-center text-grey max-w-[90px] truncate">
 										{artist.username}
 									</p>
 								</li>
@@ -120,13 +121,14 @@ export function ArtistsSection({
 										href={`/profile/${artist.username}`}
 										target="_blank"
 										rel="noopener noreferrer">
-										<Image
-											src={artist.avatarUrl || "/avatars/boy1.webp"}
-											alt={artist.username}
-											width={72}
-											height={72}
+										<Avatar
+											size="xl"
+											fallback={
+												artist?.username?.charAt(0)?.toUpperCase() || ""
+											}
+											src={artist?.avatarUrl}
 											className="rounded-full border-3 border-white aspect-square object-cover drop-shadow-[0_2px_8px_rgba(99,99,99,0.20)]"
-										/>
+											alt={`${artist?.username}'s avatar`}></Avatar>
 									</Link>
 								</li>
 							))}
