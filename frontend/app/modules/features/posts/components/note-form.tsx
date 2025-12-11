@@ -50,6 +50,7 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 		// Only allow one tag to be selected at a time
 		if (newTags.length > 0) {
 			setSelectedTags([newTags[newTags.length - 1]]);
+			setIsTagSelectorOpen(false);
 		} else {
 			setSelectedTags([]);
 		}
