@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/app/modules/components/buttons";
-// import { Tags } from "@/app/components/tags"; // Disabled - metadata not ready
 import { MediaUploader } from "./media-uploader";
-// import { TagSelector } from "./tag-selector"; // Disabled - metadata not ready
 import { UserTagger } from "./user-tagger";
 import { useNoteDraftAutoSave } from "../hooks/useDraftAutoSave";
 import type { UploadedMedia } from "../types";
 import { Avatar } from "@/app/modules/components/avatar";
 import { useMyProfile } from "@/app/modules/features/profiles/hooks/queries/useProfile";
 import Image from "next/image";
+import { TagSelector } from "./tag-selector";
+import { Tags } from "@/app/modules/components/tags";
 
 interface NoteFormProps {
 	onSubmit: (data: {
@@ -43,6 +43,21 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 
 	const [isUserTaggerOpen, setIsUserTaggerOpen] = useState(false);
 	const [isRestoring, setIsRestoring] = useState(true);
+	const [isTagSelectorOpen, setIsTagSelectorOpen] = useState(false);
+	const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+	const updateSelectedTags = (newTags: string[]) => {
+		// Only allow one tag to be selected at a time
+		if (newTags.length > 0) {
+			setSelectedTags([newTags[newTags.length - 1]]);
+		} else {
+			setSelectedTags([]);
+		}
+	};
+
+	const removeTag = (tagToRemove: string) => {
+		setSelectedTags([]);
+	};
 
 	// Restore draft on mount
 	useEffect(() => {
@@ -93,8 +108,6 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 		// Clear draft after successful submission
 		clearDraft();
 	};
-
-	const remainingChars = 5000 - description.length;
 
 	return (
 		<form
@@ -189,11 +202,93 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 				)}
 			</div>
 
-			<button className="flex items-center gap-[0.2125rem]">
-				<Image src="/icons/plus.svg" alt="Add tags" width={24} height={24} />
-				Add tags
-			</button>
-
+			<div
+				className={
+					isTagSelectorOpen
+						? "rounded-[1.875rem] border border-[rgba(0,0,0,0.07)] flex flex-col gap-[0.62rem] w-full min-h-full border-t border-gray-200 px-[0.9375rem] py-[0.625rem]"
+						: "flex justify-between items-center"
+				}>
+				{!isTagSelectorOpen ? (
+					<div className="flex justify-between w-full px-[0.625rem]">
+						{selectedTags.map((tag) => (
+							<div key={tag} className="flex gap-[0.625rem]">
+								<Tags text={tag} hashTag onClick={() => {}} />
+								<button
+									type="button"
+									onClick={() => removeTag(tag)}
+									aria-label={`Remove ${tag} tag`}>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="10"
+										height="10"
+										viewBox="0 0 10 10"
+										fill="none">
+										<path
+											d="M0.30029 8.04125C0.107819 8.23373 -0.000310721 8.49477 -0.000310383 8.76697C-0.000310383 9.03916 0.107819 9.30021 0.30029 9.49268C0.492762 9.68516 0.75381 9.79328 1.02601 9.79328C1.2982 9.79328 1.55925 9.68516 1.75172 9.49268L4.89648 6.34792L8.04125 9.49268C8.23372 9.68516 8.49477 9.79328 8.76696 9.79328C9.03916 9.79328 9.30021 9.68516 9.49268 9.49268C9.68515 9.30021 9.79328 9.03916 9.79328 8.76697C9.79328 8.49477 9.68515 8.23373 9.49268 8.04125L6.34791 4.89649L9.49268 1.75173C9.68515 1.55925 9.79328 1.29821 9.79328 1.02601C9.79328 0.753815 9.68515 0.492767 9.49268 0.300296C9.30021 0.107824 9.03916 -0.00030525 8.76696 -0.000305219C8.49477 -0.000305535 8.23372 0.107824 8.04125 0.300296L4.89648 3.44506L1.75172 0.300296C1.55925 0.107824 1.2982 -0.000305535 1.02601 -0.000305219C0.753809 -0.00030525 0.492762 0.107824 0.30029 0.300296C0.107819 0.492767 -0.000310773 0.753815 -0.000310742 1.02601C-0.000310721 1.29821 0.107819 1.55925 0.30029 1.75173L3.44505 4.89649L0.30029 8.04125Z"
+											fill="#BABABA"
+										/>
+									</svg>
+								</button>
+							</div>
+						))}
+						<button
+							type="button"
+							className="flex items-center gap-[0.2125rem]"
+							onClick={() => setIsTagSelectorOpen(true)}>
+							<Image
+								src="/icons/plus.svg"
+								alt="Add tags"
+								width={24}
+								height={24}
+							/>
+							Add tags
+						</button>
+					</div>
+				) : selectedTags.length === 1 ? (
+					<div className="flex justify-between">
+						<div className="flex gap-[0.625rem] flex-wrap">
+							{selectedTags.map((tag) => (
+								<div key={tag} className="flex gap-[0.625rem]">
+									<Tags text={tag} hashTag onClick={() => {}} />
+									<button
+										type="button"
+										onClick={() => removeTag(tag)}
+										aria-label={`Remove ${tag} tag`}>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="10"
+											height="10"
+											viewBox="0 0 10 10"
+											fill="none">
+											<path
+												d="M0.30029 8.04125C0.107819 8.23373 -0.000310721 8.49477 -0.000310383 8.76697C-0.000310383 9.03916 0.107819 9.30021 0.30029 9.49268C0.492762 9.68516 0.75381 9.79328 1.02601 9.79328C1.2982 9.79328 1.55925 9.68516 1.75172 9.49268L4.89648 6.34792L8.04125 9.49268C8.23372 9.68516 8.49477 9.79328 8.76696 9.79328C9.03916 9.79328 9.30021 9.68516 9.49268 9.49268C9.68515 9.30021 9.79328 9.03916 9.79328 8.76697C9.79328 8.49477 9.68515 8.23373 9.49268 8.04125L6.34791 4.89649L9.49268 1.75173C9.68515 1.55925 9.79328 1.29821 9.79328 1.02601C9.79328 0.753815 9.68515 0.492767 9.49268 0.300296C9.30021 0.107824 9.03916 -0.00030525 8.76696 -0.000305219C8.49477 -0.000305535 8.23372 0.107824 8.04125 0.300296L4.89648 3.44506L1.75172 0.300296C1.55925 0.107824 1.2982 -0.000305535 1.02601 -0.000305219C0.753809 -0.00030525 0.492762 0.107824 0.30029 0.300296C0.107819 0.492767 -0.000310773 0.753815 -0.000310742 1.02601C-0.000310721 1.29821 0.107819 1.55925 0.30029 1.75173L3.44505 4.89649L0.30029 8.04125Z"
+												fill="#BABABA"
+											/>
+										</svg>
+									</button>
+								</div>
+							))}
+						</div>
+						<button type="button" onClick={() => setIsTagSelectorOpen(false)}>
+							Done
+						</button>
+					</div>
+				) : (
+					<div className="flex self-end justify-between ">
+						<button type="button" onClick={() => setIsTagSelectorOpen(false)}>
+							Cancel
+						</button>
+					</div>
+				)}
+				{isTagSelectorOpen && (
+					<TagSelector
+						selectedTags={selectedTags}
+						onTagsChange={updateSelectedTags}
+						isOpen={true}
+						onClose={() => setIsTagSelectorOpen(false)}
+					/>
+				)}
+			</div>
 			{/* Title */}
 			<input
 				type="text"
