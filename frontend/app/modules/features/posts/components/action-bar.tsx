@@ -5,6 +5,8 @@ type ActionBarProps = {
 	setIsLiked?: (liked: boolean) => void;
 	isCommentOpen?: boolean;
 	setIsCommentOpen?: (open: boolean) => void;
+	commentsCount?: number;
+	likesCount?: number;
 	// Define any props needed for the ActionBar component
 };
 
@@ -44,7 +46,7 @@ function ActionBar(props: ActionBarProps) {
 						/>
 					</svg>
 				)}
-				<p className="text-[#555] text-xs">10</p>
+				<p className="text-[#555] text-xs">{props.likesCount ?? 0}</p>
 			</div>
 			{props.isCommentOpen ? (
 				<div
@@ -63,7 +65,9 @@ function ActionBar(props: ActionBarProps) {
 							fill="#FFCF70"
 						/>
 					</svg>
-					<p className="text-crocus-yellow text-xs">20</p>
+					<p className="text-crocus-yellow text-xs">
+						{props.commentsCount ?? 0}
+					</p>
 				</div>
 			) : (
 				<div
@@ -82,7 +86,7 @@ function ActionBar(props: ActionBarProps) {
 							fill="#545454"
 						/>
 					</svg>
-					<p className="text-[#555] text-xs">20</p>
+					<p className="text-[#555] text-xs">{props.commentsCount ?? 0}</p>
 				</div>
 			)}
 
