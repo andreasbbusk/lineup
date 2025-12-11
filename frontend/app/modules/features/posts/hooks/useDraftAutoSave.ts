@@ -1,7 +1,7 @@
 import { useEffect, useCallback } from "react";
 import { useNoteDraftStore } from "../stores/noteDraftStore";
 import { useRequestDraftStore } from "../stores/requestDraftStore";
-import { storeMediaBlob, getMediaBlob } from "@/app/modules/utils/indexedDb";
+import { storeMediaBlob, getMediaBlob } from "@/app/modules/utils/indexeddb";
 import type { UploadedMedia } from "../types";
 
 /**
@@ -53,12 +53,14 @@ export function useNoteDraftAutoSave() {
     description: store.description,
     tags: store.tags,
     taggedUsers: store.taggedUsers,
+    taggedUserObjects: store.taggedUserObjects,
     media: store.media,
     updateTitle: (title: string) => store.updateTitle(title),
     updateDescription: (description: string) =>
       store.updateDescription(description),
     updateTags: (tags: string[]) => store.updateTags(tags),
     updateTaggedUsers: (users: string[]) => store.updateTaggedUsers(users),
+    updateTaggedUserObjects: (users: any[]) => store.updateTaggedUserObjects(users),
     updateMedia: (media: UploadedMedia[]) => store.updateMedia(media),
     clearDraft: store.clearDraft,
     restoreDraft: useCallback(async () => {
