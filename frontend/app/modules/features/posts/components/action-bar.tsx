@@ -64,7 +64,6 @@ function ActionBar(props: ActionBarProps) {
 						/>
 					</svg>
 					<p className="text-crocus-yellow text-xs">20</p>
-					{props.isCommentOpen && <div>This is comments!!!!</div>}
 				</div>
 			) : (
 				<div
@@ -84,7 +83,6 @@ function ActionBar(props: ActionBarProps) {
 						/>
 					</svg>
 					<p className="text-[#555] text-xs">20</p>
-					{props.isCommentOpen && <div>This is comments!!!!</div>}
 				</div>
 			)}
 
