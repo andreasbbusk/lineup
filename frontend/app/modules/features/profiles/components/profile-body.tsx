@@ -3,6 +3,9 @@ import { Tabs, TabsContent } from "@/app/modules/components/tabs";
 import { Tags } from "@/app/modules/components/tags";
 import Image from "next/image";
 import Link from "next/link";
+import { usePostsByAuthor } from "@/app/modules/hooks/queries";
+import { PostCard } from "@/app/modules/features/posts/components/post-card";
+import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
 
 type ProfileBodyProps = {
   /** About me section */
@@ -44,12 +47,24 @@ type ProfileBodyProps = {
   }[];
   /** Profile theme color */
   theme?: string;
+  /** User ID for fetching posts */
+  userId?: string;
 };
 
 function ProfileBody(props: ProfileBodyProps) {
-  const [activeTab, setActiveTab] = useState<"about" | "notes">("about");
+  const [activeTab, setActiveTab] = useState<"about" | "posts">("about");
   const [showAllArtists, setShowAllArtists] = useState(false);
   const [showAllCollaborators, setShowAllCollaborators] = useState(false);
+
+  // Fetch posts by this user (both notes and requests)
+  const { data: postsData, isLoading: postsLoading } = usePostsByAuthor(
+    props.userId || "",
+    {
+      limit: 50,
+      includeEngagement: true,
+      includeMedia: true,
+    }
+  );
 
   const socialMediaIcons: Record<string, string> = {
     instagram: "/icons/social-media/instagram.svg",
@@ -489,8 +504,30 @@ function ProfileBody(props: ProfileBodyProps) {
           )}
         </section>
       </TabsContent>
-      <TabsContent value="notes">
-        <h1>Yet to be implemented.</h1>
+      <TabsContent value="posts">
+        {postsLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <LoadingSpinner size={24} />
+          </div>
+        ) : postsData?.data && postsData.data.length > 0 ? (
+          <div className="flex flex-col gap-4">
+            {postsData.data.map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+            {postsData.pagination.hasMore && (
+              <div className="text-center py-4">
+                <p className="text-sm text-gray-500">Flere opslag indlæses...</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
+            <p className="text-gray-500">Ingen opslag endnu.</p>
+            <p className="mt-2 text-sm text-gray-400">
+              Denne bruger har ikke oprettet nogen opslag endnu.
+            </p>
+          </div>
+        )}
       </TabsContent>
     </Tabs>
   );

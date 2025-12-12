@@ -6,9 +6,9 @@ type TabsPropsProfile = {
 	/** Tabs variant */
 	variant: "profile";
 	/** Active tab */
-	activeTab: "about" | "notes";
+	activeTab: "about" | "posts";
 	/** Callback when tab is clicked */
-	onTabChange: (tab: "about" | "notes") => void;
+	onTabChange: (tab: "about" | "posts") => void;
 	/** Tab content */
 	children: React.ReactNode;
 	className?: string;
@@ -50,7 +50,7 @@ type TabsContentProps = {
 const TAB_CONFIGS = {
 	profile: [
 		{ id: "about", label: "About" },
-		{ id: "notes", label: "Notes" },
+		{ id: "posts", label: "Posts" },
 	],
 	chat: [
 		{ id: "chats", label: "Chats" },

@@ -290,6 +290,13 @@ export class PostsService {
       .order("created_at", { ascending: false })
       .limit(limit + 1); // Fetch one extra to determine if there's a next page
 
+    // Filter out resolved posts by default (unless viewing a specific author's posts)
+    // When viewing an author's posts, we show all posts including resolved ones
+    if (!authorId) {
+      // Exclude resolved posts from main feed
+      postsQuery = postsQuery.or("status.is.null,status.neq.resolved");
+    }
+
     // Apply filters
     if (type) {
       postsQuery = postsQuery.eq("type", type);
@@ -650,5 +657,112 @@ export class PostsService {
       ...mappedPost,
       comments,
     };
+  }
+
+  /**
+   * Resolve a request post
+   * 
+   * Marks a request post as resolved and archives it. Only the post author can resolve their own posts.
+   * Resolved posts are excluded from the main feed but remain accessible via user's post history.
+   */
+  async resolvePost(
+    postId: string,
+    userId: string,
+    token: string
+  ): Promise<PostResponse> {
+    const supabase = getSupabaseClient(token);
+
+    // First, fetch the post to verify it exists and check permissions
+    const { data: post, error: postError } = await supabase
+      .from("posts")
+      .select("id, type, author_id, status")
+      .eq("id", postId)
+      .single();
+
+    if (postError || !post) {
+      throw createHttpError({
+        message: `Post not found: ${postError?.message || "Post does not exist"}`,
+        statusCode: 404,
+        code: "NOT_FOUND",
+      });
+    }
+
+    // Only request posts can be resolved
+    if (post.type !== "request") {
+      throw createHttpError({
+        message: "Only request posts can be resolved",
+        statusCode: 400,
+        code: "VALIDATION_ERROR",
+      });
+    }
+
+    // Only the post author can resolve it
+    if (post.author_id !== userId) {
+      throw createHttpError({
+        message: "Only the post author can resolve this post",
+        statusCode: 403,
+        code: "FORBIDDEN",
+      });
+    }
+
+    // Check if already resolved
+    if (post.status === "resolved") {
+      throw createHttpError({
+        message: "Post is already resolved",
+        statusCode: 400,
+        code: "VALIDATION_ERROR",
+      });
+    }
+
+    // Update the post to resolved status
+    const { data: updatedPost, error: updateError } = await supabase
+      .from("posts")
+      .update({
+        status: "resolved",
+        resolved_at: new Date().toISOString(),
+      })
+      .eq("id", postId)
+      .select()
+      .single();
+
+    if (updateError || !updatedPost) {
+      throw createHttpError({
+        message: `Failed to resolve post: ${updateError?.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    // Fetch complete post with relations
+    const { data: completePost, error: fetchError } = await supabase
+      .from("posts")
+      .select(
+        `
+        *,
+        author:profiles!posts_author_id_fkey(id, username, first_name, last_name, avatar_url),
+        metadata:post_metadata(
+          metadata:metadata(id, name, type)
+        ),
+        media:post_media(
+          display_order,
+          media:media(id, url, thumbnail_url, type)
+        ),
+        tagged_users:post_tagged_users(
+          user:profiles!post_tagged_users_user_id_fkey(id, username, first_name, last_name, avatar_url)
+        )
+      `
+      )
+      .eq("id", postId)
+      .single();
+
+    if (fetchError || !completePost) {
+      throw createHttpError({
+        message: `Failed to fetch post: ${fetchError?.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    return mapPostToResponse(completePost as PostRow & any);
   }
 }

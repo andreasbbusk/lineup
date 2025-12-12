@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { PostResponse } from "../types";
 import { MediaGrid } from "./media-grid";
 import { Avatar } from "@/app/modules/components/avatar";
@@ -12,6 +13,8 @@ import { Divider } from "../../profiles/components/edit/divider";
 import { Button } from "@/app/modules/components/buttons";
 import { Comments } from "./comments";
 import { Popover } from "@/app/modules/components/popover";
+import { useCreateConversation } from "@/app/modules/features/chats";
+import { useAppStore } from "@/app/modules/stores/Store";
 
 interface PostCardProps {
 	post: PostResponse & {
@@ -80,10 +83,39 @@ function RelativeDate({ dateString }: { dateString: string | null }) {
 export function PostCard({ post, ...props }: PostCardProps) {
 	const author = post.author;
 	const type = post.type;
+	const router = useRouter();
+	const user = useAppStore((state) => state.user);
+	const { mutate: createConversation, isPending: isCreatingConversation } =
+		useCreateConversation();
 
 	const [isLiked, setIsLiked] = useState(false);
 	const [isCommentOpen, setIsCommentOpen] = useState(false);
 	const [showOption, setShowOption] = useState(false);
+
+	const handleStartChat = () => {
+		if (!user || !author || user.id === author.id) return;
+
+		createConversation(
+			{
+				type: "direct",
+				participantIds: [author.id],
+				name: null,
+				avatarUrl: null,
+				postId: post.type === "request" ? post.id : undefined,
+			},
+			{
+				onSuccess: (conversation) => {
+					router.push(`/chats/${conversation.id}`);
+				},
+				onError: (error) => {
+					console.error("Failed to create conversation:", error);
+				},
+			}
+		);
+	};
+
+	const isResolved = post.status === "resolved";
+	const isAuthor = user?.id === author?.id;
 
 	return type === "note" ? (
 		<article className="relative bg-white p-4">
@@ -198,20 +230,44 @@ export function PostCard({ post, ...props }: PostCardProps) {
 				</div>
 			</div>
 			<Divider long />
-			<h3 className="px-2.5 text-base font-semibold">{post.title}</h3>
+			<div className="flex items-center gap-1.25 px-2.5">
+				<h3 className="text-base font-semibold flex-1">{post.title}</h3>
+				{isResolved && (
+					<span className="px-2 py-0.5 text-xs font-semibold text-green-700 bg-green-100 rounded">
+						Resolved
+					</span>
+				)}
+			</div>
 			<p className="px-2.5 line-clamp-4 text-gray-600">{post.description}</p>
-			<div className="flex self-stretch gap-[0.625rem] items-end">
+			<div className="flex self-stretch gap-[0.625rem] items-center justify-between">
 				<Link
 					href={`/posts/${post.id}`}
 					className="text-[#555] text-xs font-bold">
 					Read more
 				</Link>
-				<div className="flex justify-end gap-[0.3125rem] flex-[1-0-0] text-sm text-gray-400">
-					<p>{post.location}</p>
-					{post.location && <span> - </span>}
-					<p>
-						<RelativeDate dateString={post.createdAt} />
-					</p>
+				<div className="flex items-center gap-2">
+					{post.type === "request" && !isAuthor && !isResolved && (
+						<button
+							onClick={handleStartChat}
+							disabled={isCreatingConversation}
+							className="p-1.5 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
+							title="Start a chat">
+							<Image
+								src="/icons/chat-bubble.svg"
+								alt="Start chat"
+								width={20}
+								height={20}
+								className={isCreatingConversation ? "opacity-50" : ""}
+							/>
+						</button>
+					)}
+					<div className="flex justify-end gap-[0.3125rem] text-sm text-gray-400">
+						<p>{post.location}</p>
+						{post.location && <span> - </span>}
+						<p>
+							<RelativeDate dateString={post.createdAt} />
+						</p>
+					</div>
 				</div>
 			</div>
 		</article>
@@ -245,9 +301,9 @@ export function PostCard({ post, ...props }: PostCardProps) {
 					<path
 						d="M0.75 18.75V2.75C0.75 1.64543 1.64543 0.75 2.75 0.75H12.75C13.8546 0.75 14.75 1.64543 14.75 2.75V18.75L8.83152 14.9453C8.1727 14.5217 7.3273 14.5217 6.66848 14.9453L0.75 18.75Z"
 						stroke="#131927"
-						stroke-width="1.5"
-						stroke-linecap="round"
-						stroke-linejoin="round"
+						strokeWidth="1.5"
+						strokeLinecap="round"
+						strokeLinejoin="round"
 					/>
 				</svg>
 			</div>
@@ -269,18 +325,24 @@ export function PostCard({ post, ...props }: PostCardProps) {
 				</div>
 			</div>
 			<p className="px-2.5 line-clamp-4 text-gray-600">{post.description}</p>
-			<div className="px-2.5 flex self-stretch gap-2.5 items-center justify-between">
-				<Link href={`/posts/${post.id}`} className="text-[#555] font-bold">
+			<div className="px-2.5 flex self-stretch gap-6 items-center justify-between">
+				<Link href={`/posts/${post.id}`} className="text-[#555] font-bold flex gap-2.5">
 					Read more
+					{isResolved && (
+						<span className="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded">
+							Resolved
+						</span>
+					)}
 				</Link>
-				<Button
-					variant="primary"
-					icon="chat-bubble"
-					onClick={() => {
-						console.log("Start chat");
-					}}>
-					Start a chat
-				</Button>
+				{post.type === "request" && !isAuthor && !isResolved && (
+					<Button
+						variant="primary"
+						icon="chat-bubble"
+						onClick={handleStartChat}
+						disabled={isCreatingConversation}>
+						{isCreatingConversation ? "Starting..." : "Start a chat"}
+					</Button>
+				)}
 			</div>
 		</article>
 	);
