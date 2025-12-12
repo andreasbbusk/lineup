@@ -17,6 +17,7 @@ interface ComboboxProps {
 	error?: boolean;
 	blank?: boolean;
 	dropdownDisabled?: boolean;
+	isOpen?: boolean;
 }
 
 export function Combobox({
