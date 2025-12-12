@@ -239,18 +239,35 @@ export function PostCard({ post, ...props }: PostCardProps) {
 				)}
 			</div>
 			<p className="px-2.5 line-clamp-4 text-gray-600">{post.description}</p>
-			<div className="flex self-stretch gap-[0.625rem] items-end">
+			<div className="flex self-stretch gap-[0.625rem] items-center justify-between">
 				<Link
 					href={`/posts/${post.id}`}
 					className="text-[#555] text-xs font-bold">
 					Read more
 				</Link>
-				<div className="flex justify-end gap-[0.3125rem] flex-[1-0-0] text-sm text-gray-400">
-					<p>{post.location}</p>
-					{post.location && <span> - </span>}
-					<p>
-						<RelativeDate dateString={post.createdAt} />
-					</p>
+				<div className="flex items-center gap-2">
+					{post.type === "request" && !isAuthor && !isResolved && (
+						<button
+							onClick={handleStartChat}
+							disabled={isCreatingConversation}
+							className="p-1.5 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
+							title="Start a chat">
+							<Image
+								src="/icons/chat-bubble.svg"
+								alt="Start chat"
+								width={20}
+								height={20}
+								className={isCreatingConversation ? "opacity-50" : ""}
+							/>
+						</button>
+					)}
+					<div className="flex justify-end gap-[0.3125rem] text-sm text-gray-400">
+						<p>{post.location}</p>
+						{post.location && <span> - </span>}
+						<p>
+							<RelativeDate dateString={post.createdAt} />
+						</p>
+					</div>
 				</div>
 			</div>
 		</article>
