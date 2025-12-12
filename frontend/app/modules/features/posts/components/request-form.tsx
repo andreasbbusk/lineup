@@ -13,7 +13,6 @@ import { Tags } from "@/app/modules/components/tags";
 import { Toggle } from "@/app/modules/components/toggle";
 import { GenreSelector } from "./genre-selector";
 import { Combobox } from "@/app/modules/components/combobox";
-import { boolean } from "zod";
 
 interface RequestFormProps {
 	onSubmit: (data: {
@@ -29,15 +28,14 @@ interface RequestFormProps {
 }
 
 // Fetch metadata for genres - DISABLED: Metadata endpoint not ready
-
-async function fetchGenres() {
-	const baseUrl =
-		process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
-	const response = await fetch(`${baseUrl}/api/metadata`);
-	if (!response.ok) throw new Error("Failed to fetch metadata");
-	const data = await response.json();
-	return data.genres || [];
-}
+// async function fetchGenres() {
+// 	const baseUrl =
+// 		process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
+// 	const response = await fetch(`${baseUrl}/api/metadata`);
+// 	if (!response.ok) throw new Error("Failed to fetch metadata");
+// 	const data = await response.json();
+// 	return data.genres || [];
+// }
 
 export function RequestForm({
 	onSubmit,
@@ -58,7 +56,7 @@ export function RequestForm({
 		updatePaidOpportunity,
 		updateTaggedUsers,
 		updateLocation,
-		updateGenres,
+		// updateGenres,
 		updateTaggedUserObjects,
 		updateMedia,
 		clearDraft,
@@ -68,9 +66,9 @@ export function RequestForm({
 	const [isUserTaggerOpen, setIsUserTaggerOpen] = useState(false);
 	const [isRestoring, setIsRestoring] = useState(true);
 	const [isGenreSelectorOpen, setIsGenreSelectorOpen] = useState(false);
-	const [availableGenres, setAvailableGenres] = useState<{ name: string }[]>(
-		[]
-	); // Disabled
+	// const [availableGenres, setAvailableGenres] = useState<{ name: string }[]>(
+	// 	[]
+	// ); // Disabled
 	const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
 	const [isOpen, setIsOpen] = useState(false);
 
@@ -143,14 +141,14 @@ export function RequestForm({
 	return (
 		<form
 			onSubmit={handleSubmit}
-			className="flex flex-col gap-[1.5625rem] w-full min-h-full border-t border-gray-200 pt-6">
+			className="flex flex-col gap-6.25 w-full min-h-full border-t border-gray-200 pt-6">
 			<div
 				className={
 					isUserTaggerOpen
 						? "rounded-[1.875rem] border border-[rgba(0,0,0,0.07)]"
 						: "flex  justify-between items-center"
 				}>
-				<div className="w-full flex justify-between items-center p-[0.625rem]">
+				<div className="w-full flex justify-between items-center p-2.5">
 					<div className="flex items-center gap-2.5">
 						<div className="flex">
 							<Avatar
@@ -179,7 +177,7 @@ export function RequestForm({
 								/>
 							)}
 						</div>
-						<p className="text-[#555] text-center font-['Helvetica_Now_Display'] text-lg font-normal leading-[1.1875rem] tracking-[0.03125rem]">
+						<p className="text-[#555] text-center text-lg">
 							{(() => {
 								const names = [
 									currentUser?.firstName || currentUser?.username || "User",
@@ -241,7 +239,7 @@ export function RequestForm({
 				placeholder="Write a title..."
 				maxLength={100}
 				disabled={isRestoring}
-				className="flex h-[3.75rem] p-[0.625rem] items-center gap-[0.625rem] flex-[1_0_0] rounded-[0.5rem] bg-[#F1F1F1]"
+				className="flex h-15 p-2.5 items-center gap-2.5 flex-[1_0_0] rounded-lg bg-[#F1F1F1]"
 			/>
 
 			{/* Media */}
@@ -255,19 +253,19 @@ export function RequestForm({
 				rows={5}
 				maxLength={5000}
 				disabled={isRestoring}
-				className="flex p-[0.625rem] items-center gap-[0.625rem] rounded-[0.5rem] bg-[#F1F1F1]"
+				className="flex p-2.5 items-center gap-2.5 rounded-lg bg-[#F1F1F1]"
 			/>
 
 			<div
 				className={
 					isGenreSelectorOpen
-						? "rounded-[1.875rem] border border-[rgba(0,0,0,0.07)] flex flex-col gap-[0.62rem] w-full min-h-full border-t border-gray-200 px-[0.9375rem] py-[0.625rem]"
+						? "rounded-[1.875rem] border flex flex-col gap-[0.62rem] w-full min-h-full border-t border-gray-200 px-3.75 py-2.5"
 						: "flex justify-between items-center"
 				}>
 				{!isGenreSelectorOpen ? (
-					<div className="flex justify-between w-full px-[0.625rem]">
+					<div className="flex justify-between w-full px-2.5">
 						{selectedGenres.map((tag) => (
-							<div key={tag} className="flex gap-[0.625rem]">
+							<div key={tag} className="flex gap-2.5">
 								<Tags text={tag} hashTag onClick={() => {}} />
 								<button
 									type="button"
@@ -302,9 +300,9 @@ export function RequestForm({
 					</div>
 				) : selectedGenres.length === 1 ? (
 					<div className="flex justify-between">
-						<div className="flex gap-[0.625rem] flex-wrap">
+						<div className="flex gap-2.5 flex-wrap">
 							{selectedGenres.map((genre) => (
-								<div key={genre} className="flex gap-[0.625rem]">
+								<div key={genre} className="flex gap-2.5">
 									<Tags text={genre} hashTag onClick={() => {}} />
 									<button
 										type="button"
@@ -347,12 +345,12 @@ export function RequestForm({
 			</div>
 
 			{/* Location */}
-			<div>
+			<div className="flex flex-col gap-2">
 				<div
 					className={`${
 						!isOpen && location
-							? "flex h-[3.75rem] p-[0.625rem] items-center gap-[0.625rem] flex-[1_0_0] rounded-[0.5rem]"
-							: "flex h-[3.75rem] p-[0.625rem] items-center gap-[0.625rem] flex-[1_0_0] rounded-[0.5rem] bg-[#F1F1F1]"
+							? "flex h-15 p-2.5 items-center gap-2.5 flex-[1_0_0] rounded-lg"
+							: "flex h-15 p-2.5 items-center gap-2.5 flex-[1_0_0] rounded-lg bg-[#F1F1F1]"
 					}`}>
 					<Combobox
 						blank
@@ -377,14 +375,14 @@ export function RequestForm({
 						</button>
 					) : null}
 				</div>
-				<div className="flex items-start gap-[0.625rem]">
+				<div className="flex items-start gap-2.5">
 					<Toggle onToggle={() => console.log("Remote toggled")} />
 					<p>Remote</p>
 				</div>
 			</div>
 
 			{/* Paid Opportunity */}
-			<div className="flex items-start gap-[0.625rem]">
+			<div className="flex items-start gap-2.5">
 				<Toggle
 					isOn={paidOpportunity}
 					onToggle={() => updatePaidOpportunity(!paidOpportunity)}
@@ -408,68 +406,3 @@ export function RequestForm({
 		</form>
 	);
 }
-
-// 			{/* Description */}
-// 			<div>
-// 				<textarea
-// 					value={description}
-// 					onChange={(e) => updateDescription(e.target.value)}
-// 					placeholder="Write a description..."
-// 					rows={6}
-// 					maxLength={5000}
-// 					disabled={isRestoring}
-// 					className="w-full rounded-lg border border-gray-300 px-4 py-3 text-base placeholder:text-gray-400 focus:border-crocus-yellow focus:outline-none focus:ring-2 focus:ring-crocus-yellow/20 disabled:opacity-50"
-// 				/>
-// 				<p
-// 					className={`mt-1 text-right text-sm ${
-// 						remainingChars < 100 ? "text-red-500" : "text-gray-500"
-// 					}`}>
-// 					{remainingChars} characters remaining
-// 				</p>
-// 			</div>
-
-// 			{/* Tag People */}
-// 			<div className="space-y-2">
-// 				<Button
-// 					type="button"
-// 					variant="secondary"
-// 					onClick={() => setIsUserTaggerOpen(true)}>
-// 					+ Add people
-// 				</Button>
-// 				{taggedUsers.length > 0 && (
-// 					<p className="text-sm text-gray-600">
-// 						{taggedUsers.length} user{taggedUsers.length > 1 ? "s" : ""} tagged
-// 					</p>
-// 				)}
-// 			</div>
-
-// 			{/* Media */}
-// 			<MediaUploader media={media} onMediaChange={updateMedia} />
-
-// 			{/* Submit */}
-// 			<div className="flex justify-end pt-4">
-// 				<Button
-// 					type="submit"
-// 					variant="primary"
-// 					disabled={
-// 						isSubmitting || !title.trim() || description.trim().length < 10
-// 					}
-// 					onClick={() => {}} // Required by Button component, form handles submit
-// 				>
-// 					{isSubmitting ? "Posting..." : "Post"}
-// 				</Button>
-// 			</div>
-
-// 			{/* Modals */}
-// 			{/* TagSelector disabled - metadata not ready */}
-// 			{/*
-//       <TagSelector
-//         selectedTags={genres}
-//         onTagsChange={setGenres}
-//         isOpen={isGenreSelectorOpen}
-//         onClose={() => setIsGenreSelectorOpen(false)}
-//       />
-//       */}
-// 		</form>
-// 	);
-// }
