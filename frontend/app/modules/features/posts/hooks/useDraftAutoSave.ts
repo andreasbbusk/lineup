@@ -160,6 +160,7 @@ export function useRequestDraftAutoSave() {
     genres: store.genres,
     paidOpportunity: store.paidOpportunity,
     taggedUsers: store.taggedUsers,
+    taggedUserObjects: store.taggedUserObjects,
     media: store.media,
     updateTitle: (title: string) => store.updateTitle(title),
     updateDescription: (description: string) =>
@@ -168,6 +169,8 @@ export function useRequestDraftAutoSave() {
     updateGenres: (genres: string[]) => store.updateGenres(genres),
     updatePaidOpportunity: (paid: boolean) => store.updatePaidOpportunity(paid),
     updateTaggedUsers: (users: string[]) => store.updateTaggedUsers(users),
+    updateTaggedUserObjects: (users: any[]) => store.updateTaggedUserObjects(users),
+
     updateMedia: (media: UploadedMedia[]) => store.updateMedia(media),
     clearDraft: store.clearDraft,
     restoreDraft: useCallback(async () => {
