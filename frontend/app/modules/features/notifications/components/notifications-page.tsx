@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { useNotifications } from "../hooks/useNotifications";
 import { NotificationSection } from "./notification-section";
 import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
 import type { NotificationResponse } from "../types";
+import { useAcceptConnection } from "@/app/modules/hooks/mutations/useConnectionMutations";
+import { useMarkAsRead } from "../hooks/useNotificationMutations";
 
 /**
  * Main notifications page component
@@ -15,39 +16,55 @@ import type { NotificationResponse } from "../types";
 export function NotificationsPage() {
   const router = useRouter();
   const { data, isLoading, error } = useNotifications();
+  const acceptConnection = useAcceptConnection();
+  const markAsRead = useMarkAsRead();
 
   const notifications = data?.notifications;
 
-  // Memoize combined notification arrays (must be called before early returns)
-  const connectionRequests = useMemo(
-    () => {
-      if (!notifications) return [];
-      return [
+  const connectionRequests = notifications
+    ? [
         ...notifications.connection_request,
         ...notifications.connection_accepted,
-      ];
-    },
-    [notifications?.connection_request, notifications?.connection_accepted]
-  );
+      ]
+    : [];
+
+  const uniqueConnectionRequests = connectionRequests.reduce((acc, curr) => {
+    const actorId = curr.actorId;
+    if (!actorId) {
+      acc.push(curr);
+      return acc;
+    }
+
+    const existingIndex = acc.findIndex(
+      (item: NotificationResponse) => item.actorId === actorId
+    );
+    if (existingIndex === -1) {
+      acc.push(curr);
+      return acc;
+    }
+
+    const existing = acc[existingIndex];
+    const existingDate = existing.createdAt
+      ? new Date(existing.createdAt).getTime()
+      : 0;
+    const currentDate = curr.createdAt ? new Date(curr.createdAt).getTime() : 0;
+
+    if (currentDate > existingDate) {
+      acc[existingIndex] = curr;
+    }
+
+    return acc;
+  }, [] as NotificationResponse[]);
 
   // Profile interactions: likes, comments, tagged_in_post, review
-  const profileInteractions = useMemo(
-    () => {
-      if (!notifications) return [];
-      return [
+  const profileInteractions = notifications
+    ? [
         ...notifications.like,
         ...notifications.comment,
         ...notifications.tagged_in_post,
         ...notifications.review,
-      ];
-    },
-    [
-      notifications?.like,
-      notifications?.comment,
-      notifications?.tagged_in_post,
-      notifications?.review,
-    ]
-  );
+      ]
+    : [];
 
   const handleClose = () => {
     router.back();
@@ -55,9 +72,26 @@ export function NotificationsPage() {
 
   // Handle connection request accept
   const handleAcceptConnection = (notification: NotificationResponse) => {
-    // TODO: Implement connection acceptance logic
-    console.log("Accept connection", notification);
-    // This should call the connections API to accept the request
+    if (!notification.entityId) {
+      console.error("Notification missing connection request ID");
+      return;
+    }
+
+    // Accept the connection request
+    acceptConnection.mutate(notification.entityId, {
+      onSuccess: () => {
+        // Mark notification as read after successful acceptance
+        if (notification.id) {
+          markAsRead.mutate({
+            notificationId: notification.id,
+            isRead: true,
+          });
+        }
+      },
+      onError: (error) => {
+        console.error("Failed to accept connection:", error);
+      },
+    });
   };
 
   // Handle collaboration request reply
@@ -119,10 +153,10 @@ export function NotificationsPage() {
       {/* Content */}
       <div className="flex flex-col gap-5 items-end px-3 py-6">
         {/* Connection Requests Section */}
-        {connectionRequests.length > 0 && (
+        {uniqueConnectionRequests.length > 0 && (
           <NotificationSection
             title="Connection requests"
-            notifications={notifications.connection_request}
+            notifications={uniqueConnectionRequests}
             showActionButton={true}
             actionButtonText="Accept"
             onActionClick={handleAcceptConnection}
@@ -159,4 +193,3 @@ export function NotificationsPage() {
     </div>
   );
 }
-
