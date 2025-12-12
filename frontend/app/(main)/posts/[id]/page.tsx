@@ -1,16 +1,18 @@
 "use client";
 
+import { use } from "react";
 import { usePost } from "@/app/modules/hooks/queries";
 import { PostDetail } from "@/app/modules/features/posts/components/post-detail";
 
 interface PostDetailsPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function Page({ params }: PostDetailsPageProps) {
-  const { data: post, isLoading, error } = usePost(params.id);
+  const { id } = use(params);
+  const { data: post, isLoading, error } = usePost(id);
 
   if (isLoading) {
     return (

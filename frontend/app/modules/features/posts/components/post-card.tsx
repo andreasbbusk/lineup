@@ -9,7 +9,6 @@ import { Avatar } from "@/app/modules/components/avatar";
 import { Tags } from "@/app/modules/components/tags";
 import { ActionBar } from "./action-bar";
 import { Divider } from "../../profiles/components/edit/divider";
-import { Button } from "@/app/modules/components/buttons";
 import { Comments } from "./comments";
 import { Popover } from "@/app/modules/components/popover";
 import { cn } from "@/app/modules/utils/twUtil";

@@ -266,6 +266,8 @@ export interface PostResponse {
   location: string | null;
   paidOpportunity: boolean | null;
   expiresAt: string | null;
+  status?: "active" | "resolved" | "archived";
+  resolvedAt?: string | null;
   metadata?: Array<{
     id: string;
     name: string;
@@ -597,6 +599,7 @@ export interface ConversationResponse {
   lastMessageAt?: string | null;
   lastMessageSenderId?: string | null;
   unreadCount: number;
+  relatedPostId?: string | null;
   creator?: {
     id: string;
     username: string;

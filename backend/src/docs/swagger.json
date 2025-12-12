@@ -1110,6 +1110,18 @@
 						"type": "string",
 						"nullable": true
 					},
+					"status": {
+						"type": "string",
+						"enum": [
+							"active",
+							"resolved",
+							"archived"
+						]
+					},
+					"resolvedAt": {
+						"type": "string",
+						"nullable": true
+					},
 					"metadata": {
 						"items": {
 							"properties": {
@@ -2065,6 +2077,18 @@
 						"type": "string",
 						"nullable": true
 					},
+					"status": {
+						"type": "string",
+						"enum": [
+							"active",
+							"resolved",
+							"archived"
+						]
+					},
+					"resolvedAt": {
+						"type": "string",
+						"nullable": true
+					},
 					"metadata": {
 						"items": {
 							"properties": {
@@ -2346,6 +2370,10 @@
 						"type": "number",
 						"format": "double"
 					},
+					"relatedPostId": {
+						"type": "string",
+						"nullable": true
+					},
 					"creator": {
 						"properties": {
 							"avatarUrl": {
@@ -2416,6 +2444,10 @@
 							"type": "string"
 						},
 						"type": "array"
+					},
+					"postId": {
+						"type": "string",
+						"nullable": true
 					}
 				},
 				"required": [
@@ -3999,6 +4031,44 @@
 						"schema": {
 							"format": "double",
 							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/posts/{id}/resolve": {
+			"post": {
+				"operationId": "ResolvePost",
+				"responses": {
+					"200": {
+						"description": "The updated post with resolved status",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PostResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Resolve a request post\n\nMarks a request post as resolved and archives it. Only the post author can resolve their own posts.\nResolved posts are excluded from the main feed but remain accessible via user's post history.",
+				"summary": "Resolve a request post",
+				"tags": [
+					"Posts"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the post to resolve",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
 						}
 					}
 				]

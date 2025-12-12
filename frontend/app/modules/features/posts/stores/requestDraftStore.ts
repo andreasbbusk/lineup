@@ -2,6 +2,14 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { UploadedMedia } from "../types";
 
+interface TaggedUser {
+  id: string;
+  username: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  avatarUrl?: string | null;
+}
+
 interface RequestDraftState {
   title: string;
   description: string;
@@ -9,6 +17,7 @@ interface RequestDraftState {
   genres: string[];
   paidOpportunity: boolean;
   taggedUsers: string[];
+  taggedUserObjects: TaggedUser[];
   media: UploadedMedia[];
   lastSaved: number | null;
 }
@@ -20,6 +29,7 @@ interface RequestDraftActions {
   updateGenres: (genres: string[]) => void;
   updatePaidOpportunity: (paid: boolean) => void;
   updateTaggedUsers: (users: string[]) => void;
+  updateTaggedUserObjects: (users: TaggedUser[]) => void;
   updateMedia: (media: UploadedMedia[]) => void;
   clearDraft: () => void;
   getDraft: () => RequestDraftState;
@@ -32,6 +42,7 @@ const initialState: RequestDraftState = {
   genres: [],
   paidOpportunity: false,
   taggedUsers: [],
+  taggedUserObjects: [],
   media: [],
   lastSaved: null,
 };
@@ -61,6 +72,9 @@ export const useRequestDraftStore = create<
       updateTaggedUsers: (taggedUsers: string[]) =>
         set({ taggedUsers, lastSaved: Date.now() }),
 
+      updateTaggedUserObjects: (taggedUserObjects: TaggedUser[]) =>
+        set({ taggedUserObjects, lastSaved: Date.now() }),
+      
       updateMedia: (media: UploadedMedia[]) =>
         set({ media, lastSaved: Date.now() }),
 
@@ -75,6 +89,7 @@ export const useRequestDraftStore = create<
           genres: state.genres,
           paidOpportunity: state.paidOpportunity,
           taggedUsers: state.taggedUsers,
+          taggedUserObjects: state.taggedUserObjects,
           media: state.media,
           lastSaved: state.lastSaved,
         };

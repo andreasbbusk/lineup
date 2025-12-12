@@ -146,3 +146,35 @@ export async function getPostById(
 
   return data;
 }
+
+// ==================== Resolve ====================
+
+/**
+ * Resolve a request post
+ *
+ * Marks a request post as resolved and archives it. Only the post author can resolve their own posts.
+ * Resolved posts are excluded from the main feed but remain accessible via user's post history.
+ *
+ * @param postId - The UUID of the post to resolve
+ * @returns The updated post with resolved status
+ * @throws ApiError if request fails
+ */
+export async function resolvePost(postId: string): Promise<PostResponse> {
+  const { data, error, response } = await apiClient.POST("/posts/{id}/resolve", {
+    params: {
+      path: {
+        id: postId,
+      },
+    },
+  });
+
+  if (error) {
+    handleApiError(error, response);
+  }
+
+  if (!data) {
+    throw new Error("No data returned from API");
+  }
+
+  return data;
+}

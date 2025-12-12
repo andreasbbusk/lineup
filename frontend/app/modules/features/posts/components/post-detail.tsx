@@ -7,6 +7,9 @@ import type { PostResponse } from "../types";
 import { MediaGrid } from "./media-grid";
 import { TaggedUsers } from "./tagged-users";
 import { Avatar } from "@/app/modules/components/avatar";
+import { Button } from "@/app/modules/components/buttons";
+import { useCreateConversation } from "@/app/modules/features/chats";
+import { useAppStore } from "@/app/modules/stores/Store";
 
 interface PostDetailProps {
 	post: PostResponse;
@@ -28,6 +31,34 @@ function formatDate(dateString: string | null): string {
 export function PostDetail({ post, className = "" }: PostDetailProps) {
 	const router = useRouter();
 	const author = post.author;
+	const user = useAppStore((state) => state.user);
+	const { mutate: createConversation, isPending: isCreatingConversation } =
+		useCreateConversation();
+
+	const handleStartChat = () => {
+		if (!user || !author || user.id === author.id) return;
+
+		createConversation(
+			{
+				type: "direct",
+				participantIds: [author.id],
+				name: null,
+				avatarUrl: null,
+				postId: post.type === "request" ? post.id : undefined,
+			},
+			{
+				onSuccess: (conversation) => {
+					router.push(`/chats/${conversation.id}`);
+				},
+				onError: (error) => {
+					console.error("Failed to create conversation:", error);
+				},
+			}
+		);
+	};
+
+	const isResolved = (post as { status?: string }).status === "resolved";
+	const isAuthor = user?.id === author?.id;
 
 	return (
 		<article className={`space-y-6 ${className}`}>
@@ -78,6 +109,17 @@ export function PostDetail({ post, className = "" }: PostDetailProps) {
 			<div className="prose max-w-none">
 				<p className="whitespace-pre-wrap text-gray-700">{post.description}</p>
 			</div>
+
+			{/* Start Chat Button for Request Posts */}
+			{post.type === "request" && !isAuthor && !isResolved && (
+				<Button
+					variant="primary"
+					icon="chat-bubble"
+					onClick={handleStartChat}
+					disabled={isCreatingConversation}>
+					{isCreatingConversation ? "Starting..." : "Start a chat"}
+				</Button>
+			)}
 
 			{/* Media Grid */}
 			{post.media && post.media.length > 0 && (
