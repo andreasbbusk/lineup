@@ -1,13 +1,13 @@
 "use client";
 
-import { useOnboardingNavigation } from "@/app/lib/features/profiles/hooks/onboarding/useOnboardingNavigation";
-import { OnboardingSignupStep } from "@/app/lib/features/profiles/components/onboarding/signup";
-import { OnboardingUserTypeStep } from "@/app/lib/features/profiles/components/onboarding/user-type";
-import { OnboardingProfileInfoStep } from "@/app/lib/features/profiles/components/onboarding/profile-info";
-import { OnboardingLookingForStep } from "@/app/lib/features/profiles/components/onboarding/looking-for";
-import { OnboardingSplash } from "@/app/lib/features/profiles/components/onboarding/splash-screen";
-import { OnboardingConceptSlider } from "@/app/lib/features/profiles/components/onboarding/concept-slider";
-import { OnboardingProgress } from "@/app/lib/features/profiles/components/onboarding/progress-bar";
+import { useOnboardingNavigation } from "@/app/modules/features/profiles/hooks/onboarding/useOnboardingNavigation";
+import { OnboardingSignupStep } from "@/app/modules/features/profiles/components/onboarding/signup";
+import { OnboardingUserTypeStep } from "@/app/modules/features/profiles/components/onboarding/user-type";
+import { OnboardingProfileInfoStep } from "@/app/modules/features/profiles/components/onboarding/profile-info";
+import { OnboardingLookingForStep } from "@/app/modules/features/profiles/components/onboarding/looking-for";
+import { OnboardingSplash } from "@/app/modules/features/profiles/components/onboarding/splash-screen";
+import { OnboardingConceptSlider } from "@/app/modules/features/profiles/components/onboarding/concept-slider";
+import { OnboardingProgress } from "@/app/modules/features/profiles/components/onboarding/progress-bar";
 
 const STEP_COMPONENTS = {
   0: OnboardingSplash,

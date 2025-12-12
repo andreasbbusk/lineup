@@ -18,6 +18,7 @@ import { ConversationsService } from "./conversations.service.js";
 import {
   CreateConversationDto,
   UpdateConversationDto,
+  AddParticipantsDto,
 } from "./conversations.dto.js";
 import { ConversationResponse } from "../../types/api.types.js";
 
@@ -113,6 +114,50 @@ export class ConversationsController extends Controller {
         const userId = await extractUserId(req);
         return this.service.deleteConversation(
           conversationId,
+          userId,
+          getToken(req)
+        );
+      },
+      204
+    );
+  }
+
+  @Security("bearerAuth")
+  @Post("{conversationId}/participants")
+  public async addParticipants(
+    @Path() conversationId: string,
+    @Body() body: AddParticipantsDto,
+    @Request() req: ExpressRequest
+  ): Promise<ConversationResponse> {
+    return handleControllerRequest(
+      this,
+      async () => {
+        const userId = await extractUserId(req);
+        return this.service.addParticipants(
+          conversationId,
+          userId,
+          body.participantIds,
+          getToken(req)
+        );
+      },
+      201
+    );
+  }
+
+  @Security("bearerAuth")
+  @Delete("{conversationId}/participants/{userId}")
+  public async removeParticipant(
+    @Path() conversationId: string,
+    @Path() userId: string,
+    @Request() req: ExpressRequest
+  ): Promise<void> {
+    return handleControllerRequest(
+      this,
+      async () => {
+        const requesterId = await extractUserId(req);
+        return this.service.removeParticipant(
+          conversationId,
+          requesterId,
           userId,
           getToken(req)
         );

@@ -9,7 +9,7 @@ import {
   MessageInput,
   TypingIndicator,
   EditModeBanner,
-  DeleteConfirmDialog,
+  ConfirmationDialog,
   useConversation,
   useChatMessages,
   useSendMessage,
@@ -18,10 +18,16 @@ import {
   useMarkAsRead,
   useEditMessage,
   useMessageScroll,
+  useLeaveConversation,
+  useDeleteMessage,
+  useMessageActionsStore,
   chatApi,
   getConversationDisplayInfo,
-} from "@/app/lib/features/chats";
-import { useAppStore } from "@/app/lib/stores/app-store";
+} from "@/app/modules/features/chats";
+import { useAppStore } from "@/app/modules/stores/Store";
+import { useResolvePost } from "@/app/modules/hooks/mutations";
+import { usePost } from "@/app/modules/hooks/queries";
+import { Button } from "@/app/modules/components/buttons";
 
 interface ChatPageProps {
   params: Promise<{
@@ -54,9 +60,27 @@ export default function ChatPage({ params }: ChatPageProps) {
 
   const { mutate: sendMessage } = useSendMessage(id, user?.id ?? "");
   const { mutate: editMessage } = useEditMessage(id);
+  const { mutate: deleteMessage, isPending: isDeletingMessage } =
+    useDeleteMessage(id);
   const { mutate: markAsRead } = useMarkAsRead();
+  const { mutate: leaveConversation, isPending: isLeavingConversation } =
+    useLeaveConversation();
+  const { mutate: resolvePost, isPending: isResolvingPost } = useResolvePost({
+    onSuccess: () => {
+      // Optionally show a success message or navigate
+    },
+  });
+
+  // Fetch post if conversation is linked to a post
+  const relatedPostId = conversation?.relatedPostId;
+  const { data: relatedPost } = usePost(relatedPostId || "", {
+    enabled: !!relatedPostId,
+  });
+
   useMessageSubscription(id);
   useTypingSubscription(id);
+
+  const { activeMessageAction, clearAction } = useMessageActionsStore();
 
   // ============================================================================
   // Mark Messages as Read
@@ -101,13 +125,67 @@ export default function ChatPage({ params }: ChatPageProps) {
   // Derived State & Handlers
   // ============================================================================
 
-  const { name, avatarUrl } = conversation
+  const { name, avatarUrl, otherUser } = conversation
     ? getConversationDisplayInfo(conversation, user?.id ?? "")
-    : { name: "Chat", avatarUrl: null };
+    : { name: "Chat", avatarUrl: null, otherUser: null };
 
   const handleTyping = (isTyping: boolean) => {
     chatApi.setTyping(id, isTyping);
   };
+
+  const handleLeaveGroup = () => {
+    if (isLeavingConversation) return;
+
+    leaveConversation(id, {
+      onSuccess: () => {
+        router.push("/chats?tab=groups");
+      },
+    });
+  };
+
+  const handleDeleteMessage = () => {
+    if (activeMessageAction?.messageId) {
+      deleteMessage(activeMessageAction.messageId);
+    }
+  };
+
+  const handleMenuAction = (action: string) => {
+    switch (action) {
+      case "groupInfo":
+        router.push(`/chats/${id}/settings`);
+        break;
+      case "leaveGroup":
+        handleLeaveGroup();
+        break;
+      case "profile":
+        if (otherUser?.username) {
+          router.push(`/profile/${otherUser.username}`);
+        }
+        break;
+      case "block":
+        // TODO: Block user
+        console.log("Blocking user...");
+        break;
+      case "report":
+        // TODO: Report user
+        console.log("Reporting user...");
+        break;
+      case "resolveRequest":
+        if (relatedPostId) {
+          resolvePost(relatedPostId);
+        }
+        break;
+    }
+  };
+
+  // Check if user is the OP and post is not already resolved
+  const isPostAuthor = relatedPost?.authorId === user?.id;
+  const isPostResolved = relatedPost?.status === "resolved";
+  const showResolveButton =
+    relatedPostId &&
+    relatedPost?.type === "request" &&
+    isPostAuthor &&
+    !isPostResolved;
 
   // ============================================================================
   // Error State
@@ -134,7 +212,10 @@ export default function ChatPage({ params }: ChatPageProps) {
         <ChatHeader
           conversationName={name}
           conversationAvatar={avatarUrl}
+          conversation={conversation}
+          currentUserId={user?.id}
           onBack={() => router.push("/chats")}
+          onMenuAction={handleMenuAction}
         />
 
         <MessageList
@@ -157,6 +238,27 @@ export default function ChatPage({ params }: ChatPageProps) {
         </MessageList>
 
         <div className="bg-white">
+          {showResolveButton && (
+            <div className="px-4 py-3 border-b border-gray-200 bg-yellow-50">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900">
+                    Resolve this request
+                  </p>
+                  <p className="text-xs text-gray-600 mt-0.5">
+                    Mark this request as resolved to archive it
+                  </p>
+                </div>
+                <Button
+                  variant="primary"
+                  onClick={() => resolvePost(relatedPostId!)}
+                  disabled={isResolvingPost}
+                  className="ml-4">
+                  {isResolvingPost ? "Resolving..." : "Resolve Request"}
+                </Button>
+              </div>
+            </div>
+          )}
           <EditModeBanner />
           <MessageInput
             onSendMessage={sendMessage}
@@ -167,7 +269,17 @@ export default function ChatPage({ params }: ChatPageProps) {
           />
         </div>
 
-        <DeleteConfirmDialog conversationId={id} />
+        <ConfirmationDialog
+          open={activeMessageAction?.type === "delete"}
+          title="Delete message?"
+          description="Are you sure you want to delete this message?"
+          confirmText="Delete"
+          cancelText="Cancel"
+          onConfirm={handleDeleteMessage}
+          onCancel={clearAction}
+          isDestructive={true}
+          isLoading={isDeletingMessage}
+        />
       </div>
     </main>
   );

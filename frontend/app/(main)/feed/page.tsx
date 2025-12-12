@@ -1,27 +1,19 @@
 "use client";
 
-import { usePosts } from "@/app/lib/features/posts";
-import { PostCard } from "@/app/lib/features/posts/components/post-card";
+import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
+import { usePosts } from "@/app/modules/hooks/queries";
+import { PostCard } from "@/app/modules/features/posts/components/post-card";
+import { RequestCarousel } from "@/app/modules/features/posts/components/request-carousel";
+import { StoriesCarousel } from "@/app/modules/features/posts/components/stories-carousel";
 
 export default function FeedPage() {
-  const { data, isLoading, error } = usePosts({ limit: 20 });
+  const { data, isLoading, error } = usePosts({ limit: 20, type: "note" });
 
   if (isLoading) {
     return (
-      <main className="space-y-4">
-        <h1 className="text-h1 font-bold">Feed</h1>
-        <p className="text-body text-grey">
-          Din personlige oversigt over nye opslag og opdateringer fra LineUp.
-        </p>
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-64 animate-pulse rounded-lg bg-gray-200"
-            />
-          ))}
-        </div>
-      </main>
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner size={40} />
+      </div>
     );
   }
 
@@ -36,37 +28,32 @@ export default function FeedPage() {
     );
   }
 
-  const posts = data?.data || [];
+  const posts = (data?.data || []).filter((post) => post.type === "note");
 
   return (
-    <main className="space-y-4">
-      <h1 className="text-h1 font-bold">Feed</h1>
-      <p className="text-body text-grey">
-        Din personlige oversigt over nye opslag og opdateringer fra LineUp.
-      </p>
+    <main className="max-w-[100vw]">
+      <StoriesCarousel />
+      <RequestCarousel />
 
-      {posts.length === 0 ? (
+      {posts.length > 0 ? (
+        <div>
+          {posts.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))}
+          {data?.pagination.hasMore && (
+            <div className="text-center">
+              <p className="text-sm text-gray-500">Flere opslag indlæses...</p>
+            </div>
+          )}
+        </div>
+      ) : (
         <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
           <p className="text-gray-500">Ingen opslag endnu.</p>
           <p className="mt-2 text-sm text-gray-400">
             Vær den første til at oprette et opslag!
           </p>
         </div>
-      ) : (
-        <div className="space-y-4">
-          {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
-          {data?.pagination.hasMore && (
-            <div className="text-center">
-              <p className="text-sm text-gray-500">
-                Flere opslag indlæses...
-              </p>
-            </div>
-          )}
-        </div>
       )}
     </main>
   );
 }
-

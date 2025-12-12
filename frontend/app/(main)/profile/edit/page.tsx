@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -13,27 +13,26 @@ import {
 	useSocialMedia,
 	useUpdateSocialMedia,
 	useFaq,
-	useCollaborations,
 	useAllFaqQuestions,
 	useUpsertFaq,
 	useDeleteFaq,
 	useDeleteCollaboration,
-} from "@/app/lib/features/profiles";
-import { Button } from "@/app/components/buttons";
-import { ErrorMessage } from "@/app/components/error-message";
-import { useAppStore } from "@/app/lib/stores/app-store";
-import { Tags } from "@/app/components/tags";
+} from "@/app/modules/features/profiles";
+import { Button } from "@/app/modules/components/buttons";
+import { ErrorMessage } from "@/app/modules/components/error-message";
+import { useAppStore } from "@/app/modules/stores/Store";
+import { Tags } from "@/app/modules/components/tags";
 
-import { Divider } from "@/app/lib/features/profiles/components/edit/divider";
-import { AddBlockModal } from "../../../lib/features/profiles/components/edit/add-block-modal";
-import { QuestionsSection } from "@/app/lib/features/profiles/components/edit/questions-section";
-import { MyMusicSection } from "@/app/lib/features/profiles/components/edit/my-music-section";
-import { ArtistsSection } from "@/app/lib/features/profiles/components/edit/artists-section";
-import { SocialMediaSection } from "@/app/lib/features/profiles/components/edit/social-media-section";
+import { Divider } from "@/app/modules/features/profiles/components/edit/divider";
+import { AddBlockModal } from "../../../modules/features/profiles/components/edit/add-block-modal";
+import { QuestionsSection } from "@/app/modules/features/profiles/components/edit/questions-section";
+import { MyMusicSection } from "@/app/modules/features/profiles/components/edit/my-music-section";
+import { ArtistsSection } from "@/app/modules/features/profiles/components/edit/artists-section";
+import { SocialMediaSection } from "@/app/modules/features/profiles/components/edit/social-media-section";
+import { Avatar } from "@/app/modules/components/avatar";
 
 // Edit Profile Schema - all fields are optional
 const editProfileSchema = z.object({
-	fullName: z.string().optional(),
 	firstName: z
 		.string()
 		.min(1, "First name is required")
@@ -105,8 +104,7 @@ export default function EditProfilePage() {
 	const { data: socialMediaData } = useSocialMedia(username);
 	const { data: faqData } = useFaq(username);
 	const { data: allFaqQuestions } = useAllFaqQuestions();
-	const { data: collaborationsData } = useCollaborations(profileData?.id);
-	const { mutate: updateProfile, isPending } = useUpdateProfile();
+	const { mutate: updateProfile } = useUpdateProfile();
 	const { mutate: updateSocialMedia } = useUpdateSocialMedia();
 	const { mutate: upsertFaq } = useUpsertFaq(username || "");
 	const { mutate: deleteFaq } = useDeleteFaq(username || "");
@@ -163,11 +161,17 @@ export default function EditProfilePage() {
 	});
 	const aboutMeValue = watch("aboutMe");
 	const bioValue = watch("bio");
-	const fullNameValue = watch("fullName") || "";
+	const firstName = watch("firstName") || "";
+	const lastName = watch("lastName") || "";
 	const themeColorValue = watch("themeColor");
 	const spotifyPlaylistUrlValue = watch("spotifyPlaylistUrl") || "";
 
-	// Initialize form when profile data loads
+	// Derive full name from firstName and lastName
+	const fullNameValue = useMemo(() => {
+		return [firstName, lastName].filter(Boolean).join(" ");
+	}, [firstName, lastName]);
+
+	// Initialize all form data when profile data loads
 	useEffect(() => {
 		if (profileData) {
 			reset({
@@ -184,16 +188,9 @@ export default function EditProfilePage() {
 					"musician",
 				spotifyPlaylistUrl: profileData.spotifyPlaylistUrl || "",
 				themeColor: profileData.themeColor || "#1E1E1E",
-				fullName:
-					[profileData.firstName, profileData.lastName]
-						.filter(Boolean)
-						.join(" ") || "",
 			});
 		}
-	}, [profileData, reset]);
 
-	// Initialize lookingFor when data loads
-	useEffect(() => {
 		if (lookingForData && Array.isArray(lookingForData)) {
 			const values = lookingForData
 				.map((item) => item.lookingForValue)
@@ -205,10 +202,7 @@ export default function EditProfilePage() {
 				);
 			setSelectedLookingFor(values);
 		}
-	}, [lookingForData]);
 
-	// Initialize social media when data loads
-	useEffect(() => {
 		if (socialMediaData) {
 			setSocialMediaLinks({
 				instagram: socialMediaData.instagram || "",
@@ -218,7 +212,7 @@ export default function EditProfilePage() {
 				tiktok: socialMediaData.tiktok || "",
 			});
 		}
-	}, [socialMediaData]);
+	}, [profileData, lookingForData, socialMediaData, reset]);
 
 	// Auto-resize textarea based on content
 	useEffect(() => {
@@ -235,107 +229,118 @@ export default function EditProfilePage() {
 		}
 	}, [bioValue]);
 
-	const onSubmit = (formData: EditProfileFormData) => {
-		if (!username) return;
+	const onSubmit = useCallback(
+		async (formData: EditProfileFormData) => {
+			if (!username) return;
 
-		setPendingAction("save");
-		updateProfile(
-			{
-				username,
-				data: {
-					firstName: formData.firstName,
-					lastName: formData.lastName,
-					bio: formData.bio || undefined,
-					aboutMe: formData.aboutMe || undefined,
-					location: formData.location,
-					phoneCountryCode: formData.phoneCountryCode,
-					phoneNumber: formData.phoneNumber,
-					yearOfBirth: formData.yearOfBirth,
-					userType: formData.userType,
-					spotifyPlaylistUrl: formData.spotifyPlaylistUrl || undefined,
-					themeColor: formData.themeColor || undefined,
-					lookingFor: selectedLookingFor,
-				},
-			},
-			{
-				onSuccess: () => {
-					// Update social media links
-					updateSocialMedia(
-						{
-							username,
-							data: socialMediaLinks,
-						},
-						{
-							onSuccess: () => {
-								// Wait a brief moment for cache invalidation to complete
-								setTimeout(() => {
-									setPendingAction(null);
-									router.push(`/profile/${username}`);
-								}, 100);
+			setPendingAction("save");
+
+			try {
+				// Execute both mutations in parallel
+				await Promise.all([
+					new Promise((resolve, reject) => {
+						updateProfile(
+							{
+								username,
+								data: {
+									firstName: formData.firstName,
+									lastName: formData.lastName,
+									bio: formData.bio || undefined,
+									aboutMe: formData.aboutMe || undefined,
+									location: formData.location,
+									phoneCountryCode: formData.phoneCountryCode,
+									phoneNumber: formData.phoneNumber,
+									yearOfBirth: formData.yearOfBirth,
+									userType: formData.userType,
+									spotifyPlaylistUrl: formData.spotifyPlaylistUrl || undefined,
+									themeColor: formData.themeColor || undefined,
+									lookingFor: selectedLookingFor,
+								},
 							},
-							onError: () => {
-								setPendingAction(null);
-							},
-						}
-					);
-				},
-				onError: () => {
+							{ onSuccess: resolve, onError: reject }
+						);
+					}),
+					new Promise((resolve, reject) => {
+						updateSocialMedia(
+							{ username, data: socialMediaLinks },
+							{ onSuccess: resolve, onError: reject }
+						);
+					}),
+				]);
+
+				// Navigate after successful save
+				setTimeout(() => {
 					setPendingAction(null);
-				},
+					router.push(`/profile/${username}`);
+				}, 100);
+			} catch (error) {
+				setPendingAction(null);
 			}
-		);
-	};
+		},
+		[
+			username,
+			selectedLookingFor,
+			socialMediaLinks,
+			updateProfile,
+			updateSocialMedia,
+			router,
+		]
+	);
 
-	const handleNameChange = (value: string) => {
-		setValue("fullName", value);
-		const nameParts = value.trim().split(/\s+/);
+	const handleNameChange = useCallback(
+		(value: string) => {
+			const nameParts = value.trim().split(/\s+/);
 
-		if (nameParts.length >= 2) {
-			setValue("firstName", nameParts[0], { shouldValidate: true });
-			setValue("lastName", nameParts.slice(1).join(" "), {
-				shouldValidate: true,
-			});
-		} else {
-			setValue("firstName", value.trim(), { shouldValidate: true });
-			setValue("lastName", "", { shouldValidate: true });
-		}
-	};
+			if (nameParts.length >= 2) {
+				setValue("firstName", nameParts[0], { shouldValidate: true });
+				setValue("lastName", nameParts.slice(1).join(" "), {
+					shouldValidate: true,
+				});
+			} else {
+				setValue("firstName", value.trim(), { shouldValidate: true });
+				setValue("lastName", "", { shouldValidate: true });
+			}
+		},
+		[setValue]
+	);
 
-	const toggleLookingFor = (
-		value: "connect" | "promote" | "find-band" | "find-services"
-	) => {
-		setSelectedLookingFor((prev) =>
-			prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-		);
-	};
+	const toggleLookingFor = useCallback(
+		(value: "connect" | "promote" | "find-band" | "find-services") => {
+			setSelectedLookingFor((prev) =>
+				prev.includes(value)
+					? prev.filter((v) => v !== value)
+					: [...prev, value]
+			);
+		},
+		[]
+	);
 
 	return (
-		<main className="flex flex-col gap-[1.375rem] px-[0.9375rem] pb-[8.75rem] tracking-[0.03125rem] text-[var(--color-grey)]">
+		<main className="flex flex-col gap-5.5 px-3.75 pb-35 tracking-[0.03125rem] text-grey">
 			{/* Edit profile form */}
 			<form
 				onSubmit={handleSubmit(onSubmit)}
-				className="flex flex-col items-center gap-[1.375rem]">
+				className="flex flex-col items-center gap-5.5">
 				{/* Profile Picture */}
 				<div className="flex flex-col items-center gap-4">
-					<Image
-						src={profileData?.avatarUrl || "/avatars/boy1.webp"}
-						alt={`${profileData?.username}'s avatar`}
-						width={146}
-						height={146}
-						className="h-36 w-36 rounded-full object-cover"
-					/>
-					<p
-						onClick={() => {}}
-						className="text-[var(--color-grey)] font-semibold">
+					<Avatar
+						size="xxl"
+						fallback={
+							(profileData?.firstName?.charAt(0)?.toUpperCase() || "") +
+							(profileData?.lastName?.charAt(0)?.toUpperCase() || "")
+						}
+						src={profileData?.avatarUrl}
+						alt={`${profileData?.username}'s avatar`}></Avatar>
+					<p onClick={() => {}} className="text-grey font-semibold">
 						Edit picture
 					</p>
 				</div>
 
-				<div className="text-[var(--color-grey)] flex flex-col gap-[0.625rem] rounded-[1.5625rem] border border-[var(--color-melting-glacier)] bg-[var(--color-white)] py-9 px-[0.9375rem]">
+				<div className="text-grey flex flex-col gap-2.5 rounded-[1.5625rem] border border-melting-glacier bg-white py-9 px-3.75">
 					{/* Full Name */}
-					<div className="flex flex-col items-center gap-[0.625rem] self-stretch">
+					<div className="flex flex-col items-center gap-2.5 self-stretch">
 						<div className="flex items-center self-stretch">
-							<h4 className="flex w-full max-w-[6rem] items-center font-semibold">
+							<h4 className="flex w-full max-w-24 items-center font-semibold">
 								Name
 							</h4>
 							<input
@@ -357,9 +362,9 @@ export default function EditProfilePage() {
 					</div>
 
 					{/* Bio */}
-					<div className="flex flex-col items-center gap-[0.625rem] self-stretch">
+					<div className="flex flex-col items-center gap-2.5 self-stretch">
 						<div className="flex items-center self-stretch">
-							<h4 className="flex w-full max-w-[6rem] items-center font-semibold">
+							<h4 className="flex w-full max-w-24 items-center font-semibold">
 								Bio
 							</h4>
 							<textarea
@@ -382,9 +387,9 @@ export default function EditProfilePage() {
 					</div>
 
 					{/* About Me */}
-					<div className="flex flex-col items-center gap-[0.625rem] self-stretch">
+					<div className="flex flex-col items-center gap-2.5 self-stretch">
 						<div className="flex items-center self-stretch">
-							<h4 className="flex w-full max-w-[6rem] items-center font-semibold">
+							<h4 className="flex w-full max-w-24 items-center font-semibold">
 								About Me
 							</h4>
 							<textarea
@@ -411,9 +416,9 @@ export default function EditProfilePage() {
 					</div>
 
 					{/* Looking For */}
-					<div className="flex flex-col items-center gap-[0.625rem] self-stretch">
+					<div className="flex flex-col items-center gap-2.5 self-stretch">
 						<div className="flex items-center self-stretch">
-							<h4 className="flex w-full max-w-[6rem] items-center font-semibold">
+							<h4 className="flex w-full max-w-24 items-center font-semibold">
 								What I am looking for
 							</h4>
 							<div className="flex w-full flex-wrap items-center gap-2">
@@ -466,9 +471,9 @@ export default function EditProfilePage() {
 					</div>
 
 					{/* Genres - NOT YET FINISHED - Still dummy data */}
-					<div className="flex flex-col items-center gap-[0.625rem] self-stretch">
+					<div className="flex flex-col items-center gap-2.5 self-stretch">
 						<div className="flex items-center self-stretch">
-							<h4 className="flex w-full max-w-[6rem] items-center self-stretch font-helvetica text-body font-semibold tracking-[0.03125rem] text-[var(--color-grey)]">
+							<h4 className="flex w-full max-w-24 items-center self-stretch font-helvetica text-body font-semibold tracking-[0.03125rem] text--grey">
 								Genres
 							</h4>
 							<div className="flex w-full flex-wrap content-center items-center gap-2">
@@ -478,7 +483,7 @@ export default function EditProfilePage() {
 										text={genre}
 										color={themeColorValue || "#1E1E1E"}></Tags>
 								))}
-								<p className="font-helvetica text-body font-normal leading-[100%] tracking-[0.03125rem] text-center text-[var(--color-grey)]">
+								<p className="font-helvetica text-body font-normal leading-[100%] tracking-[0.03125rem] text-center text--grey">
 									Edit
 								</p>
 							</div>
@@ -487,9 +492,9 @@ export default function EditProfilePage() {
 					</div>
 
 					{/* Theme Color */}
-					<div className="flex flex-col items-center gap-[0.625rem] self-stretch">
+					<div className="flex flex-col items-center gap-2.5 self-stretch">
 						<div className="flex items-center self-stretch">
-							<h4 className="flex w-full max-w-[6rem] items-center font-semibold">
+							<h4 className="flex w-full max-w-24 items-center font-semibold">
 								Theme
 							</h4>
 							<Controller
@@ -569,7 +574,7 @@ export default function EditProfilePage() {
 
 				{/* Videos - NOT YET IMPLEMENTED - styled to look like figma */}
 				{showVideosSection && (
-					<div className="relative self-stretch rounded-[1.5625rem] border border-black/10 py-9 px-[0.9375rem]">
+					<div className="relative self-stretch rounded-[1.5625rem] border border-black/10 py-9 px-3.75">
 						<Image
 							src={"/icons/close.svg"}
 							width={24}
@@ -579,7 +584,7 @@ export default function EditProfilePage() {
 							onClick={() => setShowMyMusicSection(false)}
 						/>
 						<div className="flex items-center self-stretch">
-							<h4 className="w-full max-w-[6rem] font-semibold">Videos</h4>
+							<h4 className="w-full max-w-24 font-semibold">Videos</h4>
 							{isEditingVideos ? (
 								<div className="flex gap-2 flex-wrap">
 									<Tags text="Video 1" color={themeColorValue} />
@@ -602,7 +607,7 @@ export default function EditProfilePage() {
 
 				{/* Past collaborations - UNCLEAR HOW THIS WOULD WORK - styled to look like figma */}
 				{showPastCollaborationsSection && (
-					<div className="relative self-stretch rounded-[1.5625rem] border border-black/10 py-9 px-[0.9375rem]">
+					<div className="relative self-stretch rounded-[1.5625rem] border border-black/10 py-9 px-3.75">
 						<Image
 							src={"/icons/close.svg"}
 							width={24}

@@ -24,6 +24,10 @@ export class CreateConversationDto {
   @IsArray()
   @IsUUID(4, { each: true })
   participantIds!: string[];
+
+  @IsOptional()
+  @IsUUID(4)
+  postId?: string | null;
 }
 
 export class UpdateConversationDto {
@@ -35,4 +39,10 @@ export class UpdateConversationDto {
   @IsOptional()
   @IsString()
   avatarUrl?: string | null;
+}
+
+export class AddParticipantsDto {
+  @IsArray()
+  @IsUUID(4, { each: true })
+  participantIds!: string[];
 }

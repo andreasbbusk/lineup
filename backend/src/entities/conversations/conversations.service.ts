@@ -16,7 +16,8 @@ const CONVERSATION_SELECT = `
   participants:conversation_participants(
     *,
     user:profiles!conversation_participants_user_id_fkey(id, username, first_name, last_name, avatar_url)
-  )
+  ),
+  related_post:posts!conversations_related_post_id_fkey(id, title, author_id, status)
 `;
 
 export class ConversationsService {
@@ -168,13 +169,6 @@ export class ConversationsService {
         code: "VALIDATION_ERROR",
       });
     }
-    if (data.type === "group" && data.participantIds.length + 1 > 8) {
-      throw createHttpError({
-        message: "Max 8 participants in groups",
-        statusCode: 400,
-        code: "VALIDATION_ERROR",
-      });
-    }
     if (data.participantIds.includes(userId)) {
       throw createHttpError({
         message: "Cannot add yourself",
@@ -198,6 +192,36 @@ export class ConversationsService {
         statusCode: 404,
         code: "NOT_FOUND",
       });
+    }
+
+    // If postId is provided, check if a conversation already exists for this post
+    if (data.postId) {
+      const { data: existingPostConversation } = await supabase
+        .from("conversations")
+        .select("id")
+        .eq("related_post_id", data.postId)
+        .limit(1)
+        .single();
+
+      if (existingPostConversation) {
+        // Check if current user is a participant
+        const { data: participant } = await supabase
+          .from("conversation_participants")
+          .select("user_id")
+          .eq("conversation_id", existingPostConversation.id)
+          .eq("user_id", userId)
+          .is("left_at", null)
+          .single();
+
+        if (participant) {
+          // Return the existing conversation
+          return this.getConversationById(
+            existingPostConversation.id,
+            userId,
+            token
+          );
+        }
+      }
     }
 
     // For direct conversations, check if one already exists between these users
@@ -250,6 +274,7 @@ export class ConversationsService {
         name: data.name ?? null,
         avatar_url: data.avatarUrl ?? null,
         created_by: userId,
+        related_post_id: data.postId ?? null,
       })
       .select()
       .single();
@@ -393,6 +418,177 @@ export class ConversationsService {
     if (error)
       throw createHttpError({
         message: `Failed to leave: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+  }
+
+  async addParticipants(
+    conversationId: string,
+    userId: string,
+    participantIds: string[],
+    token: string
+  ): Promise<ConversationResponse> {
+    const supabase = createAuthenticatedClient(token);
+
+    // Fetch conversation details
+    const { data: conversation, error: fetchError } = await supabase
+      .from("conversations")
+      .select("type, created_by")
+      .eq("id", conversationId)
+      .single();
+
+    if (fetchError || !conversation)
+      throw createHttpError({
+        message: "Conversation not found",
+        statusCode: 404,
+        code: "NOT_FOUND",
+      });
+
+    // Only group conversations can add participants
+    if (conversation.type !== "group")
+      throw createHttpError({
+        message: "Can only add participants to group conversations",
+        statusCode: 400,
+        code: "VALIDATION_ERROR",
+      });
+
+    // Only creator can add participants
+    if (conversation.created_by !== userId)
+      throw createHttpError({
+        message: "Only creator can add participants",
+        statusCode: 403,
+        code: "FORBIDDEN",
+      });
+
+    // Validate at least one participant
+    if (!participantIds || participantIds.length === 0)
+      throw createHttpError({
+        message: "At least one participant required",
+        statusCode: 400,
+        code: "VALIDATION_ERROR",
+      });
+
+    // Get current active participants count
+    const { data: currentParticipants, error: countError } = await supabase
+      .from("conversation_participants")
+      .select("user_id")
+      .eq("conversation_id", conversationId)
+      .is("left_at", null);
+
+    if (countError)
+      throw createHttpError({
+        message: `Failed to check participants: ${countError.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+
+    // Check for existing participants in the list
+    const existingIds = currentParticipants?.map((p) => p.user_id) || [];
+    const duplicates = participantIds.filter((id) => existingIds.includes(id));
+    if (duplicates.length > 0)
+      throw createHttpError({
+        message: `Users already in conversation: ${duplicates.join(", ")}`,
+        statusCode: 400,
+        code: "VALIDATION_ERROR",
+      });
+
+    // Upsert participants (to handle re-adding users who previously left)
+    const participantInserts = participantIds.map((id) => ({
+      conversation_id: conversationId,
+      user_id: id,
+      is_admin: false,
+      left_at: null,
+      joined_at: new Date().toISOString(),
+    }));
+
+    const { error: insertError } = await supabase
+      .from("conversation_participants")
+      .upsert(participantInserts, { onConflict: "conversation_id,user_id" });
+
+    if (insertError)
+      throw createHttpError({
+        message: `Failed to add participants: ${insertError.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+
+    return this.getConversationById(conversationId, userId, token);
+  }
+
+  async removeParticipant(
+    conversationId: string,
+    requesterId: string,
+    targetUserId: string,
+    token: string
+  ): Promise<void> {
+    const supabase = createAuthenticatedClient(token);
+
+    // Fetch conversation details
+    const { data: conversation, error: fetchError } = await supabase
+      .from("conversations")
+      .select("type, created_by")
+      .eq("id", conversationId)
+      .single();
+
+    if (fetchError || !conversation)
+      throw createHttpError({
+        message: "Conversation not found",
+        statusCode: 404,
+        code: "NOT_FOUND",
+      });
+
+    // Only group conversations can remove participants
+    if (conversation.type !== "group")
+      throw createHttpError({
+        message: "Can only remove participants from group conversations",
+        statusCode: 400,
+        code: "VALIDATION_ERROR",
+      });
+
+    // Only creator can remove participants
+    if (conversation.created_by !== requesterId)
+      throw createHttpError({
+        message: "Only creator can remove participants",
+        statusCode: 403,
+        code: "FORBIDDEN",
+      });
+
+    // Cannot remove the creator
+    if (targetUserId === conversation.created_by)
+      throw createHttpError({
+        message: "Cannot remove the creator from the group",
+        statusCode: 400,
+        code: "VALIDATION_ERROR",
+      });
+
+    // Check if target user is actually a participant
+    const { data: participant, error: participantError } = await supabase
+      .from("conversation_participants")
+      .select("user_id")
+      .eq("conversation_id", conversationId)
+      .eq("user_id", targetUserId)
+      .is("left_at", null)
+      .single();
+
+    if (participantError || !participant)
+      throw createHttpError({
+        message: "User is not a participant in this conversation",
+        statusCode: 404,
+        code: "NOT_FOUND",
+      });
+
+    // Remove participant by setting left_at
+    const { error: updateError } = await supabase
+      .from("conversation_participants")
+      .update({ left_at: new Date().toISOString() })
+      .eq("conversation_id", conversationId)
+      .eq("user_id", targetUserId)
+      .is("left_at", null);
+
+    if (updateError)
+      throw createHttpError({
+        message: `Failed to remove participant: ${updateError.message}`,
         statusCode: 500,
         code: "DATABASE_ERROR",
       });

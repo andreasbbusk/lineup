@@ -72,10 +72,14 @@ export function mapConversationToResponse(
     lastMessageAt: conversation.last_message_at ?? null,
     lastMessageSenderId: conversation.last_message_sender_id ?? null,
     unreadCount: currentParticipant?.unread_count || 0,
+    relatedPostId: (conversation as any).related_post_id ?? null,
     creator: conversation.creator
       ? mapProfile(conversation.creator)
       : undefined,
-    participants: conversation.participants?.map(mapParticipant),
+    participants: (conversation.type === "group"
+      ? conversation.participants?.filter((p: any) => !p.left_at)
+      : conversation.participants
+    )?.map(mapParticipant),
   };
 }
 

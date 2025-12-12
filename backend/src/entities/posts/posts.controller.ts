@@ -178,4 +178,35 @@ export class PostsController extends Controller {
       200
     );
   }
+
+  /**
+   * Resolve a request post
+   *
+   * Marks a request post as resolved and archives it. Only the post author can resolve their own posts.
+   * Resolved posts are excluded from the main feed but remain accessible via user's post history.
+   *
+   * @summary Resolve a request post
+   * @param id The UUID of the post to resolve
+   * @returns The updated post with resolved status
+   * @throws 400 if post is not a request type
+   * @throws 403 if user is not the post author
+   * @throws 404 if post not found
+   * @throws 401 if not authenticated
+   */
+  @Security("bearerAuth")
+  @Post("{id}/resolve")
+  public async resolvePost(
+    @Path() id: string,
+    @Request() req: ExpressRequest
+  ): Promise<PostResponse> {
+    return handleControllerRequest(
+      this,
+      async () => {
+        const userId = await extractUserId(req);
+        const token = extractBearerToken(req);
+        return this.postsService.resolvePost(id, userId, token);
+      },
+      200
+    );
+  }
 }

@@ -2,6 +2,7 @@ import {
   ForYouSearchResult,
   UserSearchResult,
   CollaborationSearchResult,
+  ServiceSearchResult,
   TagSearchResult,
 } from "../../types/api.types.js";
 
@@ -45,6 +46,7 @@ type SearchCollaborationsResult = {
   description: string;
   author_id: string;
   author_username: string | null;
+  author_first_name: string | null;
   author_avatar_url: string | null;
   location: string | null;
   paid_opportunity: boolean;
@@ -65,6 +67,23 @@ type SearchTagsResult = {
 };
 
 /**
+ * Type for search_services RPC function result
+ */
+type SearchServicesResult = {
+  id: string;
+  title: string;
+  description: string;
+  service_type: string | null;
+  provider_id: string | null;
+  provider_name: string | null;
+  provider_username: string | null;
+  provider_avatar_url: string | null;
+  location: string | null;
+  created_at: string;
+  relevance: number;
+};
+
+/**
  * Maps search_for_you RPC result to API format
  */
 export function mapForYouResultToResponse(
@@ -72,7 +91,11 @@ export function mapForYouResultToResponse(
 ): ForYouSearchResult {
   return {
     type: "for_you",
-    entityType: item.entity_type as "user" | "collaboration",
+    entityType: item.entity_type as
+      | "user"
+      | "collaboration"
+      | "service"
+      | "tag",
     entityId: item.entity_id,
     title: item.title,
     subtitle: item.subtitle,
@@ -118,6 +141,7 @@ export function mapCollaborationResultToResponse(
     description: item.description || "",
     authorId: item.author_id,
     authorUsername: item.author_username || "",
+    authorFirstName: item.author_first_name || "",
     authorAvatarUrl: item.author_avatar_url ?? null,
     location: item.location ?? null,
     paidOpportunity: item.paid_opportunity || false,
@@ -138,6 +162,28 @@ export function mapTagResultToResponse(
     id: item.id,
     name: item.name,
     usageCount: item.usage_count || 0,
+    relevance: item.relevance,
+  };
+}
+
+/**
+ * Maps search_services RPC result to API format
+ */
+export function mapServiceResultToResponse(
+  item: SearchServicesResult
+): ServiceSearchResult {
+  return {
+    type: "service",
+    id: item.id,
+    title: item.title || "",
+    description: item.description || "",
+    serviceType: item.service_type ?? null,
+    providerId: item.provider_id ?? null,
+    providerName: item.provider_name ?? null,
+    providerUsername: item.provider_username ?? null,
+    providerAvatarUrl: item.provider_avatar_url ?? null,
+    location: item.location ?? null,
+    createdAt: item.created_at,
     relevance: item.relevance,
   };
 }
