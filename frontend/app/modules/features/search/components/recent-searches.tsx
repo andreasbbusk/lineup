@@ -1,7 +1,9 @@
 "use client";
 
+import { memo, useCallback } from "react";
 import Image from "next/image";
 import type { RecentSearch, SearchTab } from "../types";
+import { X } from "lucide-react";
 
 interface RecentSearchesProps {
   recentSearches?: RecentSearch[];
@@ -12,17 +14,31 @@ interface RecentSearchesProps {
   isDeleting?: boolean;
 }
 
-export function RecentSearches({
+function RecentSearchesComponent({
   recentSearches,
   onSelect,
   onDelete,
   onClearAll,
   isDeleting,
 }: RecentSearchesProps) {
+  const handleSelectSearch = useCallback(
+    (query: string, tab: SearchTab) => {
+      onSelect(query, tab);
+    },
+    [onSelect]
+  );
+
+  const handleDeleteSearch = useCallback(
+    (e: React.MouseEvent, id: string) => {
+      e.stopPropagation();
+      onDelete(id);
+    },
+    [onDelete]
+  );
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-medium text-grey">Recent</h2>
+        <p className="text-sm font-medium text-grey">Recent</p>
         {recentSearches && recentSearches.length > 0 && (
           <button
             onClick={onClearAll}
@@ -40,7 +56,9 @@ export function RecentSearches({
             <div
               key={search.id}
               className="group flex items-center gap-3 cursor-pointer active:opacity-70"
-              onClick={() => onSelect(search.searchQuery, search.searchTab)}
+              onClick={() =>
+                handleSelectSearch(search.searchQuery, search.searchTab)
+              }
             >
               <div className="w-12 h-12 rounded-full bg-grey/20 flex items-center justify-center shrink-0">
                 <Image
@@ -60,21 +78,11 @@ export function RecentSearches({
                 </p>
               </div>
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(search.id);
-                }}
+                onClick={(e) => handleDeleteSearch(e, search.id)}
                 disabled={isDeleting}
-                className="p-2 text-grey hover:text-black transition-colors opacity-0 group-hover:opacity-100"
                 aria-label="Remove search"
               >
-                <Image
-                  src="/icons/close.svg"
-                  alt="Remove"
-                  width={16}
-                  height={16}
-                  className="opacity-40"
-                />
+                <X className="size-4 text-black" />
               </button>
             </div>
           ))}
@@ -82,3 +90,5 @@ export function RecentSearches({
     </div>
   );
 }
+
+export const RecentSearches = memo(RecentSearchesComponent);

@@ -860,6 +860,7 @@ export interface CollaborationSearchResult {
   description: string;
   authorId: string;
   authorUsername: string;
+  authorFirstName: string;
   authorAvatarUrl?: string | null;
   location?: string | null;
   paidOpportunity: boolean;
@@ -907,6 +908,12 @@ export interface ServiceSearchResult {
   title: string;
   description: string;
   serviceType: string | null;
+  providerId: string | null;
+  providerName: string | null;
+  providerUsername: string | null;
+  providerAvatarUrl: string | null;
+  location: string | null;
+  createdAt: string;
   relevance: number;
 }
 
