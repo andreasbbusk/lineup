@@ -96,6 +96,18 @@ const Tabs = (props: TabsProps) => {
 	const children = React.Children.toArray(props.children);
 	const tabs = TAB_CONFIGS[props.variant];
 
+	// Helper to ensure correct tab id type
+	const handleTabChange = (tabId: string) => {
+		// Type narrowing based on variant
+		if (props.variant === "profile") {
+			props.onTabChange(tabId as "about" | "notes");
+		} else if (props.variant === "chat") {
+			props.onTabChange(tabId as "chats" | "groups");
+		} else if (props.variant === "create") {
+			props.onTabChange(tabId as "note" | "story" | "request");
+		}
+	};
+
 	// Render active tab content
 	const renderContent = () =>
 		children.find(
@@ -112,7 +124,7 @@ const Tabs = (props: TabsProps) => {
 					{tabs.map((tab, index) => (
 						<React.Fragment key={tab.id}>
 							<button
-								onClick={() => props.onTabChange(tab.id as any)}
+								onClick={() => handleTabChange(tab.id)}
 								className={`flex w-1/2 py-[0.9375rem] justify-center items-center gap-[0.3125rem] bg-white text-base font-medium transition-colors ${
 									index === 0
 										? "rounded-tl-[2.8125rem]"
@@ -140,7 +152,7 @@ const Tabs = (props: TabsProps) => {
 				{tabs.map((tab) => (
 					<button
 						key={tab.id}
-						onClick={() => props.onTabChange(tab.id as any)}
+						onClick={() => handleTabChange(tab.id)}
 						className={`flex h-[1.6875rem] px-3.5 py-[0.125rem] justify-center items-center gap-[0.625rem] rounded-[1.9375rem] transition-all ${
 							props.activeTab === tab.id
 								? "bg-[var(--color-crocus-yellow)]"
