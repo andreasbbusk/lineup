@@ -7,11 +7,15 @@ import { SearchResults } from "@/app/modules/features/search/components/search-r
 import { SearchTabs } from "@/app/modules/features/search/components/search-tabs";
 import { TAB_ORDER } from "@/app/modules/features/search/constants";
 import { useSearchPage } from "@/app/modules/features/search/hooks/useSearchPage";
-import type { SearchTab } from "@/app/modules/features/search/types";
-import { useSendConnection } from "@/app/modules/hooks/mutations/useConnectionMutations";
+import type {
+  SearchTab,
+  TagSearchResult,
+} from "@/app/modules/features/search/types";
+import { useSearch } from "@/app/modules/hooks/queries/useSearch";
+import { usePosts } from "@/app/modules/hooks/queries/usePosts";
 import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 export default function SearchPage() {
   const router = useRouter();
@@ -31,7 +35,6 @@ export default function SearchPage() {
     handleTabChange,
     searchResults,
     isLoading,
-    refetchSearch,
     recentSearches,
     isLoadingRecent,
     handleSaveSearch,
@@ -44,21 +47,43 @@ export default function SearchPage() {
     initialTab: urlTab,
   });
 
-  // Connection management
-  const sendConnectionMutation = useSendConnection();
+  // Tag search and posts queries (for tags tab)
+  const { data: tagSearchResults, isLoading: isLoadingTags } = useSearch({
+    query,
+    tab: "tags",
+    enabled: activeTab === "tags" && query.trim().length > 0,
+  });
+
+  // Extract tag names from search results
+  const tagNames = useMemo(() => {
+    if (!tagSearchResults?.results) return [];
+    return tagSearchResults.results
+      .filter((result): result is TagSearchResult => result.type === "tag")
+      .map((result) => result.name);
+  }, [tagSearchResults]);
+
+  // Fetch posts filtered by tag names
+  // Only fetch posts if we have matching tags from the search query
+  const shouldFetchPosts =
+    activeTab === "tags" && query.trim().length > 0 && tagNames.length > 0;
+  const { data: postsData, isLoading: isLoadingPosts } = usePosts(
+    {
+      tags: shouldFetchPosts ? tagNames : undefined,
+      type: "note",
+      limit: 50,
+      includeEngagement: true,
+      includeMedia: true,
+    },
+    { enabled: shouldFetchPosts }
+  );
+
+  const isLoadingTagsTab = isLoadingTags || isLoadingPosts;
+  const posts = postsData?.data || [];
 
   // Event handlers
   const handleCancel = useCallback(() => {
     router.push("/feed");
   }, [router]);
-
-  const handleConnect = useCallback(
-    async (userId: string) => {
-      await sendConnectionMutation.mutateAsync(userId);
-      refetchSearch();
-    },
-    [sendConnectionMutation, refetchSearch]
-  );
 
   const handleStartChat = useCallback(
     (authorId: string, postId: string) => {
@@ -99,7 +124,24 @@ export default function SearchPage() {
                   <div key={tab} className="w-full shrink-0">
                     {tab === activeTab && (
                       <>
-                        {isLoading ? (
+                        {activeTab === "tags" ? (
+                          isLoadingTagsTab ? (
+                            <div className="flex items-center justify-center py-12">
+                              <LoadingSpinner />
+                            </div>
+                          ) : (
+                            <SearchResults
+                              results={searchResults}
+                              activeTab={activeTab}
+                              query={query}
+                              onStartChat={handleStartChat}
+                              onResultClick={handleSaveSearch}
+                              posts={posts}
+                              tagNames={tagNames}
+                              isLoadingPosts={isLoadingPosts}
+                            />
+                          )
+                        ) : isLoading ? (
                           <div className="flex items-center justify-center py-12">
                             <LoadingSpinner />
                           </div>
@@ -108,8 +150,6 @@ export default function SearchPage() {
                             results={searchResults}
                             activeTab={activeTab}
                             query={query}
-                            onConnect={handleConnect}
-                            isConnecting={sendConnectionMutation.isPending}
                             onStartChat={handleStartChat}
                             onResultClick={handleSaveSearch}
                           />

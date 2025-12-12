@@ -47,12 +47,13 @@ function HomeHeader() {
         </div>
 
         <div className="flex items-center gap-4">
-          <button
+          <Link
+            href="/search"
             className="flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
             aria-label="Search"
           >
             <Search size={24} />
-          </button>
+          </Link>
           <button
             className="relative flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
             aria-label="Notifications"
@@ -100,12 +101,13 @@ function DefaultHeader() {
         </div>
         <div className="flex-1" />
         <div className="flex items-center gap-4">
-          <button
+          <Link
+            href="/search"
             className="flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
             aria-label="Search"
           >
             <Search size={24} />
-          </button>
+          </Link>
           <button
             className="relative flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
             aria-label="Notifications"
