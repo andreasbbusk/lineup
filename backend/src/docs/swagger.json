@@ -631,6 +631,53 @@
 					"relevance": 0.88
 				}
 			},
+			"ServiceSearchResult": {
+				"description": "Search result for services (from search_services)",
+				"properties": {
+					"type": {
+						"type": "string",
+						"enum": [
+							"service"
+						],
+						"nullable": false
+					},
+					"id": {
+						"type": "string"
+					},
+					"title": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"serviceType": {
+						"type": "string",
+						"nullable": true
+					},
+					"relevance": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"type",
+					"id",
+					"title",
+					"description",
+					"serviceType",
+					"relevance"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"type": "service",
+					"id": "service-123",
+					"title": "Mixing & Mastering",
+					"description": "Professional audio mixing and mastering services",
+					"serviceType": "mixing",
+					"relevance": 0.85
+				}
+			},
 			"TagSearchResult": {
 				"description": "Search result for metadata/tags (from search_tags)",
 				"properties": {
@@ -675,7 +722,7 @@
 				}
 			},
 			"ForYouSearchResult": {
-				"description": "Search result for \"For You\" tab (from search_for_you)\nPolymorphic result that can be a user or collaboration",
+				"description": "Search result for \"For You\" tab (from search_for_you)\nPolymorphic result that can be a user, collaboration, service, or tag",
 				"properties": {
 					"type": {
 						"type": "string",
@@ -688,7 +735,9 @@
 						"type": "string",
 						"enum": [
 							"user",
-							"collaboration"
+							"collaboration",
+							"service",
+							"tag"
 						]
 					},
 					"entityId": {
@@ -750,6 +799,9 @@
 						"$ref": "#/components/schemas/CollaborationSearchResult"
 					},
 					{
+						"$ref": "#/components/schemas/ServiceSearchResult"
+					},
+					{
 						"$ref": "#/components/schemas/TagSearchResult"
 					},
 					{
@@ -777,6 +829,101 @@
 				],
 				"type": "object",
 				"additionalProperties": false
+			},
+			"RecentSearch": {
+				"description": "API response format for a recent search entry",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"searchQuery": {
+						"type": "string"
+					},
+					"searchTab": {
+						"type": "string",
+						"enum": [
+							"for_you",
+							"people",
+							"collaborations",
+							"services",
+							"tags"
+						]
+					},
+					"entityType": {
+						"type": "string"
+					},
+					"entityId": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"userId",
+					"searchQuery",
+					"searchTab",
+					"createdAt"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"id": "search-123",
+					"userId": "user-456",
+					"searchQuery": "guitarist",
+					"searchTab": "people",
+					"entityType": "user",
+					"entityId": "user-789",
+					"createdAt": "2024-01-20T15:30:00Z"
+				}
+			},
+			"SaveRecentSearchDto": {
+				"description": "DTO for saving a recent search\n\nUsed when a user performs a search to save it to their history",
+				"properties": {
+					"query": {
+						"type": "string",
+						"description": "Search query string",
+						"example": "guitarist"
+					},
+					"tab": {
+						"type": "string",
+						"enum": [
+							"for_you",
+							"people",
+							"collaborations",
+							"services",
+							"tags"
+						],
+						"description": "Search tab where the search was performed",
+						"example": "people"
+					},
+					"entityType": {
+						"type": "string",
+						"description": "Optional entity type if user clicked through to a specific result",
+						"example": "user"
+					},
+					"entityId": {
+						"type": "string",
+						"description": "Optional entity ID if user clicked through to a specific result",
+						"example": "123e4567-e89b-12d3-a456-426614174000"
+					}
+				},
+				"required": [
+					"query",
+					"tab"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"query": "guitarist",
+					"tab": "people",
+					"entityType": "user",
+					"entityId": "123e4567-e89b-12d3-a456-426614174000"
+				}
 			},
 			"ReviewResponse": {
 				"description": "API response format for a user review\nRepresents a 5-star rating and review text for a user",
@@ -3220,8 +3367,8 @@
 						}
 					}
 				},
-				"description": "Search for users, posts, or tags\n\nPerforms a search across different entity types based on the specified tab.\nReturns polymorphic results that vary by tab type.\n\n- **for_you**: Personalized results combining people and collaboration requests\n- **people**: Search for users with filters (location, genres, looking for)\n- **collaborations**: Search for collaboration request posts\n- **tags**: Search for metadata (tags, genres, artists)",
-				"summary": "Search across users, posts, and tags",
+				"description": "Search for users, posts, or tags\n\nPerforms a search across different entity types based on the specified tab.\nReturns polymorphic results that vary by tab type.\n\n- **for_you**: Personalized results combining people and collaboration requests\n- **people**: Search for users with filters (location, genres, looking for)\n- **collaborations**: Search for collaboration request posts\n- **services**: Search for services\n- **tags**: Search for metadata (tags, genres, artists)",
+				"summary": "Search across users, posts, services, and tags",
 				"tags": [
 					"Search"
 				],
@@ -3237,7 +3384,7 @@
 						}
 					},
 					{
-						"description": "Search tab: \"for_you\", \"people\", \"collaborations\", or \"tags\" (default: \"for_you\")",
+						"description": "Search tab: \"for_you\", \"people\", \"collaborations\", \"services\", or \"tags\" (default: \"for_you\")",
 						"in": "query",
 						"name": "tab",
 						"required": false,
@@ -3247,6 +3394,7 @@
 								"for_you",
 								"people",
 								"collaborations",
+								"services",
 								"tags"
 							]
 						}
@@ -3314,6 +3462,131 @@
 						}
 					}
 				]
+			}
+		},
+		"/search/recent": {
+			"get": {
+				"operationId": "GetRecentSearches",
+				"responses": {
+					"200": {
+						"description": "Array of recent searches",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/RecentSearch"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get recent searches for the authenticated user\n\nReturns the user's recent search history, ordered by most recent first.\nLimited to the last 15 searches by default.",
+				"summary": "Get recent searches",
+				"tags": [
+					"Search"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "Maximum number of results (default: 15)",
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			},
+			"post": {
+				"operationId": "SaveRecentSearch",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Save a recent search\n\nSaves a search query to the user's recent search history.\nAutomatically deduplicates identical query+tab combinations.",
+				"summary": "Save recent search",
+				"tags": [
+					"Search"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "Search details to save",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SaveRecentSearchDto",
+								"description": "Search details to save"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/search/recent/{id}": {
+			"delete": {
+				"operationId": "DeleteRecentSearch",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Delete a specific recent search\n\nRemoves a single search entry from the user's recent search history.",
+				"summary": "Delete recent search",
+				"tags": [
+					"Search"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The ID of the recent search to delete",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/search/recent/clear": {
+			"delete": {
+				"operationId": "ClearAllRecentSearches",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Clear all recent searches\n\nRemoves all search entries from the user's recent search history.",
+				"summary": "Clear all recent searches",
+				"tags": [
+					"Search"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
 			}
 		},
 		"/users/{username}/reviews": {

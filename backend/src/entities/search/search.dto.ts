@@ -7,6 +7,8 @@ import {
   Min,
   Max,
   IsInt,
+  IsUUID,
+  IsNotEmpty,
 } from "class-validator";
 import { LookingForType } from "../../utils/supabase-helpers.js";
 
@@ -36,14 +38,16 @@ export class SearchQueryDto {
   q?: string;
 
   /**
-   * Search tab: "for_you", "people", "collaborations", or "tags"
+   * Search tab: "for_you", "people", "collaborations", "services", or "tags"
    * @example "people"
    */
   @IsOptional()
-  @IsEnum(["for_you", "people", "collaborations", "tags"], {
-    message: "Tab must be 'for_you', 'people', 'collaborations', or 'tags'",
+  @IsEnum(["for_you", "people", "collaborations", "services", "tags"], {
+    message:
+      "Tab must be 'for_you', 'people', 'collaborations', 'services', or 'tags'",
   })
-  tab?: "for_you" | "people" | "collaborations" | "tags" = "for_you";
+  tab?: "for_you" | "people" | "collaborations" | "services" | "tags" =
+    "for_you";
 
   /**
    * Filter by location
@@ -97,4 +101,54 @@ export class SearchQueryDto {
   @IsInt()
   @Min(0)
   offset?: number = 0;
+}
+
+/**
+ * DTO for saving a recent search
+ *
+ * Used when a user performs a search to save it to their history
+ *
+ * @example
+ * {
+ *   "query": "guitarist",
+ *   "tab": "people",
+ *   "entityType": "user",
+ *   "entityId": "123e4567-e89b-12d3-a456-426614174000"
+ * }
+ */
+export class SaveRecentSearchDto {
+  /**
+   * Search query string
+   * @example "guitarist"
+   */
+  @IsNotEmpty()
+  @IsString()
+  query!: string;
+
+  /**
+   * Search tab where the search was performed
+   * @example "people"
+   */
+  @IsNotEmpty()
+  @IsEnum(["for_you", "people", "collaborations", "services", "tags"], {
+    message:
+      "Tab must be 'for_you', 'people', 'collaborations', 'services', or 'tags'",
+  })
+  tab!: "for_you" | "people" | "collaborations" | "services" | "tags";
+
+  /**
+   * Optional entity type if user clicked through to a specific result
+   * @example "user"
+   */
+  @IsOptional()
+  @IsString()
+  entityType?: string;
+
+  /**
+   * Optional entity ID if user clicked through to a specific result
+   * @example "123e4567-e89b-12d3-a456-426614174000"
+   */
+  @IsOptional()
+  @IsUUID()
+  entityId?: string;
 }

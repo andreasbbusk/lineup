@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "generate:types": "openapi-typescript ../backend/src/docs/swagger.json -o app/lib/types/api.d.ts",
+    "generate:types": "openapi-typescript ../backend/src/docs/swagger.json -o app/modules/types/api.d.ts",
     "types": "npm run generate:types"
   },
   "dependencies": {
@@ -19,9 +19,10 @@
     "browser-image-compression": "^2.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "framer-motion": "^12.23.25",
     "lucide-react": "^0.555.0",
-    "next": "^16.0.7",
+    "next": "^16.0.10",
     "radix-ui": "^1.4.3",
     "react": "19.2.0",
     "react-dom": "19.2.0",

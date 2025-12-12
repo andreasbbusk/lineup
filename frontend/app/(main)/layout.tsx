@@ -17,11 +17,14 @@ export default function Layout({ children }: MainLayoutProps) {
   const isHomePage = pathname === "/feed";
   const headerVariant = isHomePage ? "home" : "default";
 
+  // Hide header and bottom nav on search page
+  const isSearchPage = pathname === "/search";
+
   return (
     <div className="">
-      <Header variant={headerVariant} />
+      {!isSearchPage && <Header variant={headerVariant} />}
       <div className="">{children}</div>
-      <BottomNav />
+      {!isSearchPage && <BottomNav />}
     </div>
   );
 }
