@@ -57,7 +57,7 @@ export function PostDetail({ post, className = "" }: PostDetailProps) {
 		);
 	};
 
-	const isResolved = (post as any).status === "resolved";
+	const isResolved = (post as { status?: string }).status === "resolved";
 	const isAuthor = user?.id === author?.id;
 
 	return (

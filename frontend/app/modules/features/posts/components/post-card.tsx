@@ -86,7 +86,7 @@ export function PostCard({ post, ...props }: PostCardProps) {
 	const [isCommentOpen, setIsCommentOpen] = useState(false);
 	const [showOption, setShowOption] = useState(false);
 
-	const isResolved = (post as any).status === "resolved";
+	const isResolved = (post as { status?: string }).status === "resolved";
 	const isAuthor = user?.id === author?.id;
 
 	return type === "note" ? (
