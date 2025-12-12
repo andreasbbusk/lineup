@@ -11,7 +11,7 @@ function Comments() {
 	const [commentLimit, setCommentLimit] = useState(limitPerLevel);
 	const { data } = usePosts({ limit: commentLimit });
 	const comments = data?.data || [];
-	const totalComments = data?.totalCount || 0;
+	const totalComments = /* data?.totalCount ||*/ 0;
 	const [commentText, setCommentText] = useState("");
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -100,7 +100,7 @@ function CommentItem({ comment, depth }: { comment: Comment; depth: number }) {
 
 	const { data } = usePosts({ limit: replyLimit });
 	const replies = data?.data || [];
-	const totalReplies = data?.totalCount || 0;
+	const totalReplies = /* data?.totalCount ||*/ 0;
 
 	const canHaveReplies = depth <= MAX_COMMENT_DEPTH;
 
