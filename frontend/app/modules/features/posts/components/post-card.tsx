@@ -3,17 +3,14 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import type { PostResponse } from "../types";
 import { MediaGrid } from "./media-grid";
 import { Avatar } from "@/app/modules/components/avatar";
 import { Tags } from "@/app/modules/components/tags";
 import { ActionBar } from "./action-bar";
 import { Divider } from "../../profiles/components/edit/divider";
-import { Button } from "@/app/modules/components/buttons";
 import { Comments } from "./comments";
 import { Popover } from "@/app/modules/components/popover";
-import { useCreateConversation } from "@/app/modules/features/chats";
 import { useAppStore } from "@/app/modules/stores/Store";
 
 interface PostCardProps {
@@ -83,38 +80,13 @@ function RelativeDate({ dateString }: { dateString: string | null }) {
 export function PostCard({ post, ...props }: PostCardProps) {
 	const author = post.author;
 	const type = post.type;
-	const router = useRouter();
 	const user = useAppStore((state) => state.user);
-	const { mutate: createConversation, isPending: isCreatingConversation } =
-		useCreateConversation();
 
 	const [isLiked, setIsLiked] = useState(false);
 	const [isCommentOpen, setIsCommentOpen] = useState(false);
 	const [showOption, setShowOption] = useState(false);
 
-	const handleStartChat = () => {
-		if (!user || !author || user.id === author.id) return;
-
-		createConversation(
-			{
-				type: "direct",
-				participantIds: [author.id],
-				name: null,
-				avatarUrl: null,
-				postId: post.type === "request" ? post.id : undefined,
-			},
-			{
-				onSuccess: (conversation) => {
-					router.push(`/chats/${conversation.id}`);
-				},
-				onError: (error) => {
-					console.error("Failed to create conversation:", error);
-				},
-			}
-		);
-	};
-
-	const isResolved = post.status === "resolved";
+	const isResolved = (post as { status?: string }).status === "resolved";
 	const isAuthor = user?.id === author?.id;
 
 	return type === "note" ? (
@@ -246,21 +218,6 @@ export function PostCard({ post, ...props }: PostCardProps) {
 					Read more
 				</Link>
 				<div className="flex items-center gap-2">
-					{post.type === "request" && !isAuthor && !isResolved && (
-						<button
-							onClick={handleStartChat}
-							disabled={isCreatingConversation}
-							className="p-1.5 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
-							title="Start a chat">
-							<Image
-								src="/icons/chat-bubble.svg"
-								alt="Start chat"
-								width={20}
-								height={20}
-								className={isCreatingConversation ? "opacity-50" : ""}
-							/>
-						</button>
-					)}
 					<div className="flex justify-end gap-[0.3125rem] text-sm text-gray-400">
 						<p>{post.location}</p>
 						{post.location && <span> - </span>}
@@ -334,15 +291,6 @@ export function PostCard({ post, ...props }: PostCardProps) {
 						</span>
 					)}
 				</Link>
-				{post.type === "request" && !isAuthor && !isResolved && (
-					<Button
-						variant="primary"
-						icon="chat-bubble"
-						onClick={handleStartChat}
-						disabled={isCreatingConversation}>
-						{isCreatingConversation ? "Starting..." : "Start a chat"}
-					</Button>
-				)}
 			</div>
 		</article>
 	);
