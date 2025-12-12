@@ -25,6 +25,8 @@ export function mapPostToResponse(post: SupabasePostWithRelations): PostResponse
     location: post.location ?? null,
     paidOpportunity: post.paid_opportunity ?? null,
     expiresAt: post.expires_at ?? null,
+    status: (post as any).status ?? "active",
+    resolvedAt: (post as any).resolved_at ?? null,
     metadata:
       post.metadata?.map((pm) => pm.metadata).filter(Boolean) || [],
     media:

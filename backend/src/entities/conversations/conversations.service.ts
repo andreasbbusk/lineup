@@ -16,7 +16,8 @@ const CONVERSATION_SELECT = `
   participants:conversation_participants(
     *,
     user:profiles!conversation_participants_user_id_fkey(id, username, first_name, last_name, avatar_url)
-  )
+  ),
+  related_post:posts!conversations_related_post_id_fkey(id, title, author_id, status)
 `;
 
 export class ConversationsService {
@@ -193,6 +194,36 @@ export class ConversationsService {
       });
     }
 
+    // If postId is provided, check if a conversation already exists for this post
+    if (data.postId) {
+      const { data: existingPostConversation } = await supabase
+        .from("conversations")
+        .select("id")
+        .eq("related_post_id", data.postId)
+        .limit(1)
+        .single();
+
+      if (existingPostConversation) {
+        // Check if current user is a participant
+        const { data: participant } = await supabase
+          .from("conversation_participants")
+          .select("user_id")
+          .eq("conversation_id", existingPostConversation.id)
+          .eq("user_id", userId)
+          .is("left_at", null)
+          .single();
+
+        if (participant) {
+          // Return the existing conversation
+          return this.getConversationById(
+            existingPostConversation.id,
+            userId,
+            token
+          );
+        }
+      }
+    }
+
     // For direct conversations, check if one already exists between these users
     if (data.type === "direct") {
       const otherUserId = data.participantIds[0];
@@ -243,6 +274,7 @@ export class ConversationsService {
         name: data.name ?? null,
         avatar_url: data.avatarUrl ?? null,
         created_by: userId,
+        related_post_id: data.postId ?? null,
       })
       .select()
       .single();
