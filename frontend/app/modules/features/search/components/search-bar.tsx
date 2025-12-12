@@ -1,20 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { memo, useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 
 interface SearchBarProps {
   value: string;
   onChange: (value: string) => void;
   onCancel?: () => void;
+  onSubmit?: () => void;
   placeholder?: string;
   debounceMs?: number;
 }
 
-export function SearchBar({
+function SearchBarComponent({
   value,
   onChange,
   onCancel,
+  onSubmit,
   placeholder = "Search",
   debounceMs = 300,
 }: SearchBarProps) {
@@ -36,37 +38,71 @@ export function SearchBar({
     return () => clearTimeout(timeoutId);
   }, [localValue, onChange, debounceMs, value]);
 
-  const handleCancel = () => {
+  const handleClear = useCallback(() => {
     setLocalValue("");
     onChange("");
-    onCancel?.();
-  };
+  }, [onChange]);
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setLocalValue(e.target.value);
+    },
+    []
+  );
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter" && localValue.trim() && onSubmit) {
+        e.preventDefault();
+        onSubmit();
+      }
+    },
+    [localValue, onSubmit]
+  );
 
   return (
-    <div className="flex items-center gap-3 w-full">
-      <div className="flex items-center gap-3 flex-1 rounded-xl bg-white/20 px-4 py-2.5">
+    <div className="flex items-center gap-3 w-full bg-white">
+      <div className="flex items-center gap-3 flex-1 rounded-lg bg-[#f1f1f1] px-2 py-1">
         <Image
           src="/icons/search.svg"
           alt="Search"
-          width={18}
-          height={18}
-          className="opacity-60"
+          width={20}
+          height={20}
+          className="opacity-60 shrink-0"
         />
         <input
           type="text"
           value={localValue}
-          onChange={(e) => setLocalValue(e.target.value)}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="flex-1 text-base text-white placeholder:text-white/60 bg-transparent focus:outline-none"
+          className="flex-1 text-base text-black placeholder:text-black/60 bg-transparent focus:outline-none"
           autoFocus
         />
+        {localValue && (
+          <button
+            onClick={handleClear}
+            className="flex items-center justify-center shrink-0 hover:opacity-70 transition-opacity"
+            aria-label="Clear search"
+          >
+            <Image
+              src="/icons/close.svg"
+              alt="Clear"
+              width={20}
+              height={20}
+              className="opacity-60"
+            />
+          </button>
+        )}
       </div>
       <button
-        onClick={handleCancel}
-        className="text-base font-medium text-white hover:opacity-80 transition-opacity"
+        onClick={onCancel}
+        className="text-base font-medium text-black hover:opacity-70 transition-opacity shrink-0"
       >
         Cancel
       </button>
     </div>
   );
 }
+
+export const SearchBar = memo(SearchBarComponent);

@@ -53,12 +53,14 @@ export function useNoteDraftAutoSave() {
     description: store.description,
     tags: store.tags,
     taggedUsers: store.taggedUsers,
+    taggedUserObjects: store.taggedUserObjects,
     media: store.media,
     updateTitle: (title: string) => store.updateTitle(title),
     updateDescription: (description: string) =>
       store.updateDescription(description),
     updateTags: (tags: string[]) => store.updateTags(tags),
     updateTaggedUsers: (users: string[]) => store.updateTaggedUsers(users),
+    updateTaggedUserObjects: (users: any[]) => store.updateTaggedUserObjects(users),
     updateMedia: (media: UploadedMedia[]) => store.updateMedia(media),
     clearDraft: store.clearDraft,
     restoreDraft: useCallback(async () => {

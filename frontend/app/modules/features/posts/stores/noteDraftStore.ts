@@ -2,11 +2,20 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { UploadedMedia } from "../types";
 
+interface TaggedUser {
+  id: string;
+  username: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  avatarUrl?: string | null;
+}
+
 interface NoteDraftState {
   title: string;
   description: string;
   tags: string[];
   taggedUsers: string[];
+  taggedUserObjects: TaggedUser[];
   media: UploadedMedia[];
   lastSaved: number | null;
 }
@@ -16,6 +25,7 @@ interface NoteDraftActions {
   updateDescription: (description: string) => void;
   updateTags: (tags: string[]) => void;
   updateTaggedUsers: (users: string[]) => void;
+  updateTaggedUserObjects: (users: TaggedUser[]) => void;
   updateMedia: (media: UploadedMedia[]) => void;
   clearDraft: () => void;
   getDraft: () => NoteDraftState;
@@ -26,6 +36,7 @@ const initialState: NoteDraftState = {
   description: "",
   tags: [],
   taggedUsers: [],
+  taggedUserObjects: [],
   media: [],
   lastSaved: null,
 };
@@ -47,6 +58,9 @@ export const useNoteDraftStore = create<NoteDraftState & NoteDraftActions>()(
       updateTaggedUsers: (taggedUsers: string[]) =>
         set({ taggedUsers, lastSaved: Date.now() }),
 
+      updateTaggedUserObjects: (taggedUserObjects: TaggedUser[]) =>
+        set({ taggedUserObjects, lastSaved: Date.now() }),
+
       updateMedia: (media: UploadedMedia[]) =>
         set({ media, lastSaved: Date.now() }),
 
@@ -59,6 +73,7 @@ export const useNoteDraftStore = create<NoteDraftState & NoteDraftActions>()(
           description: state.description,
           tags: state.tags,
           taggedUsers: state.taggedUsers,
+          taggedUserObjects: state.taggedUserObjects,
           media: state.media,
           lastSaved: state.lastSaved,
         };

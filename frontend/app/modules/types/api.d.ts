@@ -283,28 +283,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/search/recent/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Delete recent search
-         * @description Delete a specific recent search
-         *
-         *     Removes a single search entry from the user's recent search history.
-         */
-        delete: operations["DeleteRecentSearch"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/search/recent/clear": {
         parameters: {
             query?: never;
@@ -322,6 +300,28 @@ export interface paths {
          *     Removes all search entries from the user's recent search history.
          */
         delete: operations["ClearAllRecentSearches"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/search/recent/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete recent search
+         * @description Delete a specific recent search
+         *
+         *     Removes a single search entry from the user's recent search history.
+         */
+        delete: operations["DeleteRecentSearch"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1466,6 +1466,7 @@ export interface components {
             description: string;
             authorId: string;
             authorUsername: string;
+            authorFirstName: string;
             authorAvatarUrl?: string | null;
             location?: string | null;
             paidOpportunity: boolean;
@@ -1492,6 +1493,12 @@ export interface components {
             title: string;
             description: string;
             serviceType: string | null;
+            providerId: string | null;
+            providerName: string | null;
+            providerUsername: string | null;
+            providerAvatarUrl: string | null;
+            location: string | null;
+            createdAt: string;
             /** Format: double */
             relevance: number;
         };
@@ -2792,14 +2799,11 @@ export interface operations {
             };
         };
     };
-    DeleteRecentSearch: {
+    ClearAllRecentSearches: {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                /** @description The ID of the recent search to delete */
-                id: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -2813,11 +2817,14 @@ export interface operations {
             };
         };
     };
-    ClearAllRecentSearches: {
+    DeleteRecentSearch: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description The ID of the recent search to delete */
+                id: string;
+            };
             cookie?: never;
         };
         requestBody?: never;

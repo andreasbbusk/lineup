@@ -205,12 +205,25 @@ export class SearchService {
     limit: number = 20,
     offset: number = 0
   ): Promise<SearchResponse> {
-    const { data, error } = await supabase.rpc("search_tags", {
-      search_query: query || undefined,
-      filter_type: filterType || undefined,
+    const params: {
+      search_query?: string;
+      filter_type?: string;
+      limit_count: number;
+      offset_count: number;
+    } = {
       limit_count: limit,
       offset_count: offset,
-    });
+    };
+
+    if (query) {
+      params.search_query = query;
+    }
+
+    if (filterType) {
+      params.filter_type = filterType;
+    }
+
+    const { data, error } = await supabase.rpc("search_tags", params as any);
 
     if (error) {
       throw createHttpError({

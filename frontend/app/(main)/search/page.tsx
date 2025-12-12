@@ -1,147 +1,124 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { SearchBar } from "@/app/modules/features/search/components/search-bar";
-import { SearchTabs } from "@/app/modules/features/search/components/search-tabs";
-import { RecentSearches } from "@/app/modules/features/search/components/recent-searches";
-import {
-  useRecentSearches,
-  useSaveRecentSearch,
-  useDeleteRecentSearch,
-  useClearRecentSearches,
-} from "@/app/modules/features/search/hooks/useRecentSearches";
-import type {
-  SearchTab,
-  SearchResult,
-} from "@/app/modules/features/search/types";
-import { useSearch } from "@/app/modules/hooks/queries/useSearch";
 import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
+import { RecentSearches } from "@/app/modules/features/search/components/recent-searches";
+import { SearchBar } from "@/app/modules/features/search/components/search-bar";
+import { SearchResults } from "@/app/modules/features/search/components/search-results";
+import { SearchTabs } from "@/app/modules/features/search/components/search-tabs";
+import { TAB_ORDER } from "@/app/modules/features/search/constants";
+import { useSearchPage } from "@/app/modules/features/search/hooks/useSearchPage";
+import type { SearchTab } from "@/app/modules/features/search/types";
+import { useSendConnection } from "@/app/modules/hooks/mutations/useConnectionMutations";
+import { motion } from "framer-motion";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback } from "react";
 
 export default function SearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // ============================================================================
-  // State Management
-  // ============================================================================
-
-  // Get query and tab from URL, with defaults
+  // Get initial values from URL
   const urlQuery = searchParams.get("q") || "";
   const urlTab = (searchParams.get("tab") as SearchTab) || "for_you";
 
-  const [query, setQuery] = useState(urlQuery);
-  const [activeTab, setActiveTab] = useState<SearchTab>(urlTab);
-
-  // Sync URL params when query or tab changes
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (query) params.set("q", query);
-    if (activeTab !== "for_you") params.set("tab", activeTab);
-
-    const newUrl = params.toString()
-      ? `/search?${params.toString()}`
-      : "/search";
-
-    router.push(newUrl, { scroll: false });
-  }, [query, activeTab, router]);
-
-  // ============================================================================
-  // Data Fetching
-  // ============================================================================
-
-  const { data: searchResults, isLoading } = useSearch({
+  // Main search page logic
+  const {
     query,
-    tab: activeTab,
+    handleQueryChange,
+    hasQuery,
+    activeTab,
+    activeTabIndex,
+    handleTabChange,
+    searchResults,
+    isLoading,
+    refetchSearch,
+    recentSearches,
+    isLoadingRecent,
+    handleSaveSearch,
+    handleSelectRecentSearch,
+    handleDeleteRecentSearch,
+    handleClearRecentSearches,
+    isDeleting,
+  } = useSearchPage({
+    initialQuery: urlQuery,
+    initialTab: urlTab,
   });
 
-  const { data: recentSearches, isLoading: isLoadingRecent } =
-    useRecentSearches();
-  const saveRecentSearchMutation = useSaveRecentSearch();
-  const deleteRecentSearchMutation = useDeleteRecentSearch();
-  const clearRecentSearchesMutation = useClearRecentSearches();
+  // Connection management
+  const sendConnectionMutation = useSendConnection();
 
-  // Save search to recent searches when user performs a search
-  useEffect(() => {
-    if (query.trim() && searchResults) {
-      saveRecentSearchMutation.mutate({
-        query,
-        tab: activeTab,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, activeTab, searchResults]);
+  // Event handlers
+  const handleCancel = useCallback(() => {
+    router.push("/feed");
+  }, [router]);
 
-  // ============================================================================
-  // Event Handlers
-  // ============================================================================
+  const handleConnect = useCallback(
+    async (userId: string) => {
+      await sendConnectionMutation.mutateAsync(userId);
+      refetchSearch();
+    },
+    [sendConnectionMutation, refetchSearch]
+  );
 
-  const handleQueryChange = (newQuery: string) => {
-    setQuery(newQuery);
-  };
-
-  const handleTabChange = (tab: SearchTab) => {
-    setActiveTab(tab);
-  };
-
-  const handleSelectRecentSearch = (
-    searchQuery: string,
-    searchTab: SearchTab
-  ) => {
-    setQuery(searchQuery);
-    setActiveTab(searchTab);
-  };
-
-  const handleDeleteRecentSearch = (id: string) => {
-    deleteRecentSearchMutation.mutate(id);
-  };
-
-  const handleClearRecentSearches = () => {
-    clearRecentSearchesMutation.mutate();
-  };
-
-  // ============================================================================
-  // Render
-  // ============================================================================
+  const handleStartChat = useCallback(
+    (authorId: string, postId: string) => {
+      router.push(`/chats?userId=${authorId}&postId=${postId}`);
+    },
+    [router]
+  );
 
   return (
-    <main className="flex flex-col h-[calc(100dvh-4rem)] overflow-hidden">
+    <main className="flex flex-col h-screen overflow-hidden">
       {/* Header with search and tabs */}
-      <div className="flex flex-col px-4 pt-4 pb-3 shrink-0 gap-3">
-        <SearchBar value={query} onChange={handleQueryChange} />
+      <div className="flex flex-col px-4 pt-4 pb-3 shrink-0 gap-3 bg-white">
+        <SearchBar
+          value={query}
+          onChange={handleQueryChange}
+          onCancel={handleCancel}
+          onSubmit={handleSaveSearch}
+        />
         <SearchTabs activeTab={activeTab} onTabChange={handleTabChange} />
       </div>
 
       {/* Content Container */}
       <div className="flex-1 min-h-0 bg-white overflow-y-auto">
         <div className="px-4 py-4">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <LoadingSpinner />
-            </div>
-          ) : query.trim() ? (
-            // Placeholder for search results (Phase 4 - no result rendering yet)
-            <div className="space-y-4">
-              <p className="text-sm text-grey">
-                {searchResults?.results.length || 0} results found
-              </p>
-              <div className="space-y-2">
-                {searchResults?.results.map(
-                  (result: SearchResult, index: number) => (
-                    <div
-                      key={`${result.type}-${index}`}
-                      className="p-4 bg-grey/10 rounded-lg"
-                    >
-                      <p className="text-sm font-medium">
-                        {result.type.toUpperCase()} Result
-                      </p>
-                      <p className="text-xs text-grey mt-1">
-                        Result rendering will be implemented later
-                      </p>
-                    </div>
-                  )
-                )}
-              </div>
+          {hasQuery ? (
+            <div className="overflow-hidden">
+              <motion.div
+                className="flex"
+                animate={{
+                  x: `${-activeTabIndex * 100}%`,
+                }}
+                transition={{
+                  type: "tween",
+                  duration: 0.3,
+                }}
+              >
+                {TAB_ORDER.map((tab) => (
+                  <div key={tab} className="w-full shrink-0">
+                    {tab === activeTab && (
+                      <>
+                        {isLoading ? (
+                          <div className="flex items-center justify-center py-12">
+                            <LoadingSpinner />
+                          </div>
+                        ) : (
+                          <SearchResults
+                            results={searchResults}
+                            activeTab={activeTab}
+                            query={query}
+                            onConnect={handleConnect}
+                            isConnecting={sendConnectionMutation.isPending}
+                            onStartChat={handleStartChat}
+                            onResultClick={handleSaveSearch}
+                          />
+                        )}
+                      </>
+                    )}
+                  </div>
+                ))}
+              </motion.div>
             </div>
           ) : (
             <RecentSearches
@@ -150,7 +127,7 @@ export default function SearchPage() {
               onSelect={handleSelectRecentSearch}
               onDelete={handleDeleteRecentSearch}
               onClearAll={handleClearRecentSearches}
-              isDeleting={deleteRecentSearchMutation.isPending}
+              isDeleting={isDeleting}
             />
           )}
         </div>

@@ -18,7 +18,7 @@ import type { PostsQueryParams } from "@/app/modules/api/postsApi";
 export function usePosts(params?: PostsQueryParams) {
   return useQuery({
     queryKey: ["posts", params],
-    queryFn: () => listPosts(params),
+    queryFn: () => listPosts({ ...params, includeEngagement: true }),
     staleTime: 30 * 1000, // 30 seconds
     gcTime: 5 * 60 * 1000, // 5 minutes (garbage collection time)
     enabled: true, // Always enabled, posts are public
