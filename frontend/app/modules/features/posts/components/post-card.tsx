@@ -314,11 +314,6 @@ export function PostCard({ post, ...props }: PostCardProps) {
 					{post.type === "request" && post.paidOpportunity && (
 						<Tags hashTag text="paid-gig" />
 					)}
-					{isResolved && (
-						<span className="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded">
-							Resolved
-						</span>
-					)}
 					<Tags hashTag text="dummy" />
 				</div>
 				<div className="flex justify-end gap-1.25 text-gray-500">
@@ -330,9 +325,14 @@ export function PostCard({ post, ...props }: PostCardProps) {
 				</div>
 			</div>
 			<p className="px-2.5 line-clamp-4 text-gray-600">{post.description}</p>
-			<div className="px-2.5 flex self-stretch gap-2.5 items-center justify-between">
-				<Link href={`/posts/${post.id}`} className="text-[#555] font-bold">
+			<div className="px-2.5 flex self-stretch gap-6 items-center justify-between">
+				<Link href={`/posts/${post.id}`} className="text-[#555] font-bold flex gap-2.5">
 					Read more
+					{isResolved && (
+						<span className="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded">
+							Resolved
+						</span>
+					)}
 				</Link>
 				{post.type === "request" && !isAuthor && !isResolved && (
 					<Button
