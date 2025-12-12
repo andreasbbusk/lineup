@@ -301,9 +301,9 @@ export function PostCard({ post, ...props }: PostCardProps) {
 					<path
 						d="M0.75 18.75V2.75C0.75 1.64543 1.64543 0.75 2.75 0.75H12.75C13.8546 0.75 14.75 1.64543 14.75 2.75V18.75L8.83152 14.9453C8.1727 14.5217 7.3273 14.5217 6.66848 14.9453L0.75 18.75Z"
 						stroke="#131927"
-						stroke-width="1.5"
-						stroke-linecap="round"
-						stroke-linejoin="round"
+						strokeWidth="1.5"
+						strokeLinecap="round"
+						strokeLinejoin="round"
 					/>
 				</svg>
 			</div>

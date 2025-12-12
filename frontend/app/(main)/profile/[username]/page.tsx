@@ -16,6 +16,7 @@ import {
   useMyConnections,
   useUserConnections,
 } from "@/app/modules/features/profiles";
+import { usePostsByAuthor } from "@/app/modules/hooks/queries";
 
 interface PublicProfilePageProps {
   params: Promise<{
@@ -44,6 +45,16 @@ export default function Page({ params }: PublicProfilePageProps) {
   const { data: lookingForData = [] } = useLookingFor(username);
   // Fetch FAQ answers using username
   const { data: faqs } = useFaq(username);
+
+  // Fetch posts to get count for header (fetch more for accurate count)
+  const { data: postsData } = usePostsByAuthor(profileData?.id || "", {
+    limit: 100, // Fetch more to get a better count
+    includeEngagement: false,
+    includeMedia: false,
+  });
+
+  // Calculate posts count (shows up to 100, which is reasonable for display)
+  const postsCount = postsData?.data?.length ?? 0;
 
   // Fetch connection data
   const { data: myConnections } = useMyConnections({
@@ -199,6 +210,7 @@ export default function Page({ params }: PublicProfilePageProps) {
             isOwnProfile={isOwnProfile}
             connections={acceptedConnectionsCount}
             pendingConnectionsCount={pendingCount}
+            posts={postsCount}
             onClickConnect={editProfile}
             onClickMessage={shareProfile}
           />
@@ -214,6 +226,7 @@ export default function Page({ params }: PublicProfilePageProps) {
             pastCollaborations={userDetail.pastCollaborations}
             reviews={userDetail.reviews}
             questions={userDetail.questions}
+            userId={profileData.id}
           />
         </>
       ) : (
@@ -227,6 +240,7 @@ export default function Page({ params }: PublicProfilePageProps) {
             lastName={userDetail.lastName || "Undefined"}
             isOwnProfile={isOwnProfile}
             connections={acceptedConnectionsCount}
+            posts={postsCount}
             onClickConnect={connect}
             onClickMessage={message}
           />
@@ -242,6 +256,7 @@ export default function Page({ params }: PublicProfilePageProps) {
             pastCollaborations={userDetail.pastCollaborations}
             reviews={userDetail.reviews}
             questions={userDetail.questions}
+            userId={profileData.id}
           />
         </>
       )}

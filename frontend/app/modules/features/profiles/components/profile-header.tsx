@@ -56,8 +56,10 @@ type ProfileHeaderProps = {
   connections?: number;
   /** Number of pending connection requests (for own profile only) */
   pendingConnectionsCount?: number;
-  /** Number of notes */
+  /** Number of posts (notes + requests) */
   notes?: number;
+  /** Alias for notes - kept for backward compatibility */
+  posts?: number;
   /** Callback when Connect button is clicked */
   onClickConnect?: () => void;
   /** Callback when Message button is clicked */
@@ -159,8 +161,8 @@ function ProfileHeader(props: ProfileHeaderProps) {
           className="w-[9.11988rem] h-[9.11988rem] rounded-full border border-white object-cover "
         />
         <div className="flex flex-col items-center flex-[1_0_0]">
-          <p>{props.notes ?? 0}</p>
-          <p>Notes</p>
+          <p>{props.posts ?? props.notes ?? 0}</p>
+          <p>Posts</p>
         </div>
       </div>
       <div>
