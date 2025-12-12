@@ -101,7 +101,7 @@ export function PostCard({ post, ...props }: PostCardProps) {
 			{/* Author Header */}
 			<div className="mb-3 px-2.5 flex items-center gap-1.25">
 				<div className="flex flex-row items-center gap-1.25">
-					<div className="flex space-x-2">
+					<div className="flex">
 						<Link href={`/users/${author?.id}`}>
 							<Avatar
 								size="xs"
@@ -113,7 +113,10 @@ export function PostCard({ post, ...props }: PostCardProps) {
 							/>
 						</Link>
 						{post.taggedUsers?.map((user, idx) => (
-							<Link href={`/users/${user.id}`} key={user.id || idx}>
+							<Link
+								href={`/users/${user.id}`}
+								key={user.id || idx}
+								className="-ml-2">
 								<Avatar
 									key={user.id || idx}
 									size="xs"

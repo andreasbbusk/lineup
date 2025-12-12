@@ -135,8 +135,8 @@ const Button = (props: buttonProps) => {
 						<Image
 							src={iconPaths[props.icon]}
 							alt=""
-							width={16}
-							height={16}
+							width={props.variant === "icon" ? 28 : 16}
+							height={props.variant === "icon" ? 28 : 16}
 							className={
 								(props.variant === "icon" && !props.blank) ||
 								(props.variant === "primary" && props.glass)

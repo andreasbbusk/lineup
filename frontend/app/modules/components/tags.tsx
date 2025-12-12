@@ -55,7 +55,7 @@ function Tags(props: TagsProps) {
 			} inline-flex justify-center items-center rounded-[1.1875rem] border text-center font-medium leading-[100%] ${
 				isSelected === true
 					? "border-blackberry-harvest bg-blackberry-harvest text-white"
-					: "border-grey text-grey"
+					: "border-gray-500 text-gray-500"
 			}
 			${props.color ? "bg-(--profile-theme) text-white border-(--profile-theme)" : ""}
 			${props.className ?? ""}`}
