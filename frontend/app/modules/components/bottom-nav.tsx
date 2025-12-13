@@ -12,6 +12,7 @@ import ShopIcon from "../../../public/icons/shop-icon";
 import AddIcon from "../../../public/icons/add-icon";
 import ChatIcon from "../../../public/icons/chat-icon";
 import UserIcon from "../../../public/icons/user-icon";
+import { useAppStore } from "@/app/modules/stores/Store";
 
 interface NavItem {
   href: string;
@@ -59,7 +60,7 @@ const ActiveTabIndicator = memo(function ActiveTabIndicator() {
 // Memoized nav item to prevent unnecessary re-renders
 const NavItem = memo(function NavItem({
   item,
-  isActive
+  isActive,
 }: {
   item: NavItem;
   isActive: boolean;
@@ -101,23 +102,34 @@ const NavItem = memo(function NavItem({
 
 function BottomNav() {
   const pathname = usePathname();
-
+  const username = useAppStore((state) => state.user?.username);
   // Memoize visibility checks
   const shouldHide = useMemo(() => {
-    const isAuthPage = pathname === "/login" || pathname?.startsWith("/onboarding");
+    const isAuthPage =
+      pathname === "/login" || pathname?.startsWith("/onboarding");
     const isSearchPage = pathname === "/search";
     const isChatDetailPage =
       pathname === "/chats/new" ||
       (pathname?.startsWith("/chats/") && pathname !== "/chats");
 
-    return isAuthPage || isSearchPage || isChatDetailPage;
-  }, [pathname]);
+    // Hide on other users' profiles and edit profile page
+    // /profile or /profile/{username} = own profile (show nav)
+    // /profile/otheruser = other user's profile (hide nav)
+    // /profile/edit = edit page (hide nav)
+    const isOtherUsersProfile =
+      pathname?.startsWith("/profile/") && pathname !== `/profile/${username}`;
+
+    return (
+      isAuthPage || isSearchPage || isChatDetailPage || isOtherUsersProfile
+    );
+  }, [pathname, username]);
 
   // Memoize active states for all items
   const activeStates = useMemo(() => {
-    return NAV_ITEMS.map(item =>
-      pathname === item.href ||
-      (item.href !== "/" && pathname?.startsWith(item.href))
+    return NAV_ITEMS.map(
+      (item) =>
+        pathname === item.href ||
+        (item.href !== "/" && pathname?.startsWith(item.href))
     );
   }, [pathname]);
 
@@ -126,17 +138,19 @@ function BottomNav() {
   }
 
   return (
-    <nav className="fixed bottom-0 left-1/2 z-50 -translate-x-1/2 pb-4">
-      <div className="relative flex h-[69px] w-[368px] items-center justify-between rounded-[45px] bg-[#1e1e1e] px-1 py-3">
-        {NAV_ITEMS.map((item, index) => (
-          <NavItem
-            key={item.href}
-            item={item}
-            isActive={activeStates[index]}
-          />
-        ))}
-      </div>
-    </nav>
+    <>
+      <nav className="fixed bottom-0 left-1/2 z-50 -translate-x-1/2 pb-4">
+        <div className="relative flex h-[69px] w-full xs:w-[368px] items-center justify-between rounded-[45px] bg-[#1e1e1e] px-1 py-3">
+          {NAV_ITEMS.map((item, index) => (
+            <NavItem
+              key={item.href}
+              item={item}
+              isActive={activeStates[index]}
+            />
+          ))}
+        </div>
+      </nav>
+    </>
   );
 }
 
