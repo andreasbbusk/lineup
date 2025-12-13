@@ -92,7 +92,7 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
   const [showOption, setShowOption] = useState(false);
 
   return type === "note" ? (
-    <article className={cn("relative bg-white p-4", className)}>
+    <article className={cn("relative bg-white py-4", className)}>
       <Image
         onClick={() => setShowOption(!showOption)}
         src="/icons/more.svg"

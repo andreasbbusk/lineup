@@ -18,40 +18,68 @@ import {
 } from "@/app/modules/features/profiles";
 import { usePostsByAuthor } from "@/app/modules/hooks/queries";
 
-interface PublicProfilePageProps {
+interface ProfilePageProps {
   params: Promise<{
-    username: string;
+    username?: string[];
   }>;
 }
 
-export default function Page({ params }: PublicProfilePageProps) {
-  const { username } = use(params);
-  const { user: currentUserProfile } = useAppStore();
+export default function Page({ params }: ProfilePageProps) {
+  const unwrappedParams = use(params);
+  const currentUserProfile = useAppStore((state) => state.user);
   const router = useRouter();
 
-  // Fetch the profile data for the username in the URL
-  const { data: profileData, isLoading, error } = useProfile(username);
+  // Extract username from params array, or use current user's username
+  // /profile -> username is undefined/empty, use current user
+  // /profile/someuser -> username is ['someuser']
+  const targetUsername = unwrappedParams.username?.[0] || currentUserProfile?.username || "";
+
+  // Fetch the profile data for the target username
+  const {
+    data: profileData,
+    isLoading,
+    error,
+    isSuccess,
+  } = useProfile(targetUsername);
 
   // Check if viewing own profile or someone else's
-  const isOwnProfile = currentUserProfile?.username === username;
+  const isOwnProfile = currentUserProfile?.username === targetUsername;
+
+  // Only fetch additional data if profile loaded successfully AND matches target username
+  // This prevents race conditions when navigating between profiles
+  const profileExists =
+    isSuccess && !!profileData && profileData.username === targetUsername;
 
   // Fetch collaborations using the user's ID from profileData
-  const { data: collaborations = [] } = useCollaborations(profileData?.id);
+  const { data: collaborations = [] } = useCollaborations(
+    profileExists ? profileData.id : undefined
+  );
   // Fetch reviews using the username
-  const { data: reviews = [] } = useReviews(username);
+  const { data: reviews = [] } = useReviews(
+    profileExists ? targetUsername : undefined
+  );
   // Fetch social media links using username
-  const { data: socialMediaData } = useSocialMedia(username);
+  const { data: socialMediaData } = useSocialMedia(
+    profileExists ? targetUsername : undefined
+  );
   // Fetch looking for preferences using username
-  const { data: lookingForData = [] } = useLookingFor(username);
+  const { data: lookingForData = [] } = useLookingFor(
+    profileExists ? targetUsername : undefined
+  );
   // Fetch FAQ answers using username
-  const { data: faqs } = useFaq(username);
+  const { data: faqs } = useFaq(
+    profileExists ? targetUsername : undefined
+  );
 
   // Fetch posts to get count for header (fetch more for accurate count)
-  const { data: postsData } = usePostsByAuthor(profileData?.id || "", {
-    limit: 100, // Fetch more to get a better count
-    includeEngagement: false,
-    includeMedia: false,
-  });
+  const { data: postsData } = usePostsByAuthor(
+    profileExists && profileData?.id ? profileData.id : "",
+    {
+      limit: 100, // Fetch more to get a better count
+      includeEngagement: false,
+      includeMedia: false,
+    }
+  );
 
   // Calculate posts count (shows up to 100, which is reasonable for display)
   const postsCount = postsData?.data?.length ?? 0;
@@ -102,7 +130,7 @@ export default function Page({ params }: PublicProfilePageProps) {
   ]; // Hardcoded artists data - matches edit page
 
   if (isLoading) {
-    return <LoadingSpinner size={40} />;
+    return <LoadingSpinner />;
   }
 
   if (error || !profileData) {
@@ -196,11 +224,11 @@ export default function Page({ params }: PublicProfilePageProps) {
   };
 
   return (
-    <main className="flex flex-col items-center gap-3.75">
+    <main className="flex flex-col items-center gap-3.75 pb-24">
       {isOwnProfile ? (
         <>
           <ProfileHeader
-            username={username}
+            username={targetUsername}
             userId={profileData.id}
             imgSrc={userDetail.imgSrc}
             theme={userDetail.color}
@@ -232,7 +260,7 @@ export default function Page({ params }: PublicProfilePageProps) {
       ) : (
         <>
           <ProfileHeader
-            username={username}
+            username={targetUsername}
             userId={profileData.id}
             imgSrc={userDetail.imgSrc}
             theme={userDetail.color}

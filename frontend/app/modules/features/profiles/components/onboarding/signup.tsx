@@ -215,7 +215,7 @@ export function OnboardingSignupStep() {
         <Button
           type="submit"
           variant="primary"
-          className="max-w-28 w-full mx-auto"
+          className=" mx-auto"
           disabled={!canSubmit}
           onClick={() => {}}
         >

@@ -12,7 +12,7 @@ type ActionBarProps = {
 
 function ActionBar(props: ActionBarProps) {
 	return (
-		<div className="flex px-2.5 w-[22.6875rem] px-[0.625rem] items-start gap-[0.8125rem]">
+		<div className="flex px-2.5 w-full px-[0.625rem] items-start gap-[0.8125rem]">
 			<div
 				className="flex items-center gap-[0.3125rem]"
 				onClick={() => props.setIsLiked?.(!props.isLiked)}>

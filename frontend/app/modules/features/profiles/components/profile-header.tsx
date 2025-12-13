@@ -18,7 +18,7 @@ const ConnectionsModal = dynamic(
 		loading: () => (
 			<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
 				<div className="flex items-center justify-center">
-					<LoadingSpinner size={40} />
+					<LoadingSpinner />
 				</div>
 			</div>
 		),
@@ -78,7 +78,7 @@ function ProfileHeader(props: ProfileHeaderProps) {
 	return (
 		<div
 			className={
-				"relative text-white flex w-93.25 py-6.25 flex-col justify-center items-center gap-3.75 rounded-[2.8125rem] bg-(--profile-theme)"
+				"text-white flex max-w-93.25 w-full py-6.25 flex-col justify-center items-center gap-3.75 rounded-[2.8125rem] bg-(--profile-theme)"
 			}
 			style={{ "--profile-theme": `${props.theme}` } as CSSProperties}>
 			<span
