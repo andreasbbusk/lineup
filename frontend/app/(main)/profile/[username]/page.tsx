@@ -102,7 +102,7 @@ export default function Page({ params }: PublicProfilePageProps) {
   ]; // Hardcoded artists data - matches edit page
 
   if (isLoading) {
-    return <LoadingSpinner size={40} />;
+    return <LoadingSpinner />;
   }
 
   if (error || !profileData) {

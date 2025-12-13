@@ -103,7 +103,7 @@ export function LoginForm() {
           type="submit"
           variant="primary"
           disabled={!isValid || isPending}
-          className="mx-auto w-full max-w-28 rounded-full bg-yellow px-6 py-2 text-sm font-medium text-black transition-all hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
+          className="mx-auto rounded-full bg-yellow px-6 py-2 text-sm font-medium text-black transition-all hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
           onClick={() => {}}
         >
           {isPending ? "Signing in..." : "Sign in"}

@@ -507,7 +507,7 @@ function ProfileBody(props: ProfileBodyProps) {
       <TabsContent value="posts">
         {postsLoading ? (
           <div className="flex items-center justify-center py-8">
-            <LoadingSpinner size={24} />
+            <LoadingSpinner />
           </div>
         ) : postsData?.data && postsData.data.length > 0 ? (
           <div className="flex flex-col gap-4">

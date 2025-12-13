@@ -82,7 +82,7 @@ export default function SearchPage() {
 
   // Event handlers
   const handleCancel = useCallback(() => {
-    router.push("/feed");
+    router.push("/");
   }, [router]);
 
   const handleStartChat = useCallback(

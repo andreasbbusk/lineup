@@ -198,7 +198,7 @@ export function ConnectionsModal({
 							{isRefetching && (
 								<div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
 									<div className="bg-black/40 rounded-full p-3">
-										<LoadingSpinner size={40} />
+										<LoadingSpinner />
 									</div>
 								</div>
 							)}
@@ -206,7 +206,7 @@ export function ConnectionsModal({
 								<div
 									className="flex items-center justify-center min-h-[300px] w-full"
 									style={{ background: "transparent" }}>
-									<LoadingSpinner size={40} />
+									<LoadingSpinner />
 								</div>
 							) : (
 								<div className="space-y-0 w-full">

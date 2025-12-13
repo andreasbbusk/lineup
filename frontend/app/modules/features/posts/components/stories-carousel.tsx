@@ -14,14 +14,11 @@ const STORY_USERNAMES = [
 
 function StoriesCarousel() {
   const [users, setUsers] = useState<UserProfile[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchSpecificUsers = async () => {
       try {
-        setIsLoading(true);
-
         const uniqueUsernames = Array.from(new Set(STORY_USERNAMES));
         const profiles = await Promise.all(
           uniqueUsernames.map((username) => getUserProfile(username))
@@ -31,24 +28,18 @@ function StoriesCarousel() {
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
         console.error("Error fetching users:", err);
-      } finally {
-        setIsLoading(false);
       }
     };
 
     fetchSpecificUsers();
   }, []);
 
-  if (isLoading) {
-    return <div className="my-custom-class">Loading stories...</div>;
-  }
-
   if (error) {
     return <div className="my-custom-class">Error: {error}</div>;
   }
 
   return (
-    <div className="flex px-4  items-start gap-3 bg-white overflow-x-auto pb-4 snap-mandatory md:grid md:grid-cols-3 md:overflow-visible border-b-2 border-gray-200">
+    <div className="no-scrollbar flex px-4 items-start gap-3 bg-white overflow-x-auto pb-4 snap-mandatory md:grid md:grid-cols-3 md:overflow-visible border-b-2 border-gray-200">
       {users.map((user) => (
         <div
           key={user.id}

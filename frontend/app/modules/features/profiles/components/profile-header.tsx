@@ -18,7 +18,7 @@ const ConnectionsModal = dynamic(
 		loading: () => (
 			<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
 				<div className="flex items-center justify-center">
-					<LoadingSpinner size={40} />
+					<LoadingSpinner />
 				</div>
 			</div>
 		),

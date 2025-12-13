@@ -14,22 +14,8 @@ export default function Page() {
       return;
     }
 
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-
-    if (!user.username) {
-      router.push("/onboarding");
-      return;
-    }
-
-    router.push(`/profile/${user.username}`);
+    router.push(`/profile/${user?.username}`);
   }, [user, isInitialized, router]);
 
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <LoadingSpinner size={40} />
-    </div>
-  );
+  return <LoadingSpinner />;
 }
