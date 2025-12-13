@@ -6,9 +6,9 @@ type TabsPropsProfile = {
 	/** Tabs variant */
 	variant: "profile";
 	/** Active tab */
-	activeTab: "about" | "posts";
+	activeTab: "about" | "notes";
 	/** Callback when tab is clicked */
-	onTabChange: (tab: "about" | "posts") => void;
+	onTabChange: (tab: "about" | "notes") => void;
 	/** Tab content */
 	children: React.ReactNode;
 	className?: string;

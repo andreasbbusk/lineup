@@ -52,7 +52,7 @@ type ProfileBodyProps = {
 };
 
 function ProfileBody(props: ProfileBodyProps) {
-  const [activeTab, setActiveTab] = useState<"about" | "posts">("about");
+  const [activeTab, setActiveTab] = useState<"about" | "notes">("about");
   const [showAllArtists, setShowAllArtists] = useState(false);
   const [showAllCollaborators, setShowAllCollaborators] = useState(false);
 
