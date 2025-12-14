@@ -213,10 +213,7 @@ export default function Page({ params }: ProfilePageProps) {
     console.log("Share profile clicked");
   };
 
-  const connect = () => {
-    // Logic to send a connection request
-    console.log("Connect clicked");
-  };
+
 
   const message = () => {
     // Logic to send a message
@@ -269,7 +266,6 @@ export default function Page({ params }: ProfilePageProps) {
             isOwnProfile={isOwnProfile}
             connections={acceptedConnectionsCount}
             posts={postsCount}
-            onClickConnect={connect}
             onClickMessage={message}
           />
           <ProfileBody

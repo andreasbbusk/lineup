@@ -22,7 +22,7 @@ export default function Header() {
   const isHomePage = pathname === "/";
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-light-grey bg-white">
+    <header className="sticky top-0 z-40 w-full bg-white">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
         {/* Left side */}
         <div className="flex items-center">
