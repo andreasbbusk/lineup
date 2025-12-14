@@ -12,6 +12,7 @@ export type CreatePostBody = components["schemas"]["CreatePostBody"];
  */
 export interface PostsQueryParams {
   type?: "note" | "request" | "story";
+  status?: "active" | "resolved" | "archived";
   authorId?: string;
   cursor?: string;
   limit?: number;
@@ -160,13 +161,16 @@ export async function getPostById(
  * @throws ApiError if request fails
  */
 export async function resolvePost(postId: string): Promise<PostResponse> {
-  const { data, error, response } = await apiClient.POST("/posts/{id}/resolve", {
-    params: {
-      path: {
-        id: postId,
+  const { data, error, response } = await apiClient.POST(
+    "/posts/{id}/resolve",
+    {
+      params: {
+        path: {
+          id: postId,
+        },
       },
-    },
-  });
+    }
+  );
 
   if (error) {
     handleApiError(error, response);
