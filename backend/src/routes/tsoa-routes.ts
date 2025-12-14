@@ -15,6 +15,8 @@ import { UploadController } from './../entities/upload/upload.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { MediaController } from './../entities/upload/upload.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { ServicesController } from './../entities/services/services.controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { SearchController } from './../entities/search/search.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ReviewsController } from './../entities/reviews/reviews.controller';
@@ -89,6 +91,8 @@ const models: TsoaRoute.Models = {
     "FaqQuestionResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"question":{"dataType":"string","required":true},"displayOrder":{"dataType":"double","required":true},"isActive":{"dataType":"boolean","required":true}},"additionalProperties":false},
     "SignedUrlResponse": {"dataType":"refObject","properties":{"signedUrl":{"dataType":"string","required":true},"filePath":{"dataType":"string","required":true}},"additionalProperties":false},
     "SignedUrlRequestDto": {"dataType":"refObject","properties":{"fileName":{"dataType":"string","required":true},"fileType":{"dataType":"string","required":true},"uploadType":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["post"]},{"dataType":"enum","enums":["avatar"]}],"default":"post"}},"additionalProperties":false},
+    "ServiceResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"providerId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"providerName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"title":{"dataType":"string","required":true},"description":{"dataType":"string","required":true},"mediaUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"serviceType":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["rehearsal_space"]},{"dataType":"enum","enums":["studio"]},{"dataType":"enum","enums":["recording"]},{"dataType":"enum","enums":["art"]},{"dataType":"enum","enums":["venue"]},{"dataType":"enum","enums":["teaching"]},{"dataType":"enum","enums":["equipment_rental"]},{"dataType":"enum","enums":[null]}],"required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"updatedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true}},"additionalProperties":false},
+    "ServiceType": {"dataType":"refAlias","type":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["rehearsal_space"]},{"dataType":"enum","enums":["studio"]},{"dataType":"enum","enums":["recording"]},{"dataType":"enum","enums":["art"]},{"dataType":"enum","enums":["venue"]},{"dataType":"enum","enums":["teaching"]},{"dataType":"enum","enums":["equipment_rental"]}],"validators":{}}},
     "UserSearchResult": {"dataType":"refObject","properties":{"type":{"dataType":"enum","enums":["user"],"required":true},"id":{"dataType":"string","required":true},"username":{"dataType":"string","required":true},"firstName":{"dataType":"string","required":true},"lastName":{"dataType":"string","required":true},"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"bio":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"genres":{"dataType":"any"},"lookingFor":{"dataType":"array","array":{"dataType":"string"}},"isConnected":{"dataType":"boolean","required":true},"relevance":{"dataType":"double","required":true}},"additionalProperties":false},
     "CollaborationSearchResult": {"dataType":"refObject","properties":{"type":{"dataType":"enum","enums":["collaboration"],"required":true},"id":{"dataType":"string","required":true},"title":{"dataType":"string","required":true},"description":{"dataType":"string","required":true},"authorId":{"dataType":"string","required":true},"authorUsername":{"dataType":"string","required":true},"authorFirstName":{"dataType":"string","required":true},"authorAvatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"paidOpportunity":{"dataType":"boolean","required":true},"genres":{"dataType":"any"},"createdAt":{"dataType":"string","required":true},"relevance":{"dataType":"double","required":true}},"additionalProperties":false},
     "ServiceSearchResult": {"dataType":"refObject","properties":{"type":{"dataType":"enum","enums":["service"],"required":true},"id":{"dataType":"string","required":true},"title":{"dataType":"string","required":true},"description":{"dataType":"string","required":true},"serviceType":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"providerId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"providerName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"providerUsername":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"providerAvatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"createdAt":{"dataType":"string","required":true},"relevance":{"dataType":"double","required":true}},"additionalProperties":false},
@@ -489,6 +493,38 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'deleteMedia',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsServicesController_getServices: Record<string, TsoaRoute.ParameterSchema> = {
+                serviceType: {"in":"query","name":"serviceType","ref":"ServiceType"},
+                location: {"in":"query","name":"location","dataType":"string"},
+                limit: {"in":"query","name":"limit","dataType":"double"},
+        };
+        app.get('/services',
+            ...(fetchMiddlewares<RequestHandler>(ServicesController)),
+            ...(fetchMiddlewares<RequestHandler>(ServicesController.prototype.getServices)),
+
+            async function ServicesController_getServices(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsServicesController_getServices, request, response });
+
+                const controller = new ServicesController();
+
+              await templateService.apiHandler({
+                methodName: 'getServices',
                 controller,
                 response,
                 next,

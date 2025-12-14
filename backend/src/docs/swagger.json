@@ -474,6 +474,96 @@
 					"uploadType": "post"
 				}
 			},
+			"ServiceResponse": {
+				"description": "API response format for a service\nRepresents a service offering (seeded data - no creation endpoint).\nServices can be: rehearsal_space, studio, recording, art, venue, teaching, or equipment_rental.\nprovider_id is practically always null since there are no provider users.",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"providerId": {
+						"type": "string",
+						"nullable": true
+					},
+					"providerName": {
+						"type": "string",
+						"nullable": true
+					},
+					"title": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"mediaUrl": {
+						"type": "string",
+						"nullable": true
+					},
+					"location": {
+						"type": "string",
+						"nullable": true
+					},
+					"serviceType": {
+						"type": "string",
+						"enum": [
+							"rehearsal_space",
+							"studio",
+							"recording",
+							"art",
+							"venue",
+							"teaching",
+							"equipment_rental",
+							null
+						],
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"updatedAt": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"required": [
+					"id",
+					"providerId",
+					"providerName",
+					"title",
+					"description",
+					"mediaUrl",
+					"location",
+					"serviceType",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"id": "4f99a480-d388-47c2-86f5-efa0b8b164a0",
+					"providerId": null,
+					"providerName": "Lighthouse Music",
+					"title": "Acoustic Band Room",
+					"description": "Bright room with natural light suitable for rehearsals.",
+					"mediaUrl": "https://example.com/media/acoustic-band-room.jpg",
+					"location": "Roskilde, DK",
+					"serviceType": "rehearsal_space",
+					"createdAt": "2025-12-10T16:13:01.154276Z",
+					"updatedAt": "2025-12-10T16:13:01.154276Z"
+				}
+			},
+			"ServiceType": {
+				"type": "string",
+				"enum": [
+					"rehearsal_space",
+					"studio",
+					"recording",
+					"art",
+					"venue",
+					"teaching",
+					"equipment_rental"
+				]
+			},
 			"UserSearchResult": {
 				"description": "Search result for a user (from search_people)",
 				"properties": {
@@ -3392,6 +3482,70 @@
 						"required": true,
 						"schema": {
 							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/services": {
+			"get": {
+				"operationId": "GetServices",
+				"responses": {
+					"200": {
+						"description": "Array of services",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"$ref": "#/components/schemas/ServiceResponse"
+											},
+											"type": "array"
+										}
+									},
+									"required": [
+										"data"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "List services with optional filters\n\nReturns a list of services with optional filtering by service type and location.\nServices are public and can be viewed without authentication.\nServices are seeded data - there is no creation endpoint.",
+				"summary": "List services",
+				"tags": [
+					"Services"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "Filter by service type",
+						"in": "query",
+						"name": "serviceType",
+						"required": false,
+						"schema": {
+							"$ref": "#/components/schemas/ServiceType"
+						}
+					},
+					{
+						"description": "Filter by location (case-insensitive partial match)",
+						"in": "query",
+						"name": "location",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "Maximum number of services to return (default: 100)",
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
 						}
 					}
 				]

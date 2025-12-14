@@ -101,6 +101,11 @@ export type RecentSearchInsert =
 export type RecentSearchUpdate =
   Database["public"]["Tables"]["recent_searches"]["Update"];
 
+// Services table types
+export type ServiceRow = Database["public"]["Tables"]["services"]["Row"];
+export type ServiceInsert = Database["public"]["Tables"]["services"]["Insert"];
+export type ServiceUpdate = Database["public"]["Tables"]["services"]["Update"];
+
 // Enums
 export type PostType = Database["public"]["Enums"]["post_type"];
 export type MediaType = Database["public"]["Enums"]["media_type"];
@@ -108,3 +113,4 @@ export type MetadataType = Database["public"]["Enums"]["metadata_type"];
 export type ConversationType = Database["public"]["Enums"]["conversation_type"];
 export type NotificationType = Database["public"]["Enums"]["notification_type"];
 export type LookingForType = Database["public"]["Enums"]["looking_for_type"];
+export type ServiceType = Database["public"]["Enums"]["service_type_ext"];
