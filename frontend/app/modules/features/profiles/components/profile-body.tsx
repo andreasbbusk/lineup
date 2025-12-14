@@ -89,10 +89,11 @@ function ProfileBody(props: ProfileBodyProps) {
   const [showAllArtists, setShowAllArtists] = useState(false);
   const [showAllCollaborators, setShowAllCollaborators] = useState(false);
 
-  // Fetch posts by this user (both notes and requests)
+  // Fetch notes by this user
   const { data: postsData, isLoading: postsLoading } = usePostsByAuthor(
     props.userId || "",
     {
+      type: "note",
       limit: 50,
       includeEngagement: true,
       includeMedia: true,
@@ -456,7 +457,7 @@ function ProfileBody(props: ProfileBodyProps) {
             )}
           </ProfileSection>
         </TabsContent>
-        <TabsContent value="posts">
+        <TabsContent value="notes">
           {postsLoading ? (
             <LoadingSpinner />
           ) : postsData?.data && postsData.data.length > 0 ? (

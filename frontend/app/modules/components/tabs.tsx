@@ -50,7 +50,7 @@ type TabsContentProps = {
 const TAB_CONFIGS = {
   profile: [
     { id: "about", label: "About" },
-    { id: "posts", label: "Posts" },
+    { id: "notes", label: "Notes" },
   ],
   chat: [
     { id: "chats", label: "Chats" },
