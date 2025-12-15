@@ -28,7 +28,7 @@ export function NotificationSection({
 	}
 
 	return (
-		<div className="flex flex-col gap-5 items-start w-full">
+		<div className="flex flex-col gap-3.75 items-start w-full">
 			{/* Section title */}
 			<h2 className="text-[12px]! font-medium text-[#555555] w-full">
 				{title}
