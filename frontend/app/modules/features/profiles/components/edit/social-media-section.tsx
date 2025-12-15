@@ -44,7 +44,7 @@ export function SocialMediaSection({
 	if (!showSocialMediaSection) return null;
 
 	return (
-		<div className="relative self-stretch rounded-[1.5625rem] border border-black/10 py-9 px-[0.9375rem]">
+		<div className="relative self-stretch rounded-[1.5625rem] border border-black/10 py-9 px-3.75 w-full max-w-200 mx-auto">
 			<Image
 				src={"/icons/close.svg"}
 				width={24}
@@ -54,7 +54,7 @@ export function SocialMediaSection({
 				onClick={() => setShowSocialMediaSection(false)}
 			/>
 			<div className="flex items-center">
-				<h4 className="w-full max-w-[6rem] font-semibold">Social Media</h4>
+				<h4 className="w-full max-w-24 font-semibold">Social Media</h4>
 				<div
 					className={`flex ${
 						isEditingSocials ? "flex-col" : "flex-row"
