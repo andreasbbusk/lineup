@@ -67,12 +67,13 @@ export default function Header() {
           >
             <Bell size={24} />
           </button>
-          <button
+          <Link
+            href="/settings"
             className="flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
             aria-label="Menu"
           >
             <Menu size={24} />
-          </button>
+          </Link>
         </div>
       </div>
     </header>
