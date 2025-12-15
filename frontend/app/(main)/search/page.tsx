@@ -16,6 +16,7 @@ import { usePosts } from "@/app/modules/hooks/queries/usePosts";
 import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
+import { useStartOrNavigateToChat } from "@/app/modules/hooks";
 
 export default function SearchPage() {
   const router = useRouter();
@@ -85,11 +86,16 @@ export default function SearchPage() {
     router.push("/");
   }, [router]);
 
+  const { startOrNavigateToChat } = useStartOrNavigateToChat();
+
   const handleStartChat = useCallback(
     (authorId: string, postId: string) => {
-      router.push(`/chats?userId=${authorId}&postId=${postId}`);
+      startOrNavigateToChat({
+        participantId: authorId,
+        postId: postId || undefined,
+      });
     },
-    [router]
+    [startOrNavigateToChat]
   );
 
   return (

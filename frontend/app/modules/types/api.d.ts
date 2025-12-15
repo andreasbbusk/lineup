@@ -547,7 +547,7 @@ export interface paths {
          *
          *     Returns notifications for the authenticated user with optional filters.
          *     Supports filtering by type and unread status, with cursor-based pagination.
-         *     Archived notifications are excluded by default.
+         *     When grouped=true, returns notifications organized by type for easy filtering.
          */
         get: operations["GetNotifications"];
         put?: never;
@@ -2037,6 +2037,8 @@ export interface components {
             content: string;
             createdAt: string | null;
             updatedAt: string | null;
+            parentId?: string | null;
+            replies?: components["schemas"]["CommentResponse"][];
             author?: {
                 avatarUrl?: string | null;
                 lastName?: string | null;
@@ -2072,6 +2074,23 @@ export interface components {
                 id: string;
             };
         };
+        /** @description Construct a type with a set of properties K of type T */
+        "Record_like-or-comment-or-connection_request-or-connection_accepted-or-tagged_in_post-or-review-or-collaboration_request-or-message.NotificationResponse-Array_": {
+            like: components["schemas"]["NotificationResponse"][];
+            comment: components["schemas"]["NotificationResponse"][];
+            connection_request: components["schemas"]["NotificationResponse"][];
+            connection_accepted: components["schemas"]["NotificationResponse"][];
+            tagged_in_post: components["schemas"]["NotificationResponse"][];
+            review: components["schemas"]["NotificationResponse"][];
+            collaboration_request: components["schemas"]["NotificationResponse"][];
+            message: components["schemas"]["NotificationResponse"][];
+        };
+        /**
+         * @description API response format for grouped notifications
+         *     Returns notifications organized by type for easy filtering in the frontend
+         *     Uses Record type to ensure all notification types are included
+         */
+        GroupedNotificationsResponse: components["schemas"]["Record_like-or-comment-or-connection_request-or-connection_accepted-or-tagged_in_post-or-review-or-collaboration_request-or-message.NotificationResponse-Array_"];
         /**
          * @description DTO for updating a notification
          *
@@ -2392,10 +2411,11 @@ export interface components {
             status: components["schemas"]["ConnectionStatus"];
         };
         /** @description From T, pick a set of properties whose keys are in the union K */
-        "Pick_CommentInsert.Exclude_keyofCommentInsert.author_id-or-created_at-or-updated_at-or-id__": {
-            post_id: string;
+        "Pick_CommentInsert.Exclude_keyofCommentInsert.author_id-or-created_at-or-updated_at-or-id-or-post_id-or-parent_id__": {
             content: string;
         };
+        /** @description Construct a type with the properties of T except for those in type K. */
+        "Omit_CommentInsert.author_id-or-created_at-or-updated_at-or-id-or-post_id-or-parent_id_": components["schemas"]["Pick_CommentInsert.Exclude_keyofCommentInsert.author_id-or-created_at-or-updated_at-or-id-or-post_id-or-parent_id__"];
         /**
          * @description DTO for creating a comment
          *
@@ -2407,17 +2427,22 @@ export interface components {
          *     }
          */
         CreateCommentDto: {
-            post_id: string;
+            /**
+             * @description The ID of the post to comment on (UUID format)
+             * @example a1b2c3d4-e5f6-7890-1234-567890abcdef
+             */
+            postId: string;
             /**
              * @description The comment content (1-1000 characters)
              * @example Great post! Looking forward to collaborating.
              */
             content: string;
             /**
-             * @description The ID of the post to comment on (UUID format)
+             * @description Optional parent comment ID for nested replies (UUID format)
+             *     If provided, this comment will be a reply to the parent comment
              * @example a1b2c3d4-e5f6-7890-1234-567890abcdef
              */
-            postId: string;
+            parentId?: string | null;
         };
         /**
          * @description DTO for updating a comment
@@ -3283,7 +3308,7 @@ export interface operations {
     GetNotifications: {
         parameters: {
             query?: {
-                /** @description Filter by notification type */
+                /** @description Filter by notification type (ignored if grouped=true) */
                 type?: string;
                 /** @description If true, only return unread notifications */
                 unreadOnly?: boolean;
@@ -3291,6 +3316,8 @@ export interface operations {
                 cursor?: string;
                 /** @description Maximum number of notifications to return (1-100, default: 50) */
                 limit?: number;
+                /** @description If true, returns notifications grouped by type as an object */
+                grouped?: boolean;
             };
             header?: never;
             path?: never;
@@ -3298,7 +3325,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Notifications with pagination cursor */
+            /** @description Notifications with pagination cursor (flat array or grouped by type) */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -3307,6 +3334,9 @@ export interface operations {
                     "application/json": {
                         nextCursor?: string;
                         notifications: components["schemas"]["NotificationResponse"][];
+                    } | {
+                        nextCursor?: string;
+                        notifications: components["schemas"]["GroupedNotificationsResponse"];
                     };
                 };
             };

@@ -1,14 +1,15 @@
 "use client";
 
-import { useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { useCreateConversation } from "@/app/modules/features/chats/hooks/query/conversationMutations";
+import { useStartOrNavigateToChat } from "./useStartOrNavigateToChat";
 
 /**
  * Global hook for starting a chat with a user
  *
+ * @deprecated Use useStartOrNavigateToChat instead for better functionality (checks for existing chats)
+ * This hook is kept for backward compatibility
+ *
  * Creates a direct conversation and navigates to the chat interface.
- * Handles conversation creation errors gracefully.
+ * Now uses useStartOrNavigateToChat internally to check for existing conversations first.
  *
  * @example
  * ```tsx
@@ -20,26 +21,8 @@ import { useCreateConversation } from "@/app/modules/features/chats/hooks/query/
  * ```
  */
 export function useStartChat() {
-  const router = useRouter();
-  const createConversation = useCreateConversation();
+  const { startOrNavigateToChat } = useStartOrNavigateToChat();
 
-  const startChat = useCallback(
-    async (userId: string) => {
-      try {
-        const conversation = await createConversation.mutateAsync({
-          type: "direct",
-          participantIds: [userId],
-        });
-
-        if (conversation?.id) {
-          router.push(`/chats/${conversation.id}`);
-        }
-      } catch (error) {
-        console.error("Failed to create conversation:", error);
-      }
-    },
-    [createConversation, router]
-  );
-
-  return startChat;
+  // Return function that matches the old API: (userId: string) => void
+  return startOrNavigateToChat;
 }
