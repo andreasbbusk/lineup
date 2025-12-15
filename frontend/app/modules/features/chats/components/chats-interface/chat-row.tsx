@@ -73,7 +73,7 @@ export function ChatRow({
 					{formatConversationTime(conversation.lastMessageAt ?? null)}
 				</div>
 			</button>
-			<Divider long />
+			<Divider />
 		</>
 	);
 }
