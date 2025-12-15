@@ -208,6 +208,9 @@
 }
 
 @theme {
+	/* Custom Breakpoints */
+	--breakpoint-xs: 375px;
+
 	/* Font Family */
 	--font-family-helvetica: "Helvetica Now Display", system-ui, -apple-system,
 		sans-serif;

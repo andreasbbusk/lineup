@@ -7,10 +7,15 @@ import { useAppStore } from "@/app/modules/stores/Store";
 export function useOnboardingNavigation() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { onboarding, goToStep: updateStoreStep } = useAppStore();
+  const { onboarding, goToStep: updateStoreStep, user } = useAppStore();
 
   // Get step from URL
   const urlStep = parseInt(searchParams.get("step") || "0", 10);
+
+  // For authenticated users who haven't completed onboarding, enforce minimum step 3
+  const isAuthenticated = !!user;
+  const onboardingCompleted = user?.onboardingCompleted ?? false;
+  const minStep = isAuthenticated && !onboardingCompleted ? 3 : 0;
 
   // Sync URL step → Store step (single source of truth)
   useEffect(() => {
@@ -21,7 +26,8 @@ export function useOnboardingNavigation() {
 
   const navigateToStep = useCallback(
     (step: number) => {
-      const clampedStep = Math.max(0, Math.min(step, 5));
+      // Enforce minimum step for authenticated users who haven't completed onboarding
+      const clampedStep = Math.max(minStep, Math.min(step, 5));
 
       // Update store first
       updateStoreStep(clampedStep);
@@ -29,7 +35,7 @@ export function useOnboardingNavigation() {
       // Then update URL
       router.push(`/onboarding?step=${clampedStep}`, { scroll: false });
     },
-    [router, updateStoreStep]
+    [router, updateStoreStep, minStep]
   );
 
   const nextStep = useCallback(() => {

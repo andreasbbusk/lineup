@@ -15,7 +15,7 @@ import { useState } from "react";
 type AvatarSize = "xs" | "sm" | "md" | "lg" | "xl" | "xxl";
 
 const SIZE_CLASSES: Record<AvatarSize, string> = {
-  xs: "w-5 h-5", // 20px - for post author
+  xs: "w-6 h-6", // 24px - for post author
   sm: "w-8 h-8", // 32px - for message bubbles
   md: "w-12 h-12", // 48px - for standard UI
   lg: "size-14", // 56px - for conversation list
@@ -32,7 +32,7 @@ const TEXT_SIZE_CLASSES: Record<AvatarSize, string> = {
   xxl: "text-5xl",
 };
 
-const FALLBACK_INITIAL = "?";
+const FALLBACK_INITIAL = "";
 
 type AvatarProps = {
   src?: string | null;

@@ -1,13 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { keepPreviousData } from "@tanstack/react-query";
 import { Button } from "@/app/modules/components/buttons";
-import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
 import { usePosts } from "@/app/modules/hooks/queries";
 import { PostCard } from "./post-card";
 
 function RequestCarousel() {
-  const { data, isLoading, error } = usePosts({ limit: 50, type: "request" });
+  const { data, error, isPending } = usePosts(
+    { limit: 20, type: "request" },
+    { placeholderData: keepPreviousData } // Prevent flash during refresh
+  );
   const [showAll, setShowAll] = useState(false);
 
   const posts = useMemo(
@@ -24,21 +27,19 @@ function RequestCarousel() {
 
   const featuredPosts = posts.slice(0, 3);
   const remainingPosts = posts.slice(3);
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <LoadingSpinner size={24} />
-      </div>
-    );
-  }
+  const hasRemainingPosts = remainingPosts.length > 0;
 
   if (error) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-        Fejl ved indlæsning af forespørgsler.
+        Error loading requests: {error.message}
       </div>
     );
+  }
+
+  // Show nothing while initial load (no placeholder data yet)
+  if (isPending && !data) {
+    return null; // Or return a skeleton
   }
 
   return (
@@ -46,45 +47,44 @@ function RequestCarousel() {
       <p className="text-gray font-normal text-base">Collaboration requests</p>
 
       {posts.length > 0 ? (
-        <div>
-          <div className="flex pr-3.75 items-start max-w-[calc(100vw-0.9375rem)] gap-2.5 overflow-x-auto pb-2 snap-x snap-mandatory md:grid md:grid-cols-3 md:overflow-visible">
+        <>
+          <div className="no-scrollbar flex pr-3.75 items-start max-w-[calc(100vw-0.9375rem)] gap-2.5 overflow-x-auto pb-2 snap-x snap-mandatory md:grid md:grid-cols-3 md:overflow-visible">
             {featuredPosts.map((post) => (
-              <div key={post.id} className=" snap-start md:min-w-0">
+              <div
+                key={post.id}
+                className="snap-start md:min-w-0 min-h-[238px]"
+              >
                 <PostCard compact post={post} />
               </div>
             ))}
           </div>
-          {data?.pagination.hasMore &&
-            !showAll &&
-            remainingPosts.length > 0 && (
-              <div className="text-center">
-                <p className="text-sm text-gray-500">
-                  Flere opslag indlæses...
-                </p>
-              </div>
-            )}
-        </div>
+
+          {/* Only show button if there are remaining posts */}
+          {hasRemainingPosts && !showAll && (
+            <Button variant="primary" onClick={() => setShowAll(true)}>
+              See more requests
+            </Button>
+          )}
+
+          {/* Show remaining posts when expanded */}
+          {showAll && hasRemainingPosts && (
+            <div className="grid gap-4 md:grid-cols-3">
+              {remainingPosts.map((post) => (
+                <PostCard compact key={post.id} post={post} />
+              ))}
+            </div>
+          )}
+        </>
       ) : (
         <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-          <p className="text-gray-500">Ingen opslag endnu.</p>
+          <p className="text-gray-500">No requests yet.</p>
           <p className="mt-2 text-sm text-gray-400">
-            Vær den første til at oprette et opslag!
+            Be the first to create a request!
           </p>
-        </div>
-      )}
-
-      <Button variant="primary" onClick={() => setShowAll(true)}>
-        See more collabs
-      </Button>
-
-      {showAll && remainingPosts.length > 0 && (
-        <div className="grid gap-4 md:grid-cols-3">
-          {remainingPosts.map((post) => (
-            <PostCard compact key={post.id} post={post} />
-          ))}
         </div>
       )}
     </div>
   );
 }
+
 export { RequestCarousel };

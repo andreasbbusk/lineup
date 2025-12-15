@@ -1,8 +1,10 @@
+import { useState } from "react";
+
 type ToggleProps = {
 	/** Toggle state */
-	isOn: boolean;
+	isOn?: boolean;
 	/** Callback when toggle is clicked */
-	onToggle: () => void;
+	onToggle?: () => void;
 	/** Optional label for the toggle */
 	label?: string;
 	/** Disabled state */
@@ -10,21 +12,32 @@ type ToggleProps = {
 };
 
 function Toggle(props: ToggleProps) {
+	const [isOn, setIsOn] = useState(props.isOn || false);
+
+	const handleToggle = () => {
+		if (props.disabled) return;
+		const newState = !isOn;
+		setIsOn(newState);
+		if (props.onToggle) {
+			props.onToggle();
+		}
+	};
 	return (
 		<div className="flex items-start  gap-2.5">
 			<button
-				onClick={props.onToggle}
+				type="button"
+				onClick={handleToggle}
 				disabled={props.disabled}
 				className={`flex w-[3.3125rem] items-center gap-2.5 rounded-[1.4375rem] border p-0.75 transition-all ${
-					props.isOn
+					isOn
 						? "justify-end border-crocus-yellow"
 						: "justify-start border-grey"
 				} ${props.disabled ? "cursor-not-allowed opacity-40" : ""}`}
-				aria-pressed={props.isOn}
+				aria-pressed={isOn}
 				aria-label={props.label}>
 				<div
 					className={`h-5 w-5 rounded-full transition-colors ${
-						props.isOn ? "bg-crocus-yellow" : "bg-grey"
+						isOn ? "bg-crocus-yellow" : "border border-grey"
 					}`}
 				/>
 			</button>

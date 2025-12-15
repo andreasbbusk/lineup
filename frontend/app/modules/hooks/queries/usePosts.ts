@@ -1,13 +1,18 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { listPosts, getPostById } from "@/app/modules/api/postsApi";
-import type { PostsQueryParams } from "@/app/modules/api/postsApi";
+import type {
+  PaginatedResponse,
+  PostResponse,
+  PostsQueryParams,
+} from "@/app/modules/api/postsApi";
 
 /**
  * Hook for fetching a list of posts with filters and pagination
  *
  * @param params - Query parameters for filtering and pagination
+ * @param options - Additional query options
  * @returns Query result with posts data
  *
  * @example
@@ -15,13 +20,25 @@ import type { PostsQueryParams } from "@/app/modules/api/postsApi";
  * const { data, isLoading } = usePosts({ type: "note", limit: 20 });
  * ```
  */
-export function usePosts(params?: PostsQueryParams) {
+export function usePosts(
+  params?: PostsQueryParams,
+  options?: Omit<
+    UseQueryOptions<
+      PaginatedResponse<PostResponse>,
+      Error,
+      PaginatedResponse<PostResponse>,
+      ["posts", PostsQueryParams?]
+    >,
+    "queryKey" | "queryFn"
+  >
+) {
   return useQuery({
     queryKey: ["posts", params],
     queryFn: () => listPosts({ ...params, includeEngagement: true }),
     staleTime: 30 * 1000, // 30 seconds
-    gcTime: 5 * 60 * 1000, // 5 minutes (garbage collection time)
-    enabled: true, // Always enabled, posts are public
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    // Spread user options, they can override defaults
+    ...options,
   });
 }
 

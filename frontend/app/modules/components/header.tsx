@@ -5,124 +5,75 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft, Search, Bell, Menu } from "lucide-react";
 
-interface HeaderProps {
-  variant?: "home" | "default";
-}
-
-/**
- * Header component with two design variants:
- * - "home": For the home/feed page
- * - "default": For all other pages
- */
-export default function Header({ variant = "default" }: HeaderProps) {
+export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
 
-  // Don't render on messenger/chats routes
-  if (pathname?.startsWith("/chats")) {
+  // Hide header on specific pages
+  if (
+    pathname === "/login" ||
+    pathname?.startsWith("/onboarding") ||
+    pathname === "/search" ||
+    pathname?.startsWith("/chats")
+  ) {
     return null;
   }
 
-  if (variant === "home") {
-    return <HomeHeader />;
-  }
+  const isHomePage = pathname === "/";
 
-  return <DefaultHeader />;
-}
-
-/**
- * Header variant for home/feed page
- */
-function HomeHeader() {
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-light-grey bg-white">
+    <header className="sticky top-0 z-40 w-full bg-white">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
+        {/* Left side */}
         <div className="flex items-center">
-          <Image
-            src="/logos/big_logos/headerLogo.svg"
-            alt="LineUp"
-            width={74}
-            height={24}
-            priority
-          />
+          {isHomePage ? (
+            <Image
+              src="/logos/big_logos/headerLogo.svg"
+              alt="LineUp"
+              width={74}
+              height={24}
+              priority
+            />
+          ) : (
+            <button
+              // Edge case using router.back() -> Would navigate back to external site if that was the access point.
+              // Minor thing, but important to note.
+              onClick={() => {
+                router.back();
+              }}
+              className="flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
+              aria-label="Go back"
+            >
+              <ChevronLeft size={24} />
+            </button>
+          )}
         </div>
 
+        {/* Spacer for non-home pages */}
+        {!isHomePage && <div className="flex-1" />}
+
+        {/* Right side - identical for both variants */}
         <div className="flex items-center gap-4">
-          <button
+          <Link
+            href="/search"
             className="flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
             aria-label="Search"
           >
             <Search size={24} />
-          </button>
+          </Link>
           <button
             className="relative flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
             aria-label="Notifications"
           >
             <Bell size={24} />
-            {/* Notification badge - only show when there are notifications */}
-            {/* TODO: Replace false with actual notification count check when implemented */}
-            {false && (
-              <span className="absolute right-0 top-0 h-3 w-3 rounded-full bg-crocus-yellow" />
-            )}
           </button>
-          <button
+          <Link
+            href="/settings"
             className="flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
             aria-label="Menu"
           >
             <Menu size={24} />
-          </button>
-        </div>
-      </div>
-    </header>
-  );
-}
-
-/**
- * Header variant for all other pages
- */
-function DefaultHeader() {
-  const router = useRouter();
-
-  const handleBack = () => {
-    router.back();
-  };
-
-  return (
-    <header className="sticky top-0 z-40 w-full border-b border-light-grey bg-white">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
-        <div className="flex items-center">
-          <button
-            onClick={handleBack}
-            className="flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
-            aria-label="Go back"
-          >
-            <ChevronLeft size={24} />
-          </button>
-        </div>
-        <div className="flex-1" />
-        <div className="flex items-center gap-4">
-          <button
-            className="flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
-            aria-label="Search"
-          >
-            <Search size={24} />
-          </button>
-          <button
-            className="relative flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
-            aria-label="Notifications"
-          >
-            <Bell size={24} />
-            {/* Notification badge - only show when there are notifications */}
-            {/* TODO: Replace false with actual notification count check when implemented */}
-            {false && (
-              <span className="absolute right-0 top-0 h-3 w-3 rounded-full bg-crocus-yellow" />
-            )}
-          </button>
-          <button
-            className="flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
-            aria-label="Menu"
-          >
-            <Menu size={24} />
-          </button>
+          </Link>
         </div>
       </div>
     </header>

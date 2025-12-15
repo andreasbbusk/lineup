@@ -232,7 +232,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Search across users, posts, and tags
+         * Search across users, posts, services, and tags
          * @description Search for users, posts, or tags
          *
          *     Performs a search across different entity types based on the specified tab.
@@ -241,12 +241,87 @@ export interface paths {
          *     - **for_you**: Personalized results combining people and collaboration requests
          *     - **people**: Search for users with filters (location, genres, looking for)
          *     - **collaborations**: Search for collaboration request posts
+         *     - **services**: Search for services
          *     - **tags**: Search for metadata (tags, genres, artists)
          */
         get: operations["Search"];
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/search/recent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get recent searches
+         * @description Get recent searches for the authenticated user
+         *
+         *     Returns the user's recent search history, ordered by most recent first.
+         *     Limited to the last 15 searches by default.
+         */
+        get: operations["GetRecentSearches"];
+        put?: never;
+        /**
+         * Save recent search
+         * @description Save a recent search
+         *
+         *     Saves a search query to the user's recent search history.
+         *     Automatically deduplicates identical query+tab combinations.
+         */
+        post: operations["SaveRecentSearch"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/search/recent/clear": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Clear all recent searches
+         * @description Clear all recent searches
+         *
+         *     Removes all search entries from the user's recent search history.
+         */
+        delete: operations["ClearAllRecentSearches"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/search/recent/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete recent search
+         * @description Delete a specific recent search
+         *
+         *     Removes a single search entry from the user's recent search history.
+         */
+        delete: operations["DeleteRecentSearch"];
         options?: never;
         head?: never;
         patch?: never;
@@ -377,6 +452,29 @@ export interface paths {
         get: operations["GetPost"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/posts/{id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resolve a request post
+         * @description Resolve a request post
+         *
+         *     Marks a request post as resolved and archives it. Only the post author can resolve their own posts.
+         *     Resolved posts are excluded from the main feed but remain accessible via user's post history.
+         */
+        post: operations["ResolvePost"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1391,10 +1489,38 @@ export interface components {
             description: string;
             authorId: string;
             authorUsername: string;
+            authorFirstName: string;
             authorAvatarUrl?: string | null;
             location?: string | null;
             paidOpportunity: boolean;
             genres?: unknown;
+            createdAt: string;
+            /** Format: double */
+            relevance: number;
+        };
+        /**
+         * @description Search result for services (from search_services)
+         * @example {
+         *       "type": "service",
+         *       "id": "service-123",
+         *       "title": "Mixing & Mastering",
+         *       "description": "Professional audio mixing and mastering services",
+         *       "serviceType": "mixing",
+         *       "relevance": 0.85
+         *     }
+         */
+        ServiceSearchResult: {
+            /** @enum {string} */
+            type: "service";
+            id: string;
+            title: string;
+            description: string;
+            serviceType: string | null;
+            providerId: string | null;
+            providerName: string | null;
+            providerUsername: string | null;
+            providerAvatarUrl: string | null;
+            location: string | null;
             createdAt: string;
             /** Format: double */
             relevance: number;
@@ -1421,7 +1547,7 @@ export interface components {
         };
         /**
          * @description Search result for "For You" tab (from search_for_you)
-         *     Polymorphic result that can be a user or collaboration
+         *     Polymorphic result that can be a user, collaboration, service, or tag
          * @example {
          *       "type": "for_you",
          *       "entityType": "user",
@@ -1443,7 +1569,7 @@ export interface components {
             /** @enum {string} */
             type: "for_you";
             /** @enum {string} */
-            entityType: "user" | "collaboration";
+            entityType: "user" | "collaboration" | "service" | "tag";
             entityId: string;
             title: string;
             subtitle: string;
@@ -1454,12 +1580,68 @@ export interface components {
             relevance: number;
         };
         /** @description Union type for all search results */
-        SearchResult: components["schemas"]["UserSearchResult"] | components["schemas"]["CollaborationSearchResult"] | components["schemas"]["TagSearchResult"] | components["schemas"]["ForYouSearchResult"];
+        SearchResult: components["schemas"]["UserSearchResult"] | components["schemas"]["CollaborationSearchResult"] | components["schemas"]["ServiceSearchResult"] | components["schemas"]["TagSearchResult"] | components["schemas"]["ForYouSearchResult"];
         /** @description API response format for search results */
         SearchResponse: {
             results: components["schemas"]["SearchResult"][];
             /** Format: double */
             total?: number;
+        };
+        /**
+         * @description API response format for a recent search entry
+         * @example {
+         *       "id": "search-123",
+         *       "userId": "user-456",
+         *       "searchQuery": "guitarist",
+         *       "searchTab": "people",
+         *       "entityType": "user",
+         *       "entityId": "user-789",
+         *       "createdAt": "2024-01-20T15:30:00Z"
+         *     }
+         */
+        RecentSearch: {
+            id: string;
+            userId: string;
+            searchQuery: string;
+            /** @enum {string} */
+            searchTab: "for_you" | "people" | "collaborations" | "services" | "tags";
+            entityType?: string;
+            entityId?: string;
+            createdAt: string;
+        };
+        /**
+         * @description DTO for saving a recent search
+         *
+         *     Used when a user performs a search to save it to their history
+         * @example {
+         *       "query": "guitarist",
+         *       "tab": "people",
+         *       "entityType": "user",
+         *       "entityId": "123e4567-e89b-12d3-a456-426614174000"
+         *     }
+         */
+        SaveRecentSearchDto: {
+            /**
+             * @description Search query string
+             * @example guitarist
+             */
+            query: string;
+            /**
+             * @description Search tab where the search was performed
+             * @example people
+             * @enum {string}
+             */
+            tab: "for_you" | "people" | "collaborations" | "services" | "tags";
+            /**
+             * @description Optional entity type if user clicked through to a specific result
+             * @example user
+             */
+            entityType?: string;
+            /**
+             * @description Optional entity ID if user clicked through to a specific result
+             * @example 123e4567-e89b-12d3-a456-426614174000
+             */
+            entityId?: string;
         };
         /**
          * @description API response format for a user review
@@ -1564,6 +1746,9 @@ export interface components {
             location: string | null;
             paidOpportunity: boolean | null;
             expiresAt: string | null;
+            /** @enum {string} */
+            status?: "active" | "resolved" | "archived";
+            resolvedAt?: string | null;
             metadata?: {
                 /** @enum {string} */
                 type: "tag" | "genre" | "artist";
@@ -1627,6 +1812,8 @@ export interface components {
             expires_at?: string;
             location?: string;
             paid_opportunity?: boolean;
+            resolved_at?: string;
+            status?: string;
             title: string;
             /** @enum {string} */
             type: "note" | "request" | "story";
@@ -1670,6 +1857,8 @@ export interface components {
              */
             location?: string | null;
             paid_opportunity?: boolean;
+            resolved_at?: string;
+            status?: string;
             /**
              * @description Post title (1-100 characters)
              * @example Looking for a drummer
@@ -1960,6 +2149,9 @@ export interface components {
             location: string | null;
             paidOpportunity: boolean | null;
             expiresAt: string | null;
+            /** @enum {string} */
+            status?: "active" | "resolved" | "archived";
+            resolvedAt?: string | null;
             metadata?: {
                 /** @enum {string} */
                 type: "tag" | "genre" | "artist";
@@ -2036,6 +2228,7 @@ export interface components {
             lastMessageSenderId?: string | null;
             /** Format: double */
             unreadCount: number;
+            relatedPostId?: string | null;
             creator?: {
                 avatarUrl?: string | null;
                 lastName?: string | null;
@@ -2052,6 +2245,7 @@ export interface components {
             name?: string | null;
             avatarUrl?: string | null;
             participantIds: string[];
+            postId?: string | null;
         };
         UpdateConversationDto: {
             name?: string | null;
@@ -2562,8 +2756,8 @@ export interface operations {
             query?: {
                 /** @description Search query string */
                 q?: string;
-                /** @description Search tab: "for_you", "people", "collaborations", or "tags" (default: "for_you") */
-                tab?: "for_you" | "people" | "collaborations" | "tags";
+                /** @description Search tab: "for_you", "people", "collaborations", "services", or "tags" (default: "for_you") */
+                tab?: "for_you" | "people" | "collaborations" | "services" | "tags";
                 /** @description Filter by location */
                 location?: string;
                 /** @description Filter by genres (array) */
@@ -2591,6 +2785,91 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["SearchResponse"];
                 };
+            };
+        };
+    };
+    GetRecentSearches: {
+        parameters: {
+            query?: {
+                /** @description Maximum number of results (default: 15) */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Array of recent searches */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecentSearch"][];
+                };
+            };
+        };
+    };
+    SaveRecentSearch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Search details to save */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveRecentSearchDto"];
+            };
+        };
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ClearAllRecentSearches: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DeleteRecentSearch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The ID of the recent search to delete */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -2821,6 +3100,29 @@ export interface operations {
             };
         };
     };
+    ResolvePost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The UUID of the post to resolve */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The updated post with resolved status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostResponse"];
+                };
+            };
+        };
+    };
     GetNotifications: {
         parameters: {
             query?: {
@@ -3016,6 +3318,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        status: string;
                         sent_via_websocket: boolean;
                         sender_id: string;
                         reply_to_message_id: string;

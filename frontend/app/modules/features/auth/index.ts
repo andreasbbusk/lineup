@@ -1,5 +1,6 @@
 // Hooks
 export * from "./hooks/useLogin";
+export * from "./hooks/useLogout";
 
 // Components
 export { LoginForm } from "./components/login-form";
