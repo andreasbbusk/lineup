@@ -15,7 +15,7 @@ const ProfileSection = ({
 	title: string;
 	children: React.ReactNode;
 }) => (
-	<section className="flex flex-col items-start gap-4 w-full max-w-93.25">
+	<section className="flex flex-col items-start gap-4 w-full">
 		<h4 className="font-normal text-[var(--color-grey)]">{title}</h4>
 		{children}
 	</section>
@@ -81,6 +81,7 @@ type ProfileBodyProps = {
 	theme?: string;
 	/** User ID for fetching posts */
 	userId?: string;
+	className?: string;
 };
 
 function ProfileBody(props: ProfileBodyProps) {
@@ -108,7 +109,7 @@ function ProfileBody(props: ProfileBodyProps) {
 	};
 
 	return (
-		<div className="max-w-93.25">
+		<div className={`w-full ${props.className}`}>
 			<Tabs variant="profile" activeTab={activeTab} onTabChange={setActiveTab}>
 				<TabsContent value="about">
 					<ProfileSection title="About me">
