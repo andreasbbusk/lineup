@@ -4,7 +4,7 @@ import { Tags } from "@/app/modules/components/tags";
 import Image from "next/image";
 import Link from "next/link";
 import { usePostsByAuthor } from "@/app/modules/hooks/queries";
-import { PostCard } from "@/app/modules/features/posts/components/post-card";
+import { ProfilePostCard } from "@/app/modules/features/posts/components/profile-post-card";
 import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
 
 // Helper components

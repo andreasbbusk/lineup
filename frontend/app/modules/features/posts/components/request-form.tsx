@@ -3,7 +3,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/app/modules/components/buttons";
 import { MediaUploader } from "./media-uploader";
+
+import { GenreSelector } from "./genre-selector";
 import { UserTagger } from "./user-tagger";
+import { Combobox } from "@/app/modules/components/combobox";
+import { Tags } from "@/app/modules/components/tags";
 import { useRequestDraftAutoSave } from "../hooks/useDraftAutoSave";
 import type { UploadedMedia } from "../types";
 import { Avatar } from "@/app/modules/components/avatar";
