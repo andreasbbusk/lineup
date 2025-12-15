@@ -44,7 +44,7 @@ function NotificationButton() {
 			<Bell size={24} />
 			{/* Notification badge - show when there are unread notifications */}
 			{unreadCount && unreadCount > 0 && (
-				<span className="absolute right-0 top-0 h-3 w-3 rounded-full bg-crocus-yellow" />
+				<span className="absolute right-0.5 top-0.5 h-2 w-2 rounded-full bg-crocus-yellow" />
 			)}
 		</Link>
 	);
