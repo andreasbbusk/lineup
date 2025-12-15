@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { usePosts } from "@/app/modules/hooks/queries/usePosts";
 import { useServices } from "@/app/modules/hooks/queries/useServices";
 import { useStartChat } from "@/app/modules/hooks";
@@ -18,15 +18,15 @@ import {
   getActiveFilterCount,
   hasActiveFilters as checkHasActiveFilters,
 } from "@/app/modules/features/services/utils/filterHelpers";
+import type {
+  PaginatedResponse,
+  PostResponse,
+} from "@/app/modules/api/postsApi";
+import type { components } from "@/app/modules/types/api";
+
+type ServiceResponse = components["schemas"]["ServiceResponse"];
 
 export default function ServicesPage() {
-  const { data: requestsData, isLoading: loadingRequests } = usePosts({
-    type: "request",
-    status: "active",
-  });
-
-  const { data: servicesData, isLoading: loadingServices } = useServices();
-
   const startChat = useStartChat();
 
   // Get filters from Zustand store
@@ -46,28 +46,7 @@ export default function ServicesPage() {
     clearFilters,
   } = useServiceFiltersStore();
 
-  // Get raw data
-  const allCollaborationRequests = useMemo(
-    () => requestsData?.data || [],
-    [requestsData?.data]
-  );
-  const allServices = useMemo(
-    () => servicesData?.data || [],
-    [servicesData?.data]
-  );
-
-  // Extract unique options for filters
-  const availableCities = useMemo(
-    () => extractUniqueCities(allCollaborationRequests, allServices),
-    [allCollaborationRequests, allServices]
-  );
-
-  const availableGenres = useMemo(
-    () => extractUniqueGenres(allCollaborationRequests),
-    [allCollaborationRequests]
-  );
-
-  // Combine filters for filtering
+  // Combine filters for filtering (memoized once)
   const filters = useMemo(
     () => ({
       search,
@@ -80,15 +59,60 @@ export default function ServicesPage() {
     [search, location, serviceTypes, genres, paidOpportunity, contentType]
   );
 
-  // Apply filters
-  const filteredCollaborationRequests = useMemo(
-    () => filterCollaborationRequests(allCollaborationRequests, filters),
-    [allCollaborationRequests, filters]
+  // Fetch raw data for extracting filter options (no select transformation)
+  const { data: requestsData } = usePosts({
+    type: "request",
+    status: "active",
+  });
+
+  const { data: servicesData } = useServices();
+
+  // Fetch and filter collaboration requests using select
+  const { data: filteredRequestsData, isLoading: loadingRequests } = usePosts(
+    {
+      type: "request",
+      status: "active",
+    },
+    {
+      select: useCallback(
+        (data: PaginatedResponse<PostResponse>) => ({
+          ...data,
+          data: filterCollaborationRequests(data.data, filters),
+        }),
+        [filters]
+      ),
+    }
   );
 
-  const filteredServices = useMemo(
-    () => filterServices(allServices, filters),
-    [allServices, filters]
+  // Fetch and filter services using select
+  const { data: filteredServicesData, isLoading: loadingServices } =
+    useServices(undefined, {
+      select: useCallback(
+        (data: { data: ServiceResponse[] }) => {
+          // Services API returns { data: ServiceResponse[] }
+          return {
+            ...data,
+            data: filterServices(data.data, filters),
+          };
+        },
+        [filters]
+      ),
+    });
+
+  // Extract filtered arrays
+  const filteredCollaborationRequests = filteredRequestsData?.data || [];
+  const filteredServices = filteredServicesData?.data || [];
+
+  // Extract unique options for filters (only computed when raw data changes)
+  const availableCities = useMemo(
+    () =>
+      extractUniqueCities(requestsData?.data || [], servicesData?.data || []),
+    [requestsData?.data, servicesData?.data]
+  );
+
+  const availableGenres = useMemo(
+    () => extractUniqueGenres(requestsData?.data || []),
+    [requestsData?.data]
   );
 
   // Check if any filters are active
@@ -104,32 +128,44 @@ export default function ServicesPage() {
   );
 
   // Remove individual filter
-  const removeFilter = (filterType: string, value?: string) => {
-    switch (filterType) {
-      case "search":
-        setSearch("");
-        break;
-      case "location":
-        setLocation("");
-        break;
-      case "serviceTypes":
-        if (value) {
-          setServiceTypes(serviceTypes.filter((t) => t !== value));
-        }
-        break;
-      case "genres":
-        if (value) {
-          setGenres(genres.filter((g) => g !== value));
-        }
-        break;
-      case "paidOpportunity":
-        setPaidOpportunity(false);
-        break;
-      case "contentType":
-        setContentType("all");
-        break;
-    }
-  };
+  const removeFilter = useCallback(
+    (filterType: string, value?: string) => {
+      switch (filterType) {
+        case "search":
+          setSearch("");
+          break;
+        case "location":
+          setLocation("");
+          break;
+        case "serviceTypes":
+          if (value) {
+            setServiceTypes(serviceTypes.filter((t) => t !== value));
+          }
+          break;
+        case "genres":
+          if (value) {
+            setGenres(genres.filter((g) => g !== value));
+          }
+          break;
+        case "paidOpportunity":
+          setPaidOpportunity(false);
+          break;
+        case "contentType":
+          setContentType("all");
+          break;
+      }
+    },
+    [
+      serviceTypes,
+      genres,
+      setSearch,
+      setLocation,
+      setServiceTypes,
+      setGenres,
+      setPaidOpportunity,
+      setContentType,
+    ]
+  );
 
   if (loadingRequests || loadingServices) {
     return <LoadingSpinner />;
