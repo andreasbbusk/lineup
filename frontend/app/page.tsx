@@ -31,7 +31,7 @@ export default function FeedPage() {
 	const posts = data?.data || [];
 
 	return (
-		<main className="max-w-dvw h-[calc(100dvh-4rem)] mx-auto pt-16">
+		<main className="max-w-dvw h-[calc(100dvh-4rem)] mx-auto">
 			<StoriesCarousel />
 			<RequestCarousel />
 
