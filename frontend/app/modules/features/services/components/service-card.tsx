@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useState } from "react";
 import { Avatar } from "@/app/modules/components/avatar";
 import { Separator } from "@/app/modules/components/separator";
 import { BookmarkButton } from "@/app/modules/components/bookmark-button";
@@ -21,6 +21,7 @@ interface ServiceCardProps {
 }
 
 function ServiceCardComponent({ service }: ServiceCardProps) {
+  const [imageError, setImageError] = useState(false);
   const providerName = service.providerName || "Provider";
   const providerInitial = providerName[0]?.toUpperCase() || "P";
 
@@ -62,13 +63,14 @@ function ServiceCardComponent({ service }: ServiceCardProps) {
         {/* Content area - grows to fill space */}
         <div className="flex flex-col flex-1 min-h-0 gap-2.5">
           {/* Media */}
-          {service.mediaUrl && (
+          {service.mediaUrl && !imageError && (
             <div className="relative w-full h-48 rounded-xl overflow-hidden">
               <Image
                 src={service.mediaUrl}
                 alt={service.title}
                 fill
                 className="object-cover"
+                onError={() => setImageError(true)}
               />
             </div>
           )}
