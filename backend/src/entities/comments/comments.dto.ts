@@ -1,6 +1,15 @@
 import { IsString, IsUUID, Length, IsOptional } from "class-validator";
 import { CommentInsert } from "../../utils/supabase-helpers.js";
 
+// Type helper to convert snake_case to camelCase for interface compatibility
+type CamelCaseCommentInsert = Omit<
+  CommentInsert,
+  "author_id" | "created_at" | "updated_at" | "id" | "post_id" | "parent_id"
+> & {
+  postId: string;
+  parentId?: string | null;
+};
+
 /**
  * DTO for creating a comment
  *
@@ -13,10 +22,7 @@ import { CommentInsert } from "../../utils/supabase-helpers.js";
  *   "content": "Great post! Looking forward to collaborating."
  * }
  */
-export class CreateCommentDto
-  implements
-    Omit<CommentInsert, "author_id" | "created_at" | "updated_at" | "id">
-{
+export class CreateCommentDto implements CamelCaseCommentInsert {
   /**
    * The ID of the post to comment on (UUID format)
    * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"

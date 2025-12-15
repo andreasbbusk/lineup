@@ -19,11 +19,10 @@ export async function createComment(
 ): Promise<CommentResponse> {
   const { data, error, response } = await apiClient.POST("/comments", {
     body: {
-      post_id: commentData.postId,
       postId: commentData.postId,
       content: commentData.content,
       parentId: commentData.parentId || null,
-    },
+    } as unknown as CreateCommentBody,
   });
 
   if (error) handleApiError(error, response);
