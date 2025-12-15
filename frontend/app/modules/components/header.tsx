@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, Search, Bell, Menu } from "lucide-react";
 import { useUnreadCount } from "@/app/modules/features/notifications";
+import { NotificationBadge } from "./notification-badge";
 
 export default function Header() {
 	const pathname = usePathname();
@@ -39,13 +40,12 @@ function NotificationButton() {
 	return (
 		<Link
 			href="/notifications"
-			className="relative flex items-center justify-center text-grey hover:opacity-70 transition-opacity"
+			className="relative flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
 			aria-label="Notifications">
-			<Bell size={24} />
-			{/* Notification badge - show when there are unread notifications */}
-			{unreadCount && unreadCount > 0 && (
-				<span className="absolute right-0.5 top-0.5 h-2 w-2 rounded-full bg-crocus-yellow" />
-			)}
+			<div className="relative">
+				<Bell size={24} />
+				<NotificationBadge count={unreadCount} size="xs" />
+			</div>
 		</Link>
 	);
 }
@@ -87,7 +87,7 @@ function HeaderIconButton({
  */
 function HomeHeader() {
 	return (
-		<header className="sticky top-0 z-40 w-full bg-white">
+		<header className="fixed top-0 left-0 right-0 z-40 w-full bg-white">
 			<div className="flex h-16 items-center justify-between px-4 sm:px-6">
 				{/* Left side */}
 				<div className="flex items-center">

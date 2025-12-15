@@ -13,6 +13,8 @@ import AddIcon from "../../../public/icons/add-icon";
 import ChatIcon from "../../../public/icons/chat-icon";
 import UserIcon from "../../../public/icons/user-icon";
 import { useAppStore } from "@/app/modules/stores/Store";
+import { useUnreadCount } from "@/app/modules/features/chats";
+import { NotificationBadge } from "./notification-badge";
 
 interface NavItem {
   href: string;
@@ -61,9 +63,11 @@ const ActiveTabIndicator = memo(function ActiveTabIndicator() {
 const NavItem = memo(function NavItem({
   item,
   isActive,
+  badgeCount,
 }: {
   item: NavItem;
   isActive: boolean;
+  badgeCount?: number | null;
 }) {
   const IconComponent = item.icon;
 
@@ -81,11 +85,8 @@ const NavItem = memo(function NavItem({
               isActive ? "text-crocus-yellow" : "text-white"
             )}
           />
-          {item.badge && (
-            <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-[#ffcf70] text-[9px] font-medium leading-none text-black">
-              {item.badge}
-            </span>
-          )}
+          {/* Use consolidated badge component with smaller size for navbar */}
+          <NotificationBadge count={badgeCount} size="small" />
         </div>
         <span
           className={cn(
@@ -103,6 +104,8 @@ const NavItem = memo(function NavItem({
 function BottomNav() {
   const pathname = usePathname();
   const username = useAppStore((state) => state.user?.username);
+  const { data: unreadChatCount } = useUnreadCount();
+  
   // Memoize visibility checks
   const shouldHide = useMemo(() => {
     const isAuthPage =
@@ -114,18 +117,17 @@ function BottomNav() {
     const isNotificationsPage = pathname === "/notifications";
     const isSettingsPage = pathname === "/settings";
 
-    // Hide on other users' profiles and edit profile page
+    // Hide on edit profile page only
     // /profile or /profile/{username} = own profile (show nav)
-    // /profile/otheruser = other user's profile (hide nav)
+    // /profile/otheruser = other user's profile (show nav)
     // /profile/edit = edit page (hide nav)
-    const isOtherUsersProfile =
-      pathname?.startsWith("/profile/") && pathname !== `/profile/${username}`;
+    const isEditProfilePage = pathname === "/profile/edit";
 
     return (
       isAuthPage ||
       isSearchPage ||
       isChatDetailPage ||
-      isOtherUsersProfile ||
+      isEditProfilePage ||
       isNotificationsPage ||
       isSettingsPage
     );
@@ -153,6 +155,7 @@ function BottomNav() {
               key={item.href}
               item={item}
               isActive={activeStates[index]}
+              badgeCount={item.href === "/chats" ? unreadChatCount : undefined}
             />
           ))}
         </div>
