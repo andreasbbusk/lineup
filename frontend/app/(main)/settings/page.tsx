@@ -94,9 +94,9 @@ export default function SettingsPage() {
 	];
 
 	return (
-		<div className="min-h-screen bg-white text-foreground flex flex-col items-start gap-4 pt-2 pr-4.25 pl-4">
+		<div className="min-h-screen bg-white text-foreground flex flex-col items-start gap-4 pb-24">
 			{/* Header */}
-			<header className="sticky top-0 z-40 w-full border-b border-light-grey bg-white">
+			<header className="sticky top-0 z-40 w-full border-b border-light-grey bg-white px-4">
 				<div className="flex h-12 items-center justify-between">
 					<button
 						onClick={() => router.back()}
@@ -110,7 +110,7 @@ export default function SettingsPage() {
 			</header>
 
 			{/* Content */}
-			<main className="flex flex-col items-start gap-9 max-w-200 w-full mx-auto self-stretch">
+			<main className="flex flex-col gap-9 items-end px-3 py-6 w-full max-w-200 mx-auto">
 				{menuItems.map((item) => {
 					const isLogout = item.label === "Log out";
 					const content = (
