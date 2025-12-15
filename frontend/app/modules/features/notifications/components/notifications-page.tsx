@@ -8,6 +8,7 @@ import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
 import type { NotificationResponse } from "../types";
 import { useAcceptConnection } from "@/app/modules/hooks/mutations/useConnectionMutations";
 import { useMarkAsRead } from "../hooks/useNotificationMutations";
+import { deduplicateConnectionRequests } from "../utils/connectionRequests";
 
 /**
  * Main notifications page component
@@ -28,33 +29,7 @@ export function NotificationsPage() {
       ]
     : [];
 
-  const uniqueConnectionRequests = connectionRequests.reduce((acc, curr) => {
-    const actorId = curr.actorId;
-    if (!actorId) {
-      acc.push(curr);
-      return acc;
-    }
-
-    const existingIndex = acc.findIndex(
-      (item: NotificationResponse) => item.actorId === actorId
-    );
-    if (existingIndex === -1) {
-      acc.push(curr);
-      return acc;
-    }
-
-    const existing = acc[existingIndex];
-    const existingDate = existing.createdAt
-      ? new Date(existing.createdAt).getTime()
-      : 0;
-    const currentDate = curr.createdAt ? new Date(curr.createdAt).getTime() : 0;
-
-    if (currentDate > existingDate) {
-      acc[existingIndex] = curr;
-    }
-
-    return acc;
-  }, [] as NotificationResponse[]);
+  const uniqueConnectionRequests = deduplicateConnectionRequests(connectionRequests);
 
   // Profile interactions: likes, comments, tagged_in_post, review
   const profileInteractions = notifications

@@ -1,13 +1,24 @@
 "use client";
 
 import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { formatNotificationTime } from "../utils/formatTime";
 import { getNotificationText } from "../utils/notificationText";
 import type { NotificationResponse } from "../types";
 import { useMarkAsRead } from "../hooks/useNotificationMutations";
-import { Heart, Repeat2 } from "lucide-react";
+import { FileText } from "lucide-react";
+import {
+  getStoryImageUrl,
+  isStoryNotification,
+  shouldNavigateToPost,
+} from "../utils/notificationHelpers";
+import { StoryPreview } from "./StoryPreview";
+import {
+  NOTIFICATION_FONTS,
+  NOTIFICATION_COLORS,
+} from "../utils/notificationConstants";
 
 interface NotificationItemProps {
   notification: NotificationResponse;
@@ -26,6 +37,7 @@ export function NotificationItem({
   actionButtonText,
   onActionClick,
 }: NotificationItemProps) {
+  const router = useRouter();
   const markAsRead = useMarkAsRead();
   const actor = notification.actor;
 
@@ -49,8 +61,22 @@ export function NotificationItem({
     [notification.createdAt]
   );
 
-  // Handle notification click - mark as read
-  const handleClick = () => {
+  const handleAvatarClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!actor?.username) return;
+
+    markAsReadIfNeeded();
+    router.push(`/profile/${actor.username}`);
+  };
+
+  const targetUrl =
+    notification.actionUrl ||
+    (notification.entityType === "post" && notification.entityId
+      ? `/posts/${notification.entityId}`
+      : undefined);
+
+  // Helper to mark notification as read
+  const markAsReadIfNeeded = () => {
     if (!notification.isRead && notification.id) {
       markAsRead.mutate({
         notificationId: notification.id,
@@ -59,40 +85,82 @@ export function NotificationItem({
     }
   };
 
-  // Memoize preview content based on notification type
+  // Handle notification click - mark as read and navigate to target if available
+  const handleClick = () => {
+    markAsReadIfNeeded();
+
+    // Navigate to related entity for post interactions
+    if (targetUrl && shouldNavigateToPost(notification)) {
+      router.push(targetUrl);
+    }
+  };
+
+  // Memoize preview content based on notification type and post type
+  // Don't show preview content if there's an action button (for collaboration/connection requests)
   const previewContent = useMemo(() => {
-    if (notification.type === "like" && notification.entityType === "post") {
+    // Don't show icon/preview if there's an action button
+    if (showActionButton) {
+      return null;
+    }
+
+    const isStory = isStoryNotification(notification);
+    const imageUrl = getStoryImageUrl(notification);
+
+    // Likes: show heart icon for notes/posts, image for stories
+    if (notification.type === "like") {
+      if (isStory && imageUrl) {
+        return <StoryPreview imageUrl={imageUrl} />;
+      }
+      // Heart icon for notes/posts
       return (
-        <div className="flex items-center justify-center px-[2px] py-[3px]">
-          <Heart size={16} className="text-[#ffcf70] fill-[#ffcf70]" />
+        <div className="flex items-center justify-center size-[28px] shrink-0">
+          <Image
+            src="/icons/likeHeart.svg"
+            alt="Like"
+            width={16}
+            height={15}
+            className="shrink-0"
+          />
         </div>
       );
     }
-    if (notification.type === "like" && notification.entityType === "story") {
-      // Show story preview thumbnail if available
-      return (
-        <div className="relative rounded-[6.811px] size-[28px] bg-gray-200">
-          {notification.actionUrl && (
-            <Image
-              src={notification.actionUrl}
-              alt="Story preview"
-              fill
-              className="rounded-[6.811px] object-cover"
-            />
-          )}
-        </div>
-      );
-    }
-    // For repost (if we add that type later)
+
+    // Comments: show note icon for notes, story image for stories
     if (notification.type === "comment") {
+      if (isStory && imageUrl) {
+        return <StoryPreview imageUrl={imageUrl} />;
+      }
+      // Note icon for notes
       return (
-        <div className="flex items-center justify-center px-[3px] py-[2px]">
-          <Repeat2 size={16} className="text-[#ffcf70]" />
+        <div className="flex items-center justify-center size-[28px] shrink-0">
+          <FileText size={16} className={NOTIFICATION_COLORS.yellow} />
         </div>
       );
     }
+
+    // Tagged in post: show tag icon for notes, story image for stories
+    if (notification.type === "tagged_in_post") {
+      if (isStory && imageUrl) {
+        return <StoryPreview imageUrl={imageUrl} />;
+      }
+      // Tag icon for notes
+      return (
+        <div
+          className={`flex items-center justify-center size-[28px] shrink-0 ${NOTIFICATION_COLORS.yellow}`}
+        >
+          <Image
+            src="/icons/tag.svg"
+            alt="Tagged"
+            width={24}
+            height={24}
+            className="shrink-0"
+          />
+        </div>
+      );
+    }
+
     return null;
-  }, [notification.type, notification.entityType, notification.actionUrl]);
+  }, [notification, showActionButton]);
 
   return (
     <div
@@ -103,7 +171,10 @@ export function NotificationItem({
     >
       <div className="flex flex-1 gap-2 items-center min-w-0">
         {/* Avatar */}
-        <div className="relative shrink-0 size-[28px] rounded-full overflow-hidden">
+        <div
+          className="relative shrink-0 size-[28px] rounded-full overflow-hidden cursor-pointer"
+          onClick={handleAvatarClick}
+        >
           {actor?.avatarUrl ? (
             <Image
               src={actor.avatarUrl}
@@ -119,14 +190,20 @@ export function NotificationItem({
         {/* Notification text */}
         <div className="flex flex-1 flex-col gap-1 items-start justify-center min-w-0">
           <div className="flex flex-wrap gap-1 items-center text-[14px] leading-[1.35] tracking-[0.5px]">
-            <span className="font-['Helvetica_Now_Display',sans-serif] font-bold text-[#1e1e1e]">
+            <span
+              className={`${NOTIFICATION_FONTS.bold} ${NOTIFICATION_COLORS.foreground}`}
+            >
               {actorName}
             </span>
-            <span className="font-['Helvetica_Now_Display',sans-serif] font-medium text-[#1e1e1e]">
+            <span
+              className={`${NOTIFICATION_FONTS.medium} ${NOTIFICATION_COLORS.foreground}`}
+            >
               {notificationText}
             </span>
             {timeAgo && (
-              <span className="font-['Helvetica_Now_Display',sans-serif] font-normal text-[12px] text-[#555555] leading-none">
+              <span
+                className={`${NOTIFICATION_FONTS.normal} text-[12px] ${NOTIFICATION_COLORS.muted} leading-none`}
+              >
                 {timeAgo}
               </span>
             )}
@@ -134,7 +211,9 @@ export function NotificationItem({
 
           {/* Body text (for collaboration requests, comments, etc.) */}
           {notification.body && (
-            <p className="font-['Helvetica_Now_Display',sans-serif] font-medium text-[14px] text-[#555555] leading-[1.35] tracking-[0.5px]">
+            <p
+              className={`${NOTIFICATION_FONTS.medium} text-[14px] ${NOTIFICATION_COLORS.muted} leading-[1.35] tracking-[0.5px]`}
+            >
               {notification.body}
             </p>
           )}
@@ -144,13 +223,15 @@ export function NotificationItem({
             notification.entityType === "post" &&
             notification.body && (
               <div className="flex gap-2 items-start text-[14px] leading-[1.35] tracking-[0.5px]">
-                <span className="font-['Helvetica_Now_Display',sans-serif] font-medium text-[#555555]">
+                <span
+                  className={`${NOTIFICATION_FONTS.medium} ${NOTIFICATION_COLORS.muted}`}
+                >
                   {notification.body}
                 </span>
                 {notification.actionUrl && (
                   <Link
                     href={notification.actionUrl}
-                    className="font-['Helvetica_Now_Display',sans-serif] font-bold text-[12px] text-[#1e1e1e] hover:underline"
+                    className={`${NOTIFICATION_FONTS.bold} text-[14px] ${NOTIFICATION_COLORS.foreground} hover:underline`}
                     onClick={(e) => e.stopPropagation()}
                   >
                     See note
@@ -163,7 +244,7 @@ export function NotificationItem({
 
       {/* Preview image/icon or action button */}
       <div className="flex items-center gap-2 shrink-0">
-        {previewContent && <div>{previewContent}</div>}
+        {previewContent}
         {showActionButton && actionButtonText && (
           <button
             onClick={(e) => {
@@ -172,7 +253,9 @@ export function NotificationItem({
             }}
             className="bg-[#ffcf70] cursor-pointer flex items-center justify-end px-[10px] py-[4px] rounded-[400px] shrink-0 hover:opacity-90 transition-opacity"
           >
-            <span className="font-['Helvetica_Now_Display',sans-serif] font-medium text-[14px] text-black text-center tracking-[0.5px]">
+            <span
+              className={`${NOTIFICATION_FONTS.medium} text-[14px] text-black text-center tracking-[0.5px]`}
+            >
               {actionButtonText}
             </span>
           </button>
@@ -181,4 +264,3 @@ export function NotificationItem({
     </div>
   );
 }
-

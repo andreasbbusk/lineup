@@ -2,6 +2,7 @@
 
 import { NotificationItem } from "./notification-item";
 import type { NotificationResponse } from "../types";
+import { shouldShowActionButton } from "../utils/notificationHelpers";
 
 interface NotificationSectionProps {
   title: string;
@@ -29,23 +30,27 @@ export function NotificationSection({
   return (
     <div className="flex flex-col gap-5 items-start w-full">
       {/* Section title */}
-      <h2 className="font-['Helvetica_Now_Display',sans-serif] font-medium text-[12px] text-[#555555] leading-none tracking-[0.5px] w-full">
+      <h2 className="text-[12px]! font-['Helvetica_Now_Display',sans-serif] font-medium text-[#555555] leading-none tracking-[0.5px] w-full">
         {title}
       </h2>
 
       {/* Notification items */}
       <div className="flex flex-col gap-4 items-start w-full">
-        {notifications.map((notification) => (
-          <NotificationItem
-            key={notification.id}
-            notification={notification}
-            showActionButton={showActionButton}
-            actionButtonText={actionButtonText}
-            onActionClick={() => onActionClick?.(notification)}
-          />
-        ))}
+        {notifications.map((notification) => {
+          const itemShowAction =
+            showActionButton && shouldShowActionButton(notification);
+
+          return (
+            <NotificationItem
+              key={notification.id}
+              notification={notification}
+              showActionButton={itemShowAction}
+              actionButtonText={actionButtonText}
+              onActionClick={() => onActionClick?.(notification)}
+            />
+          );
+        })}
       </div>
     </div>
   );
 }
-
