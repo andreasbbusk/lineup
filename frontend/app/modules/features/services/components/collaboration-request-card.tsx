@@ -7,6 +7,7 @@ import { Tags } from "@/app/modules/components/tags";
 import { Button } from "@/app/modules/components/buttons";
 import { BookmarkButton } from "@/app/modules/components/bookmark-button";
 import { formatTimeAgo, extractCity } from "@/app/modules/utils/date";
+import { useAppStore } from "@/app/modules/stores/Store";
 import Link from "next/link";
 import Image from "next/image";
 import type { PostResponse } from "@/app/modules/api/postsApi";
@@ -21,10 +22,12 @@ function CollaborationRequestCardComponent({
   onChatClick,
 }: CollaborationRequestCardProps) {
   const [imageError, setImageError] = useState(false);
+  const user = useAppStore((state) => state.user);
   const authorName = post.author?.firstName || post.author?.username || "User";
   const authorInitial = authorName[0]?.toUpperCase() || "U";
   const genres = post.metadata?.filter((m) => m.type === "genre") || [];
   const firstMedia = post.media?.[0];
+  const isAuthor = user?.id === post.authorId;
 
   return (
     <article className="flex p-3.75 flex-col w-full min-h-112 gap-2.5 bg-white rounded-xl border border-grey/10 hover:shadow-md transition-shadow cursor-pointer">
@@ -98,19 +101,21 @@ function CollaborationRequestCardComponent({
         {/* Footer */}
         <div className="px-2.5 flex self-stretch gap-2.5 items-center justify-between">
           <span className="text-[#555] font-semibold text-base">Read more</span>
-          <div
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              if (post.authorId) {
-                onChatClick(post.authorId);
-              }
-            }}
-          >
-            <Button variant="primary" icon="chat-bubble" onClick={() => {}}>
-              Start a chat
-            </Button>
-          </div>
+          {!isAuthor && (
+            <div
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (post.authorId) {
+                  onChatClick(post.authorId);
+                }
+              }}
+            >
+              <Button variant="primary" icon="chat-bubble" onClick={() => {}}>
+                Start a chat
+              </Button>
+            </div>
+          )}
         </div>
       </Link>
     </article>
