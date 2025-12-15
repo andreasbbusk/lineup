@@ -12,7 +12,6 @@ type CommentResponseWithReplies = ApiCommentResponse & {
 };
 
 const MAX_COMMENT_DEPTH = 3;
-const limitPerLevel = 2;
 
 interface CommentsProps {
 	postId: string;

@@ -12,6 +12,8 @@ import { CommentResponse } from "../../types/api.types.js";
 import { CreateCommentDto, UpdateCommentDto } from "./comments.dto.js";
 
 export class CommentsService {
+  private readonly MAX_COMMENT_DEPTH = 3;
+
   /**
    * Get all comments for a post
    * Returns comments with author profile information
@@ -169,6 +171,37 @@ export class CommentsService {
       if (parentComment.post_id !== data.postId) {
         throw createHttpError({
           message: "Parent comment does not belong to the same post",
+          statusCode: 400,
+          code: "VALIDATION_ERROR",
+        });
+      }
+
+      // Validate comment depth - traverse up the parent chain to calculate depth
+      let currentParentId = data.parentId;
+      let depth = 1; // Start at depth 1 (the parent we're replying to)
+      
+      while (currentParentId && depth < this.MAX_COMMENT_DEPTH) {
+        const { data: parent, error: parentDepthError } = await authedSupabase
+          .from("comments")
+          .select("parent_id")
+          .eq("id", currentParentId)
+          .single();
+
+        if (parentDepthError || !parent) {
+          break; // Stop if we can't find parent (shouldn't happen, but safe)
+        }
+
+        if (!parent.parent_id) {
+          break; // Reached top-level comment
+        }
+
+        currentParentId = parent.parent_id;
+        depth++;
+      }
+
+      if (depth >= this.MAX_COMMENT_DEPTH) {
+        throw createHttpError({
+          message: `Maximum comment depth of ${this.MAX_COMMENT_DEPTH} exceeded`,
           statusCode: 400,
           code: "VALIDATION_ERROR",
         });
