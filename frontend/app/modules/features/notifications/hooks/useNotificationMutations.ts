@@ -64,7 +64,7 @@ export function useMarkAsRead() {
           }
 
           // If marking as unread, update the notification's isRead status
-          const updateNotificationInGroup = <T extends { id: string }>(
+          const updateNotificationInGroup = <T extends Record<string, unknown>>(
             group: T[]
           ): T[] =>
             group.map((n) =>
