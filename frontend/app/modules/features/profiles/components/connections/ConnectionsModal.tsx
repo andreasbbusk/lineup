@@ -13,7 +13,7 @@ import {
   useRemoveConnection,
 } from "@/app/modules/hooks/mutations";
 import {
-  useMyConnections,
+  useConnectionRequests,
   useUserConnections,
 } from "@/app/modules/hooks/queries";
 import { useMyProfile } from "@/app/modules/features/profiles/hooks/queries/useProfile";
@@ -48,10 +48,10 @@ export function ConnectionsModal({
   const { data: currentUserProfile } = useMyProfile();
 
   const {
-    data: myConnections,
-    isLoading: isLoadingMyConnections,
-    isFetching: isFetchingMyConnections,
-  } = useMyConnections({ enabled: isOwnProfile && isOpen });
+    data: connectionRequests,
+    isLoading: isLoadingConnectionRequests,
+    isFetching: isFetchingConnectionRequests,
+  } = useConnectionRequests();
   const {
     data: userConnections,
     isLoading: isLoadingUserConnections,
@@ -62,12 +62,12 @@ export function ConnectionsModal({
   const rejectConnection = useRejectConnection();
   const removeConnection = useRemoveConnection();
 
-  const connectionsToUse = isOwnProfile ? myConnections : userConnections;
+  const connectionsToUse = isOwnProfile ? connectionRequests : userConnections;
   const isLoading = isOwnProfile
-    ? isLoadingMyConnections
+    ? isLoadingConnectionRequests
     : isLoadingUserConnections;
   const isRefetching = isOwnProfile
-    ? isFetchingMyConnections && !isLoadingMyConnections
+    ? isFetchingConnectionRequests && !isLoadingConnectionRequests
     : isFetchingUserConnections && !isLoadingUserConnections;
 
   const pendingConnections =

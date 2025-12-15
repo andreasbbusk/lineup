@@ -13,7 +13,6 @@ import {
 	useLookingFor,
 	useFaq,
 	useConnectionRequests,
-	useMyConnections,
 	useUserConnections,
 } from "@/app/modules/features/profiles";
 import { usePostsByAuthor } from "@/app/modules/hooks/queries";
@@ -83,22 +82,21 @@ export default function Page({ params }: ProfilePageProps) {
 	// Calculate posts count (shows up to 100, which is reasonable for display)
 	const postsCount = postsData?.data?.length ?? 0;
 
-	// Fetch connection data
-	const { data: myConnections } = useMyConnections({
-		enabled: isOwnProfile,
-	});
-	const { data: userConnections } = useUserConnections({
-		userId: profileData?.id || null,
-		enabled: !isOwnProfile && !!profileData?.id,
-	});
-	const { data: connectionRequests } = useConnectionRequests();
+  // Fetch connection data
+  // For own profile: use connectionRequests (includes both sent and received)
+  // For other profiles: use userConnections (only accepted connections)
+  const { data: connectionRequests } = useConnectionRequests();
+  const { data: userConnections } = useUserConnections({
+    userId: profileData?.id || null,
+    enabled: !isOwnProfile && !!profileData?.id,
+  });
 
-	// Calculate connections count
-	const acceptedConnectionsCount = isOwnProfile
-		? Array.isArray(myConnections)
-			? myConnections.filter((conn) => conn.status === "accepted").length
-			: 0
-		: userConnections?.length ?? 0;
+  // Calculate accepted connections count from single data source
+  const acceptedConnectionsCount = isOwnProfile
+    ? Array.isArray(connectionRequests)
+      ? connectionRequests.filter((conn) => conn.status === "accepted").length
+      : 0
+    : userConnections?.length ?? 0;
 
 	// Calculate pending connections count for own profile
 	const pendingCount =
