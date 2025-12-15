@@ -16,7 +16,7 @@ const ProfileSection = ({
 	children: React.ReactNode;
 }) => (
 	<section className="flex flex-col items-start gap-4 w-full">
-		<h4 className="font-normal text-[var(--color-grey)]">{title}</h4>
+		<h4 className="font-normal text-grey">{title}</h4>
 		{children}
 	</section>
 );
@@ -112,9 +112,10 @@ function ProfileBody(props: ProfileBodyProps) {
 		<div className={`w-full ${props.className}`}>
 			<Tabs variant="profile" activeTab={activeTab} onTabChange={setActiveTab}>
 				<TabsContent value="about">
+					{/* About Me Section */}
 					<ProfileSection title="About me">
 						{props.aboutMe ? (
-							<p className="flex py-0 px-[0.9375rem] items-center gap-[0.625rem] self-stretch">
+							<p className="flex py-0 px-3.75 items-center gap-[0.625rem] self-stretch">
 								{props.aboutMe}
 							</p>
 						) : (
@@ -122,9 +123,10 @@ function ProfileBody(props: ProfileBodyProps) {
 						)}
 					</ProfileSection>
 
+					{/* What I am looking for Section */}
 					<ProfileSection title="What I am looking for">
 						{props.lookingFor && props.lookingFor.length > 0 ? (
-							<ul className="flex flex-wrap py-0 px-[0.9375rem] items-center gap-[0.625rem] self-stretch">
+							<ul className="flex flex-wrap py-0 px-3.75 items-center gap-[0.625rem] self-stretch">
 								{props.lookingFor.map((item, index) => (
 									<li key={index}>
 										<Tags color={props.theme} text={item} onClick={() => {}} />
@@ -136,9 +138,10 @@ function ProfileBody(props: ProfileBodyProps) {
 						)}
 					</ProfileSection>
 
+					{/* Genres Section */}
 					<ProfileSection title="Genres">
 						{props.genres && props.genres.length > 0 ? (
-							<ul className="flex flex-wrap py-0 px-[0.9375rem] items-center gap-[0.625rem] self-stretch">
+							<ul className="flex flex-wrap py-0 px-3.75 items-center gap-[0.625rem] self-stretch">
 								{props.genres.map((genre, index) => (
 									<li key={index}>
 										<Tags color={props.theme} text={genre} onClick={() => {}} />
@@ -150,10 +153,11 @@ function ProfileBody(props: ProfileBodyProps) {
 						)}
 					</ProfileSection>
 
+					{/* Reviews */}
 					<ProfileSection title="Reviews">
 						{props.reviews && props.reviews.length > 0 ? (
 							<>
-								<div className="flex pl-[0.9375rem] justify-center items-center gap-[0.625rem]">
+								<div className="flex pl-3.75 justify-center items-center gap-[0.625rem]">
 									{Array.from({ length: 5 }).map((_, i) => {
 										const avgRating = Math.round(
 											props.reviews!.reduce((sum, r) => sum + r.rating, 0) /
@@ -179,18 +183,16 @@ function ProfileBody(props: ProfileBodyProps) {
 						)}
 					</ProfileSection>
 
+					{/* social media */}
 					<ProfileSection title="Social Media">
 						{props.socialMedia && props.socialMedia.length > 0 ? (
-							<ul className="grid grid-cols-5 items-center py-0 px-[0.9375rem] gap-[0.625rem] self-stretch">
+							<ul className="grid grid-cols-5 items-center py-0 px-3.75 gap-[0.625rem] self-stretch">
 								{Array.from({ length: 5 }).map((_, i) => {
 									const social = props.socialMedia?.[i];
 									return (
 										<li key={i} className="flex items-center justify-center">
 											{social ? (
-												<Link
-													href={social.link}
-													target="_blank"
-													rel="noopener noreferrer">
+												<Link href={social.link}>
 													<Image
 														src={
 															socialMediaIcons[social.platform.toLowerCase()]
@@ -212,6 +214,7 @@ function ProfileBody(props: ProfileBodyProps) {
 						)}
 					</ProfileSection>
 
+					{/* artist i like */}
 					<ProfileSection title="Artists I like">
 						{props.favoriteArtists && props.favoriteArtists.length > 0 ? (
 							<div className="flex flex-col py-0 px-[var(--Spacing-S---spacing,_0.9375rem)] items-start gap-[1.0625rem] self-stretch">
@@ -224,8 +227,6 @@ function ProfileBody(props: ProfileBodyProps) {
 												className="flex flex-col items-center gap-2">
 												<Link
 													href={artist.link}
-													target="_blank"
-													rel="noopener noreferrer"
 													className="flex flex-col items-center gap-2">
 													<Image
 														src={artist.imgSrc || "/default-avatar.png"}
@@ -246,10 +247,7 @@ function ProfileBody(props: ProfileBodyProps) {
 												.slice(0, 3)
 												.map((artist, index) => (
 													<li key={index} className="first:ml-0 -ml-[25px]">
-														<Link
-															href={artist.link}
-															target="_blank"
-															rel="noopener noreferrer">
+														<Link href={artist.link}>
 															<Image
 																src={artist.imgSrc || "/default-avatar.png"}
 																alt="Artist"
@@ -296,12 +294,11 @@ function ProfileBody(props: ProfileBodyProps) {
 						)}
 					</ProfileSection>
 
+					{/* My Music Section */}
 					<ProfileSection title="My music">
 						{props.myMusic && props.myMusic.length > 0 ? (
 							<Link
 								href={props.myMusic}
-								target="_blank"
-								rel="noopener noreferrer"
 								className="self-center w-[20.8125rem] h-[13.25rem] rounded-[1.5625rem] overflow-hidden">
 								<Image
 									src={"/images/spotify-embed.svg"}
@@ -316,6 +313,7 @@ function ProfileBody(props: ProfileBodyProps) {
 						)}
 					</ProfileSection>
 
+					{/* Videos Section */}
 					<ProfileSection title="Videos">
 						{props.videos && props.videos.length > 0 ? (
 							<ul className="flex flex-col justify-center items-start gap-[0.625rem] py-0 px-[0.9375rem] self-stretch">
@@ -338,6 +336,7 @@ function ProfileBody(props: ProfileBodyProps) {
 						)}
 					</ProfileSection>
 
+					{/* Past Collaborations Section */}
 					<ProfileSection title="Past Collaborations">
 						{props.pastCollaborations && props.pastCollaborations.length > 0 ? (
 							<div className="flex flex-col py-0 px-[var(--Spacing-S---spacing,_0.9375rem)] items-start gap-[1.0625rem] self-stretch">
@@ -349,8 +348,6 @@ function ProfileBody(props: ProfileBodyProps) {
 												<li key={index} className="flex flex-col items-center ">
 													<Link
 														href={collab.link}
-														target="_blank"
-														rel="noopener noreferrer"
 														className="flex flex-col items-center gap-2">
 														<Image
 															src={collab.imgSrc || "/default-avatar.png"}
@@ -383,10 +380,7 @@ function ProfileBody(props: ProfileBodyProps) {
 												.slice(0, 3)
 												.map((collab, index) => (
 													<li key={index} className="first:ml-0 -ml-[25px]">
-														<Link
-															href={collab.link}
-															target="_blank"
-															rel="noopener noreferrer">
+														<Link href={collab.link}>
 															<Image
 																src={collab.imgSrc || "/default-avatar.png"}
 																alt="Collaborator"
