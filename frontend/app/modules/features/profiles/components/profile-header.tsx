@@ -59,6 +59,7 @@ type ProfileHeaderProps = {
 	onClickMessage?: () => void;
 	/** Is the profile the current user's profile */
 	isOwnProfile?: boolean;
+	className?: string;
 };
 
 function ProfileHeader(props: ProfileHeaderProps) {
@@ -70,9 +71,7 @@ function ProfileHeader(props: ProfileHeaderProps) {
 
 	return (
 		<div
-			className={
-				"text-white flex max-w-93.25 w-full py-6.25 flex-col justify-center items-center gap-3.75 rounded-[2.8125rem] bg-(--profile-theme)"
-			}
+			className={`text-white flex max-w-93.25 w-full py-6.25 flex-col justify-center items-center gap-3.75 rounded-[2.8125rem] bg-(--profile-theme) ${props.className}`}
 			style={{ "--profile-theme": `${props.theme}` } as CSSProperties}>
 			<span
 				onClick={() => setIsMenuOpen(!isMenuOpen)}
