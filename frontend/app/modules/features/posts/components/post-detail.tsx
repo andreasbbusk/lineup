@@ -10,6 +10,7 @@ import { Avatar } from "@/app/modules/components/avatar";
 import { Button } from "@/app/modules/components/buttons";
 import { Tags } from "@/app/modules/components/tags";
 import { useCreateConversation } from "@/app/modules/features/chats";
+import { useStartOrNavigateToChat } from "@/app/modules/hooks";
 import { useAppStore } from "@/app/modules/stores/Store";
 
 interface PostDetailProps {
@@ -52,29 +53,16 @@ export function PostDetail({ post, className = "" }: PostDetailProps) {
 	const router = useRouter();
 	const author = post.author;
 	const user = useAppStore((state) => state.user);
-	const { mutate: createConversation, isPending: isCreatingConversation } =
-		useCreateConversation();
+	const { startOrNavigateToChat, isCreating: isCreatingConversation } =
+		useStartOrNavigateToChat();
 
 	const handleStartChat = () => {
 		if (!user || !author || user.id === author.id) return;
 
-		createConversation(
-			{
-				type: "direct",
-				participantIds: [author.id],
-				name: null,
-				avatarUrl: null,
-				postId: post.type === "request" ? post.id : undefined,
-			},
-			{
-				onSuccess: (conversation) => {
-					router.push(`/chats/${conversation.id}`);
-				},
-				onError: (error) => {
-					console.error("Failed to create conversation:", error);
-				},
-			}
-		);
+		startOrNavigateToChat({
+			participantId: author.id,
+			postId: post.type === "request" ? post.id : undefined,
+		});
 	};
 
 	const isResolved = (post as { status?: string }).status === "resolved";
