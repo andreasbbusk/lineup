@@ -103,9 +103,9 @@ export function NotificationsPage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-white text-foreground flex flex-col items-start gap-4 pt-2 pr-4.25 pl-4">
+		<div className="min-h-screen bg-white text-foreground flex flex-col items-start gap-4 pb-24 ">
 			{/* Header */}
-			<div className="sticky top-0 z-40 w-full border-b border-light-grey bg-white">
+			<div className="sticky top-0 z-40 w-full border-b border-light-grey bg-white px-4">
 				<div className="flex h-12 items-center justify-between">
 					<button
 						onClick={() => router.back()}
