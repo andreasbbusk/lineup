@@ -132,7 +132,7 @@ function ProfileHeader(props: ProfileHeaderProps) {
 					<div className="relative">
 						<p>{displayConnectionsCount}</p>
 						{pendingCount > 0 && (
-							<span className="absolute top-0 -right-2.5 flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full aspect-square bg-crocus-yellow text-black text-xs font-semibold transform translate-x-1/2 -translate-y-1/2">
+							<span className="absolute top-0 -right-2.5 flex items-center justify-center w-5 h-5 px-1.5 rounded-full aspect-square bg-crocus-yellow text-black text-xs font-semibold transform translate-x-1/2 -translate-y-1/2">
 								{pendingCount > 99 ? "99+" : pendingCount}
 							</span>
 						)}

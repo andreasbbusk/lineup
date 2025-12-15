@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { PostResponse } from "../types";
@@ -93,12 +93,6 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 	const [isCommentOpen, setIsCommentOpen] = useState(false);
 	const [showOption, setShowOption] = useState(false);
 
-	// Sync state when post data changes
-	useEffect(() => {
-		setIsLiked(post.hasLiked ?? false);
-		setLikesCount(post.likesCount ?? 0);
-	}, [post.hasLiked, post.likesCount]);
-
 	return type === "note" ? (
 		<article
 			className={cn(
@@ -178,7 +172,7 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 					compact={props.compact}
 				/>
 			</div>
-			<Divider long />
+			<Divider />
 			<h3 className="px-2.5 text-base font-semibold">{post.title}</h3>
 			<p className="min-h-24 px-2.5 line-clamp-4 text-gray-600">
 				{post.description}
@@ -206,7 +200,7 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 				size={"sm"}
 				compact={props.compact}
 			/>
-			<Divider long />
+			<Divider />
 			<h3 className="px-2.5 text-base font-semibold">{post.title}</h3>
 			<div className="flex px-1.25 justify-between items-center self-stretch">
 				<div className="flex items-center gap-1.25">
@@ -260,7 +254,7 @@ function Authors({
 				compact ? "text-xs" : ""
 			}`}>
 			<div className="flex gap-1.25">
-				<Link href={`/users/${author?.id}`}>
+				<Link href={`/profile/${author?.username}`}>
 					<Avatar
 						size={size}
 						fallback={(author?.firstName ||
@@ -272,7 +266,7 @@ function Authors({
 				</Link>
 				{post.taggedUsers?.map((user, idx) => (
 					<Link
-						href={`/users/${user.id}`}
+						href={`/profile/${user.username}`}
 						key={user.id || idx}
 						className="-ml-2">
 						<Avatar
@@ -309,7 +303,7 @@ function Authors({
 				className={`flex gap-1.25 flex-[1_0_0] text-gray-500 items-center ${
 					compact ? "text-xs" : ""
 				}`}>
-				<Link href={`/users/${author?.id}`}>
+				<Link href={`/profile/${author?.username}`}>
 					<Avatar
 						size={size}
 						fallback={(author?.firstName ||
@@ -321,7 +315,7 @@ function Authors({
 				</Link>
 				{post.taggedUsers?.map((user, idx) => (
 					<Link
-						href={`/users/${user.id}`}
+						href={`/profile/${user.username}`}
 						key={user.id || idx}
 						className="-ml-2">
 						<Avatar

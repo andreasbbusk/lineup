@@ -57,7 +57,7 @@ export function ArtistsSection({
 	);
 
 	return (
-		<div className="relative self-stretch rounded-[1.5625rem] border border-black/10 py-9 px-3.75">
+		<div className="relative self-stretch rounded-[1.5625rem] border border-black/10 py-9 px-3.75 w-full max-w-200 mx-auto">
 			<Image
 				src={"/icons/close.svg"}
 				width={24}
@@ -117,10 +117,7 @@ export function ArtistsSection({
 						<ul className="flex">
 							{filteredArtists.slice(0, 3).map((artist, index) => (
 								<li key={index} className="first:ml-0 -ml-[25px]">
-									<Link
-										href={`/profile/${artist.username}`}
-										target="_blank"
-										rel="noopener noreferrer">
+									<Link href={`/profile/${artist.username}`}>
 										<Avatar
 											size="xl"
 											fallback={

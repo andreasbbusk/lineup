@@ -44,7 +44,7 @@ function NotificationButton() {
 			<Bell size={24} />
 			{/* Notification badge - show when there are unread notifications */}
 			{unreadCount && unreadCount > 0 && (
-				<span className="absolute right-0 top-0 h-3 w-3 rounded-full bg-crocus-yellow" />
+				<span className="absolute right-0.5 top-0.5 h-2 w-2 rounded-full bg-crocus-yellow" />
 			)}
 		</Link>
 	);
@@ -88,7 +88,7 @@ function HeaderIconButton({
 function HomeHeader() {
 	return (
 		<header className="sticky top-0 z-40 w-full bg-white">
-			<div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
+			<div className="flex h-16 items-center justify-between px-4 sm:px-6">
 				{/* Left side */}
 				<div className="flex items-center">
 					<Image

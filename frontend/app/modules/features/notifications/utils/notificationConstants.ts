@@ -2,9 +2,9 @@
  * Common font classes used in notification components
  */
 export const NOTIFICATION_FONTS = {
-  bold: "font-['Helvetica_Now_Display',sans-serif] font-bold",
-  medium: "font-['Helvetica_Now_Display',sans-serif] font-medium",
-  normal: "font-['Helvetica_Now_Display',sans-serif] font-normal",
+  bold: "font-semibold",
+  medium: "font-medium",
+  normal: "font-normal",
 } as const;
 
 /**
