@@ -7,52 +7,55 @@ import { RequestCarousel } from "@/app/modules/features/posts/components/request
 import { StoriesCarousel } from "@/app/modules/features/posts/components/stories-carousel";
 
 export default function FeedPage() {
-  const { data, error, isPending } = usePosts({ 
-    limit: 20, 
-    type: "note"
-  }, {
-    placeholderData: keepPreviousData, // Keep previous data while refetching
-  });
+	const { data, error, isPending } = usePosts(
+		{
+			limit: 20,
+			type: "note",
+		},
+		{
+			placeholderData: keepPreviousData, // Keep previous data while refetching
+		}
+	);
 
-  if (error) {
-    return (
-      <main className="space-y-4">
-        <h1 className="text-h1 font-bold">Feed</h1>
-        <p className="text-body text-red-500">
-          Error loading posts: {error.message}
-        </p>
-      </main>
-    );
-  }
+	if (error) {
+		return (
+			<main className="space-y-4">
+				<h1 className="text-h1 font-bold">Feed</h1>
+				<p className="text-body text-red-500">
+					Error loading posts: {error.message}
+				</p>
+			</main>
+		);
+	}
 
-  const posts = (data?.data || []).filter((post) => post.type === "note");
+	const posts = data?.data || [];
 
-  return (
-    <main className="max-w-dvw h-[calc(100dvh-4rem)]">
-      <StoriesCarousel />
-      <RequestCarousel />
+	return (
+		<main className="max-w-dvw h-[calc(100dvh-4rem)] mx-auto">
+			<StoriesCarousel />
+			<RequestCarousel />
 
-      {posts.length > 0 ? (
-        <div>
-          {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
-          {data?.pagination.hasMore && (
-            <div className="text-center">
-              <p className="text-sm text-gray-500">Loading posts...</p>
-            </div>
-          )}
-        </div>
-      ) : (
-        !isPending && (
-          <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-            <p className="text-gray-500">No posts yet.</p>
-            <p className="mt-2 text-sm text-gray-400">
-              Be the first to create a post!
-            </p>
-          </div>
-        )
-      )}
-    </main>
-  );
+			{posts.length > 0 ? (
+				<div className="flex flex-col items-center pb-35">
+					{posts.map((post) => (
+						<PostCard key={post.id} post={post} />
+					))}
+					{data?.pagination.hasMore && (
+						<div className="text-center">
+							<p className="text-sm text-gray-500">Loading notes...</p>
+						</div>
+					)}
+				</div>
+			) : (
+				!isPending && (
+					<div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
+						<p className="text-gray-500">No notes yet.</p>
+						<p className="mt-2 text-sm text-gray-400">
+							Be the first to create a notes!
+						</p>
+					</div>
+				)
+			)}
+		</main>
+	);
 }
