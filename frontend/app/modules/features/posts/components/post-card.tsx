@@ -116,51 +116,6 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 					size={"xs"}
 					compact={props.compact}
 				/>
-				{/* <div className="flex flex-row items-center gap-1.25">
-					<div className="flex">
-						<Link href={`/users/${author?.id}`}>
-							<Avatar
-								size="xs"
-								fallback={(author?.firstName ||
-									author?.username ||
-									"U")[0].toUpperCase()}
-								src={author?.avatarUrl}
-								alt={author?.username || "User avatar"}
-							/>
-						</Link>
-						{post.taggedUsers?.map((user, idx) => (
-							<Link
-								href={`/users/${user.id}`}
-								key={user.id || idx}
-								className="-ml-2">
-								<Avatar
-									key={user.id || idx}
-									size="xs"
-									fallback={(user?.firstName ||
-										user?.username ||
-										"U")[0].toUpperCase()}
-									src={user?.avatarUrl}
-									alt={user?.username || "User avatar"}
-								/>
-							</Link>
-						))}
-					</div>
-					<p className="text-xs text-gray-500">
-						{(() => {
-							const names = [
-								author?.firstName || author?.username || "User",
-								...(post.taggedUsers?.map(
-									(u) => u.firstName || u.username || "User"
-								) || []),
-							];
-							if (names.length === 1) return names[0];
-							if (names.length === 2) return ` ${names[0]} and ${names[1]}`;
-							return `${names.slice(0, -1).join(", ")} and ${
-								names[names.length - 1]
-							}`;
-						})()}
-					</p>
-				</div> */}
 				<Tags hashTag text="dummy" className="text-xs" />
 			</div>
 
@@ -198,24 +153,6 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 					size={"xs"}
 					compact={props.compact}
 				/>
-				{/* <div className="flex gap-1.25 flex-[1_0_0] text-xs text-gray-500 items-center">
-					<Link
-						href={`/users/${author?.id}`}
-						className="flex flex-row items-center gap-1.25">
-						<Avatar
-							size="xs"
-							fallback={(author?.firstName ||
-								author?.username ||
-								"U")[0].toUpperCase()}
-							src={author?.avatarUrl}
-							alt={author?.username || "User avatar"}
-						/>
-						<p className="text-gray-700">
-							{author?.firstName || author?.username || "User"}
-						</p>
-					</Link>
-					<p>looking for a #guitarist</p>
-				</div> */}
 			</div>
 			<Divider long />
 			<h3 className="px-2.5 text-base font-semibold">{post.title}</h3>
@@ -298,7 +235,7 @@ function Authors({
 			className={`flex flex-row items-center gap-1.25 ${
 				compact ? "text-xs" : ""
 			}`}>
-			<div className="flex">
+			<div className="flex gap-1.25">
 				<Link href={`/users/${author?.id}`}>
 					<Avatar
 						size={size}
