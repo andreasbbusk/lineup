@@ -520,6 +520,8 @@ export interface CommentResponse {
   content: string;
   createdAt: string | null;
   updatedAt: string | null;
+  parentId?: string | null;
+  replies?: CommentResponse[];
   author?: {
     id: string;
     username: string;
