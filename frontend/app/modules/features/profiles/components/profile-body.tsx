@@ -448,7 +448,7 @@ function ProfileBody(props: ProfileBodyProps) {
 					) : postsData?.data && postsData.data.length > 0 ? (
 						<div className="flex flex-col gap-4 w-full">
 							{postsData.data.map((post) => (
-								<PostCard key={post.id} post={post} />
+								<ProfilePostCard key={post.id} post={post} />
 							))}
 							{postsData.pagination.hasMore && (
 								<div className="text-center py-4">
