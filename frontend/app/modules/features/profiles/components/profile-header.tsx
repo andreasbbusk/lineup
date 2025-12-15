@@ -5,7 +5,6 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { Button } from "@/app/modules/components/buttons";
 import { Popover } from "@/app/modules/components/popover";
-import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
 import { ConnectionButton } from "./connections/ConnectionButton";
 import { Avatar, getInitials } from "@/app/modules/components/avatar";
 
@@ -16,13 +15,6 @@ const ConnectionsModal = dynamic(
 			default: mod.ConnectionsModal,
 		})),
 	{
-		loading: () => (
-			<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-				<div className="flex items-center justify-center">
-					<LoadingSpinner size={40} />
-				</div>
-			</div>
-		),
 		ssr: false,
 	}
 );
@@ -79,7 +71,7 @@ function ProfileHeader(props: ProfileHeaderProps) {
 	return (
 		<div
 			className={
-				"relative text-white flex w-93.25 py-6.25 flex-col justify-center items-center gap-3.75 rounded-[2.8125rem] bg-(--profile-theme)"
+				"text-white flex max-w-93.25 w-full py-6.25 flex-col justify-center items-center gap-3.75 rounded-[2.8125rem] bg-(--profile-theme)"
 			}
 			style={{ "--profile-theme": `${props.theme}` } as CSSProperties}>
 			<span
@@ -208,12 +200,14 @@ function ProfileHeader(props: ProfileHeaderProps) {
 					</>
 				)}
 			</div>
-			<ConnectionsModal
-				isOpen={isConnectionsModalOpen}
-				onClose={() => setIsConnectionsModalOpen(false)}
-				userId={props.userId || null}
-				username={props.username}
-			/>
+			{isConnectionsModalOpen && (
+				<ConnectionsModal
+					isOpen={isConnectionsModalOpen}
+					onClose={() => setIsConnectionsModalOpen(false)}
+					userId={props.userId || null}
+					username={props.username}
+				/>
+			)}
 		</div>
 	);
 }

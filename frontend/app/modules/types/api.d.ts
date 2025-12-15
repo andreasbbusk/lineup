@@ -458,6 +458,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/posts/{id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resolve a request post
+         * @description Resolve a request post
+         *
+         *     Marks a request post as resolved and archives it. Only the post author can resolve their own posts.
+         *     Resolved posts are excluded from the main feed but remain accessible via user's post history.
+         */
+        post: operations["ResolvePost"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/notifications": {
         parameters: {
             query?: never;
@@ -1723,6 +1746,9 @@ export interface components {
             location: string | null;
             paidOpportunity: boolean | null;
             expiresAt: string | null;
+            /** @enum {string} */
+            status?: "active" | "resolved" | "archived";
+            resolvedAt?: string | null;
             metadata?: {
                 /** @enum {string} */
                 type: "tag" | "genre" | "artist";
@@ -1786,6 +1812,8 @@ export interface components {
             expires_at?: string;
             location?: string;
             paid_opportunity?: boolean;
+            resolved_at?: string;
+            status?: string;
             title: string;
             /** @enum {string} */
             type: "note" | "request" | "story";
@@ -1829,6 +1857,8 @@ export interface components {
              */
             location?: string | null;
             paid_opportunity?: boolean;
+            resolved_at?: string;
+            status?: string;
             /**
              * @description Post title (1-100 characters)
              * @example Looking for a drummer
@@ -2119,6 +2149,9 @@ export interface components {
             location: string | null;
             paidOpportunity: boolean | null;
             expiresAt: string | null;
+            /** @enum {string} */
+            status?: "active" | "resolved" | "archived";
+            resolvedAt?: string | null;
             metadata?: {
                 /** @enum {string} */
                 type: "tag" | "genre" | "artist";
@@ -2195,6 +2228,7 @@ export interface components {
             lastMessageSenderId?: string | null;
             /** Format: double */
             unreadCount: number;
+            relatedPostId?: string | null;
             creator?: {
                 avatarUrl?: string | null;
                 lastName?: string | null;
@@ -2211,6 +2245,7 @@ export interface components {
             name?: string | null;
             avatarUrl?: string | null;
             participantIds: string[];
+            postId?: string | null;
         };
         UpdateConversationDto: {
             name?: string | null;
@@ -3065,6 +3100,29 @@ export interface operations {
             };
         };
     };
+    ResolvePost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The UUID of the post to resolve */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The updated post with resolved status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostResponse"];
+                };
+            };
+        };
+    };
     GetNotifications: {
         parameters: {
             query?: {
@@ -3260,6 +3318,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        status: string;
                         sent_via_websocket: boolean;
                         sender_id: string;
                         reply_to_message_id: string;

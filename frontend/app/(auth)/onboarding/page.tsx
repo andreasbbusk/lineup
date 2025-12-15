@@ -8,6 +8,7 @@ import { OnboardingLookingForStep } from "@/app/modules/features/profiles/compon
 import { OnboardingSplash } from "@/app/modules/features/profiles/components/onboarding/splash-screen";
 import { OnboardingConceptSlider } from "@/app/modules/features/profiles/components/onboarding/concept-slider";
 import { OnboardingProgress } from "@/app/modules/features/profiles/components/onboarding/progress-bar";
+import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
 
 const STEP_COMPONENTS = {
   0: OnboardingSplash,
@@ -24,6 +25,11 @@ export default function OnboardingPage() {
   const { step } = useOnboardingNavigation();
 
   const Component = STEP_COMPONENTS[step as keyof typeof STEP_COMPONENTS];
+
+  // Show loading state if component is undefined (during redirects/transitions)
+  if (!Component) {
+    return <LoadingSpinner variant="rays" />;
+  }
 
   if (step === 0 || step === 1) {
     return <Component />;

@@ -580,6 +580,9 @@
 					"authorUsername": {
 						"type": "string"
 					},
+					"authorFirstName": {
+						"type": "string"
+					},
 					"authorAvatarUrl": {
 						"type": "string",
 						"nullable": true
@@ -607,6 +610,7 @@
 					"description",
 					"authorId",
 					"authorUsername",
+					"authorFirstName",
 					"paidOpportunity",
 					"createdAt",
 					"relevance"
@@ -654,6 +658,29 @@
 						"type": "string",
 						"nullable": true
 					},
+					"providerId": {
+						"type": "string",
+						"nullable": true
+					},
+					"providerName": {
+						"type": "string",
+						"nullable": true
+					},
+					"providerUsername": {
+						"type": "string",
+						"nullable": true
+					},
+					"providerAvatarUrl": {
+						"type": "string",
+						"nullable": true
+					},
+					"location": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string"
+					},
 					"relevance": {
 						"type": "number",
 						"format": "double"
@@ -665,6 +692,12 @@
 					"title",
 					"description",
 					"serviceType",
+					"providerId",
+					"providerName",
+					"providerUsername",
+					"providerAvatarUrl",
+					"location",
+					"createdAt",
 					"relevance"
 				],
 				"type": "object",
@@ -1310,6 +1343,12 @@
 					"paid_opportunity": {
 						"type": "boolean"
 					},
+					"resolved_at": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string"
+					},
 					"title": {
 						"type": "string"
 					},
@@ -1349,6 +1388,12 @@
 					},
 					"paid_opportunity": {
 						"type": "boolean"
+					},
+					"resolved_at": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string"
 					},
 					"title": {
 						"type": "string",
@@ -3489,7 +3534,7 @@
 				],
 				"security": [
 					{
-						"jwt": []
+						"bearerAuth": []
 					}
 				],
 				"parameters": [
@@ -3519,7 +3564,7 @@
 				],
 				"security": [
 					{
-						"jwt": []
+						"bearerAuth": []
 					}
 				],
 				"parameters": [],
@@ -3537,37 +3582,6 @@
 				}
 			}
 		},
-		"/search/recent/{id}": {
-			"delete": {
-				"operationId": "DeleteRecentSearch",
-				"responses": {
-					"204": {
-						"description": "No content"
-					}
-				},
-				"description": "Delete a specific recent search\n\nRemoves a single search entry from the user's recent search history.",
-				"summary": "Delete recent search",
-				"tags": [
-					"Search"
-				],
-				"security": [
-					{
-						"jwt": []
-					}
-				],
-				"parameters": [
-					{
-						"description": "The ID of the recent search to delete",
-						"in": "path",
-						"name": "id",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
 		"/search/recent/clear": {
 			"delete": {
 				"operationId": "ClearAllRecentSearches",
@@ -3583,10 +3597,41 @@
 				],
 				"security": [
 					{
-						"jwt": []
+						"bearerAuth": []
 					}
 				],
 				"parameters": []
+			}
+		},
+		"/search/recent/{id}": {
+			"delete": {
+				"operationId": "DeleteRecentSearch",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Delete a specific recent search\n\nRemoves a single search entry from the user's recent search history.",
+				"summary": "Delete recent search",
+				"tags": [
+					"Search"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The ID of the recent search to delete",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		},
 		"/users/{username}/reviews": {
@@ -4391,6 +4436,9 @@
 							"application/json": {
 								"schema": {
 									"properties": {
+										"status": {
+											"type": "string"
+										},
 										"sent_via_websocket": {
 											"type": "boolean"
 										},
@@ -4432,6 +4480,7 @@
 										}
 									},
 									"required": [
+										"status",
 										"sent_via_websocket",
 										"sender_id",
 										"reply_to_message_id",
