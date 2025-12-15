@@ -1863,7 +1863,7 @@
 			},
 			"GroupedNotificationsResponse": {
 				"$ref": "#/components/schemas/Record_like-or-comment-or-connection_request-or-connection_accepted-or-tagged_in_post-or-review-or-collaboration_request-or-message.NotificationResponse-Array_",
-				"description": "API response format for grouped notifications\r\nReturns notifications organized by type for easy filtering in the frontend\r\nUses Record type to ensure all notification types are included"
+				"description": "API response format for grouped notifications\nReturns notifications organized by type for easy filtering in the frontend\nUses Record type to ensure all notification types are included"
 			},
 			"UpdateNotificationDto": {
 				"description": "DTO for updating a notification\r\n\r\nUsed when marking a notification as read or unread.",
@@ -4460,7 +4460,7 @@
 						}
 					}
 				},
-				"description": "Get notifications for the authenticated user\r\n\r\nReturns notifications for the authenticated user with optional filters.\r\nSupports filtering by type and unread status, with cursor-based pagination.\r\nWhen grouped=true, returns notifications organized by type for easy filtering.",
+				"description": "Get notifications for the authenticated user\n\nReturns notifications for the authenticated user with optional filters.\nSupports filtering by type and unread status, with cursor-based pagination.\nWhen grouped=true, returns notifications organized by type for easy filtering.",
 				"summary": "Get user notifications",
 				"tags": [
 					"Notifications"

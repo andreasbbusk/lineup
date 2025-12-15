@@ -1,12 +1,8 @@
 import { apiClient, handleApiError } from "../../api/apiClient";
 import type { components } from "../../types/api";
-import type { GroupedNotificationsResponse } from "../types";
-
-// Re-export for convenience
-export type { GroupedNotificationsResponse } from "../types";
 
 type NotificationResponse = components["schemas"]["NotificationResponse"];
-
+type GroupedNotificationsResponse = components["schemas"]["GroupedNotificationsResponse"];
 /**
  * Get notifications for the authenticated user
  * Returns notifications grouped by type for easy filtering
@@ -15,13 +11,11 @@ type NotificationResponse = components["schemas"]["NotificationResponse"];
  * @param unreadOnly - If true, only return unread notifications
  * @param limit - Maximum number of notifications to return (1-100, default: 20)
  */
-export async function getNotifications(
-  options?: {
-    grouped?: boolean;
-    unreadOnly?: boolean;
-    limit?: number;
-  }
-): Promise<
+export async function getNotifications(options?: {
+  grouped?: boolean;
+  unreadOnly?: boolean;
+  limit?: number;
+}): Promise<
   | { notifications: NotificationResponse[]; nextCursor?: string }
   | { notifications: GroupedNotificationsResponse; nextCursor?: string }
 > {
@@ -128,4 +122,3 @@ export async function deleteNotification(
     handleApiError(error, response);
   }
 }
-
