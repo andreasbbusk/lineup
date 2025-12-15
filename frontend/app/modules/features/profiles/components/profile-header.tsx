@@ -7,6 +7,7 @@ import { Button } from "@/app/modules/components/buttons";
 import { Popover } from "@/app/modules/components/popover";
 import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
 import { ConnectionButton } from "./connections/ConnectionButton";
+import { Avatar, getInitials } from "@/app/modules/components/avatar";
 
 // Lazy load ConnectionsModal to reduce initial bundle size
 const ConnectionsModal = dynamic(
@@ -147,12 +148,12 @@ function ProfileHeader(props: ProfileHeaderProps) {
 					</div>
 					<p>Connections</p>
 				</button>
-				<Image
+				<Avatar
 					src={props.imgSrc}
 					alt={`${props.username}'s avatar`}
-					width={146}
-					height={146}
-					className="w-[9.11988rem] h-[9.11988rem] rounded-full border border-white object-cover "
+					size="xxl"
+					className="border border-white rounded-full"
+					fallback={getInitials(props.firstName, props.lastName)}
 				/>
 				<div className="flex flex-col items-center flex-[1_0_0]">
 					<p>{props.posts ?? props.notes ?? 0}</p>
