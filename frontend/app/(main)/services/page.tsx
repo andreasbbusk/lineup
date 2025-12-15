@@ -136,12 +136,12 @@ export default function ServicesPage() {
   }
 
   return (
-    <div className="bg-background pt-6">
+    <div className="bg-background">
       {/* Sticky Filter Bar */}
-      <div className="sticky top-0 z-40 bg-background pb-4 pt-2">
+      <div className="sticky top-16 z-30 bg-background pb-1 pt-2 mb-3 shadow-sm">
         <div className="px-4">
           {/* Search and Filters Row */}
-          <div className="flex gap-2 mb-4">
+          <div className="flex gap-2 mb-2">
             <div className="flex-1">
               <SearchBar value={search} onChange={setSearch} />
             </div>

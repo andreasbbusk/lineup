@@ -26,7 +26,10 @@ function ServiceCardComponent({ service }: ServiceCardProps) {
 
   return (
     <article className="flex p-3.75 flex-col w-full min-h-112 justify-center gap-2.5 bg-white rounded-xl border border-grey/10 hover:shadow-md transition-shadow cursor-pointer">
-      <Link href={`/services/${service.id}`} className="contents">
+      <Link
+        href={`/services/${service.id}`}
+        className="flex flex-col flex-1 min-h-0 gap-2.5"
+      >
         {/* Header */}
         <div className="flex justify-between items-center">
           <div className="flex gap-1.25 items-center flex-1 min-w-0">
@@ -56,28 +59,29 @@ function ServiceCardComponent({ service }: ServiceCardProps) {
           {service.title}
         </h3>
 
-        {/* Media */}
-        {service.mediaUrl && (
-          <div className="relative w-full h-48 rounded-xl overflow-hidden">
-            <Image
-              src={service.mediaUrl}
-              alt={service.title}
-              fill
-              className="object-cover"
-            />
-          </div>
-        )}
+        {/* Content area - grows to fill space */}
+        <div className="flex flex-col flex-1 min-h-0 gap-2.5">
+          {/* Media */}
+          {service.mediaUrl && (
+            <div className="relative w-full h-48 rounded-xl overflow-hidden">
+              <Image
+                src={service.mediaUrl}
+                alt={service.title}
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
 
-        {/* Description */}
-        <p className="px-2.5 line-clamp-3 text-gray-600 text-base">
-          {service.description}
-        </p>
+          {/* Description */}
+          <p className="px-2.5 line-clamp-3 text-gray-600 text-base">
+            {service.description}
+          </p>
+        </div>
 
         {/* Footer */}
         <div className="px-2.5 flex self-stretch gap-2.5 items-center justify-between">
-          <span className="text-[#555] font-semibold text-base">
-            Read more
-          </span>
+          <span className="text-[#555] font-semibold text-base">Read more</span>
           <div className="flex gap-1.25 text-gray-400 text-base items-center">
             {extractCity(service.location) && (
               <>

@@ -3,7 +3,11 @@
 import { Button } from "@/app/modules/components/buttons";
 import { CheckboxCircle } from "@/app/modules/components/checkbox-circle";
 import { Combobox } from "@/app/modules/components/combobox";
-import { Popover, PopoverContent, PopoverTrigger } from "@/app/modules/components/radix-popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/app/modules/components/radix-popover";
 import { Toggle } from "@/app/modules/components/toggle";
 import { ListFilter } from "lucide-react";
 import { memo, useState } from "react";
@@ -61,7 +65,13 @@ function FiltersPanelComponent({
     setIsOpen(open);
     // Reset local state to current values when opening
     if (open) {
-      setLocalFilters({ location, serviceTypes, genres, paidOpportunity, contentType });
+      setLocalFilters({
+        location,
+        serviceTypes,
+        genres,
+        paidOpportunity,
+        contentType,
+      });
     }
   };
 
@@ -127,133 +137,146 @@ function FiltersPanelComponent({
         </button>
       </PopoverTrigger>
       <PopoverContent
-        className="max-h-[60dvh] bg-white border border-grey/10 p-4 overflow-y-auto no-scrollbar"
+        className="max-h-[60dvh] bg-white border border-grey/10 p-0 flex flex-col overflow-hidden"
         align="end"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
-        <div className="flex flex-col gap-4">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-black">Filters</h3>
-            {hasActiveFilters && (
-              <button
-                type="button"
-                onClick={handleClearAll}
-                className="text-sm text-black/70 hover:text-black transition-colors"
-              >
-                Clear all
-              </button>
-            )}
-          </div>
+        {/* Fixed Header */}
+        <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-grey/10 shrink-0">
+          <h3 className="text-lg font-semibold text-black">Filters</h3>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={handleClearAll}
+              className="text-sm text-black/70 hover:text-black transition-colors"
+            >
+              Clear all
+            </button>
+          )}
+        </div>
 
-          {/* Content Type Filter */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-black">Show</label>
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto px-4 py-4 no-scrollbar">
+          <div className="flex flex-col gap-4">
+            {/* Content Type Filter */}
             <div className="flex flex-col gap-2">
-              {[
-                { value: "all", label: "All" },
-                { value: "collaborations", label: "Collaborations" },
-                { value: "services", label: "Services" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() =>
-                    setLocalFilters((prev) => ({
-                      ...prev,
-                      contentType: option.value as ContentType,
-                    }))
-                  }
-                  className="flex items-center gap-2.5 text-left text-black hover:bg-black/10 rounded-lg p-2 transition-colors"
-                >
-                  <div
-                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
-                      localFilters.contentType === option.value
-                        ? "border-crocus-yellow"
-                        : "border-black/20"
-                    }`}
-                  >
-                    {localFilters.contentType === option.value && (
-                      <div className="h-2.5 w-2.5 rounded-full bg-crocus-yellow" />
-                    )}
-                  </div>
-                  <span className="text-base">{option.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Location Filter */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-black">Location</label>
-            <Combobox
-              value={localFilters.location}
-              onAction={(value) =>
-                setLocalFilters((prev) => ({ ...prev, location: value }))
-              }
-              options={cityOptions}
-              placeholder="Select city..."
-              className="w-full text-black"
-            />
-          </div>
-
-          {/* Service Type Filter */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-black">Service Type</label>
-            <div className="flex flex-col gap-2">
-              {SERVICE_TYPE_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => handleServiceTypeToggle(option.value)}
-                  className="flex items-center gap-2.5 text-left text-black hover:bg-black/10 rounded-lg p-2 transition-colors"
-                >
-                  <CheckboxCircle checked={localFilters.serviceTypes.includes(option.value)} />
-                  <span className="text-base">{option.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Genre Filter */}
-          {availableGenres.length > 0 && (
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-black">Genre</label>
+              <label className="text-sm font-medium text-black">Show</label>
               <div className="flex flex-col gap-2">
-                {availableGenres.map((genre) => (
+                {[
+                  { value: "all", label: "All" },
+                  { value: "collaborations", label: "Collaborations" },
+                  { value: "services", label: "Services" },
+                ].map((option) => (
                   <button
-                    key={genre}
+                    key={option.value}
                     type="button"
-                    onClick={() => handleGenreToggle(genre)}
+                    onClick={() =>
+                      setLocalFilters((prev) => ({
+                        ...prev,
+                        contentType: option.value as ContentType,
+                      }))
+                    }
                     className="flex items-center gap-2.5 text-left text-black hover:bg-black/10 rounded-lg p-2 transition-colors"
                   >
-                    <CheckboxCircle checked={localFilters.genres.includes(genre)} />
-                    <span className="text-base">{genre}</span>
+                    <div
+                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
+                        localFilters.contentType === option.value
+                          ? "border-crocus-yellow"
+                          : "border-black/20"
+                      }`}
+                    >
+                      {localFilters.contentType === option.value && (
+                        <div className="h-2.5 w-2.5 rounded-full bg-crocus-yellow" />
+                      )}
+                    </div>
+                    <span className="text-base">{option.label}</span>
                   </button>
                 ))}
               </div>
             </div>
-          )}
 
-          {/* Paid Opportunity Filter */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-black">Paid Opportunities Only</label>
-            <Toggle
-              isOn={localFilters.paidOpportunity}
-              onToggle={() =>
-                setLocalFilters((prev) => ({
-                  ...prev,
-                  paidOpportunity: !prev.paidOpportunity,
-                }))
-              }
-            />
+            {/* Location Filter */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-black">Location</label>
+              <Combobox
+                value={localFilters.location}
+                onAction={(value) =>
+                  setLocalFilters((prev) => ({ ...prev, location: value }))
+                }
+                options={cityOptions}
+                placeholder="Select city..."
+                className="w-full text-black"
+              />
+            </div>
+
+            {/* Service Type Filter */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-black">
+                Service Type
+              </label>
+              <div className="flex flex-col gap-2">
+                {SERVICE_TYPE_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handleServiceTypeToggle(option.value)}
+                    className="flex items-center gap-2.5 text-left text-black hover:bg-black/10 rounded-lg p-2 transition-colors"
+                  >
+                    <CheckboxCircle
+                      checked={localFilters.serviceTypes.includes(option.value)}
+                    />
+                    <span className="text-base">{option.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Genre Filter */}
+            {availableGenres.length > 0 && (
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-black">Genre</label>
+                <div className="flex flex-col gap-2">
+                  {availableGenres.map((genre) => (
+                    <button
+                      key={genre}
+                      type="button"
+                      onClick={() => handleGenreToggle(genre)}
+                      className="flex items-center gap-2.5 text-left text-black hover:bg-black/10 rounded-lg p-2 transition-colors"
+                    >
+                      <CheckboxCircle
+                        checked={localFilters.genres.includes(genre)}
+                      />
+                      <span className="text-base">{genre}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Paid Opportunity Filter */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-black">
+                Paid Opportunities Only
+              </label>
+              <Toggle
+                isOn={localFilters.paidOpportunity}
+                onToggle={() =>
+                  setLocalFilters((prev) => ({
+                    ...prev,
+                    paidOpportunity: !prev.paidOpportunity,
+                  }))
+                }
+              />
+            </div>
           </div>
+        </div>
 
-          {/* Apply Button */}
+        {/* Fixed Footer */}
+        <div className="px-4 pt-3 pb-4 border-t border-grey/10 shrink-0">
           <Button
-            variant="secondary"
+            variant="primary"
             onClick={handleApplyFilters}
-            className="w-full"
+            className="text-black w-full items-center justify-center"
           >
             Apply Filters
           </Button>
