@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# auto-generated files
+swagger.json
+tsoa-routes.ts
+backend/src/docs/swagger.json
+backend/src/routes/tsoa-routes.ts

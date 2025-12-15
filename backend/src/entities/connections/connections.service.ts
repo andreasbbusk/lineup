@@ -26,6 +26,9 @@ export class ConnectionsService {
     userId: string,
     token: string
   ): Promise<Connection[]> {
+    // Start performance timer
+    const startTime = performance.now();
+
     // Create authenticated Supabase client for RLS
     const authedSupabase = createAuthenticatedClient(token);
 
@@ -33,7 +36,12 @@ export class ConnectionsService {
       .from("connection_requests")
       .select(
         `
-        *,
+        id,
+        requester_id,
+        recipient_id,
+        status,
+        created_at,
+        updated_at,
         requester:profiles!connection_requests_requester_id_fkey(
           id,
           username,
@@ -67,7 +75,12 @@ export class ConnectionsService {
       `
       )
       .or(`requester_id.eq.${userId},recipient_id.eq.${userId}`)
+      .in("status", ["pending", "accepted"])
       .order("created_at", { ascending: false });
+
+    // Log query performance
+    const queryTime = performance.now() - startTime;
+    console.log(`[PERF] getUserConnectionRequests took ${queryTime.toFixed(2)}ms`);
 
     if (error) {
       throw createHttpError({

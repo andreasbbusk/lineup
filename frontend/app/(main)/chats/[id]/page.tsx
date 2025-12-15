@@ -73,9 +73,7 @@ export default function ChatPage({ params }: ChatPageProps) {
 
   // Fetch post if conversation is linked to a post
   const relatedPostId = conversation?.relatedPostId;
-  const { data: relatedPost } = usePost(relatedPostId || "", {
-    enabled: !!relatedPostId,
-  });
+  const { data: relatedPost } = usePost(relatedPostId || "");
 
   useMessageSubscription(id);
   useTypingSubscription(id);
@@ -253,7 +251,8 @@ export default function ChatPage({ params }: ChatPageProps) {
                   variant="primary"
                   onClick={() => resolvePost(relatedPostId!)}
                   disabled={isResolvingPost}
-                  className="ml-4">
+                  className="ml-4"
+                >
                   {isResolvingPost ? "Resolving..." : "Resolve Request"}
                 </Button>
               </div>

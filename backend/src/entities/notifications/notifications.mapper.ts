@@ -1,5 +1,8 @@
-import { NotificationRow } from "../../utils/supabase-helpers.js";
-import { NotificationResponse } from "../../types/api.types.js";
+import { NotificationRow, NotificationType } from "../../utils/supabase-helpers.js";
+import {
+  NotificationResponse,
+  GroupedNotificationsResponse,
+} from "../../types/api.types.js";
 
 /**
  * Partial profile structure returned by Supabase select queries
@@ -67,4 +70,38 @@ export function mapNotificationsToResponse(
   notifications: SupabaseNotificationWithRelations[]
 ): NotificationResponse[] {
   return notifications.map(mapNotificationToResponse);
+}
+
+/**
+ * Groups notifications by their type
+ * Transforms a flat array of notifications into an object organized by notification type
+ * This is useful for frontend filtering and display organization
+ *
+ * @param notifications - Array of already-mapped notification responses
+ * @returns Object with all notification types as keys, each containing an array of notifications
+ */
+export function groupNotificationsByType(
+  notifications: NotificationResponse[]
+): GroupedNotificationsResponse {
+  // Initialize all notification types with empty arrays
+  const grouped: GroupedNotificationsResponse = {
+    like: [],
+    comment: [],
+    connection_request: [],
+    connection_accepted: [],
+    tagged_in_post: [],
+    review: [],
+    collaboration_request: [],
+    message: [],
+  };
+
+  // Group notifications by type
+  for (const notification of notifications) {
+    const type = notification.type as NotificationType;
+    if (type in grouped) {
+      grouped[type as keyof GroupedNotificationsResponse].push(notification);
+    }
+  }
+
+  return grouped;
 }

@@ -6,9 +6,9 @@ type TabsPropsProfile = {
 	/** Tabs variant */
 	variant: "profile";
 	/** Active tab */
-	activeTab: "about" | "posts";
+	activeTab: "about" | "notes";
 	/** Callback when tab is clicked */
-	onTabChange: (tab: "about" | "posts") => void;
+	onTabChange: (tab: "about" | "notes") => void;
 	/** Tab content */
 	children: React.ReactNode;
 	className?: string;
@@ -50,7 +50,7 @@ type TabsContentProps = {
 const TAB_CONFIGS = {
 	profile: [
 		{ id: "about", label: "About" },
-		{ id: "posts", label: "Posts" },
+		{ id: "notes", label: "Notes" },
 	],
 	chat: [
 		{ id: "chats", label: "Chats" },
@@ -66,7 +66,7 @@ const TAB_CONFIGS = {
 const TabsContent = ({ value, children, className }: TabsContentProps) => {
 	return (
 		<div
-			className={`flex px-[0.9375rem] min-h-full pt-2.5 pb-32.5 flex-col items-start gap-[1.875rem] self-stretch bg-white ${className}`}
+			className={`flex px-4 w-full h-full min-h-[calc(100dvh-7.625rem)] pt-2.5 pb-35 flex-col items-start gap-4 bg-white ${className}`}
 			data-value={value}>
 			{children}
 		</div>
@@ -119,7 +119,7 @@ const Tabs = (props: TabsProps) => {
 	// Two-tab layout (profile, chat)
 	if (props.variant === "profile" || props.variant === "chat") {
 		return (
-			<div className={props.className}>
+			<div className={`${props.className} max-w-200`}>
 				<ul className="flex items-center rounded-tl-[2.8125rem] rounded-tr-[2.8125rem] bg-white">
 					{tabs.map((tab, index) => (
 						<React.Fragment key={tab.id}>
@@ -147,7 +147,7 @@ const Tabs = (props: TabsProps) => {
 
 	// Three-tab layout (create)
 	return (
-		<div className={props.className}>
+		<div className={`${props.className} self-center max-w-200 w-full`}>
 			<ul className="flex h-[2.25rem] px-[5.125rem] justify-center items-center gap-2">
 				{tabs.map((tab) => (
 					<button

@@ -16,7 +16,10 @@ import { extractUserId } from "../../utils/auth-helpers.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
 import { NotificationsService } from "./notifications.service.js";
 import { UpdateNotificationDto } from "./notifications.dto.js";
-import { NotificationResponse } from "../../types/api.types.js";
+import {
+  NotificationResponse,
+  GroupedNotificationsResponse,
+} from "../../types/api.types.js";
 
 @Route("notifications")
 @Tags("Notifications")
@@ -28,14 +31,15 @@ export class NotificationsController extends Controller {
    *
    * Returns notifications for the authenticated user with optional filters.
    * Supports filtering by type and unread status, with cursor-based pagination.
-   * Archived notifications are excluded by default.
+   * When grouped=true, returns notifications organized by type for easy filtering.
    *
    * @summary Get user notifications
-   * @param type Filter by notification type
+   * @param type Filter by notification type (ignored if grouped=true)
    * @param unreadOnly If true, only return unread notifications
    * @param cursor Cursor for pagination (ISO timestamp)
    * @param limit Maximum number of notifications to return (1-100, default: 50)
-   * @returns Notifications with pagination cursor
+   * @param grouped If true, returns notifications grouped by type as an object
+   * @returns Notifications with pagination cursor (flat array or grouped by type)
    * @throws 401 if not authenticated
    */
   @Security("bearerAuth")
@@ -45,11 +49,18 @@ export class NotificationsController extends Controller {
     @Query() unreadOnly?: boolean,
     @Query() cursor?: string,
     @Query() limit?: number,
+    @Query() grouped?: boolean,
     @Request() request?: ExpressRequest
-  ): Promise<{
-    notifications: NotificationResponse[];
-    nextCursor?: string;
-  }> {
+  ): Promise<
+    | {
+        notifications: NotificationResponse[];
+        nextCursor?: string;
+      }
+    | {
+        notifications: GroupedNotificationsResponse;
+        nextCursor?: string;
+      }
+  > {
     return handleControllerRequest(this, async () => {
       const userId = await extractUserId(request!);
       const token =
@@ -61,7 +72,8 @@ export class NotificationsController extends Controller {
         type,
         unreadOnly,
         cursor,
-        limit || 50
+        limit || 50,
+        grouped || false
       );
     });
   }

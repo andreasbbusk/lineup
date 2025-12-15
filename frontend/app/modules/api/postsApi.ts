@@ -12,6 +12,7 @@ export type CreatePostBody = components["schemas"]["CreatePostBody"];
  */
 export interface PostsQueryParams {
   type?: "note" | "request" | "story";
+  status?: "active" | "resolved" | "archived";
   authorId?: string;
   cursor?: string;
   limit?: number;
@@ -160,13 +161,16 @@ export async function getPostById(
  * @throws ApiError if request fails
  */
 export async function resolvePost(postId: string): Promise<PostResponse> {
-  const { data, error, response } = await apiClient.POST("/posts/{id}/resolve", {
-    params: {
-      path: {
-        id: postId,
+  const { data, error, response } = await apiClient.POST(
+    "/posts/{id}/resolve",
+    {
+      params: {
+        path: {
+          id: postId,
+        },
       },
-    },
-  });
+    }
+  );
 
   if (error) {
     handleApiError(error, response);
@@ -177,4 +181,50 @@ export async function resolvePost(postId: string): Promise<PostResponse> {
   }
 
   return data;
+}
+
+// ==================== Likes ====================
+
+/**
+ * Like a post
+ *
+ * Adds a like from the authenticated user to the specified post.
+ *
+ * @param postId - The UUID of the post to like
+ * @throws ApiError if request fails
+ */
+export async function likePost(postId: string): Promise<void> {
+  const { error, response } = await apiClient.POST("/posts/{id}/like", {
+    params: {
+      path: {
+        id: postId,
+      },
+    },
+  });
+
+  if (error) {
+    handleApiError(error, response);
+  }
+}
+
+/**
+ * Unlike a post
+ *
+ * Removes the like from the authenticated user for the specified post.
+ *
+ * @param postId - The UUID of the post to unlike
+ * @throws ApiError if request fails
+ */
+export async function unlikePost(postId: string): Promise<void> {
+  const { error, response } = await apiClient.DELETE("/posts/{id}/like", {
+    params: {
+      path: {
+        id: postId,
+      },
+    },
+  });
+
+  if (error) {
+    handleApiError(error, response);
+  }
 }

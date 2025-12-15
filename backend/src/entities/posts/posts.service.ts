@@ -765,4 +765,82 @@ export class PostsService {
 
     return mapPostToResponse(completePost as PostRow & any);
   }
+
+  /**
+   * Like a post
+   */
+  async likePost(
+    userId: string,
+    postId: string,
+    token: string
+  ): Promise<void> {
+    const supabase = getSupabaseClient(token);
+
+    // Verify the post exists
+    const { data: post, error: postError } = await supabase
+      .from("posts")
+      .select("id")
+      .eq("id", postId)
+      .single();
+
+    if (postError || !post) {
+      throw createHttpError({
+        message: "Post not found",
+        statusCode: 404,
+        code: "NOT_FOUND",
+      });
+    }
+
+    // Check if already liked
+    const { data: existingLike } = await supabase
+      .from("likes")
+      .select("post_id, user_id")
+      .eq("post_id", postId)
+      .eq("user_id", userId)
+      .single();
+
+    if (existingLike) {
+      return; // Already liked, no-op
+    }
+
+    // Create the like
+    const { error } = await supabase.from("likes").insert({
+      user_id: userId,
+      post_id: postId,
+    });
+
+    if (error) {
+      throw createHttpError({
+        message: `Failed to like post: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+  }
+
+  /**
+   * Unlike a post
+   */
+  async unlikePost(
+    userId: string,
+    postId: string,
+    token: string
+  ): Promise<void> {
+    const supabase = getSupabaseClient(token);
+
+    // Delete the like
+    const { error } = await supabase
+      .from("likes")
+      .delete()
+      .eq("post_id", postId)
+      .eq("user_id", userId);
+
+    if (error) {
+      throw createHttpError({
+        message: `Failed to unlike post: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+  }
 }

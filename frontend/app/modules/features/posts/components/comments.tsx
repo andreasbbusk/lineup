@@ -1,27 +1,53 @@
 import { Avatar } from "@/app/modules/components/avatar";
 import { useState } from "react";
 import Image from "next/image";
-import { usePosts } from "@/app/modules/hooks";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getPostComments, createComment } from "@/app/modules/api/commentsApi";
+import type { CommentResponse as ApiCommentResponse } from "@/app/modules/api/commentsApi";
+
+// Extended type to include nested replies
+type CommentResponseWithReplies = ApiCommentResponse & {
+	parentId?: string | null;
+	replies?: CommentResponseWithReplies[];
+};
 
 const MAX_COMMENT_DEPTH = 3;
-const limitPerLevel = 2;
 
-function Comments() {
-	// CHANGE POSTS DATA TO COMMENTS DATA LATER
-	const [commentLimit, setCommentLimit] = useState(limitPerLevel);
-	const { data } = usePosts({ limit: commentLimit });
-	const comments = data?.data || [];
-	const totalComments = /* data?.totalCount ||*/ 0;
+interface CommentsProps {
+	postId: string;
+}
+
+function Comments({ postId }: CommentsProps) {
+	const queryClient = useQueryClient();
+	const { data: comments = [], isLoading } = useQuery<CommentResponseWithReplies[]>({
+		queryKey: ["comments", "post", postId],
+		queryFn: () => getPostComments(postId) as Promise<CommentResponseWithReplies[]>,
+		enabled: !!postId,
+	});
+	const createCommentMutation = useMutation({
+		mutationFn: (data: { postId: string; content: string; parentId?: string | null }) =>
+			createComment(data),
+		onSuccess: (newComment) => {
+			queryClient.invalidateQueries({ queryKey: ["comments", "post", newComment.postId] });
+			queryClient.invalidateQueries({ queryKey: ["posts", newComment.postId] });
+			queryClient.invalidateQueries({ queryKey: ["posts"] });
+		},
+	});
 	const [commentText, setCommentText] = useState("");
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!commentText.trim()) return;
 
-		console.log("Submitting comment:", commentText);
-		// TODO: Post to database
-
-		setCommentText("");
+		try {
+			await createCommentMutation.mutateAsync({
+				postId,
+				content: commentText.trim(),
+			});
+			setCommentText("");
+		} catch (error) {
+			console.error("Failed to create comment:", error);
+		}
 	};
 
 	return (
@@ -48,32 +74,36 @@ function Comments() {
 					/>
 				</button>
 			</form>
-			{comments?.map((comment) => {
-				const mappedComment: Comment = {
-					id: comment.id,
-					description: comment.description,
-					author: comment.author
-						? {
-								username: comment.author.username,
-								firstName: comment.author.firstName ?? undefined,
-								avatarUrl: comment.author.avatarUrl ?? undefined,
-						  }
-						: undefined,
-				};
-				return (
-					<CommentItem
-						key={mappedComment.id}
-						comment={mappedComment}
-						depth={1}
-					/>
-				);
-			})}
-			{totalComments > commentLimit && (
-				<button
-					onClick={() => setCommentLimit(commentLimit + limitPerLevel)}
-					className="text-[#555] font-sans text-[0.875rem] font-medium leading-[1.18125rem] tracking-[0.03125rem] hover:text-black transition-colors">
-					Show more comments ({totalComments - commentLimit} remaining)
-				</button>
+			{isLoading ? (
+				<p className="text-[#555] text-[0.875rem]">Loading comments...</p>
+			) : comments.length === 0 ? (
+				<p className="text-[#555] text-[0.875rem]">No comments yet. Be the first to comment!</p>
+			) : (
+				comments.map((comment) => {
+					// Recursively map comment and all nested replies
+					const mapComment = (c: CommentResponseWithReplies): Comment => ({
+						id: c.id,
+						description: c.content,
+						parentId: c.parentId ?? undefined,
+						replies: c.replies?.map(mapComment),
+						author: c.author
+							? {
+									username: c.author.username,
+									firstName: c.author.firstName ?? undefined,
+									avatarUrl: c.author.avatarUrl ?? undefined,
+							  }
+							: undefined,
+					});
+
+					return (
+						<CommentItem
+							key={comment.id}
+							comment={mapComment(comment)}
+							depth={1}
+							postId={postId}
+						/>
+					);
+				})
 			)}
 		</div>
 	);
@@ -82,6 +112,8 @@ function Comments() {
 type Comment = {
 	id: string;
 	description: string;
+	parentId?: string | null;
+	replies?: Comment[];
 	author?: {
 		username?: string;
 		firstName?: string;
@@ -91,37 +123,49 @@ type Comment = {
 	// Add other fields as needed
 };
 
-function CommentItem({ comment, depth }: { comment: Comment; depth: number }) {
+function CommentItem({ comment, depth, postId }: { comment: Comment; depth: number; postId: string }) {
+	const queryClient = useQueryClient();
 	const [isLiked, setIsLiked] = useState(false);
 	const [showReplies, setShowReplies] = useState(true);
 	const [showReplyInput, setShowReplyInput] = useState(false);
 	const [replyText, setReplyText] = useState("");
-	const [replyLimit, setReplyLimit] = useState(limitPerLevel);
+	const createCommentMutation = useMutation({
+		mutationFn: (data: { postId: string; content: string; parentId?: string | null }) =>
+			createComment(data),
+		onSuccess: (newComment) => {
+			queryClient.invalidateQueries({ queryKey: ["comments", "post", newComment.postId] });
+			queryClient.invalidateQueries({ queryKey: ["posts", newComment.postId] });
+			queryClient.invalidateQueries({ queryKey: ["posts"] });
+		},
+	});
 
-	const { data } = usePosts({ limit: replyLimit });
-	const replies = data?.data || [];
-	const totalReplies = /* data?.totalCount ||*/ 0;
+	const canHaveReplies = depth < MAX_COMMENT_DEPTH;
+	const isAtMaxDepth = depth === MAX_COMMENT_DEPTH;
 
-	const canHaveReplies = depth <= MAX_COMMENT_DEPTH;
-
-	const handleReplySubmit = (e: React.FormEvent) => {
+	const handleReplySubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!replyText.trim()) return;
 
-		if (depth === MAX_COMMENT_DEPTH) {
-			console.log(`Adding comment at same level as ${comment.id}:`, replyText);
-			// TODO: Post reply to database with same parent as current comment
-		} else {
-			console.log(`Replying to comment ${comment.id}:`, replyText);
-			// TODO: Post reply to database with parent comment ID
+		try {
+			// At max depth, create as sibling (use parent's parentId), otherwise create as child
+			const parentId = isAtMaxDepth ? comment.parentId : comment.id;
+			await createCommentMutation.mutateAsync({
+				postId,
+				content: replyText.trim(),
+				parentId: parentId || null,
+			});
+			setReplyText("");
+			setShowReplyInput(false);
+		} catch (error) {
+			console.error("Failed to create reply:", error);
 		}
-
-		setReplyText("");
-		setShowReplyInput(false);
 	};
 
+	const replies = comment.replies || [];
+	const totalReplies = replies.length;
+
 	return (
-		<div>
+		<div className="w-full">
 			<div className="flex items-center gap-[0.3125rem]">
 				<Avatar
 					size="xs"
@@ -136,9 +180,9 @@ function CommentItem({ comment, depth }: { comment: Comment; depth: number }) {
 				</p>
 			</div>
 			<p>{comment.description}</p>
-			<div className="flex h-[1.875rem] justify-end items-center gap-[0.9375rem] self-stretch">
+			<div className="flex h-[1.875rem] justify-start items-center gap-[0.9375rem] self-stretch">
 				<div
-					className="flex items-center gap-[0.3125rem]"
+					className="flex items-center gap-[0.3125rem] cursor-pointer"
 					onClick={() => setIsLiked(!isLiked)}>
 					{isLiked ? (
 						<svg
@@ -172,39 +216,37 @@ function CommentItem({ comment, depth }: { comment: Comment; depth: number }) {
 					)}
 					<p className="text-[#555] text-xs">{comment.likesCount ?? 0}</p>
 				</div>
-				{canHaveReplies && (
-					<button
-						onClick={() => setShowReplyInput(!showReplyInput)}
-						className={`flex items-center gap-2 text-[#555] font-sans text-[0.875rem] font-medium leading-[1.18125rem] tracking-[0.03125rem] ${
-							depth >= 2 ? "gap-0" : ""
-						}`}>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="20"
-							height="14"
-							viewBox="0 0 20 14"
-							fill="none">
-							<path
-								d="M18.75 13.125V10.875C18.75 9.68153 18.2759 8.53693 17.432 7.69302C16.5881 6.84911 15.4435 6.375 14.25 6.375H0.75"
-								stroke="#555555"
-								strokeWidth="1.5"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-							/>
-							<path
-								d="M6.375 12L0.75 6.375L6.375 0.75"
-								stroke="#555555"
-								strokeWidth="1.5"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-							/>
-						</svg>
-						{depth === 1 && <p>Reply</p>}
-					</button>
-				)}
+				<button
+					onClick={() => setShowReplyInput(!showReplyInput)}
+					className={`flex items-center gap-2 text-[#555] font-sans text-[0.875rem] font-medium leading-[1.18125rem] tracking-[0.03125rem] ${
+						depth >= 2 ? "gap-0" : ""
+					}`}>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="20"
+						height="14"
+						viewBox="0 0 20 14"
+						fill="none">
+						<path
+							d="M18.75 13.125V10.875C18.75 9.68153 18.2759 8.53693 17.432 7.69302C16.5881 6.84911 15.4435 6.375 14.25 6.375H0.75"
+							stroke="#555555"
+							strokeWidth="1.5"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						/>
+						<path
+							d="M6.375 12L0.75 6.375L6.375 0.75"
+							stroke="#555555"
+							strokeWidth="1.5"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						/>
+					</svg>
+					{depth === 1 && <p>Reply</p>}
+				</button>
 			</div>
 
-			{showReplyInput && canHaveReplies && (
+			{showReplyInput && (
 				<form
 					onSubmit={handleReplySubmit}
 					className="flex p-[0.625rem] justify-between items-start self-stretch border border-black/20 rounded-[0.5rem] mt-[0.625rem]">
@@ -231,33 +273,14 @@ function CommentItem({ comment, depth }: { comment: Comment; depth: number }) {
 			)}
 			{depth < MAX_COMMENT_DEPTH && replies.length > 0 && showReplies && (
 				<div className="flex flex-col gap-[0.625rem] items-start self-stretch border-l border-black/20 pl-[1.25rem] mt-[0.9375rem]">
-					{replies.map((reply) => {
-						const mappedReply: Comment = {
-							id: reply.id,
-							description: reply.description,
-							author: reply.author
-								? {
-										username: reply.author.username,
-										firstName: reply.author.firstName ?? undefined,
-										avatarUrl: reply.author.avatarUrl ?? undefined,
-								  }
-								: undefined,
-						};
-						return (
-							<CommentItem
-								key={mappedReply.id}
-								comment={mappedReply}
-								depth={depth + 1}
-							/>
-						);
-					})}
-					{totalReplies > replyLimit && (
-						<button
-							onClick={() => setReplyLimit(replyLimit + limitPerLevel)}
-							className="text-[#555] font-sans text-[0.875rem] font-medium leading-[1.18125rem] tracking-[0.03125rem] hover:text-black transition-colors">
-							Show more replies ({totalReplies - replyLimit} remaining)
-						</button>
-					)}
+					{replies.map((reply) => (
+						<CommentItem
+							key={reply.id}
+							comment={reply}
+							depth={depth + 1}
+							postId={postId}
+						/>
+					))}
 				</div>
 			)}
 		</div>

@@ -37,7 +37,6 @@ export {
 
 export {
   useConnectionRequests,
-  useMyConnections,
   useUserConnections,
 } from "@/app/modules/hooks/queries";
 

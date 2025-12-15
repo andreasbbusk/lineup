@@ -297,6 +297,47 @@ export interface PostResponse {
 }
 
 /**
+ * API response format for a service
+ * Represents a service offering (seeded data - no creation endpoint).
+ * Services can be: rehearsal_space, studio, recording, art, venue, teaching, or equipment_rental.
+ * provider_id is practically always null since there are no provider users.
+ *
+ * @example
+ * {
+ *   "id": "4f99a480-d388-47c2-86f5-efa0b8b164a0",
+ *   "providerId": null,
+ *   "providerName": "Lighthouse Music",
+ *   "title": "Acoustic Band Room",
+ *   "description": "Bright room with natural light suitable for rehearsals.",
+ *   "mediaUrl": "https://example.com/media/acoustic-band-room.jpg",
+ *   "location": "Roskilde, DK",
+ *   "serviceType": "rehearsal_space",
+ *   "createdAt": "2025-12-10T16:13:01.154276Z",
+ *   "updatedAt": "2025-12-10T16:13:01.154276Z"
+ * }
+ */
+export interface ServiceResponse {
+  id: string;
+  providerId: string | null;
+  providerName: string | null;
+  title: string;
+  description: string;
+  mediaUrl: string | null;
+  location: string | null;
+  serviceType:
+    | "rehearsal_space"
+    | "studio"
+    | "recording"
+    | "art"
+    | "venue"
+    | "teaching"
+    | "equipment_rental"
+    | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
+/**
  * API response format for a post in the feed
  * Extends PostResponse with engagement data and user interaction state
  *
@@ -479,6 +520,8 @@ export interface CommentResponse {
   content: string;
   createdAt: string | null;
   updatedAt: string | null;
+  parentId?: string | null;
+  replies?: CommentResponse[];
   author?: {
     id: string;
     username: string;
@@ -761,6 +804,36 @@ export interface NotificationResponse {
     avatarUrl?: string | null;
   };
 }
+
+/**
+ * API response format for grouped notifications
+ * Returns notifications organized by type for easy filtering in the frontend
+ * Uses Record type to ensure all notification types are included
+ *
+ * @example
+ * {
+ *   "like": [
+ *     { "id": "notif-1", "type": "like", ... },
+ *     { "id": "notif-2", "type": "like", ... }
+ *   ],
+ *   "comment": [
+ *     { "id": "notif-3", "type": "comment", ... }
+ *   ],
+ *   "connection_request": [],
+ *   "message": [...]
+ * }
+ */
+export type GroupedNotificationsResponse = Record<
+  | "like"
+  | "comment"
+  | "connection_request"
+  | "connection_accepted"
+  | "tagged_in_post"
+  | "review"
+  | "collaboration_request"
+  | "message",
+  NotificationResponse[]
+>;
 
 // ==================== Review Types ====================
 

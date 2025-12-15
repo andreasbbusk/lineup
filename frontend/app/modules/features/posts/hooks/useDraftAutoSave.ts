@@ -72,15 +72,38 @@ export function useNoteDraftAutoSave() {
       const restoredMedia: UploadedMedia[] = [];
       for (const mediaItem of draft.media) {
         try {
+          // If media already has a file object, use it as-is
+          if (mediaItem.file) {
+            restoredMedia.push(mediaItem);
+            continue;
+          }
+
+          // If media has filePath, it's already uploaded to Supabase
+          if (mediaItem.filePath) {
+            restoredMedia.push(mediaItem);
+            continue;
+          }
+
           // Try to get blob from IndexedDB (for draft media that hasn't been uploaded yet)
           const blobData = await getMediaBlob(mediaItem.url);
           if (blobData) {
             // Create object URL from blob for preview
             const objectUrl = URL.createObjectURL(blobData.blob);
+            
+            // Recreate File object from blob (required for upload)
+            // Generate filename based on type and MIME type
+            const mimeType = blobData.blob.type || (blobData.type === "image" ? "image/jpeg" : "video/mp4");
+            const extension = mimeType.includes("image") 
+              ? (mimeType.includes("png") ? "png" : mimeType.includes("gif") ? "gif" : "jpg")
+              : (mimeType.includes("webm") ? "webm" : "mp4");
+            const fileName = `restored-${blobData.type}-${Date.now()}.${extension}`;
+            const file = new File([blobData.blob], fileName, { type: mimeType });
+            
             restoredMedia.push({
               url: objectUrl,
               type: blobData.type,
               thumbnailUrl: blobData.thumbnailUrl,
+              file, // Include file object so it can be uploaded
             });
           } else {
             // If blob doesn't exist, use the original URL (likely already uploaded to Supabase)
@@ -182,15 +205,38 @@ export function useRequestDraftAutoSave() {
       const restoredMedia: UploadedMedia[] = [];
       for (const mediaItem of draft.media) {
         try {
+          // If media already has a file object, use it as-is
+          if (mediaItem.file) {
+            restoredMedia.push(mediaItem);
+            continue;
+          }
+
+          // If media has filePath, it's already uploaded to Supabase
+          if (mediaItem.filePath) {
+            restoredMedia.push(mediaItem);
+            continue;
+          }
+
           // Try to get blob from IndexedDB (for draft media that hasn't been uploaded yet)
           const blobData = await getMediaBlob(mediaItem.url);
           if (blobData) {
             // Create object URL from blob for preview
             const objectUrl = URL.createObjectURL(blobData.blob);
+            
+            // Recreate File object from blob (required for upload)
+            // Generate filename based on type and MIME type
+            const mimeType = blobData.blob.type || (blobData.type === "image" ? "image/jpeg" : "video/mp4");
+            const extension = mimeType.includes("image") 
+              ? (mimeType.includes("png") ? "png" : mimeType.includes("gif") ? "gif" : "jpg")
+              : (mimeType.includes("webm") ? "webm" : "mp4");
+            const fileName = `restored-${blobData.type}-${Date.now()}.${extension}`;
+            const file = new File([blobData.blob], fileName, { type: mimeType });
+            
             restoredMedia.push({
               url: objectUrl,
               type: blobData.type,
               thumbnailUrl: blobData.thumbnailUrl,
+              file, // Include file object so it can be uploaded
             });
           } else {
             // If blob doesn't exist, use the original URL (likely already uploaded to Supabase)
