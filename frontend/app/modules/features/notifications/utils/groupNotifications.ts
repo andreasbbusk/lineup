@@ -1,5 +1,7 @@
 import type { NotificationResponse } from "../types";
-import type { GroupedNotificationsResponse } from "../api";
+import type { components } from "@/app/modules/types/api";
+
+type GroupedNotificationsResponse = components["schemas"]["GroupedNotificationsResponse"];
 
 /**
  * Groups an array of notifications by their type

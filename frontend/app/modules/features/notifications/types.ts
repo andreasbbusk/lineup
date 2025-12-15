@@ -1,4 +1,4 @@
-import type { components } from "../../types/api";
+import type { components } from "@/app/modules/types/api";
 
 // Re-export notification types from generated API types
 export type NotificationResponse = components["schemas"]["NotificationResponse"];
