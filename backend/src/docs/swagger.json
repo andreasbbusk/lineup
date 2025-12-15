@@ -4273,6 +4273,66 @@
 				]
 			}
 		},
+		"/posts/{id}/like": {
+			"post": {
+				"operationId": "LikePost",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Like a post\n\nAdds a like from the authenticated user to the specified post.\nIf the post is already liked by the user, this is a no-op.",
+				"summary": "Like a post",
+				"tags": [
+					"Posts"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the post to like",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"delete": {
+				"operationId": "UnlikePost",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Unlike a post\n\nRemoves the like from the authenticated user for the specified post.",
+				"summary": "Unlike a post",
+				"tags": [
+					"Posts"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the post to unlike",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
 		"/notifications": {
 			"get": {
 				"operationId": "GetNotifications",
