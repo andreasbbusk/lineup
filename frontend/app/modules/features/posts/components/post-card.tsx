@@ -201,7 +201,7 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
           commentsCount={post.commentsCount}
           likesCount={likesCount}
         />
-        {isCommentOpen && <Comments />}
+        {isCommentOpen && <Comments postId={post.id} />}
       </div>
     </article>
   ) : props.compact ? (

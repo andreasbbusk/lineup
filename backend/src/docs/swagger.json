@@ -1547,6 +1547,16 @@
 						"type": "string",
 						"nullable": true
 					},
+					"parentId": {
+						"type": "string",
+						"nullable": true
+					},
+					"replies": {
+						"items": {
+							"$ref": "#/components/schemas/CommentResponse"
+						},
+						"type": "array"
+					},
 					"author": {
 						"properties": {
 							"avatarUrl": {
@@ -2647,6 +2657,12 @@
 					"postId": {
 						"type": "string",
 						"description": "The ID of the post to comment on (UUID format)",
+						"example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+					},
+					"parentId": {
+						"type": "string",
+						"nullable": true,
+						"description": "Optional parent comment ID for nested replies (UUID format)\nIf provided, this comment will be a reply to the parent comment",
 						"example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
 					}
 				},

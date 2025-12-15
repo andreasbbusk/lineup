@@ -34,6 +34,15 @@ export class CreateCommentDto
     message: "Comment content must be between 1 and 1000 characters",
   })
   content!: string;
+
+  /**
+   * Optional parent comment ID for nested replies (UUID format)
+   * If provided, this comment will be a reply to the parent comment
+   * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+   */
+  @IsUUID(4, { message: "Parent ID must be a valid UUID" })
+  @IsString()
+  parentId?: string | null;
 }
 
 /**

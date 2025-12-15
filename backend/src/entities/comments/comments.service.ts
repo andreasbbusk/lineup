@@ -42,7 +42,52 @@ export class CommentsService {
       });
     }
 
-    return mapCommentsToResponse(comments || []);
+    // Map comments and organize them hierarchically
+    const allComments = mapCommentsToResponse(comments || []);
+    
+    // Build comment tree: separate top-level comments and replies
+    const commentMap = new Map<string, CommentResponse>();
+    const topLevelComments: CommentResponse[] = [];
+
+    // First pass: create map and identify top-level comments
+    for (const comment of allComments) {
+      commentMap.set(comment.id, { ...comment, replies: [] });
+      // Check if parent_id exists (it will be in the raw data)
+      const rawComment = comments?.find((c: any) => c.id === comment.id);
+      if (!rawComment?.parent_id) {
+        topLevelComments.push(commentMap.get(comment.id)!);
+      }
+    }
+
+    // Second pass: attach replies to their parents (sort by created_at)
+    for (const comment of allComments) {
+      const rawComment = comments?.find((c: any) => c.id === comment.id);
+      if (rawComment?.parent_id) {
+        const parent = commentMap.get(rawComment.parent_id);
+        if (parent) {
+          if (!parent.replies) {
+            parent.replies = [];
+          }
+          parent.replies.push(commentMap.get(comment.id)!);
+        }
+      }
+    }
+
+    // Sort replies by created_at within each parent
+    const sortReplies = (comment: CommentResponse) => {
+      if (comment.replies && comment.replies.length > 0) {
+        comment.replies.sort((a, b) => {
+          const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return aTime - bTime;
+        });
+        comment.replies.forEach(sortReplies);
+      }
+    };
+
+    topLevelComments.forEach(sortReplies);
+
+    return topLevelComments;
   }
 
   /**
@@ -105,11 +150,37 @@ export class CommentsService {
       });
     }
 
+    // If parentId is provided, verify the parent comment exists and belongs to the same post
+    if (data.parentId) {
+      const { data: parentComment, error: parentError } = await authedSupabase
+        .from("comments")
+        .select("id, post_id")
+        .eq("id", data.parentId)
+        .single();
+
+      if (parentError || !parentComment) {
+        throw createHttpError({
+          message: "Parent comment not found",
+          statusCode: 404,
+          code: "NOT_FOUND",
+        });
+      }
+
+      if (parentComment.post_id !== data.postId) {
+        throw createHttpError({
+          message: "Parent comment does not belong to the same post",
+          statusCode: 400,
+          code: "VALIDATION_ERROR",
+        });
+      }
+    }
+
     // Create the comment
-    const commentInsert: CommentInsert = {
+    const commentInsert: CommentInsert & { parent_id?: string | null } = {
       post_id: data.postId,
       author_id: userId,
       content: data.content.trim(),
+      parent_id: data.parentId || null,
     };
 
     const { data: comment, error } = await authedSupabase

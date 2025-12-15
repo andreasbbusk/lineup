@@ -481,6 +481,35 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/posts/{id}/like": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Like a post
+         * @description Like a post
+         *
+         *     Adds a like from the authenticated user to the specified post.
+         *     If the post is already liked by the user, this is a no-op.
+         */
+        post: operations["LikePost"];
+        /**
+         * Unlike a post
+         * @description Unlike a post
+         *
+         *     Removes the like from the authenticated user for the specified post.
+         */
+        delete: operations["UnlikePost"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/notifications": {
         parameters: {
             query?: never;
@@ -3120,6 +3149,48 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["PostResponse"];
                 };
+            };
+        };
+    };
+    LikePost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The UUID of the post to like */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UnlikePost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The UUID of the post to unlike */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
