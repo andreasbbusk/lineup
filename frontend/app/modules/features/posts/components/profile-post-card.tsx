@@ -108,19 +108,31 @@ export function ProfilePostCard({ post }: ProfilePostCardProps) {
 	// Get the first media item for the large image
 	const firstMedia = post.media && post.media.length > 0 ? post.media[0] : null;
 
-	// Get genre tags (metadata with type "genre")
+	// Get genre tags (metadata with type "genre") - for requests
 	const genreTags = post.metadata?.filter(
 		(meta) => meta.type === "genre"
 	) || [];
 
-	// Get looking for tag (e.g., "#guitarist")
-	const lookingForTag = post.metadata?.find(
-		(meta) => meta.type === "tag" && meta.name.toLowerCase().includes("guitarist")
-	) || post.metadata?.find((meta) => meta.type === "tag");
+	// Get tag metadata (for notes)
+	const tagMetadata = post.metadata?.filter(
+		(meta) => meta.type === "tag"
+	) || [];
+
+	// Get looking for tag (e.g., "#guitarist") - typically the first tag for requests
+	const lookingForTag = post.type === "request" 
+		? (post.metadata?.find(
+			(meta) => meta.type === "tag" && 
+			(meta.name.toLowerCase().includes("guitarist") ||
+			 meta.name.toLowerCase().includes("drummer") ||
+			 meta.name.toLowerCase().includes("bassist") ||
+			 meta.name.toLowerCase().includes("vocalist") ||
+			 meta.name.toLowerCase().includes("songwriter"))
+		) || post.metadata?.find((meta) => meta.type === "tag"))
+		: null;
 
 	return (
-		<article className="flex flex-col gap-4 bg-white rounded-[1.5625rem] p-4 shadow-sm">
-			{/* Author Header */}
+		<article className="flex flex-col gap-4 bg-white rounded-[1.5625rem] p-4 shadow-sm border border-gray-200">
+			{/* Author Header - All in one line like the image */}
 			<div className="flex items-center gap-2.5">
 				<Link href={`/profile/${author?.username || post.authorId}`}>
 					<Avatar
@@ -133,7 +145,7 @@ export function ProfilePostCard({ post }: ProfilePostCardProps) {
 						alt={author?.username || "User avatar"}
 					/>
 				</Link>
-				<div className="flex-1">
+				<div className="flex-1 flex items-center gap-1.5 flex-wrap">
 					<p className="text-sm text-gray-700">
 						{author?.firstName || author?.username || "User"}
 						{lookingForTag && (
@@ -143,9 +155,9 @@ export function ProfilePostCard({ post }: ProfilePostCardProps) {
 							</span>
 						)}
 					</p>
-					<p className="text-xs text-gray-500">
+					<span className="text-xs text-gray-500">
 						<RelativeDate dateString={post.createdAt} />
-					</p>
+					</span>
 				</div>
 			</div>
 
@@ -157,7 +169,7 @@ export function ProfilePostCard({ post }: ProfilePostCardProps) {
 			)}
 
 			{/* Post Title */}
-			<h2 className="text-lg font-semibold">{post.title}</h2>
+			<h2 className="text-lg font-semibold text-gray-900">{post.title}</h2>
 
 			{/* Large Image */}
 			{firstMedia && firstMedia.type === "image" && (
@@ -191,15 +203,32 @@ export function ProfilePostCard({ post }: ProfilePostCardProps) {
 				</Button>
 			)}
 
-			{/* Genre Tags */}
-			{genreTags.length > 0 && (
+			{/* Tags for Notes */}
+			{post.type === "note" && tagMetadata.length > 0 && (
+				<div className="flex flex-col gap-2">
+					<h3 className="text-sm font-semibold text-gray-500">Tags</h3>
+					<div className="flex flex-wrap gap-2">
+						{tagMetadata.map((meta) => (
+							<Tags
+								key={meta.id}
+								hashTag
+								text={meta.name}
+								className="border-gray-300 text-gray-700"
+							/>
+						))}
+					</div>
+				</div>
+			)}
+
+			{/* Genre Tags for Requests - Styled like the image (black with white text) */}
+			{post.type === "request" && genreTags.length > 0 && (
 				<div className="flex flex-col gap-2">
 					<h3 className="text-sm font-semibold text-gray-500">Genre</h3>
 					<div className="flex flex-wrap gap-2">
 						{genreTags.map((meta) => (
 							<span
 								key={meta.id}
-								className="rounded-full bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700">
+								className="rounded-full bg-gray-900 text-white px-4 py-2 text-sm font-medium">
 								{meta.name}
 							</span>
 						))}
