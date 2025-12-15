@@ -1797,6 +1797,74 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"Record_like-or-comment-or-connection_request-or-connection_accepted-or-tagged_in_post-or-review-or-collaboration_request-or-message.NotificationResponse-Array_": {
+				"properties": {
+					"like": {
+						"items": {
+							"$ref": "#/components/schemas/NotificationResponse"
+						},
+						"type": "array"
+					},
+					"comment": {
+						"items": {
+							"$ref": "#/components/schemas/NotificationResponse"
+						},
+						"type": "array"
+					},
+					"connection_request": {
+						"items": {
+							"$ref": "#/components/schemas/NotificationResponse"
+						},
+						"type": "array"
+					},
+					"connection_accepted": {
+						"items": {
+							"$ref": "#/components/schemas/NotificationResponse"
+						},
+						"type": "array"
+					},
+					"tagged_in_post": {
+						"items": {
+							"$ref": "#/components/schemas/NotificationResponse"
+						},
+						"type": "array"
+					},
+					"review": {
+						"items": {
+							"$ref": "#/components/schemas/NotificationResponse"
+						},
+						"type": "array"
+					},
+					"collaboration_request": {
+						"items": {
+							"$ref": "#/components/schemas/NotificationResponse"
+						},
+						"type": "array"
+					},
+					"message": {
+						"items": {
+							"$ref": "#/components/schemas/NotificationResponse"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"like",
+					"comment",
+					"connection_request",
+					"connection_accepted",
+					"tagged_in_post",
+					"review",
+					"collaboration_request",
+					"message"
+				],
+				"type": "object",
+				"description": "Construct a type with a set of properties K of type T"
+			},
+			"GroupedNotificationsResponse": {
+				"$ref": "#/components/schemas/Record_like-or-comment-or-connection_request-or-connection_accepted-or-tagged_in_post-or-review-or-collaboration_request-or-message.NotificationResponse-Array_",
+				"description": "API response format for grouped notifications\nReturns notifications organized by type for easy filtering in the frontend\nUses Record type to ensure all notification types are included"
+			},
 			"UpdateNotificationDto": {
 				"description": "DTO for updating a notification\n\nUsed when marking a notification as read or unread.",
 				"properties": {
@@ -4350,31 +4418,49 @@
 				"operationId": "GetNotifications",
 				"responses": {
 					"200": {
-						"description": "Notifications with pagination cursor",
+						"description": "Notifications with pagination cursor (flat array or grouped by type)",
 						"content": {
 							"application/json": {
 								"schema": {
-									"properties": {
-										"nextCursor": {
-											"type": "string"
-										},
-										"notifications": {
-											"items": {
-												"$ref": "#/components/schemas/NotificationResponse"
+									"anyOf": [
+										{
+											"properties": {
+												"nextCursor": {
+													"type": "string"
+												},
+												"notifications": {
+													"items": {
+														"$ref": "#/components/schemas/NotificationResponse"
+													},
+													"type": "array"
+												}
 											},
-											"type": "array"
+											"required": [
+												"notifications"
+											],
+											"type": "object"
+										},
+										{
+											"properties": {
+												"nextCursor": {
+													"type": "string"
+												},
+												"notifications": {
+													"$ref": "#/components/schemas/GroupedNotificationsResponse"
+												}
+											},
+											"required": [
+												"notifications"
+											],
+											"type": "object"
 										}
-									},
-									"required": [
-										"notifications"
-									],
-									"type": "object"
+									]
 								}
 							}
 						}
 					}
 				},
-				"description": "Get notifications for the authenticated user\n\nReturns notifications for the authenticated user with optional filters.\nSupports filtering by type and unread status, with cursor-based pagination.\nArchived notifications are excluded by default.",
+				"description": "Get notifications for the authenticated user\n\nReturns notifications for the authenticated user with optional filters.\nSupports filtering by type and unread status, with cursor-based pagination.\nWhen grouped=true, returns notifications organized by type for easy filtering.",
 				"summary": "Get user notifications",
 				"tags": [
 					"Notifications"
@@ -4386,7 +4472,7 @@
 				],
 				"parameters": [
 					{
-						"description": "Filter by notification type",
+						"description": "Filter by notification type (ignored if grouped=true)",
 						"in": "query",
 						"name": "type",
 						"required": false,
@@ -4420,6 +4506,15 @@
 						"schema": {
 							"format": "double",
 							"type": "number"
+						}
+					},
+					{
+						"description": "If true, returns notifications grouped by type as an object",
+						"in": "query",
+						"name": "grouped",
+						"required": false,
+						"schema": {
+							"type": "boolean"
 						}
 					}
 				]
