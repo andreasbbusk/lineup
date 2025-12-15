@@ -26,7 +26,7 @@ function RequestCarousel() {
 		[data]
 	);
 
-	const featuredPosts = posts.slice(0, 3);
+	const featuredPosts = posts.slice(0, 2);
 
 	if (error) {
 		return (
@@ -42,16 +42,14 @@ function RequestCarousel() {
 	}
 
 	return (
-		<div className="flex flex-col items-start gap-2.5 p-3.75">
+		<div className="flex flex-col items-start gap-2.5 px-3.75 pt-3.75 pb-6 max-w-200 w-full mx-auto md:px-0">
 			<p className="text-gray font-normal text-base">Collaboration requests</p>
 
 			{posts.length > 0 ? (
 				<>
-					<div className="no-scrollbar flex pr-3.75 items-start max-w-[calc(100vw-0.9375rem)] gap-2.5 overflow-x-auto pb-2 snap-x snap-mandatory md:grid md:grid-cols-3 md:overflow-visible">
+					<div className="no-scrollbar flex pr-3.75 items-start max-w-[calc(100vw-0.9375rem)] gap-2.5 overflow-x-auto pb-2 snap-x snap-mandatory">
 						{featuredPosts.map((post) => (
-							<div
-								key={post.id}
-								className="snap-start md:min-w-0 min-h-[238px]">
+							<div key={post.id} className="snap-start index-10">
 								<PostCard compact post={post} />
 							</div>
 						))}
