@@ -117,18 +117,17 @@ function BottomNav() {
     const isNotificationsPage = pathname === "/notifications";
     const isSettingsPage = pathname === "/settings";
 
-    // Hide on other users' profiles and edit profile page
+    // Hide on edit profile page only
     // /profile or /profile/{username} = own profile (show nav)
-    // /profile/otheruser = other user's profile (hide nav)
+    // /profile/otheruser = other user's profile (show nav)
     // /profile/edit = edit page (hide nav)
-    const isOtherUsersProfile =
-      pathname?.startsWith("/profile/") && pathname !== `/profile/${username}`;
+    const isEditProfilePage = pathname === "/profile/edit";
 
     return (
       isAuthPage ||
       isSearchPage ||
       isChatDetailPage ||
-      isOtherUsersProfile ||
+      isEditProfilePage ||
       isNotificationsPage ||
       isSettingsPage
     );
