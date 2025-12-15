@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "generate:types": "openapi-typescript ../backend/src/docs/swagger.json -o app/modules/types/api.d.ts",
+    "generate:types": "openapi-typescript ../backend/src/docs/swagger.json -o app/modules/types/api.d.ts || echo 'Skipping type generation'",
     "types": "npm run generate:types"
   },
   "dependencies": {

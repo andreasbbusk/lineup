@@ -90,7 +90,7 @@ function ProfileBody(props: ProfileBodyProps) {
 	const [showAllCollaborators, setShowAllCollaborators] = useState(false);
 
 	// Fetch notes by this user
-	const { data: postsData, isLoading: postsLoading } = usePostsByAuthor(
+	const { data: notesData, isLoading: notesLoading } = usePostsByAuthor(
 		props.userId || "",
 		{
 			type: "note",
@@ -99,6 +99,42 @@ function ProfileBody(props: ProfileBodyProps) {
 			includeMedia: true,
 		}
 	);
+
+	// Fetch requests by this user
+	const { data: requestsData, isLoading: requestsLoading } = usePostsByAuthor(
+		props.userId || "",
+		{
+			type: "request",
+			limit: 50,
+			includeEngagement: true,
+			includeMedia: true,
+		}
+	);
+
+	// Combine notes and requests, sorted by createdAt (newest first)
+	const postsData = (() => {
+		const notes = notesData?.data || [];
+		const requests = requestsData?.data || [];
+		
+		if (notes.length === 0 && requests.length === 0) {
+			return notesData || requestsData; // Return whichever exists (or undefined)
+		}
+		
+		const combined = [...notes, ...requests]
+			.sort((a, b) => 
+				new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+			);
+		
+		return {
+			data: combined,
+			pagination: {
+				hasMore: (notesData?.pagination?.hasMore || false) || (requestsData?.pagination?.hasMore || false),
+				nextCursor: notesData?.pagination?.nextCursor || requestsData?.pagination?.nextCursor,
+			},
+		};
+	})();
+
+	const postsLoading = notesLoading || requestsLoading;
 
 	const socialMediaIcons: Record<string, string> = {
 		instagram: "/icons/social-media/instagram.svg",
