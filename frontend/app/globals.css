@@ -3,344 +3,335 @@
 
 /* Helvetica Now Display Font Face Declarations */
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-Hairline.woff") format("woff");
-    font-weight: 100;
-    font-style: normal;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-Hairline.woff") format("woff");
+	font-weight: 100;
+	font-style: normal;
+	font-display: swap;
 }
 
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-HairlineI.woff") format("woff");
-    font-weight: 100;
-    font-style: italic;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-HairlineI.woff") format("woff");
+	font-weight: 100;
+	font-style: italic;
+	font-display: swap;
 }
 
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-Thin.woff") format("woff");
-    font-weight: 200;
-    font-style: normal;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-Thin.woff") format("woff");
+	font-weight: 200;
+	font-style: normal;
+	font-display: swap;
 }
 
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-ThinIta.woff") format("woff");
-    font-weight: 200;
-    font-style: italic;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-ThinIta.woff") format("woff");
+	font-weight: 200;
+	font-style: italic;
+	font-display: swap;
 }
 
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-ExtLt.woff") format("woff");
-    font-weight: 250;
-    font-style: normal;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-ExtLt.woff") format("woff");
+	font-weight: 250;
+	font-style: normal;
+	font-display: swap;
 }
 
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-ExtLtIta.woff") format("woff");
-    font-weight: 250;
-    font-style: italic;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-ExtLtIta.woff") format("woff");
+	font-weight: 250;
+	font-style: italic;
+	font-display: swap;
 }
 
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-Light.woff") format("woff");
-    font-weight: 300;
-    font-style: normal;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-Light.woff") format("woff");
+	font-weight: 300;
+	font-style: normal;
+	font-display: swap;
 }
 
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-LightIta.woff") format("woff");
-    font-weight: 300;
-    font-style: italic;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-LightIta.woff") format("woff");
+	font-weight: 300;
+	font-style: italic;
+	font-display: swap;
 }
 
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-Regular.woff") format("woff");
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-Regular.woff") format("woff");
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
 }
 
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-RegIta.woff") format("woff");
-    font-weight: 400;
-    font-style: italic;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-RegIta.woff") format("woff");
+	font-weight: 400;
+	font-style: italic;
+	font-display: swap;
 }
 
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-Medium.woff") format("woff");
-    font-weight: 500;
-    font-style: normal;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-Medium.woff") format("woff");
+	font-weight: 500;
+	font-style: normal;
+	font-display: swap;
 }
 
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-MedIta.woff") format("woff");
-    font-weight: 500;
-    font-style: italic;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-MedIta.woff") format("woff");
+	font-weight: 500;
+	font-style: italic;
+	font-display: swap;
 }
 
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-Bold.woff") format("woff");
-    font-weight: 600;
-    font-style: normal;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-Bold.woff") format("woff");
+	font-weight: 600;
+	font-style: normal;
+	font-display: swap;
 }
 
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-BoldIta.woff") format("woff");
-    font-weight: 600;
-    font-style: italic;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-BoldIta.woff") format("woff");
+	font-weight: 600;
+	font-style: italic;
+	font-display: swap;
 }
 
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-ExtraBold.woff") format("woff");
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-ExtraBold.woff") format("woff");
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
 }
 
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-ExtBdIta.woff") format("woff");
-    font-weight: 700;
-    font-style: italic;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-ExtBdIta.woff") format("woff");
+	font-weight: 700;
+	font-style: italic;
+	font-display: swap;
 }
 
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-Black.woff") format("woff");
-    font-weight: 800;
-    font-style: normal;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-Black.woff") format("woff");
+	font-weight: 800;
+	font-style: normal;
+	font-display: swap;
 }
 
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-BlackIta.woff") format("woff");
-    font-weight: 800;
-    font-style: italic;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-BlackIta.woff") format("woff");
+	font-weight: 800;
+	font-style: italic;
+	font-display: swap;
 }
 
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-ExtBlk.woff") format("woff");
-    font-weight: 900;
-    font-style: normal;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-ExtBlk.woff") format("woff");
+	font-weight: 900;
+	font-style: normal;
+	font-display: swap;
 }
 
 @font-face {
-    font-family: "Helvetica Now Display";
-    src: url("/fonts/HelveticaNowDisplay-ExtBlkIta.woff") format("woff");
-    font-weight: 900;
-    font-style: italic;
-    font-display: swap;
+	font-family: "Helvetica Now Display";
+	src: url("/fonts/HelveticaNowDisplay-ExtBlkIta.woff") format("woff");
+	font-weight: 900;
+	font-style: italic;
+	font-display: swap;
 }
 
 :root {
-    /* Approximate OKLCH equivalent of #F7F6F6 */
-    --background: oklch(97.39% 0.001 17.18);
-    --foreground: oklch(15.2% 0 0);
+	/* Approximate OKLCH equivalent of #F7F6F6 */
+	--background: oklch(97.39% 0.001 17.18);
+	--foreground: oklch(15.2% 0 0);
 
-    /* Typography System - Based on 16px base (1rem = 16px) */
-    --font-heading-1: 1.5rem;
-    --font-heading-2: 1.25rem;
-    --font-heading-3: 1.125rem;
-    --font-body: 1rem;
+	/* Typography System - Based on 16px base (1rem = 16px) */
+	--font-heading-1: 1.5rem;
+	--font-heading-2: 1.25rem;
+	--font-heading-3: 1.125rem;
+	--font-body: 1rem;
 
-    /* Color System - Primary */
-    --color-crocus-yellow: oklch(86.8% 0.12 85);
-    --color-blackberry-harvest: oklch(32.5% 0.045 310);
+	/* Color System - Primary */
+	--color-crocus-yellow: oklch(86.8% 0.12 85);
+	--color-blackberry-harvest: oklch(32.5% 0.045 310);
 
-    /* Color System - Neutral */
-    --color-black: oklch(15.2% 0 0);
-    --color-white: oklch(100% 0 0);
-    --color-light-grey: oklch(97.5% 0.002 0);
-    --color-grey: oklch(42% 0 0);
-    --color-melting-glacier: oklch(94.5% 0 0);
+	/* Color System - Neutral */
+	--color-black: oklch(15.2% 0 0);
+	--color-white: oklch(100% 0 0);
+	--color-light-grey: oklch(97.5% 0.002 0);
+	--color-grey: oklch(42% 0 0);
+	--color-melting-glacier: oklch(94.5% 0 0);
 
-    /* Color System - Secondary (Used in customization) */
-    --color-dark-grey-red: oklch(40% 0.012 15);
-    --color-dark-cyan-blue: oklch(0.4108 0.0213 229.56);
-    --color-dark-blue: oklch(32% 0.03 275);
-    --color-dark-pink-red: oklch(33% 0.028 15);
-    --color-dark-orange: oklch(37% 0.025 50);
+	/* Color System - Secondary (Used in customization) */
+	--color-dark-grey-red: oklch(40% 0.012 15);
+	--color-dark-cyan-blue: oklch(0.4108 0.0213 229.56);
+	--color-dark-blue: oklch(32% 0.03 275);
+	--color-dark-pink-red: oklch(33% 0.028 15);
+	--color-dark-orange: oklch(37% 0.025 50);
 
-    /* Color System - Accent (Used in utility purposes: success, error, attention) */
-    --color-maroon: oklch(30% 0.12 30);
-    --color-deep-aquamarine: oklch(52% 0.06 170);
+	/* Color System - Accent (Used in utility purposes: success, error, attention) */
+	--color-maroon: oklch(30% 0.12 30);
+	--color-deep-aquamarine: oklch(52% 0.06 170);
 
-    /* Transparency Scale - Can be applied to any color */
-    --opacity-100: 1;
-    --opacity-80: 0.8;
-    --opacity-64: 0.64;
-    --opacity-56: 0.56;
-    --opacity-40: 0.4;
-    --opacity-24: 0.24;
-    --opacity-16: 0.16;
-    --opacity-8: 0.08;
-    --opacity-4: 0.04;
+	/* Transparency Scale - Can be applied to any color */
+	--opacity-100: 1;
+	--opacity-80: 0.8;
+	--opacity-64: 0.64;
+	--opacity-56: 0.56;
+	--opacity-40: 0.4;
+	--opacity-24: 0.24;
+	--opacity-16: 0.16;
+	--opacity-8: 0.08;
+	--opacity-4: 0.04;
 }
 
 @theme {
-    /* Custom Breakpoints */
-    --breakpoint-xs: 375px;
+	/* Font Family */
+	--font-family-helvetica: "Helvetica Now Display", system-ui, -apple-system,
+		sans-serif;
+	/* Font Family */
+	--font-family-helvetica: "Helvetica Now Display", system-ui, -apple-system,
+		sans-serif;
 
-    /* Font Family */
-    --font-family-helvetica: "Helvetica Now Display", system-ui, -apple-system,
-        sans-serif;
-    /* Font Family */
-    --font-family-helvetica: "Helvetica Now Display", system-ui, -apple-system,
-        sans-serif;
+	/* Font Sizes */
+	--font-size-h1: 1.5rem;
+	--font-size-h2: 1.25rem;
+	--font-size-h3: 1.125rem;
+	--font-size-body: 1rem;
 
-    /* Font Sizes */
-    --font-size-h1: 1.5rem;
-    --font-size-h2: 1.25rem;
-    --font-size-h3: 1.125rem;
-    --font-size-body: 1rem;
+	/* Base Colors */
+	--color-background: oklch(97.39% 0.001 17.18);
+	--color-foreground: oklch(15.2% 0 0);
 
-    /* Base Colors */
-    --color-background: oklch(97.39% 0.001 17.18);
-    --color-foreground: oklch(15.2% 0 0);
+	/* Primary Colors */
+	--color-crocus-yellow: oklch(0.8776 0.1255 82.88);
+	--color-blackberry-harvest: oklch(32.5% 0.045 310);
 
-    /* Primary Colors */
-    --color-crocus-yellow: oklch(0.8776 0.1255 82.88);
-    --color-blackberry-harvest: oklch(32.5% 0.045 310);
+	/* Neutral Colors */
+	--color-black: oklch(15.2% 0 0);
+	--color-white: oklch(100% 0 0);
+	--color-light-grey: oklch(97.5% 0.002 0);
+	--color-grey: oklch(42% 0 0);
+	--color-melting-glacier: oklch(94.5% 0 0);
 
-    /* Neutral Colors */
-    --color-black: oklch(15.2% 0 0);
-    --color-white: oklch(100% 0 0);
-    --color-light-grey: oklch(97.5% 0.002 0);
-    --color-grey: oklch(42% 0 0);
-    --color-melting-glacier: oklch(94.5% 0 0);
+	/* Secondary Colors */
+	--color-dark-grey-red: oklch(40% 0.012 15);
+	--color-dark-cyan-blue: oklch(35% 0.02 235);
+	--color-dark-blue: oklch(32% 0.03 275);
+	--color-dark-pink-red: oklch(33% 0.028 15);
+	--color-dark-orange: oklch(37% 0.025 50);
 
-    /* Secondary Colors */
-    --color-dark-grey-red: oklch(40% 0.012 15);
-    --color-dark-cyan-blue: oklch(35% 0.02 235);
-    --color-dark-blue: oklch(32% 0.03 275);
-    --color-dark-pink-red: oklch(33% 0.028 15);
-    --color-dark-orange: oklch(37% 0.025 50);
+	/* Accent Colors */
+	--color-maroon: oklch(30% 0.12 30);
+	--color-deep-aquamarine: oklch(52% 0.06 170);
 
-    /* Accent Colors */
-    --color-maroon: oklch(30% 0.12 30);
-    --color-deep-aquamarine: oklch(52% 0.06 170);
+	/* Utility Colors */
+	--color-input-placeholder: oklch(40% 0 0); /* #555555 equivalent */
+	--color-text-secondary: oklch(20% 0 0); /* #1e1e1e equivalent */
+	--color-text-muted: oklch(30% 0 0); /* #404040 equivalent */
+	--color-link-blue: oklch(50% 0.15 250); /* #007aff equivalent */
 
-    /* Utility Colors */
-    --color-input-placeholder: oklch(40% 0 0);
-    /* #555555 equivalent */
-    --color-text-secondary: oklch(20% 0 0);
-    /* #1e1e1e equivalent */
-    --color-text-muted: oklch(30% 0 0);
-    /* #404040 equivalent */
-    --color-link-blue: oklch(50% 0.15 250);
-    /* #007aff equivalent */
-
-    /* Opacity Scale */
-    --opacity-100: 1;
-    --opacity-80: 0.8;
-    --opacity-64: 0.64;
-    --opacity-56: 0.56;
-    --opacity-40: 0.4;
-    --opacity-24: 0.24;
-    --opacity-16: 0.16;
-    --opacity-8: 0.08;
-    --opacity-4: 0.04;
+	/* Opacity Scale */
+	--opacity-100: 1;
+	--opacity-80: 0.8;
+	--opacity-64: 0.64;
+	--opacity-56: 0.56;
+	--opacity-40: 0.4;
+	--opacity-24: 0.24;
+	--opacity-16: 0.16;
+	--opacity-8: 0.08;
+	--opacity-4: 0.04;
 }
 
 * {
     font-family: var(--font-family-helvetica);
     overscroll-behavior-y: none;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
 }
 
 body {
-    background-color: var(--background);
-    font-weight: 400;
-    font-size: var(--font-body);
+	background-color: var(--background);
+	font-weight: 400;
+	font-size: var(--font-body);
 }
 
 /* Typography Utility Classes */
 h1,
 .heading-1 {
-    font-size: var(--font-heading-1);
-    font-weight: 600;
+	font-size: var(--font-heading-1);
+	font-weight: 600;
 }
 
 h2,
 .heading-2 {
-    font-size: var(--font-heading-2);
-    font-weight: 600;
+	font-size: var(--font-heading-2);
+	font-weight: 600;
 }
 
 h3,
 .heading-3 {
-    font-size: var(--font-heading-3);
-    font-weight: 600;
+	font-size: var(--font-heading-3);
+	font-weight: 600;
 }
 
 .body-semibold {
-    font-size: var(--font-body);
-    font-weight: 600;
+	font-size: var(--font-body);
+	font-weight: 600;
 }
 
 .body-regular {
-    font-size: var(--font-body);
-    font-weight: 400;
+	font-size: var(--font-body);
+	font-weight: 400;
 }
 
 .no-scrollbar::-webkit-scrollbar {
-    display: none;
+	display: none;
 }
 
 .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
+	width: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
+	background: transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+	background: rgba(255, 255, 255, 0.3);
 }
 
 .custom-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }

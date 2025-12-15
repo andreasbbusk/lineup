@@ -32,8 +32,8 @@ export function mapProfileToAPI(
   if (includePrivateFields) {
     return {
       ...baseProfile,
-      phoneCountryCode: profile.phone_country_code ?? undefined,
-      phoneNumber: profile.phone_number ?? undefined,
+      phoneCountryCode: profile.phone_country_code,
+      phoneNumber: profile.phone_number,
       yearOfBirth: profile.year_of_birth,
     };
   }

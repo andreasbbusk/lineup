@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm run generate:types && next dev",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -13,7 +13,6 @@
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-popover": "^1.1.15",
-    "@radix-ui/react-toggle": "^1.1.10",
     "@supabase/supabase-js": "^2.86.0",
     "@tanstack/react-query": "^5.90.10",
     "@tanstack/react-query-devtools": "^5.91.1",

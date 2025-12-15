@@ -1,29 +1,28 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronLeft, Search, Bell, Menu } from "lucide-react";
-import { useUnreadCount } from "@/app/modules/features/notifications";
 
-export default function Header() {
+interface HeaderProps {
+  variant?: "home" | "default";
+}
+
+/**
+ * Header component with two design variants:
+ * - "home": For the home/feed page
+ * - "default": For all other pages
+ */
+export default function Header({ variant = "default" }: HeaderProps) {
   const pathname = usePathname();
 
-  // Hide header on specific pages
-  if (
-    pathname === "/login" ||
-    pathname?.startsWith("/onboarding") ||
-    pathname === "/search" ||
-    pathname?.startsWith("/chats") ||
-    pathname === "/notifications" ||
-    pathname === "/settings"
-  ) {
+  // Don't render on messenger/chats routes
+  if (pathname?.startsWith("/chats")) {
     return null;
   }
 
-  const isHomePage = pathname === "/";
-
-  if (isHomePage) {
+  if (variant === "home") {
     return <HomeHeader />;
   }
 
@@ -31,66 +30,12 @@ export default function Header() {
 }
 
 /**
- * Notification button with badge
- */
-function NotificationButton() {
-  const { data: unreadCount } = useUnreadCount();
-
-  return (
-    <Link
-      href="/notifications"
-      className="relative flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
-      aria-label="Notifications"
-    >
-      <Bell size={24} />
-      {/* Notification badge - show when there are unread notifications */}
-      {unreadCount && unreadCount > 0 && (
-        <span className="absolute right-0 top-0 h-3 w-3 rounded-full bg-crocus-yellow" />
-      )}
-    </Link>
-  );
-}
-
-/**
- * Header icon button component
- */
-function HeaderIconButton({
-  icon: Icon,
-  ariaLabel,
-  onClick,
-  href,
-}: {
-  icon: React.ComponentType<{ size?: number }>;
-  ariaLabel: string;
-  onClick?: () => void;
-  href?: string;
-}) {
-  const className =
-    "flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity";
-
-  if (href) {
-    return (
-      <Link href={href} className={className} aria-label={ariaLabel}>
-        <Icon size={24} />
-      </Link>
-    );
-  }
-
-  return (
-    <button onClick={onClick} className={className} aria-label={ariaLabel}>
-      <Icon size={24} />
-    </button>
-  );
-}
-
-/**
  * Header variant for home/feed page
  */
 function HomeHeader() {
   return (
-    <header className="sticky top-0 z-40 w-full bg-background">
+    <header className="sticky top-0 z-40 w-full border-b border-light-grey bg-white">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
-        {/* Left side */}
         <div className="flex items-center">
           <Image
             src="/logos/big_logos/headerLogo.svg"
@@ -102,9 +47,30 @@ function HomeHeader() {
         </div>
 
         <div className="flex items-center gap-4">
-          <HeaderIconButton icon={Search} ariaLabel="Search" href="/search" />
-          <NotificationButton />
-          <HeaderIconButton icon={Menu} ariaLabel="Menu" href="/settings" />
+          <Link
+            href="/search"
+            className="flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
+            aria-label="Search"
+          >
+            <Search size={24} />
+          </Link>
+          <button
+            className="relative flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
+            aria-label="Notifications"
+          >
+            <Bell size={24} />
+            {/* Notification badge - only show when there are notifications */}
+            {/* TODO: Replace false with actual notification count check when implemented */}
+            {false && (
+              <span className="absolute right-0 top-0 h-3 w-3 rounded-full bg-crocus-yellow" />
+            )}
+          </button>
+          <button
+            className="flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
+            aria-label="Menu"
+          >
+            <Menu size={24} />
+          </button>
         </div>
       </div>
     </header>
@@ -125,17 +91,40 @@ function DefaultHeader() {
     <header className="sticky top-0 z-40 w-full border-b border-light-grey bg-white">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
         <div className="flex items-center">
-          <HeaderIconButton
-            icon={ChevronLeft}
-            ariaLabel="Go back"
+          <button
             onClick={handleBack}
-          />
+            className="flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
+            aria-label="Go back"
+          >
+            <ChevronLeft size={24} />
+          </button>
         </div>
         <div className="flex-1" />
         <div className="flex items-center gap-4">
-          <HeaderIconButton icon={Search} ariaLabel="Search" href="/search" />
-          <NotificationButton />
-          <HeaderIconButton icon={Menu} ariaLabel="Menu" href="/settings" />
+          <Link
+            href="/search"
+            className="flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
+            aria-label="Search"
+          >
+            <Search size={24} />
+          </Link>
+          <button
+            className="relative flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
+            aria-label="Notifications"
+          >
+            <Bell size={24} />
+            {/* Notification badge - only show when there are notifications */}
+            {/* TODO: Replace false with actual notification count check when implemented */}
+            {false && (
+              <span className="absolute right-0 top-0 h-3 w-3 rounded-full bg-crocus-yellow" />
+            )}
+          </button>
+          <button
+            className="flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
+            aria-label="Menu"
+          >
+            <Menu size={24} />
+          </button>
         </div>
       </div>
     </header>

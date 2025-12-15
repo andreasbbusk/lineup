@@ -5,8 +5,8 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { Button } from "@/app/modules/components/buttons";
 import { Popover } from "@/app/modules/components/popover";
+import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
 import { ConnectionButton } from "./connections/ConnectionButton";
-import { Avatar, getInitials } from "@/app/modules/components/avatar";
 
 // Lazy load ConnectionsModal to reduce initial bundle size
 const ConnectionsModal = dynamic(
@@ -15,6 +15,13 @@ const ConnectionsModal = dynamic(
 			default: mod.ConnectionsModal,
 		})),
 	{
+		loading: () => (
+			<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+				<div className="flex items-center justify-center">
+					<LoadingSpinner size={40} />
+				</div>
+			</div>
+		),
 		ssr: false,
 	}
 );
@@ -59,7 +66,6 @@ type ProfileHeaderProps = {
 	onClickMessage?: () => void;
 	/** Is the profile the current user's profile */
 	isOwnProfile?: boolean;
-	className?: string;
 };
 
 function ProfileHeader(props: ProfileHeaderProps) {
@@ -71,7 +77,9 @@ function ProfileHeader(props: ProfileHeaderProps) {
 
 	return (
 		<div
-			className={`text-white flex max-w-93.25 w-full py-6.25 flex-col justify-center items-center gap-3.75 rounded-[2.8125rem] bg-(--profile-theme) ${props.className}`}
+			className={
+				"relative text-white flex w-93.25 py-6.25 flex-col justify-center items-center gap-3.75 rounded-[2.8125rem] bg-(--profile-theme)"
+			}
 			style={{ "--profile-theme": `${props.theme}` } as CSSProperties}>
 			<span
 				onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -139,12 +147,12 @@ function ProfileHeader(props: ProfileHeaderProps) {
 					</div>
 					<p>Connections</p>
 				</button>
-				<Avatar
+				<Image
 					src={props.imgSrc}
 					alt={`${props.username}'s avatar`}
-					size="xxl"
-					className="border border-white rounded-full"
-					fallback={getInitials(props.firstName, props.lastName)}
+					width={146}
+					height={146}
+					className="w-[9.11988rem] h-[9.11988rem] rounded-full border border-white object-cover "
 				/>
 				<div className="flex flex-col items-center flex-[1_0_0]">
 					<p>{props.posts ?? props.notes ?? 0}</p>
@@ -199,14 +207,12 @@ function ProfileHeader(props: ProfileHeaderProps) {
 					</>
 				)}
 			</div>
-			{isConnectionsModalOpen && (
-				<ConnectionsModal
-					isOpen={isConnectionsModalOpen}
-					onClose={() => setIsConnectionsModalOpen(false)}
-					userId={props.userId || null}
-					username={props.username}
-				/>
-			)}
+			<ConnectionsModal
+				isOpen={isConnectionsModalOpen}
+				onClose={() => setIsConnectionsModalOpen(false)}
+				userId={props.userId || null}
+				username={props.username}
+			/>
 		</div>
 	);
 }

@@ -5,7 +5,6 @@ import { CommentResponse } from "../../types/api.types.js";
  * Supabase comment response with nested author relation
  */
 type SupabaseCommentWithRelations = CommentRow & {
-  parent_id?: string | null;
   author?: {
     id: string;
     username: string;
@@ -29,7 +28,6 @@ export function mapCommentToResponse(
     content: comment.content,
     createdAt: comment.created_at,
     updatedAt: comment.updated_at,
-    parentId: comment.parent_id ?? null,
     author: comment.author
       ? {
           id: comment.author.id,

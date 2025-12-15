@@ -12,8 +12,6 @@ import { CommentResponse } from "../../types/api.types.js";
 import { CreateCommentDto, UpdateCommentDto } from "./comments.dto.js";
 
 export class CommentsService {
-  private readonly MAX_COMMENT_DEPTH = 3;
-
   /**
    * Get all comments for a post
    * Returns comments with author profile information
@@ -44,52 +42,7 @@ export class CommentsService {
       });
     }
 
-    // Map comments and organize them hierarchically
-    const allComments = mapCommentsToResponse(comments || []);
-    
-    // Build comment tree: separate top-level comments and replies
-    const commentMap = new Map<string, CommentResponse>();
-    const topLevelComments: CommentResponse[] = [];
-
-    // First pass: create map and identify top-level comments
-    for (const comment of allComments) {
-      commentMap.set(comment.id, { ...comment, replies: [] });
-      // Check if parent_id exists (it will be in the raw data)
-      const rawComment = comments?.find((c: any) => c.id === comment.id);
-      if (!rawComment?.parent_id) {
-        topLevelComments.push(commentMap.get(comment.id)!);
-      }
-    }
-
-    // Second pass: attach replies to their parents (sort by created_at)
-    for (const comment of allComments) {
-      const rawComment = comments?.find((c: any) => c.id === comment.id);
-      if (rawComment?.parent_id) {
-        const parent = commentMap.get(rawComment.parent_id);
-        if (parent) {
-          if (!parent.replies) {
-            parent.replies = [];
-          }
-          parent.replies.push(commentMap.get(comment.id)!);
-        }
-      }
-    }
-
-    // Sort replies by created_at within each parent
-    const sortReplies = (comment: CommentResponse) => {
-      if (comment.replies && comment.replies.length > 0) {
-        comment.replies.sort((a, b) => {
-          const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-          const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-          return aTime - bTime;
-        });
-        comment.replies.forEach(sortReplies);
-      }
-    };
-
-    topLevelComments.forEach(sortReplies);
-
-    return topLevelComments;
+    return mapCommentsToResponse(comments || []);
   }
 
   /**
@@ -152,68 +105,11 @@ export class CommentsService {
       });
     }
 
-    // If parentId is provided, verify the parent comment exists and belongs to the same post
-    if (data.parentId) {
-      const { data: parentComment, error: parentError } = await authedSupabase
-        .from("comments")
-        .select("id, post_id")
-        .eq("id", data.parentId)
-        .single();
-
-      if (parentError || !parentComment) {
-        throw createHttpError({
-          message: "Parent comment not found",
-          statusCode: 404,
-          code: "NOT_FOUND",
-        });
-      }
-
-      if (parentComment.post_id !== data.postId) {
-        throw createHttpError({
-          message: "Parent comment does not belong to the same post",
-          statusCode: 400,
-          code: "VALIDATION_ERROR",
-        });
-      }
-
-      // Validate comment depth - traverse up the parent chain to calculate depth
-      let currentParentId = data.parentId;
-      let depth = 1; // Start at depth 1 (the parent we're replying to)
-      
-      while (currentParentId && depth < this.MAX_COMMENT_DEPTH) {
-        const { data: parent, error: parentDepthError } = await authedSupabase
-          .from("comments")
-          .select("parent_id")
-          .eq("id", currentParentId)
-          .single();
-
-        if (parentDepthError || !parent) {
-          break; // Stop if we can't find parent (shouldn't happen, but safe)
-        }
-
-        if (!parent.parent_id) {
-          break; // Reached top-level comment
-        }
-
-        currentParentId = parent.parent_id;
-        depth++;
-      }
-
-      if (depth >= this.MAX_COMMENT_DEPTH) {
-        throw createHttpError({
-          message: `Maximum comment depth of ${this.MAX_COMMENT_DEPTH} exceeded`,
-          statusCode: 400,
-          code: "VALIDATION_ERROR",
-        });
-      }
-    }
-
     // Create the comment
-    const commentInsert: CommentInsert & { parent_id?: string | null } = {
+    const commentInsert: CommentInsert = {
       post_id: data.postId,
       author_id: userId,
       content: data.content.trim(),
-      parent_id: data.parentId || null,
     };
 
     const { data: comment, error } = await authedSupabase

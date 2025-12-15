@@ -65,8 +65,6 @@ const iconPaths: Record<string, string> = {
 	"arrow-right": "/icons/arrow-right.svg",
 	"arrow-left": "/icons/arrow-left.svg",
 	send: "/icons/send-diagonal.svg",
-	"add-user": "/icons/add-user.svg",
-	close: "/icons/close.svg",
 };
 
 const Button = (props: buttonProps) => {

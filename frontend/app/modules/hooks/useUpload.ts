@@ -179,20 +179,10 @@ export function useUpload() {
       const bucket = filePath.split("/")[0];
       const pathInBucket = filePath.split("/").slice(1).join("/");
 
-      console.log("Constructing public URL:", { bucket, pathInBucket, filePath });
-
       // Get public URL from Supabase
       const {
         data: { publicUrl },
       } = supabase.storage.from(bucket).getPublicUrl(pathInBucket);
-
-      console.log("Generated public URL:", publicUrl);
-      
-      // Verify URL format is correct
-      if (!publicUrl || !publicUrl.includes("storage/v1/object/public")) {
-        console.error("Invalid public URL format:", publicUrl);
-        throw new Error("Failed to generate valid public URL");
-      }
 
       // Step 4: Clean up blob URL
       URL.revokeObjectURL(media.url);

@@ -1,61 +1,44 @@
-"use client";
+import Link from "next/link";
 
-import { keepPreviousData } from "@tanstack/react-query";
-import { usePosts } from "@/app/modules/hooks/queries";
-import { PostCard } from "@/app/modules/features/posts/components/post-card";
-import { RequestCarousel } from "@/app/modules/features/posts/components/request-carousel";
-import { StoriesCarousel } from "@/app/modules/features/posts/components/stories-carousel";
+const LINKS = [
+  { href: "/login", label: "Log in" },
+  { href: "/signup", label: "Sign up" },
+  { href: "/onboarding", label: "Onboarding" },
+  { href: "/feed", label: "Feed" },
+  { href: "/search", label: "Search" },
+  { href: "/create", label: "Create post" },
+  { href: "/messages", label: "Messages" },
+  { href: "/profile", label: "Profile" },
+];
 
-export default function FeedPage() {
-	const { data, error, isPending } = usePosts(
-		{
-			limit: 20,
-			type: "note",
-		},
-		{
-			placeholderData: keepPreviousData, // Keep previous data while refetching
-		}
-	);
+export default function Home() {
+  return (
+    <main className="min-h-screen bg-background px-6 py-16">
+      <div className="mx-auto max-w-3xl space-y-8">
+        <header className="space-y-2">
+          <h1 className="text-h1 font-semibold">LineUp</h1>
+          <p className="text-body text-grey">
+            Quick navigation to the key routes.
+          </p>
+        </header>
 
-	if (error) {
-		return (
-			<main className="space-y-4">
-				<h1 className="text-h1 font-bold">Feed</h1>
-				<p className="text-body text-red-500">
-					Error loading posts: {error.message}
-				</p>
-			</main>
-		);
-	}
-
-	const posts = data?.data || [];
-
-	return (
-		<main className="max-w-dvw h-[calc(100dvh-4rem)] mx-auto">
-			<StoriesCarousel />
-			<RequestCarousel />
-
-			{posts.length > 0 ? (
-				<div className="flex flex-col items-center pb-35">
-					{posts.map((post) => (
-						<PostCard key={post.id} post={post} />
-					))}
-					{data?.pagination.hasMore && (
-						<div className="text-center">
-							<p className="text-sm text-gray-500">Loading notes...</p>
-						</div>
-					)}
-				</div>
-			) : (
-				!isPending && (
-					<div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-						<p className="text-gray-500">No notes yet.</p>
-						<p className="mt-2 text-sm text-gray-400">
-							Be the first to create a notes!
-						</p>
-					</div>
-				)
-			)}
-		</main>
-	);
+        <section className="rounded-2xl border border-light-grey bg-white p-4">
+          <h2 className="text-h3 font-semibold">Navigation</h2>
+          <div className="mt-4 grid gap-2">
+            {LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="flex items-center justify-between rounded-xl border border-light-grey px-4 py-3 text-sm font-medium text-foreground transition hover:bg-light-grey/50"
+              >
+                <span>{link.label}</span>
+                <span className="text-grey">{link.href}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      </div>
+    </main>
+  );
 }
+

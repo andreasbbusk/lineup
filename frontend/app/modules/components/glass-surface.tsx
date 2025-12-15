@@ -5,7 +5,6 @@ import React, {
   useId,
   useCallback,
   startTransition,
-  memo,
 } from "react";
 
 export interface GlassSurfaceProps {
@@ -56,7 +55,6 @@ export interface GlassSurfaceProps {
   style?: React.CSSProperties;
 }
 
-// Optimized dark mode hook with lazy initialization
 const useDarkMode = () => {
   const [isDark, setIsDark] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -67,13 +65,7 @@ const useDarkMode = () => {
     if (typeof window === "undefined") return;
 
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handler = (e: MediaQueryListEvent) => {
-      // Use startTransition to make theme changes non-blocking
-      startTransition(() => {
-        setIsDark(e.matches);
-      });
-    };
-
+    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
     mediaQuery.addEventListener("change", handler);
     return () => mediaQuery.removeEventListener("change", handler);
   }, []);
@@ -81,7 +73,7 @@ const useDarkMode = () => {
   return isDark;
 };
 
-const GlassSurfaceComponent: React.FC<GlassSurfaceProps> = ({
+const GlassSurface: React.FC<GlassSurfaceProps> = ({
   children,
   width = 200,
   height = 80,
@@ -237,19 +229,13 @@ const GlassSurfaceComponent: React.FC<GlassSurfaceProps> = ({
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Debounce resize updates to prevent performance issues
-    let timeoutId: NodeJS.Timeout;
     const resizeObserver = new ResizeObserver(() => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        updateDisplacementMap();
-      }, 100); // 100ms debounce
+      setTimeout(updateDisplacementMap, 0);
     });
 
     resizeObserver.observe(containerRef.current);
 
     return () => {
-      clearTimeout(timeoutId);
       resizeObserver.disconnect();
     };
   }, [updateDisplacementMap]);
@@ -482,9 +468,5 @@ const GlassSurfaceComponent: React.FC<GlassSurfaceProps> = ({
     </div>
   );
 };
-
-// Memoize the component to prevent unnecessary re-renders
-// Only re-render if props actually change
-const GlassSurface = memo(GlassSurfaceComponent);
 
 export default GlassSurface;

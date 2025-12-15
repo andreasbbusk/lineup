@@ -474,96 +474,6 @@
 					"uploadType": "post"
 				}
 			},
-			"ServiceResponse": {
-				"description": "API response format for a service\nRepresents a service offering (seeded data - no creation endpoint).\nServices can be: rehearsal_space, studio, recording, art, venue, teaching, or equipment_rental.\nprovider_id is practically always null since there are no provider users.",
-				"properties": {
-					"id": {
-						"type": "string"
-					},
-					"providerId": {
-						"type": "string",
-						"nullable": true
-					},
-					"providerName": {
-						"type": "string",
-						"nullable": true
-					},
-					"title": {
-						"type": "string"
-					},
-					"description": {
-						"type": "string"
-					},
-					"mediaUrl": {
-						"type": "string",
-						"nullable": true
-					},
-					"location": {
-						"type": "string",
-						"nullable": true
-					},
-					"serviceType": {
-						"type": "string",
-						"enum": [
-							"rehearsal_space",
-							"studio",
-							"recording",
-							"art",
-							"venue",
-							"teaching",
-							"equipment_rental",
-							null
-						],
-						"nullable": true
-					},
-					"createdAt": {
-						"type": "string",
-						"nullable": true
-					},
-					"updatedAt": {
-						"type": "string",
-						"nullable": true
-					}
-				},
-				"required": [
-					"id",
-					"providerId",
-					"providerName",
-					"title",
-					"description",
-					"mediaUrl",
-					"location",
-					"serviceType",
-					"createdAt",
-					"updatedAt"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"id": "4f99a480-d388-47c2-86f5-efa0b8b164a0",
-					"providerId": null,
-					"providerName": "Lighthouse Music",
-					"title": "Acoustic Band Room",
-					"description": "Bright room with natural light suitable for rehearsals.",
-					"mediaUrl": "https://example.com/media/acoustic-band-room.jpg",
-					"location": "Roskilde, DK",
-					"serviceType": "rehearsal_space",
-					"createdAt": "2025-12-10T16:13:01.154276Z",
-					"updatedAt": "2025-12-10T16:13:01.154276Z"
-				}
-			},
-			"ServiceType": {
-				"type": "string",
-				"enum": [
-					"rehearsal_space",
-					"studio",
-					"recording",
-					"art",
-					"venue",
-					"teaching",
-					"equipment_rental"
-				]
-			},
 			"UserSearchResult": {
 				"description": "Search result for a user (from search_people)",
 				"properties": {
@@ -670,9 +580,6 @@
 					"authorUsername": {
 						"type": "string"
 					},
-					"authorFirstName": {
-						"type": "string"
-					},
 					"authorAvatarUrl": {
 						"type": "string",
 						"nullable": true
@@ -700,7 +607,6 @@
 					"description",
 					"authorId",
 					"authorUsername",
-					"authorFirstName",
 					"paidOpportunity",
 					"createdAt",
 					"relevance"
@@ -748,29 +654,6 @@
 						"type": "string",
 						"nullable": true
 					},
-					"providerId": {
-						"type": "string",
-						"nullable": true
-					},
-					"providerName": {
-						"type": "string",
-						"nullable": true
-					},
-					"providerUsername": {
-						"type": "string",
-						"nullable": true
-					},
-					"providerAvatarUrl": {
-						"type": "string",
-						"nullable": true
-					},
-					"location": {
-						"type": "string",
-						"nullable": true
-					},
-					"createdAt": {
-						"type": "string"
-					},
 					"relevance": {
 						"type": "number",
 						"format": "double"
@@ -782,12 +665,6 @@
 					"title",
 					"description",
 					"serviceType",
-					"providerId",
-					"providerName",
-					"providerUsername",
-					"providerAvatarUrl",
-					"location",
-					"createdAt",
 					"relevance"
 				],
 				"type": "object",
@@ -1433,12 +1310,6 @@
 					"paid_opportunity": {
 						"type": "boolean"
 					},
-					"resolved_at": {
-						"type": "string"
-					},
-					"status": {
-						"type": "string"
-					},
 					"title": {
 						"type": "string"
 					},
@@ -1478,12 +1349,6 @@
 					},
 					"paid_opportunity": {
 						"type": "boolean"
-					},
-					"resolved_at": {
-						"type": "string"
-					},
-					"status": {
-						"type": "string"
 					},
 					"title": {
 						"type": "string",
@@ -1636,16 +1501,6 @@
 					"updatedAt": {
 						"type": "string",
 						"nullable": true
-					},
-					"parentId": {
-						"type": "string",
-						"nullable": true
-					},
-					"replies": {
-						"items": {
-							"$ref": "#/components/schemas/CommentResponse"
-						},
-						"type": "array"
 					},
 					"author": {
 						"properties": {
@@ -2717,45 +2572,43 @@
 					"status": "accepted"
 				}
 			},
-			"Pick_CommentInsert.Exclude_keyofCommentInsert.author_id-or-created_at-or-updated_at-or-id-or-post_id-or-parent_id__": {
+			"Pick_CommentInsert.Exclude_keyofCommentInsert.author_id-or-created_at-or-updated_at-or-id__": {
 				"properties": {
+					"post_id": {
+						"type": "string"
+					},
 					"content": {
 						"type": "string"
 					}
 				},
 				"required": [
+					"post_id",
 					"content"
 				],
 				"type": "object",
 				"description": "From T, pick a set of properties whose keys are in the union K"
 			},
-			"Omit_CommentInsert.author_id-or-created_at-or-updated_at-or-id-or-post_id-or-parent_id_": {
-				"$ref": "#/components/schemas/Pick_CommentInsert.Exclude_keyofCommentInsert.author_id-or-created_at-or-updated_at-or-id-or-post_id-or-parent_id__",
-				"description": "Construct a type with the properties of T except for those in type K."
-			},
 			"CreateCommentDto": {
 				"description": "DTO for creating a comment\n\nUsed when creating a comment on a post. The author_id is automatically\nextracted from the authentication token.",
 				"properties": {
-					"postId": {
-						"type": "string",
-						"description": "The ID of the post to comment on (UUID format)",
-						"example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+					"post_id": {
+						"type": "string"
 					},
 					"content": {
 						"type": "string",
 						"description": "The comment content (1-1000 characters)",
 						"example": "Great post! Looking forward to collaborating."
 					},
-					"parentId": {
+					"postId": {
 						"type": "string",
-						"nullable": true,
-						"description": "Optional parent comment ID for nested replies (UUID format)\nIf provided, this comment will be a reply to the parent comment",
+						"description": "The ID of the post to comment on (UUID format)",
 						"example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
 					}
 				},
 				"required": [
-					"postId",
-					"content"
+					"post_id",
+					"content",
+					"postId"
 				],
 				"type": "object",
 				"additionalProperties": false,
@@ -3499,70 +3352,6 @@
 				]
 			}
 		},
-		"/services": {
-			"get": {
-				"operationId": "GetServices",
-				"responses": {
-					"200": {
-						"description": "Array of services",
-						"content": {
-							"application/json": {
-								"schema": {
-									"properties": {
-										"data": {
-											"items": {
-												"$ref": "#/components/schemas/ServiceResponse"
-											},
-											"type": "array"
-										}
-									},
-									"required": [
-										"data"
-									],
-									"type": "object"
-								}
-							}
-						}
-					}
-				},
-				"description": "List services with optional filters\n\nReturns a list of services with optional filtering by service type and location.\nServices are public and can be viewed without authentication.\nServices are seeded data - there is no creation endpoint.",
-				"summary": "List services",
-				"tags": [
-					"Services"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"description": "Filter by service type",
-						"in": "query",
-						"name": "serviceType",
-						"required": false,
-						"schema": {
-							"$ref": "#/components/schemas/ServiceType"
-						}
-					},
-					{
-						"description": "Filter by location (case-insensitive partial match)",
-						"in": "query",
-						"name": "location",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "Maximum number of services to return (default: 100)",
-						"in": "query",
-						"name": "limit",
-						"required": false,
-						"schema": {
-							"format": "double",
-							"type": "number"
-						}
-					}
-				]
-			}
-		},
 		"/search": {
 			"get": {
 				"operationId": "Search",
@@ -3700,7 +3489,7 @@
 				],
 				"security": [
 					{
-						"bearerAuth": []
+						"jwt": []
 					}
 				],
 				"parameters": [
@@ -3730,7 +3519,7 @@
 				],
 				"security": [
 					{
-						"bearerAuth": []
+						"jwt": []
 					}
 				],
 				"parameters": [],
@@ -3748,27 +3537,6 @@
 				}
 			}
 		},
-		"/search/recent/clear": {
-			"delete": {
-				"operationId": "ClearAllRecentSearches",
-				"responses": {
-					"204": {
-						"description": "No content"
-					}
-				},
-				"description": "Clear all recent searches\n\nRemoves all search entries from the user's recent search history.",
-				"summary": "Clear all recent searches",
-				"tags": [
-					"Search"
-				],
-				"security": [
-					{
-						"bearerAuth": []
-					}
-				],
-				"parameters": []
-			}
-		},
 		"/search/recent/{id}": {
 			"delete": {
 				"operationId": "DeleteRecentSearch",
@@ -3784,7 +3552,7 @@
 				],
 				"security": [
 					{
-						"bearerAuth": []
+						"jwt": []
 					}
 				],
 				"parameters": [
@@ -3798,6 +3566,27 @@
 						}
 					}
 				]
+			}
+		},
+		"/search/recent/clear": {
+			"delete": {
+				"operationId": "ClearAllRecentSearches",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Clear all recent searches\n\nRemoves all search entries from the user's recent search history.",
+				"summary": "Clear all recent searches",
+				"tags": [
+					"Search"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
 			}
 		},
 		"/users/{username}/reviews": {
@@ -4285,66 +4074,6 @@
 				]
 			}
 		},
-		"/posts/{id}/like": {
-			"post": {
-				"operationId": "LikePost",
-				"responses": {
-					"204": {
-						"description": "No content"
-					}
-				},
-				"description": "Like a post\n\nAdds a like from the authenticated user to the specified post.\nIf the post is already liked by the user, this is a no-op.",
-				"summary": "Like a post",
-				"tags": [
-					"Posts"
-				],
-				"security": [
-					{
-						"bearerAuth": []
-					}
-				],
-				"parameters": [
-					{
-						"description": "The UUID of the post to like",
-						"in": "path",
-						"name": "id",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			},
-			"delete": {
-				"operationId": "UnlikePost",
-				"responses": {
-					"204": {
-						"description": "No content"
-					}
-				},
-				"description": "Unlike a post\n\nRemoves the like from the authenticated user for the specified post.",
-				"summary": "Unlike a post",
-				"tags": [
-					"Posts"
-				],
-				"security": [
-					{
-						"bearerAuth": []
-					}
-				],
-				"parameters": [
-					{
-						"description": "The UUID of the post to unlike",
-						"in": "path",
-						"name": "id",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
 		"/notifications": {
 			"get": {
 				"operationId": "GetNotifications",
@@ -4662,9 +4391,6 @@
 							"application/json": {
 								"schema": {
 									"properties": {
-										"status": {
-											"type": "string"
-										},
 										"sent_via_websocket": {
 											"type": "boolean"
 										},
@@ -4706,7 +4432,6 @@
 										}
 									},
 									"required": [
-										"status",
 										"sent_via_websocket",
 										"sender_id",
 										"reply_to_message_id",

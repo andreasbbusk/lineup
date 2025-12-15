@@ -12,16 +12,7 @@ interface PostDetailsPageProps {
 
 export default function Page({ params }: PostDetailsPageProps) {
   const { id } = use(params);
-  const { data: post, isLoading, error } = usePost(id || "");
-
-  if (!id) {
-    return (
-      <main className="space-y-4">
-        <h1 className="text-h1 font-semibold">Post</h1>
-        <p className="text-body text-red-500">Missing post id.</p>
-      </main>
-    );
-  }
+  const { data: post, isLoading, error } = usePost(id);
 
   if (isLoading) {
     return (
@@ -39,9 +30,9 @@ export default function Page({ params }: PostDetailsPageProps) {
   if (error) {
     return (
       <main className="space-y-4">
-        <h1 className="text-h1 font-semibold">Post</h1>
+        <h1 className="text-h1 font-semibold">Opslag</h1>
         <p className="text-body text-red-500">
-          Error loading post: {error.message}
+          Fejl ved indlæsning af opslag: {error.message}
         </p>
       </main>
     );
@@ -50,8 +41,8 @@ export default function Page({ params }: PostDetailsPageProps) {
   if (!post) {
     return (
       <main className="space-y-4">
-        <h1 className="text-h1 font-semibold">Post</h1>
-        <p className="text-body text-grey">Post not found.</p>
+        <h1 className="text-h1 font-semibold">Opslag</h1>
+        <p className="text-body text-grey">Opslag ikke fundet.</p>
       </main>
     );
   }

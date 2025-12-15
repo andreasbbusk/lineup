@@ -37,7 +37,7 @@ function RaysSpinner({ size }: { size: number }) {
             initial={{ opacity: 0.2 }}
             animate={{ opacity: [0.2, 1, 0.2] }}
             transition={{
-              duration: 0.6,
+              duration: 0.08,
               repeat: Infinity,
               ease: "easeInOut",
               delay: i * 0.005,

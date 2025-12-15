@@ -15,7 +15,6 @@ export function MediaGrid({
   showLightbox = false,
 }: MediaGridProps) {
   const [selectedMedia, setSelectedMedia] = useState<number | null>(null);
-  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
   if (!media || media.length === 0) return null;
 
@@ -32,22 +31,6 @@ export function MediaGrid({
 
   const closeLightbox = () => {
     setSelectedMedia(null);
-  };
-
-  // Helper to determine if URL is a blob URL
-  const isBlobUrl = (url: string) => url.startsWith("blob:");
-
-  // Helper to handle image errors
-  const handleImageError = (url: string, e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    if (!failedImages.has(url)) {
-      setFailedImages((prev) => new Set(prev).add(url));
-      // Only log if it's not a blob URL (blob URLs might fail if revoked)
-      if (!isBlobUrl(url)) {
-        console.error("Failed to load image:", url);
-      }
-    }
-    const target = e.target as HTMLImageElement;
-    target.style.display = "none";
   };
 
   // Single media item
@@ -68,8 +51,18 @@ export function MediaGrid({
                   cursor: showLightbox ? "pointer" : "default",
                   minHeight: "200px",
                 }}
-                onError={(e) => handleImageError(item.url, e)}
-                {...(!isBlobUrl(item.url) && { crossOrigin: "anonymous" })}
+                onError={(e) => {
+                  console.error("Failed to load image:", item.url, e);
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = "none";
+                }}
+                onLoad={(e) => {
+                  // Ensure image is visible when loaded
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = "block";
+                  console.log("Image loaded successfully:", item.url);
+                }}
+                crossOrigin="anonymous"
                 loading="lazy"
               />
             </>
@@ -110,8 +103,12 @@ export function MediaGrid({
                   className="absolute inset-0 h-full w-full rounded-lg object-cover"
                   onClick={() => handleMediaClick(index)}
                   style={{ cursor: showLightbox ? "pointer" : "default" }}
-                  onError={(e) => handleImageError(item.url, e)}
-                  {...(!isBlobUrl(item.url) && { crossOrigin: "anonymous" })}
+                  onError={(e) => {
+                    console.error("Failed to load image:", item.url);
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = "none";
+                  }}
+                  crossOrigin="anonymous"
                 />
               ) : (
                 <video
@@ -164,8 +161,12 @@ export function MediaGrid({
                 className="absolute inset-0 h-full w-full rounded-lg object-cover"
                 onClick={() => handleMediaClick(index)}
                 style={{ cursor: showLightbox ? "pointer" : "default" }}
-                onError={(e) => handleImageError(item.url, e)}
-                {...(!isBlobUrl(item.url) && { crossOrigin: "anonymous" })}
+                onError={(e) => {
+                  console.error("Failed to load image:", item.url);
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = "none";
+                }}
+                crossOrigin="anonymous"
               />
             ) : (
               <video
@@ -194,8 +195,12 @@ export function MediaGrid({
               src={sortedMedia[3].url}
               alt="Media 4"
               className="absolute inset-0 h-full w-full rounded-lg object-cover"
-              onError={(e) => handleImageError(sortedMedia[3].url, e)}
-              {...(!isBlobUrl(sortedMedia[3].url) && { crossOrigin: "anonymous" })}
+              onError={(e) => {
+                console.error("Failed to load image:", sortedMedia[3].url);
+                const target = e.target as HTMLImageElement;
+                target.style.display = "none";
+              }}
+              crossOrigin="anonymous"
             />
             {sortedMedia.length > 4 && (
               <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 text-white">

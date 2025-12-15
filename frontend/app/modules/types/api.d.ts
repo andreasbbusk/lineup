@@ -224,30 +224,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/services": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List services
-         * @description List services with optional filters
-         *
-         *     Returns a list of services with optional filtering by service type and location.
-         *     Services are public and can be viewed without authentication.
-         *     Services are seeded data - there is no creation endpoint.
-         */
-        get: operations["GetServices"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/search": {
         parameters: {
             query?: never;
@@ -477,58 +453,6 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/posts/{id}/resolve": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Resolve a request post
-         * @description Resolve a request post
-         *
-         *     Marks a request post as resolved and archives it. Only the post author can resolve their own posts.
-         *     Resolved posts are excluded from the main feed but remain accessible via user's post history.
-         */
-        post: operations["ResolvePost"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/posts/{id}/like": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Like a post
-         * @description Like a post
-         *
-         *     Adds a like from the authenticated user to the specified post.
-         *     If the post is already liked by the user, this is a no-op.
-         */
-        post: operations["LikePost"];
-        /**
-         * Unlike a post
-         * @description Unlike a post
-         *
-         *     Removes the like from the authenticated user for the specified post.
-         */
-        delete: operations["UnlikePost"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1476,39 +1400,6 @@ export interface components {
             uploadType: "post" | "avatar";
         };
         /**
-         * @description API response format for a service
-         *     Represents a service offering (seeded data - no creation endpoint).
-         *     Services can be: rehearsal_space, studio, recording, art, venue, teaching, or equipment_rental.
-         *     provider_id is practically always null since there are no provider users.
-         * @example {
-         *       "id": "4f99a480-d388-47c2-86f5-efa0b8b164a0",
-         *       "providerId": null,
-         *       "providerName": "Lighthouse Music",
-         *       "title": "Acoustic Band Room",
-         *       "description": "Bright room with natural light suitable for rehearsals.",
-         *       "mediaUrl": "https://example.com/media/acoustic-band-room.jpg",
-         *       "location": "Roskilde, DK",
-         *       "serviceType": "rehearsal_space",
-         *       "createdAt": "2025-12-10T16:13:01.154276Z",
-         *       "updatedAt": "2025-12-10T16:13:01.154276Z"
-         *     }
-         */
-        ServiceResponse: {
-            id: string;
-            providerId: string | null;
-            providerName: string | null;
-            title: string;
-            description: string;
-            mediaUrl: string | null;
-            location: string | null;
-            /** @enum {string|null} */
-            serviceType: "rehearsal_space" | "studio" | "recording" | "art" | "venue" | "teaching" | "equipment_rental" | null;
-            createdAt: string | null;
-            updatedAt: string | null;
-        };
-        /** @enum {string} */
-        ServiceType: "rehearsal_space" | "studio" | "recording" | "art" | "venue" | "teaching" | "equipment_rental";
-        /**
          * @description Search result for a user (from search_people)
          * @example {
          *       "type": "user",
@@ -1832,9 +1723,6 @@ export interface components {
             location: string | null;
             paidOpportunity: boolean | null;
             expiresAt: string | null;
-            /** @enum {string} */
-            status?: "active" | "resolved" | "archived";
-            resolvedAt?: string | null;
             metadata?: {
                 /** @enum {string} */
                 type: "tag" | "genre" | "artist";
@@ -1898,8 +1786,6 @@ export interface components {
             expires_at?: string;
             location?: string;
             paid_opportunity?: boolean;
-            resolved_at?: string;
-            status?: string;
             title: string;
             /** @enum {string} */
             type: "note" | "request" | "story";
@@ -1943,8 +1829,6 @@ export interface components {
              */
             location?: string | null;
             paid_opportunity?: boolean;
-            resolved_at?: string;
-            status?: string;
             /**
              * @description Post title (1-100 characters)
              * @example Looking for a drummer
@@ -2235,9 +2119,6 @@ export interface components {
             location: string | null;
             paidOpportunity: boolean | null;
             expiresAt: string | null;
-            /** @enum {string} */
-            status?: "active" | "resolved" | "archived";
-            resolvedAt?: string | null;
             metadata?: {
                 /** @enum {string} */
                 type: "tag" | "genre" | "artist";
@@ -2314,7 +2195,6 @@ export interface components {
             lastMessageSenderId?: string | null;
             /** Format: double */
             unreadCount: number;
-            relatedPostId?: string | null;
             creator?: {
                 avatarUrl?: string | null;
                 lastName?: string | null;
@@ -2331,7 +2211,6 @@ export interface components {
             name?: string | null;
             avatarUrl?: string | null;
             participantIds: string[];
-            postId?: string | null;
         };
         UpdateConversationDto: {
             name?: string | null;
@@ -2837,35 +2716,6 @@ export interface operations {
             };
         };
     };
-    GetServices: {
-        parameters: {
-            query?: {
-                /** @description Filter by service type */
-                serviceType?: components["schemas"]["ServiceType"];
-                /** @description Filter by location (case-insensitive partial match) */
-                location?: string;
-                /** @description Maximum number of services to return (default: 100) */
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Array of services */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: components["schemas"]["ServiceResponse"][];
-                    };
-                };
-            };
-        };
-    };
     Search: {
         parameters: {
             query?: {
@@ -3215,71 +3065,6 @@ export interface operations {
             };
         };
     };
-    ResolvePost: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The UUID of the post to resolve */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The updated post with resolved status */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PostResponse"];
-                };
-            };
-        };
-    };
-    LikePost: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The UUID of the post to like */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UnlikePost: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The UUID of the post to unlike */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
     GetNotifications: {
         parameters: {
             query?: {
@@ -3475,7 +3260,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        status: string;
                         sent_via_websocket: boolean;
                         sender_id: string;
                         reply_to_message_id: string;

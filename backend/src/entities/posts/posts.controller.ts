@@ -1,5 +1,5 @@
 // src/entities/posts/posts.controller.ts
-import { Controller, Route, Tags, Post, Get, Body, Query, Path, Request, Security, Delete } from "tsoa";
+import { Controller, Route, Tags, Post, Get, Body, Query, Path, Request, Security } from "tsoa";
 import { Request as ExpressRequest } from "express";
 import { CreatePostBody, PostsQueryDto } from "./posts.dto.js";
 import { extractUserId, extractBearerToken } from "../../utils/auth-helpers.js";
@@ -207,62 +207,6 @@ export class PostsController extends Controller {
         return this.postsService.resolvePost(id, userId, token);
       },
       200
-    );
-  }
-
-  /**
-   * Like a post
-   *
-   * Adds a like from the authenticated user to the specified post.
-   * If the post is already liked by the user, this is a no-op.
-   *
-   * @summary Like a post
-   * @param id The UUID of the post to like
-   * @returns No content on success
-   * @throws 404 if post not found
-   * @throws 401 if not authenticated
-   */
-  @Security("bearerAuth")
-  @Post("{id}/like")
-  public async likePost(
-    @Path() id: string,
-    @Request() req: ExpressRequest
-  ): Promise<void> {
-    return handleControllerRequest(
-      this,
-      async () => {
-        const userId = await extractUserId(req);
-        const token = extractBearerToken(req);
-        return this.postsService.likePost(userId, id, token);
-      },
-      204
-    );
-  }
-
-  /**
-   * Unlike a post
-   *
-   * Removes the like from the authenticated user for the specified post.
-   *
-   * @summary Unlike a post
-   * @param id The UUID of the post to unlike
-   * @returns No content on success
-   * @throws 401 if not authenticated
-   */
-  @Security("bearerAuth")
-  @Delete("{id}/like")
-  public async unlikePost(
-    @Path() id: string,
-    @Request() req: ExpressRequest
-  ): Promise<void> {
-    return handleControllerRequest(
-      this,
-      async () => {
-        const userId = await extractUserId(req);
-        const token = extractBearerToken(req);
-        return this.postsService.unlikePost(userId, id, token);
-      },
-      204
     );
   }
 }
