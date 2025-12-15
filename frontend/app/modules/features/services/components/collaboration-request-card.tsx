@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useState } from "react";
 import { Avatar } from "@/app/modules/components/avatar";
 import { Separator } from "@/app/modules/components/separator";
 import { Tags } from "@/app/modules/components/tags";
@@ -20,6 +20,7 @@ function CollaborationRequestCardComponent({
   post,
   onChatClick,
 }: CollaborationRequestCardProps) {
+  const [imageError, setImageError] = useState(false);
   const authorName = post.author?.firstName || post.author?.username || "User";
   const authorInitial = authorName[0]?.toUpperCase() || "U";
   const genres = post.metadata?.filter((m) => m.type === "genre") || [];
@@ -76,13 +77,14 @@ function CollaborationRequestCardComponent({
         {/* Content area - grows to fill space */}
         <div className="flex flex-col flex-1 min-h-0 gap-2.5">
           {/* Media */}
-          {firstMedia && (
+          {firstMedia && !imageError && (
             <div className="relative w-full h-48 rounded-xl overflow-hidden">
               <Image
                 src={firstMedia.url}
                 alt={post.title}
                 fill
                 className="object-cover"
+                onError={() => setImageError(true)}
               />
             </div>
           )}
