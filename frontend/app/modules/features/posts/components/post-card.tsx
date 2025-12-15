@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { PostResponse } from "../types";
@@ -13,6 +13,7 @@ import { Comments } from "./comments";
 import { Popover } from "@/app/modules/components/popover";
 import { cn } from "@/app/modules/utils/twUtil";
 import { Button } from "@/app/modules/components/buttons";
+import { likePost, unlikePost } from "@/app/modules/api/postsApi";
 
 interface PostCardProps {
 	className?: string;
@@ -87,9 +88,16 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 	const author = post.author;
 	const type = post.type;
 
-	const [isLiked, setIsLiked] = useState(false);
+	const [isLiked, setIsLiked] = useState(post.hasLiked ?? false);
+	const [likesCount, setLikesCount] = useState(post.likesCount ?? 0);
 	const [isCommentOpen, setIsCommentOpen] = useState(false);
 	const [showOption, setShowOption] = useState(false);
+
+	// Sync state when post data changes
+	useEffect(() => {
+		setIsLiked(post.hasLiked ?? false);
+		setLikesCount(post.likesCount ?? 0);
+	}, [post.hasLiked, post.likesCount]);
 
 	return type === "note" ? (
 		<article
@@ -134,14 +142,30 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 					{post.description}
 				</p>
 				<ActionBar
-					setIsLiked={setIsLiked}
+					setIsLiked={async (liked: boolean) => {
+						setIsLiked(liked);
+						setLikesCount((prev) => (liked ? prev + 1 : Math.max(0, prev - 1)));
+						try {
+							if (liked) {
+								await likePost(post.id);
+							} else {
+								await unlikePost(post.id);
+							}
+						} catch (error) {
+							// Revert on error
+							setIsLiked(!liked);
+							setLikesCount((prev) =>
+								liked ? Math.max(0, prev - 1) : prev + 1
+							);
+						}
+					}}
 					isLiked={isLiked}
 					isCommentOpen={isCommentOpen}
 					setIsCommentOpen={setIsCommentOpen}
 					commentsCount={post.commentsCount}
-					likesCount={post.likesCount}
+					likesCount={likesCount}
 				/>
-				{isCommentOpen && <Comments />}
+				{isCommentOpen && <Comments postId={post.id} />}
 			</div>
 		</article>
 	) : props.compact ? (
