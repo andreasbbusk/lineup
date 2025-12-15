@@ -42,10 +42,6 @@ export function NotificationsPage() {
 		  ]
 		: [];
 
-	const handleClose = () => {
-		router.back();
-	};
-
 	// Handle connection request accept
 	const handleAcceptConnection = (notification: NotificationResponse) => {
 		if (!notification.entityId) {
@@ -107,23 +103,25 @@ export function NotificationsPage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-[background pb-20">
+		<div className="min-h-screen bg-white text-foreground flex flex-col items-start gap-4 pt-2 pr-4.25 pl-4">
 			{/* Header */}
-			<div className="sticky top-0 z-10 bg-[#f7f6f6] border-b border-[#eae7e5]">
-				<div className="flex items-center justify-between px-4 py-2">
+			<div className="sticky top-0 z-40 w-full border-b border-light-grey bg-white">
+				<div className="flex h-12 items-center justify-between">
 					<button
-						onClick={handleClose}
-						className="flex items-center justify-center size-6 text-[#1e1e1e] hover:opacity-70 transition-opacity"
-						aria-label="Close">
-						<X size={24} />
+						onClick={() => router.back()}
+						className="flex items-center justify-center text-foreground hover:opacity-70 transition-opacity"
+						aria-label="Close menu">
+						<X size={18} />
 					</button>
-					<h1 className=" text-black tracking-[0.5px]">Notifications</h1>
+					<h1 className="text-sm! text-black tracking-[0.5px]">
+						Notifications
+					</h1>
 					<div className="w-6" /> {/* Spacer for centering */}
 				</div>
 			</div>
 
 			{/* Content */}
-			<div className="flex flex-col gap-5 items-end px-3 py-6 max-w-200 mx-auto">
+			<div className="flex flex-col items-start gap-9 max-w-200 w-full mx-auto self-stretch">
 				{/* Connection Requests Section */}
 				{uniqueConnectionRequests.length > 0 && (
 					<NotificationSection
