@@ -61,14 +61,6 @@ export function NotificationItem({
     [notification.createdAt]
   );
 
-  const handleAvatarClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!actor?.username) return;
-
-    markAsReadIfNeeded();
-    router.push(`/profile/${actor.username}`);
-  };
-
   const targetUrl =
     notification.actionUrl ||
     (notification.entityType === "post" && notification.entityId
@@ -83,6 +75,14 @@ export function NotificationItem({
         isRead: true,
       });
     }
+  };
+
+  const handleAvatarClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!actor?.username) return;
+
+    markAsReadIfNeeded();
+    router.push(`/profile/${actor.username}`);
   };
 
   // Handle notification click - mark as read and navigate to target if available

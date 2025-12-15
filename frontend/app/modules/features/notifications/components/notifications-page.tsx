@@ -9,6 +9,8 @@ import type { NotificationResponse } from "../types";
 import { useAcceptConnection } from "@/app/modules/hooks/mutations/useConnectionMutations";
 import { useMarkAsRead } from "../hooks/useNotificationMutations";
 import { deduplicateConnectionRequests } from "../utils/connectionRequests";
+import { useStartOrNavigateToChat } from "@/app/modules/hooks";
+import { useAppStore } from "@/app/modules/stores/Store";
 
 /**
  * Main notifications page component
@@ -16,9 +18,11 @@ import { deduplicateConnectionRequests } from "../utils/connectionRequests";
  */
 export function NotificationsPage() {
   const router = useRouter();
-  const { data, isLoading, error } = useNotifications();
+  const { data, isLoading, error } = useNotifications({ unreadOnly: true });
   const acceptConnection = useAcceptConnection();
   const markAsRead = useMarkAsRead();
+  const user = useAppStore((state) => state.user);
+  const { startOrNavigateToChat } = useStartOrNavigateToChat();
 
   const notifications = data?.notifications;
 
@@ -71,9 +75,25 @@ export function NotificationsPage() {
 
   // Handle collaboration request reply
   const handleReplyCollaboration = (notification: NotificationResponse) => {
-    // TODO: Implement collaboration reply logic
-    console.log("Reply to collaboration", notification);
-    // This should navigate to collaboration or open a reply modal
+    if (!user || !notification.actorId) return;
+
+    // Mark notification as read
+    if (notification.id && !notification.isRead) {
+      markAsRead.mutate({
+        notificationId: notification.id,
+        isRead: true,
+      });
+    }
+
+    // Get the post ID from the notification entity
+    const postId =
+      notification.entityType === "post" ? notification.entityId : undefined;
+
+    // Start or navigate to chat with the collaboration requester
+    startOrNavigateToChat({
+      participantId: notification.actorId,
+      postId: postId || undefined,
+    });
   };
 
   if (isLoading) {
