@@ -17,9 +17,12 @@ export default function Layout({ children }: MainLayoutProps) {
   const isHomePage = pathname === "/feed";
   const headerVariant = isHomePage ? "home" : "default";
 
+  // Hide header on settings page (it has its own header)
+  const shouldShowHeader = !pathname?.startsWith("/settings");
+
   return (
     <div className="">
-      <Header variant={headerVariant} />
+      {shouldShowHeader && <Header variant={headerVariant} />}
       <div className="">{children}</div>
       <BottomNav />
     </div>

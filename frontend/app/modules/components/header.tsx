@@ -64,12 +64,13 @@ function HomeHeader() {
               <span className="absolute right-0 top-0 h-3 w-3 rounded-full bg-crocus-yellow" />
             )}
           </button>
-          <button
+          <Link
+            href="/settings"
             className="flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
             aria-label="Menu"
           >
             <Menu size={24} />
-          </button>
+          </Link>
         </div>
       </div>
     </header>
@@ -117,12 +118,13 @@ function DefaultHeader() {
               <span className="absolute right-0 top-0 h-3 w-3 rounded-full bg-crocus-yellow" />
             )}
           </button>
-          <button
+          <Link
+            href="/settings"
             className="flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
             aria-label="Menu"
           >
             <Menu size={24} />
-          </button>
+          </Link>
         </div>
       </div>
     </header>
