@@ -111,6 +111,8 @@ function BottomNav() {
     const isChatDetailPage =
       pathname === "/chats/new" ||
       (pathname?.startsWith("/chats/") && pathname !== "/chats");
+    const isNotificationsPage = pathname === "/notifications";
+    const isSettingsPage = pathname === "/settings";
 
     // Hide on other users' profiles and edit profile page
     // /profile or /profile/{username} = own profile (show nav)
@@ -120,7 +122,12 @@ function BottomNav() {
       pathname?.startsWith("/profile/") && pathname !== `/profile/${username}`;
 
     return (
-      isAuthPage || isSearchPage || isChatDetailPage || isOtherUsersProfile
+      isAuthPage ||
+      isSearchPage ||
+      isChatDetailPage ||
+      isOtherUsersProfile ||
+      isNotificationsPage ||
+      isSettingsPage
     );
   }, [pathname, username]);
 

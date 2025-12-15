@@ -15,7 +15,8 @@ export default function Header() {
     pathname?.startsWith("/onboarding") ||
     pathname === "/search" ||
     pathname?.startsWith("/chats") ||
-    pathname === "/notifications"
+    pathname === "/notifications" ||
+    pathname === "/settings"
   ) {
     return null;
   }
