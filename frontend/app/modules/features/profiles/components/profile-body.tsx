@@ -115,21 +115,28 @@ function ProfileBody(props: ProfileBodyProps) {
 	const postsData = (() => {
 		const notes = notesData?.data || [];
 		const requests = requestsData?.data || [];
-		
+
 		if (notes.length === 0 && requests.length === 0) {
 			return notesData || requestsData; // Return whichever exists (or undefined)
 		}
-		
-		const combined = [...notes, ...requests]
-			.sort((a, b) => 
-				new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
-			);
-		
+
+		const combined = [...notes, ...requests].sort(
+			(a, b) =>
+				new Date(b.createdAt || 0).getTime() -
+				new Date(a.createdAt || 0).getTime()
+		);
+
 		return {
 			data: combined,
 			pagination: {
-				hasMore: (notesData?.pagination?.hasMore || false) || (requestsData?.pagination?.hasMore || false),
-				nextCursor: notesData?.pagination?.nextCursor || requestsData?.pagination?.nextCursor,
+				hasMore:
+					notesData?.pagination?.hasMore ||
+					false ||
+					requestsData?.pagination?.hasMore ||
+					false,
+				nextCursor:
+					notesData?.pagination?.nextCursor ||
+					requestsData?.pagination?.nextCursor,
 			},
 		};
 	})();
@@ -151,7 +158,7 @@ function ProfileBody(props: ProfileBodyProps) {
 					{/* About Me Section */}
 					<ProfileSection title="About me">
 						{props.aboutMe ? (
-							<p className="flex py-0 px-3.75 items-center gap-[0.625rem] self-stretch">
+							<p className="flex py-0 px-3.75 items-center gap-2.5 self-stretch">
 								{props.aboutMe}
 							</p>
 						) : (
@@ -162,7 +169,7 @@ function ProfileBody(props: ProfileBodyProps) {
 					{/* What I am looking for Section */}
 					<ProfileSection title="What I am looking for">
 						{props.lookingFor && props.lookingFor.length > 0 ? (
-							<ul className="flex flex-wrap py-0 px-3.75 items-center gap-[0.625rem] self-stretch">
+							<ul className="flex flex-wrap py-0 px-3.75 items-center gap-2.5 self-stretch">
 								{props.lookingFor.map((item, index) => (
 									<li key={index}>
 										<Tags color={props.theme} text={item} onClick={() => {}} />
@@ -177,7 +184,7 @@ function ProfileBody(props: ProfileBodyProps) {
 					{/* Genres Section */}
 					<ProfileSection title="Genres">
 						{props.genres && props.genres.length > 0 ? (
-							<ul className="flex flex-wrap py-0 px-3.75 items-center gap-[0.625rem] self-stretch">
+							<ul className="flex flex-wrap py-0 px-3.75 items-center gap-2.5 self-stretch">
 								{props.genres.map((genre, index) => (
 									<li key={index}>
 										<Tags color={props.theme} text={genre} onClick={() => {}} />
@@ -193,7 +200,7 @@ function ProfileBody(props: ProfileBodyProps) {
 					<ProfileSection title="Reviews">
 						{props.reviews && props.reviews.length > 0 ? (
 							<>
-								<div className="flex pl-3.75 justify-center items-center gap-[0.625rem]">
+								<div className="flex pl-3.75 justify-center items-center gap-2.5">
 									{Array.from({ length: 5 }).map((_, i) => {
 										const avgRating = Math.round(
 											props.reviews!.reduce((sum, r) => sum + r.rating, 0) /
@@ -201,11 +208,11 @@ function ProfileBody(props: ProfileBodyProps) {
 										);
 										return <Star key={i} filled={i < avgRating} />;
 									})}
-									<p className="text-[var(--color-grey)] text-[0.875rem] font-medium leading-[135%] tracking-[0.03125rem]">
+									<p className="text-grey text-[0.875rem] font-medium leading-[135%] tracking-[0.03125rem]">
 										{props.reviews.length} reviews
 									</p>
 								</div>
-								<div className="inline-flex gap-[0.3125rem] pl-[0.9375rem]">
+								<div className="inline-flex gap-1.25 pl-3.75">
 									<p className="text-wrap">
 										<q className="text-wrap">
 											{props.reviews[props.reviews.length - 1].comment}
@@ -222,7 +229,7 @@ function ProfileBody(props: ProfileBodyProps) {
 					{/* social media */}
 					<ProfileSection title="Social Media">
 						{props.socialMedia && props.socialMedia.length > 0 ? (
-							<ul className="grid grid-cols-5 items-center py-0 px-3.75 gap-[0.625rem] self-stretch">
+							<ul className="grid grid-cols-5 items-center py-0 px-3.75 gap-2.5 self-stretch">
 								{Array.from({ length: 5 }).map((_, i) => {
 									const social = props.socialMedia?.[i];
 									return (
@@ -253,7 +260,7 @@ function ProfileBody(props: ProfileBodyProps) {
 					{/* artist i like */}
 					<ProfileSection title="Artists I like">
 						{props.favoriteArtists && props.favoriteArtists.length > 0 ? (
-							<div className="flex flex-col py-0 px-[var(--Spacing-S---spacing,_0.9375rem)] items-start gap-[1.0625rem] self-stretch">
+							<div className="flex flex-col py-0 px-(--Spacing-S---spacing,0.9375rem) items-start gap-4.25 self-stretch">
 								{showAllArtists ? (
 									// Grid layout when showing all
 									<ul className="grid grid-cols-3 gap-4 w-full">
@@ -277,7 +284,7 @@ function ProfileBody(props: ProfileBodyProps) {
 									</ul>
 								) : (
 									// Overlapping layout when collapsed
-									<div className="flex items-center gap-[1.0625rem]">
+									<div className="flex items-center gap-4.25">
 										<ul className="flex py-0 items-center">
 											{props.favoriteArtists
 												.slice(0, 3)
@@ -289,7 +296,7 @@ function ProfileBody(props: ProfileBodyProps) {
 																alt="Artist"
 																width={77}
 																height={77}
-																className="rounded-full border-3 border-[var(--color-white)] aspect-square object-cover drop-shadow-[0_2px_8px_rgba(99,99,99,0.20)]"
+																className="rounded-full border-3 border-white aspect-square object-cover drop-shadow-[0_2px_8px_rgba(99,99,99,0.20)]"
 															/>
 														</Link>
 													</li>
@@ -297,11 +304,11 @@ function ProfileBody(props: ProfileBodyProps) {
 											{props.favoriteArtists.length > 3 && (
 												<li className="-ml-[25px]">
 													<div
-														className="w-[77px] h-[77px] rounded-full border-3 border-[var(--color-white)] flex items-center justify-center drop-shadow-[0_2px_8px_rgba(99,99,99,0.20)]"
+														className="w-[77px] h-[77px] rounded-full border-3 border-white flex items-center justify-center drop-shadow-[0_2px_8px_rgba(99,99,99,0.20)]"
 														style={{
 															backgroundColor: `${props.theme}`,
 														}}>
-														<span className="text-[var(--color-white)] font-semibold">
+														<span className="text-white font-semibold">
 															+{props.favoriteArtists.length - 3}
 														</span>
 													</div>
@@ -335,7 +342,7 @@ function ProfileBody(props: ProfileBodyProps) {
 						{props.myMusic && props.myMusic.length > 0 ? (
 							<Link
 								href={props.myMusic}
-								className="self-center w-[20.8125rem] h-[13.25rem] rounded-[1.5625rem] overflow-hidden">
+								className="self-center w-83.25 h-53 rounded-[1.5625rem] overflow-hidden">
 								<Image
 									src={"/images/spotify-embed.svg"}
 									alt={`music-0`}
@@ -352,11 +359,11 @@ function ProfileBody(props: ProfileBodyProps) {
 					{/* Videos Section */}
 					<ProfileSection title="Videos">
 						{props.videos && props.videos.length > 0 ? (
-							<ul className="flex flex-col justify-center items-start gap-[0.625rem] py-0 px-[0.9375rem] self-stretch">
+							<ul className="flex flex-col justify-center items-start gap-2.5 py-0 px-3.75 self-stretch">
 								{props.videos.map((video, index) => (
 									<li
 										key={index}
-										className="flex flex-col self-center justify-center items-start w-[20.8125rem] h-[13.25rem] rounded-[1.5625rem] overflow-hidden">
+										className="flex flex-col self-center justify-center items-start w-83.25 h-53 rounded-[1.5625rem] overflow-hidden">
 										<Image
 											src={video}
 											alt={`video-${index}`}
@@ -375,7 +382,7 @@ function ProfileBody(props: ProfileBodyProps) {
 					{/* Past Collaborations Section */}
 					<ProfileSection title="Past Collaborations">
 						{props.pastCollaborations && props.pastCollaborations.length > 0 ? (
-							<div className="flex flex-col py-0 px-[var(--Spacing-S---spacing,_0.9375rem)] items-start gap-[1.0625rem] self-stretch">
+							<div className="flex flex-col py-0 px-(--Spacing-S---spacing,0.9375rem) items-start gap-4.25 self-stretch">
 								{showAllCollaborators ? (
 									// Grid layout when showing all
 									<>
@@ -410,7 +417,7 @@ function ProfileBody(props: ProfileBodyProps) {
 									</>
 								) : (
 									// Overlapping layout when collapsed
-									<div className="flex items-center gap-[1.0625rem]">
+									<div className="flex items-center gap-4.25">
 										<ul className="flex py-0 items-center">
 											{props.pastCollaborations
 												.slice(0, 3)
@@ -422,7 +429,7 @@ function ProfileBody(props: ProfileBodyProps) {
 																alt="Collaborator"
 																width={77}
 																height={77}
-																className="rounded-full border-3 border-[var(--color-white)] aspect-square object-cover drop-shadow-[0_2px_8px_rgba(99,99,99,0.20)]"
+																className="rounded-full border-3 border-white aspect-square object-cover drop-shadow-[0_2px_8px_rgba(99,99,99,0.20)]"
 															/>
 														</Link>
 													</li>
@@ -430,11 +437,11 @@ function ProfileBody(props: ProfileBodyProps) {
 											{props.pastCollaborations.length > 3 && (
 												<li className="-ml-[25px]">
 													<div
-														className="w-[77px] h-[77px] rounded-full border-3 border-[var(--color-white)] flex items-center justify-center drop-shadow-[0_2px_8px_rgba(99,99,99,0.20)]"
+														className="w-[77px] h-[77px] rounded-full border-3 border-white flex items-center justify-center drop-shadow-[0_2px_8px_rgba(99,99,99,0.20)]"
 														style={{
 															backgroundColor: `${props.theme}`,
 														}}>
-														<span className="text-[var(--color-white)] font-semibold">
+														<span className="text-white font-semibold">
 															+{props.pastCollaborations.length - 3}
 														</span>
 													</div>
@@ -458,13 +465,13 @@ function ProfileBody(props: ProfileBodyProps) {
 
 					<ProfileSection title="Questions">
 						{props.questions && props.questions.length > 0 ? (
-							<ul className="flex flex-col items-start self-stretch py-0 px-[0.9375rem] gap-[0.625rem]">
+							<ul className="flex flex-col items-start self-stretch py-0 px-3.75 gap-2.5">
 								{props.questions.map((questionObj, index) => (
 									<li key={index}>
 										<h5 className="font-bold leading-normal tracking-[0.03125rem]">
 											{questionObj.question}
 										</h5>
-										<p className="pl-[1.375rem]">{questionObj.answer}</p>
+										<p className="pl-5.5">{questionObj.answer}</p>
 									</li>
 								))}
 							</ul>
