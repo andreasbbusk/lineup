@@ -155,6 +155,13 @@ export function NotificationsPage() {
 		);
 	}
 
+	// Check if there are any notifications at all
+	const hasAnyNotifications =
+		uniqueConnectionRequests.length > 0 ||
+		sortedCollaborationRequests.length > 0 ||
+		profileInteractions.length > 0 ||
+		sortedMessages.length > 0;
+
 	return (
 		<div className="min-h-screen bg-white text-foreground flex flex-col items-start  pb-24 ">
 			{/* Header */}
@@ -174,45 +181,56 @@ export function NotificationsPage() {
 			</div>
 
 			{/* Content */}
-			<div className="flex flex-col gap-5 items-end px-3 w-full max-w-200 mx-auto">
-				{/* Connection Requests Section */}
-				{uniqueConnectionRequests.length > 0 && (
-					<NotificationSection
-						title="Connection requests"
-						notifications={uniqueConnectionRequests}
-						showActionButton={true}
-						actionButtonText="Accept"
-						onActionClick={handleAcceptConnection}
-					/>
-				)}
+			{hasAnyNotifications ? (
+				<div className="flex flex-col gap-5 items-end px-3 w-full max-w-200 mx-auto">
+					{/* Connection Requests Section */}
+					{uniqueConnectionRequests.length > 0 && (
+						<NotificationSection
+							title="Connection requests"
+							notifications={uniqueConnectionRequests}
+							showActionButton={true}
+							actionButtonText="Accept"
+							onActionClick={handleAcceptConnection}
+						/>
+					)}
 
-				{/* Collaboration Requests Section */}
-				{sortedCollaborationRequests.length > 0 && (
-					<NotificationSection
-						title="Collaboration requests"
-						notifications={sortedCollaborationRequests}
-						showActionButton={true}
-						actionButtonText="Reply"
-						onActionClick={handleReplyCollaboration}
-					/>
-				)}
+					{/* Collaboration Requests Section */}
+					{sortedCollaborationRequests.length > 0 && (
+						<NotificationSection
+							title="Collaboration requests"
+							notifications={sortedCollaborationRequests}
+							showActionButton={true}
+							actionButtonText="Reply"
+							onActionClick={handleReplyCollaboration}
+						/>
+					)}
 
-				{/* Profile Interactions Section */}
-				{profileInteractions.length > 0 && (
-					<NotificationSection
-						title="Profile interactions"
-						notifications={profileInteractions}
-					/>
-				)}
+					{/* Profile Interactions Section */}
+					{profileInteractions.length > 0 && (
+						<NotificationSection
+							title="Profile interactions"
+							notifications={profileInteractions}
+						/>
+					)}
 
-				{/* Messages Section */}
-				{sortedMessages.length > 0 && (
-					<NotificationSection
-						title="Messages"
-						notifications={sortedMessages}
-					/>
-				)}
-			</div>
+					{/* Messages Section */}
+					{sortedMessages.length > 0 && (
+						<NotificationSection
+							title="Messages"
+							notifications={sortedMessages}
+						/>
+					)}
+				</div>
+			) : (
+				<div className="flex flex-col items-center justify-center flex-1 w-full px-4 py-12">
+					<p className="text-[#555555] text-center text-base">
+						No notifications yet
+					</p>
+					<p className="text-[#999999] text-center text-sm mt-2">
+						When you receive notifications, they'll appear here
+					</p>
+				</div>
+			)}
 		</div>
 	);
 }

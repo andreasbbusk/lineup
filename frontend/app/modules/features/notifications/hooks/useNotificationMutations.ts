@@ -98,18 +98,27 @@ export function useDeleteNotification() {
     mutationFn: (notificationId: string) => deleteNotification(notificationId),
     onMutate: async (notificationId) => {
       // Cancel any outgoing refetches to avoid overwriting optimistic update
-      await queryClient.cancelQueries({ queryKey: ["notifications"] });
+      // Match all notification queries (including grouped ones)
+      await queryClient.cancelQueries({ 
+        queryKey: ["notifications"],
+        exact: false 
+      });
 
-      // Snapshot the previous value
+      // Snapshot the previous value for all notification queries
       const previousQueries = queryClient.getQueriesData({
         queryKey: ["notifications"],
+        exact: false,
       });
 
       // Optimistically remove the notification from all groups
+      // Update all notification queries (including grouped ones)
       queryClient.setQueriesData<{
         notifications: GroupedNotificationsResponse;
       }>(
-        { queryKey: ["notifications"] },
+        { 
+          queryKey: ["notifications"],
+          exact: false,
+        },
         (old) => {
           if (!old?.notifications) return old;
 
@@ -143,6 +152,7 @@ export function useDeleteNotification() {
       return { previousQueries };
     },
     onError: (err, variables, context) => {
+      console.error("Failed to delete notification:", err);
       // Rollback on error
       if (context?.previousQueries) {
         context.previousQueries.forEach(([queryKey, data]) => {
@@ -151,10 +161,12 @@ export function useDeleteNotification() {
       }
     },
     onSuccess: () => {
-      // Invalidate notifications queries to refetch and ensure consistency
+      // Don't refetch immediately - the optimistic update already removed it
+      // Only invalidate to mark as stale, but don't refetch
       queryClient.invalidateQueries({
         queryKey: ["notifications"],
-        refetchType: "active",
+        exact: false,
+        refetchType: "none", // Don't refetch, just mark as stale
       });
     },
   });
