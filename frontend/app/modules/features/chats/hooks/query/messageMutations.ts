@@ -3,7 +3,6 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { chatApi } from "../../api";
 import { chatKeys } from "../../queryKeys";
 import { useMessageActionsStore } from "../../stores/messageStore";
@@ -62,7 +61,6 @@ export function useEditMessage(conversationId: string) {
           context.messagesSnapshot
         );
       }
-      toast.error("Failed to edit message. Please try again.");
     },
     onSuccess: async () => {
       // Force immediate refetch of conversation list to get updated last message
@@ -114,7 +112,6 @@ export function useDeleteMessage(conversationId: string) {
           context.messagesSnapshot
         );
       }
-      toast.error("Failed to delete message. Please try again.");
     },
     onSuccess: async () => {
       // Force immediate refetch of conversation list to get updated last message
