@@ -116,8 +116,8 @@ export function RequestForm({
 			return;
 		}
 
-		if (description.trim().length < 10) {
-			alert("Description must be at least 10 characters");
+		if (description.trim().length < 1) {
+			alert("Description must be at least 1 character");
 			return;
 		}
 
