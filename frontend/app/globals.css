@@ -274,7 +274,7 @@
 
 * {
     font-family: var(--font-family-helvetica);
-    overscroll-behavior: none;
+    overscroll-behavior-y: none;
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
