@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { use, useEffect, useRef } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import {
   ChatHeader,
   MessageList,
@@ -24,8 +24,8 @@ import {
   chatApi,
   getConversationDisplayInfo,
 } from "@/app/modules/features/chats";
+import { useBlockUser, useResolvePost } from "@/app/modules/hooks/mutations";
 import { useAppStore } from "@/app/modules/stores/Store";
-import { useResolvePost } from "@/app/modules/hooks/mutations";
 import { usePost } from "@/app/modules/hooks/queries";
 import { Button } from "@/app/modules/components/buttons";
 
@@ -65,6 +65,7 @@ export default function ChatPage({ params }: ChatPageProps) {
   const { mutate: markAsRead } = useMarkAsRead();
   const { mutate: leaveConversation, isPending: isLeavingConversation } =
     useLeaveConversation();
+  const { mutate: blockUser, isPending: isBlockingUser } = useBlockUser();
   const { mutate: resolvePost, isPending: isResolvingPost } = useResolvePost({
     onSuccess: () => {
       // Optionally show a success message or navigate
@@ -79,6 +80,12 @@ export default function ChatPage({ params }: ChatPageProps) {
   useTypingSubscription(id);
 
   const { activeMessageAction, clearAction } = useMessageActionsStore();
+
+  // ============================================================================
+  // Block User State
+  // ============================================================================
+
+  const [showBlockConfirmation, setShowBlockConfirmation] = useState(false);
 
   // ============================================================================
   // Mark Messages as Read
@@ -147,6 +154,17 @@ export default function ChatPage({ params }: ChatPageProps) {
     }
   };
 
+  const handleConfirmBlock = () => {
+    if (!otherUser?.id) return;
+
+    blockUser(otherUser.id, {
+      onSuccess: () => {
+        setShowBlockConfirmation(false);
+        router.push("/chats");
+      },
+    });
+  };
+
   const handleMenuAction = (action: string) => {
     switch (action) {
       case "groupInfo":
@@ -161,8 +179,7 @@ export default function ChatPage({ params }: ChatPageProps) {
         }
         break;
       case "block":
-        // TODO: Block user
-        console.log("Blocking user...");
+        setShowBlockConfirmation(true);
         break;
       case "report":
         // TODO: Report user
@@ -278,6 +295,22 @@ export default function ChatPage({ params }: ChatPageProps) {
           onCancel={clearAction}
           isDestructive={true}
           isLoading={isDeletingMessage}
+        />
+
+        <ConfirmationDialog
+          open={showBlockConfirmation}
+          title="Block user?"
+          description={
+            otherUser?.username
+              ? `Are you sure you want to block ${otherUser.username}? You won't be able to send messages to each other.`
+              : "Are you sure you want to block this user? You won't be able to send messages to each other."
+          }
+          confirmText="Block"
+          cancelText="Cancel"
+          onConfirm={handleConfirmBlock}
+          onCancel={() => setShowBlockConfirmation(false)}
+          isDestructive={true}
+          isLoading={isBlockingUser}
         />
       </div>
     </main>
