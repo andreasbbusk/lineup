@@ -62,10 +62,10 @@ function Comments({ postId }: CommentsProps) {
 	};
 
 	return (
-		<div className="px-2.5 mt-[0.625rem] flex flex-col items-start gap-[1.875rem] self-stretch">
+		<div className="px-2.5 mt-2.5 flex flex-col items-start gap-7.5									Edit self-stretch">
 			<form
 				onSubmit={handleSubmit}
-				className="flex p-[0.625rem] justify-between items-start self-stretch border border-black/20 rounded-[0.5rem]">
+				className="flex p-2.5 justify-between items-start self-stretch border border-black/20 rounded-lg">
 				<input
 					placeholder="Leave a comment"
 					className="flex-1 outline-none"
@@ -76,7 +76,7 @@ function Comments({ postId }: CommentsProps) {
 
 				<button
 					type="submit"
-					className="flex w-[1.5rem] h-[1.5rem] justify-center items-center gap-[0.625rem] aspect-square rounded-[0.5rem] bg-[#FFCF70]">
+					className="flex w-6 h-6 justify-center items-center gap-2.5 aspect-square rounded-lg bg-[#FFCF70] hover:opacity-80">
 					<Image
 						src="/icons/arrow-right.svg"
 						alt="Send"
@@ -148,7 +148,7 @@ function CommentItem({
 }) {
 	const queryClient = useQueryClient();
 	const [isLiked, setIsLiked] = useState(false);
-	const [showReplies, setShowReplies] = useState(true);
+	// const [showReplies, setShowReplies] = useState(true);
 	const [showReplyInput, setShowReplyInput] = useState(false);
 	const [replyText, setReplyText] = useState("");
 	const createCommentMutation = useMutation({
@@ -169,7 +169,6 @@ function CommentItem({
 		},
 	});
 
-	const canHaveReplies = depth < MAX_COMMENT_DEPTH;
 	const isAtMaxDepth = depth === MAX_COMMENT_DEPTH;
 
 	const handleReplySubmit = async (e: React.FormEvent) => {
@@ -192,11 +191,10 @@ function CommentItem({
 	};
 
 	const replies = comment.replies || [];
-	const totalReplies = replies.length;
 
 	return (
 		<div className="w-full flex flex-col items-start gap-[0.325rem] self-stretch">
-			<div className="flex items-center gap-[0.3125rem]">
+			<div className="flex items-center gap-1.25">
 				<Avatar
 					size="xs"
 					alt={comment.author?.username || "User avatar"}
@@ -210,9 +208,9 @@ function CommentItem({
 				</p>
 			</div>
 			<p>{comment.description}</p>
-			<div className="flex  justify-end items-center gap-[0.9375rem] self-stretch">
+			<div className="flex  justify-end items-center gap-3.75 self-stretch">
 				<div
-					className="flex items-center gap-[0.3125rem] cursor-pointer"
+					className="flex items-center gap-1.25 cursor-pointer hover:opacity-60"
 					onClick={() => setIsLiked(!isLiked)}>
 					{isLiked ? (
 						<svg
@@ -248,7 +246,7 @@ function CommentItem({
 				</div>
 				<button
 					onClick={() => setShowReplyInput(!showReplyInput)}
-					className={`flex items-center gap-2 text-[#555] font-sans text-[0.875rem] font-medium leading-[1.18125rem] tracking-[0.03125rem] ${
+					className={`flex items-center gap-2 text-[#555] font-sans text-[0.875rem] font-medium leading-[1.18125rem] tracking-[0.03125rem] hover:opacity-60 ${
 						depth >= 2 ? "gap-0" : ""
 					}`}>
 					<svg
@@ -279,7 +277,7 @@ function CommentItem({
 			{showReplyInput && (
 				<form
 					onSubmit={handleReplySubmit}
-					className="flex p-[0.625rem] justify-between items-start self-stretch border border-black/20 rounded-[0.5rem] mt-[0.625rem]">
+					className="flex p-2.5 justify-between items-start self-stretch border border-black/20 rounded-lg mt-2.5">
 					<input
 						placeholder="Write a reply..."
 						className="flex-1 outline-none"
@@ -290,7 +288,7 @@ function CommentItem({
 					/>
 					<button
 						type="submit"
-						className="flex w-[1.5rem] h-[1.5rem] justify-center items-center gap-[0.625rem] aspect-square rounded-[0.5rem] bg-[#FFCF70]">
+						className="flex w-6 h-6 justify-center items-center gap-2.5 aspect-square rounded-lg bg-[#FFCF70] hover:opacity-80">
 						<Image
 							src="/icons/arrow-right.svg"
 							alt="Send"
@@ -301,8 +299,8 @@ function CommentItem({
 					</button>
 				</form>
 			)}
-			{depth < MAX_COMMENT_DEPTH && replies.length > 0 && showReplies && (
-				<div className="flex flex-col gap-[0.625rem] items-start self-stretch border-l border-black/20 pl-[1.25rem] mt-[0.9375rem]">
+			{depth < MAX_COMMENT_DEPTH && replies.length > 0 && (
+				<div className="flex flex-col gap-2.5 items-start self-stretch border-l border-black/20 pl-5 mt-3.75">
 					{replies.map((reply) => (
 						<CommentItem
 							key={reply.id}

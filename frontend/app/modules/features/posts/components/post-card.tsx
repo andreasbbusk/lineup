@@ -139,7 +139,6 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 					size={"xs"}
 					compact={props.compact}
 				/>
-				<Tags hashTag text="dummy" className="text-xs" />
 			</div>
 
 			{/* Post Content */}
@@ -166,7 +165,7 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 							} else {
 								await unlikePost(post.id);
 							}
-						} catch (error) {
+						} catch {
 							// Revert on error
 							setIsLiked(!liked);
 							setLikesCount((prev) =>
@@ -243,7 +242,6 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 					{post.type === "request" && post.paidOpportunity && (
 						<Tags hashTag text="paid-gig" />
 					)}
-					<Tags hashTag text="dummy" />
 				</div>
 				<div className="flex justify-end gap-1.25 text-gray-500">
 					<p>{post.location}</p>
