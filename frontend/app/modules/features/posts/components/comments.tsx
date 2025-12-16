@@ -19,18 +19,29 @@ interface CommentsProps {
 
 function Comments({ postId }: CommentsProps) {
 	const queryClient = useQueryClient();
-	const { data: comments = [], isLoading } = useQuery<CommentResponseWithReplies[]>({
+	const { data: comments = [], isLoading } = useQuery<
+		CommentResponseWithReplies[]
+	>({
 		queryKey: ["comments", "post", postId],
-		queryFn: () => getPostComments(postId) as Promise<CommentResponseWithReplies[]>,
+		queryFn: () =>
+			getPostComments(postId) as Promise<CommentResponseWithReplies[]>,
 		enabled: !!postId,
 	});
 	const createCommentMutation = useMutation({
-		mutationFn: (data: { postId: string; content: string; parentId?: string | null }) =>
-			createComment(data),
+		mutationFn: (data: {
+			postId: string;
+			content: string;
+			parentId?: string | null;
+		}) => createComment(data),
 		onSuccess: (newComment) => {
-			queryClient.invalidateQueries({ queryKey: ["comments", "post", newComment.postId] });
-			queryClient.invalidateQueries({ queryKey: ["posts", newComment.postId] });
-			queryClient.invalidateQueries({ queryKey: ["posts"] });
+			// Refetch comments for this post
+			queryClient.refetchQueries({
+				queryKey: ["comments", "post", newComment.postId],
+			});
+			// Refetch the specific post (to update comment count)
+			queryClient.refetchQueries({ queryKey: ["posts", newComment.postId] });
+			// Refetch all posts lists (to update comment counts in feeds)
+			queryClient.refetchQueries({ queryKey: ["posts"], exact: false });
 		},
 	});
 	const [commentText, setCommentText] = useState("");
@@ -62,6 +73,7 @@ function Comments({ postId }: CommentsProps) {
 					value={commentText}
 					onChange={(e) => setCommentText(e.target.value)}
 				/>
+
 				<button
 					type="submit"
 					className="flex w-[1.5rem] h-[1.5rem] justify-center items-center gap-[0.625rem] aspect-square rounded-[0.5rem] bg-[#FFCF70]">
@@ -77,7 +89,9 @@ function Comments({ postId }: CommentsProps) {
 			{isLoading ? (
 				<p className="text-[#555] text-[0.875rem]">Loading comments...</p>
 			) : comments.length === 0 ? (
-				<p className="text-[#555] text-[0.875rem]">No comments yet. Be the first to comment!</p>
+				<p className="text-[#555] text-[0.875rem]">
+					No comments yet. Be the first to comment!
+				</p>
 			) : (
 				comments.map((comment) => {
 					// Recursively map comment and all nested replies
@@ -123,19 +137,35 @@ type Comment = {
 	// Add other fields as needed
 };
 
-function CommentItem({ comment, depth, postId }: { comment: Comment; depth: number; postId: string }) {
+function CommentItem({
+	comment,
+	depth,
+	postId,
+}: {
+	comment: Comment;
+	depth: number;
+	postId: string;
+}) {
 	const queryClient = useQueryClient();
 	const [isLiked, setIsLiked] = useState(false);
 	const [showReplies, setShowReplies] = useState(true);
 	const [showReplyInput, setShowReplyInput] = useState(false);
 	const [replyText, setReplyText] = useState("");
 	const createCommentMutation = useMutation({
-		mutationFn: (data: { postId: string; content: string; parentId?: string | null }) =>
-			createComment(data),
+		mutationFn: (data: {
+			postId: string;
+			content: string;
+			parentId?: string | null;
+		}) => createComment(data),
 		onSuccess: (newComment) => {
-			queryClient.invalidateQueries({ queryKey: ["comments", "post", newComment.postId] });
-			queryClient.invalidateQueries({ queryKey: ["posts", newComment.postId] });
-			queryClient.invalidateQueries({ queryKey: ["posts"] });
+			// Refetch comments for this post
+			queryClient.refetchQueries({
+				queryKey: ["comments", "post", newComment.postId],
+			});
+			// Refetch the specific post (to update comment count)
+			queryClient.refetchQueries({ queryKey: ["posts", newComment.postId] });
+			// Refetch all posts lists (to update comment counts in feeds)
+			queryClient.refetchQueries({ queryKey: ["posts"], exact: false });
 		},
 	});
 
@@ -165,7 +195,7 @@ function CommentItem({ comment, depth, postId }: { comment: Comment; depth: numb
 	const totalReplies = replies.length;
 
 	return (
-		<div className="w-full">
+		<div className="w-full flex flex-col items-start gap-[0.325rem] self-stretch">
 			<div className="flex items-center gap-[0.3125rem]">
 				<Avatar
 					size="xs"
@@ -180,7 +210,7 @@ function CommentItem({ comment, depth, postId }: { comment: Comment; depth: numb
 				</p>
 			</div>
 			<p>{comment.description}</p>
-			<div className="flex h-[1.875rem] justify-start items-center gap-[0.9375rem] self-stretch">
+			<div className="flex  justify-end items-center gap-[0.9375rem] self-stretch">
 				<div
 					className="flex items-center gap-[0.3125rem] cursor-pointer"
 					onClick={() => setIsLiked(!isLiked)}>
