@@ -1,6 +1,6 @@
 "use client";
 
-import { CreateForm } from "@/app/modules/features/posts/components/create-form";
+import { CreateForm } from "@/app/modules/features/posts/components/create/create-form";
 import { PageTransition } from "@/app/modules/components/page-transition";
 
 export default function Page() {
