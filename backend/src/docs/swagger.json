@@ -5905,7 +5905,7 @@
 						}
 					}
 				},
-				"description": "Get all comments for a post\n\nReturns all comments on a specific post, ordered by creation date (oldest first).\nEach comment includes the author's profile information and like counts.\nIf authenticated, also includes whether the user has liked each comment.",
+				"description": "Get all comments for a post\n\nReturns all comments on a specific post, ordered by creation date (oldest first).\nEach comment includes the author's profile information.",
 				"summary": "Get comments for a post",
 				"tags": [
 					"Comments"
