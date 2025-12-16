@@ -27,19 +27,34 @@ export class CommentsController extends Controller {
    * Get all comments for a post
    *
    * Returns all comments on a specific post, ordered by creation date (oldest first).
-   * Each comment includes the author's profile information.
+   * Each comment includes the author's profile information and like counts.
+   * If authenticated, also includes whether the user has liked each comment.
    *
    * @summary Get comments for a post
    * @param postId The UUID of the post to retrieve comments for
-   * @returns Array of comments with author details
+   * @returns Array of comments with author details and like data
    * @throws 404 if post not found
    */
   @Get("post/{postId}")
   public async getPostComments(
-    @Path() postId: string
+    @Path() postId: string,
+    @Request() req: ExpressRequest
   ): Promise<CommentResponse[]> {
     return handleControllerRequest(this, async () => {
-      return this.commentsService.getPostComments(postId);
+      let userId: string | undefined;
+      const token = req.headers.authorization?.replace("Bearer ", "");
+      
+      // Try to extract userId if token is present, but don't fail if not authenticated
+      if (token) {
+        try {
+          userId = await extractUserId(req);
+        } catch {
+          // User not authenticated, continue without userId
+          userId = undefined;
+        }
+      }
+      
+      return this.commentsService.getPostComments(postId, userId, token);
     });
   }
 
@@ -147,6 +162,62 @@ export class CommentsController extends Controller {
           request.headers.authorization?.replace("Bearer ", "") || "";
 
         return this.commentsService.deleteComment(commentId, userId, token);
+      },
+      204
+    );
+  }
+
+  /**
+   * Like a comment
+   *
+   * Adds a like from the authenticated user to the specified comment.
+   * If the comment is already liked by the user, this is a no-op.
+   *
+   * @summary Like a comment
+   * @param commentId The UUID of the comment to like
+   * @returns No content on success
+   * @throws 404 if comment not found
+   * @throws 401 if not authenticated
+   */
+  @Security("bearerAuth")
+  @Post("{commentId}/like")
+  public async likeComment(
+    @Path() commentId: string,
+    @Request() req: ExpressRequest
+  ): Promise<void> {
+    return handleControllerRequest(
+      this,
+      async () => {
+        const userId = await extractUserId(req);
+        const token = req.headers.authorization?.replace("Bearer ", "") || "";
+        return this.commentsService.likeComment(userId, commentId, token);
+      },
+      204
+    );
+  }
+
+  /**
+   * Unlike a comment
+   *
+   * Removes the like from the authenticated user for the specified comment.
+   *
+   * @summary Unlike a comment
+   * @param commentId The UUID of the comment to unlike
+   * @returns No content on success
+   * @throws 401 if not authenticated
+   */
+  @Security("bearerAuth")
+  @Delete("{commentId}/like")
+  public async unlikeComment(
+    @Path() commentId: string,
+    @Request() req: ExpressRequest
+  ): Promise<void> {
+    return handleControllerRequest(
+      this,
+      async () => {
+        const userId = await extractUserId(req);
+        const token = req.headers.authorization?.replace("Bearer ", "") || "";
+        return this.commentsService.unlikeComment(userId, commentId, token);
       },
       204
     );

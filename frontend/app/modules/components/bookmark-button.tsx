@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import * as TogglePrimitive from "@radix-ui/react-toggle";
 
 interface BookmarkButtonProps {
   /**
@@ -34,7 +33,7 @@ interface BookmarkButtonProps {
 }
 
 /**
- * BookmarkButton - Toggleable bookmark component using Radix UI
+ * BookmarkButton - Toggleable bookmark component
  *
  * Supports both controlled and uncontrolled modes.
  * Handles click event propagation for use within clickable cards.
@@ -73,27 +72,27 @@ export const BookmarkButton = React.forwardRef<
     const isControlled = isBookmarked !== undefined;
     const bookmarked = isControlled ? isBookmarked : internalBookmarked;
 
-    const handlePressedChange = (pressed: boolean) => {
+    const handleClick = (e: React.MouseEvent) => {
+      // Prevent navigation and stop event bubbling to parent card/link
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Toggle the bookmark state
+      const newState = !bookmarked;
       if (isControlled) {
-        onToggle?.(pressed);
+        onToggle?.(newState);
       } else {
-        setInternalBookmarked(pressed);
+        setInternalBookmarked(newState);
       }
     };
 
-    const handleClick = (e: React.MouseEvent) => {
-      // Prevent navigation and stop event bubbling to parent card
-      e.preventDefault();
-      e.stopPropagation();
-    };
-
     return (
-      <TogglePrimitive.Root
+      <button
         ref={ref}
-        pressed={bookmarked}
-        onPressedChange={handlePressedChange}
+        type="button"
         onClick={handleClick}
         aria-label={ariaLabel}
+        aria-pressed={bookmarked}
         className={`hover:scale-110 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blackberry-harvest rounded ${className}`.trim()}
         {...props}
       >
@@ -107,14 +106,14 @@ export const BookmarkButton = React.forwardRef<
         >
           <path
             d="M5 21V5C5 3.89543 5.89543 3 7 3H17C18.1046 3 19 3.89543 19 5V21L13.0815 17.1953C12.4227 16.7717 11.5773 16.7717 10.9185 17.1953L5 21Z"
-            stroke="currentColor"
-            fill={bookmarked ? "black" : "none"}
-            strokeWidth="1.5"
+            stroke={bookmarked ? "none" : "currentColor"}
+            fill={bookmarked ? "#FFCF70" : "none"}
+            strokeWidth={bookmarked ? "0" : "1.5"}
             strokeLinecap="round"
             strokeLinejoin="round"
           />
         </svg>
-      </TogglePrimitive.Root>
+      </button>
     );
   }
 );

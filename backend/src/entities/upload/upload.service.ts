@@ -1,4 +1,4 @@
-import { createAuthenticatedClient, createServiceRoleClient } from "../../config/supabase.config.js";
+import { createAuthenticatedClient } from "../../config/supabase.config.js";
 import { createHttpError } from "../../utils/error-handler.js";
 import { SignedUrlResponse } from "../../types/api.types.js";
 
@@ -121,15 +121,13 @@ export class UploadService {
     // Full file path including bucket (for frontend URL construction)
     const filePath = `${bucket}/${pathInBucket}`;
 
-    // Use service role client for generating signed URLs
-    // This bypasses RLS which is required for signed URL generation
-    // The actual upload will still be validated by storage policies
-    const serviceRoleClient = createServiceRoleClient();
+    // Use authenticated client to respect Row Level Security
+    const authedSupabase = createAuthenticatedClient(token);
 
     // Generate signed upload URL for new file uploads
     // createSignedUploadUrl expects path relative to bucket (not including bucket name)
     const { data: signedUrlData, error: signedUrlError } =
-      await serviceRoleClient.storage
+      await authedSupabase.storage
         .from(bucket)
         .createSignedUploadUrl(pathInBucket);
 

@@ -17,6 +17,7 @@ import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
 import { useStartOrNavigateToChat } from "@/app/modules/hooks";
+import { PageTransition } from "@/app/modules/components/page-transition";
 
 export default function SearchPage() {
   const router = useRouter();
@@ -99,39 +100,56 @@ export default function SearchPage() {
   );
 
   return (
-    <main className="flex flex-col h-screen overflow-hidden">
-      {/* Header with search and tabs */}
-      <div className="flex flex-col px-4 pt-4 pb-3 shrink-0 gap-3 bg-white">
-        <SearchBar
-          value={query}
-          onChange={handleQueryChange}
-          onCancel={handleCancel}
-          onSubmit={handleSaveSearch}
-        />
-        <SearchTabs activeTab={activeTab} onTabChange={handleTabChange} />
-      </div>
+    <PageTransition>
+      <div className="flex flex-col h-screen overflow-hidden w-full max-w-200 mx-auto">
+        {/* Header with search and tabs */}
+        <div className="flex flex-col px-4 pt-4 pb-3 shrink-0 gap-3 bg-white">
+          <SearchBar
+            value={query}
+            onChange={handleQueryChange}
+            onCancel={handleCancel}
+            onSubmit={handleSaveSearch}
+          />
+          <SearchTabs activeTab={activeTab} onTabChange={handleTabChange} />
+        </div>
 
-      {/* Content Container */}
-      <div className="flex-1 min-h-0 bg-white overflow-y-auto">
-        <div className="px-4 py-4">
-          {hasQuery ? (
-            <div className="overflow-hidden">
-              <motion.div
-                className="flex"
-                animate={{
-                  x: `${-activeTabIndex * 100}%`,
-                }}
-                transition={{
-                  type: "tween",
-                  duration: 0.3,
-                }}
-              >
-                {TAB_ORDER.map((tab) => (
-                  <div key={tab} className="w-full shrink-0">
-                    {tab === activeTab && (
-                      <>
-                        {activeTab === "tags" ? (
-                          isLoadingTagsTab ? (
+        {/* Content Container */}
+        <div className="flex-1 min-h-0 bg-white overflow-y-auto">
+          <div className="px-4 py-4">
+            {hasQuery ? (
+              <div className="overflow-hidden">
+                <motion.div
+                  className="flex"
+                  animate={{
+                    x: `${-activeTabIndex * 100}%`,
+                  }}
+                  transition={{
+                    type: "tween",
+                    duration: 0.3,
+                  }}
+                >
+                  {TAB_ORDER.map((tab) => (
+                    <div key={tab} className="w-full shrink-0">
+                      {tab === activeTab && (
+                        <>
+                          {activeTab === "tags" ? (
+                            isLoadingTagsTab ? (
+                              <div className="flex items-center justify-center py-12">
+                                <LoadingSpinner />
+                              </div>
+                            ) : (
+                              <SearchResults
+                                results={searchResults}
+                                activeTab={activeTab}
+                                query={query}
+                                onStartChat={handleStartChat}
+                                onResultClick={handleSaveSearch}
+                                posts={posts}
+                                tagNames={tagNames}
+                                isLoadingPosts={isLoadingPosts}
+                              />
+                            )
+                          ) : isLoading ? (
                             <div className="flex items-center justify-center py-12">
                               <LoadingSpinner />
                             </div>
@@ -142,42 +160,27 @@ export default function SearchPage() {
                               query={query}
                               onStartChat={handleStartChat}
                               onResultClick={handleSaveSearch}
-                              posts={posts}
-                              tagNames={tagNames}
-                              isLoadingPosts={isLoadingPosts}
                             />
-                          )
-                        ) : isLoading ? (
-                          <div className="flex items-center justify-center py-12">
-                            <LoadingSpinner />
-                          </div>
-                        ) : (
-                          <SearchResults
-                            results={searchResults}
-                            activeTab={activeTab}
-                            query={query}
-                            onStartChat={handleStartChat}
-                            onResultClick={handleSaveSearch}
-                          />
-                        )}
-                      </>
-                    )}
-                  </div>
-                ))}
-              </motion.div>
-            </div>
-          ) : (
-            <RecentSearches
-              recentSearches={recentSearches}
-              isLoading={isLoadingRecent}
-              onSelect={handleSelectRecentSearch}
-              onDelete={handleDeleteRecentSearch}
-              onClearAll={handleClearRecentSearches}
-              isDeleting={isDeleting}
-            />
-          )}
+                          )}
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </motion.div>
+              </div>
+            ) : (
+              <RecentSearches
+                recentSearches={recentSearches}
+                isLoading={isLoadingRecent}
+                onSelect={handleSelectRecentSearch}
+                onDelete={handleDeleteRecentSearch}
+                onClearAll={handleClearRecentSearches}
+                isDeleting={isDeleting}
+              />
+            )}
+          </div>
         </div>
       </div>
-    </main>
+    </PageTransition>
   );
 }
