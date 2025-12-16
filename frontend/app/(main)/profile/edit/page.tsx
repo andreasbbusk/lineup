@@ -335,7 +335,7 @@ export default function EditProfilePage() {
 						alt={`${profileData?.username}'s avatar`}></Avatar>
 					<p
 						onClick={() => setIsAvatarUploaderOpen(true)}
-						className="text-grey font-semibold cursor-pointer  hover:underline">
+						className="text-grey font-semibold cursor-pointer hover:underline">
 						Edit picture
 					</p>
 				</div>
