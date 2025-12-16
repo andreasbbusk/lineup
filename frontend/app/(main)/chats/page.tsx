@@ -51,9 +51,9 @@ export default function ChatsPage() {
   if (!user) return null;
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-dark-cyan-blue">
+    <div className="flex flex-col h-screen overflow-hidden bg-dark-cyan-blue">
       {/* Header with dark-cyan background */}
-      <div className="flex flex-col bg-dark-cyan-blue px-6 py-4 shrink-0 ">
+      <div className="flex w-full max-w-200 mx-auto flex-col bg-dark-cyan-blue px-6 md:px-0 py-4 shrink-0">
         <div className="flex items-center justify-between">
           <h1 className="heading-1 text-white tracking-wide">Messages</h1>
           <div className="flex items-center gap-4">
@@ -102,20 +102,22 @@ export default function ChatsPage() {
       </div>
 
       {/* Content Container */}
-      <ConversationList
-        conversations={data}
-        isLoading={isLoading}
-        error={error}
-        currentUserId={user.id}
-        searchQuery={searchQuery}
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-        onConversationClick={(conversationId) => {
-          router.push(`/chats/${conversationId}`);
-        }}
-        onDeleteConversation={handleDeleteConversation}
-        onNavigateToSettings={handleNavigateToSettings}
-      />
+      <div className="flex-1 overflow-hidden min-h-0">
+        <ConversationList
+          conversations={data}
+          isLoading={isLoading}
+          error={error}
+          currentUserId={user.id}
+          searchQuery={searchQuery}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          onConversationClick={(conversationId) => {
+            router.push(`/chats/${conversationId}`);
+          }}
+          onDeleteConversation={handleDeleteConversation}
+          onNavigateToSettings={handleNavigateToSettings}
+        />
+      </div>
     </div>
   );
 }

@@ -212,7 +212,7 @@ export default function ChatPage({ params }: ChatPageProps) {
           conversationAvatar={avatarUrl}
           conversation={conversation}
           currentUserId={user?.id}
-          onBack={() => router.push("/chats")}
+          onBack={() => router.back()}
           onMenuAction={handleMenuAction}
         />
 

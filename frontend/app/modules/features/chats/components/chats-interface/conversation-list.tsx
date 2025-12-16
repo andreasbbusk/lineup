@@ -209,43 +209,44 @@ export function ConversationList({
     );
 
   return (
-    <Tabs
-      variant="chat"
-      activeTab={activeTab}
-      onTabChange={onTabChange}
-      className="mx-auto w-full max-w-200 h-full"
-    >
-      <TabsContent value="chats" className="bg-red">
-        {renderContent(
-          filterConversations(
-            conversations?.direct,
-            searchQuery,
-            currentUserId
-          ),
-          isLoading,
-          "No direct chats yet",
-          currentUserId,
-          onConversationClick,
-          onDeleteConversation,
-          onNavigateToSettings
-        )}
-      </TabsContent>
-      <TabsContent value="groups" className="h-full">
-        {renderContent(
-          filterConversations(
-            conversations?.groups,
-            searchQuery,
-            currentUserId
-          ),
-          isLoading,
-          "No group chats yet",
-          currentUserId,
-          onConversationClick,
-          onDeleteConversation,
-          onNavigateToSettings
-        )}
-      </TabsContent>
-    </Tabs>
-    // </div>
+    <div className="flex flex-col h-full overflow-hidden bg-dark-cyan-blue rounded-t-[45px]">
+      <Tabs
+        variant="chat"
+        activeTab={activeTab}
+        onTabChange={onTabChange}
+        className="mx-auto w-full max-w-200 flex flex-col h-full [&>ul]:shrink-0 [&>div:last-child]:flex-1 [&>div:last-child]:overflow-hidden [&>div:last-child]:min-h-0 [&>div:last-child]:flex [&>div:last-child]:flex-col"
+      >
+        <TabsContent value="chats" className="min-h-0! overflow-y-auto pb-24!">
+          {renderContent(
+            filterConversations(
+              conversations?.direct,
+              searchQuery,
+              currentUserId
+            ),
+            isLoading,
+            "No direct chats yet",
+            currentUserId,
+            onConversationClick,
+            onDeleteConversation,
+            onNavigateToSettings
+          )}
+        </TabsContent>
+        <TabsContent value="groups" className="min-h-0! overflow-y-auto pb-24!">
+          {renderContent(
+            filterConversations(
+              conversations?.groups,
+              searchQuery,
+              currentUserId
+            ),
+            isLoading,
+            "No group chats yet",
+            currentUserId,
+            onConversationClick,
+            onDeleteConversation,
+            onNavigateToSettings
+          )}
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }
