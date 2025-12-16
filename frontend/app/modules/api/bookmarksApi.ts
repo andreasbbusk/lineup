@@ -68,8 +68,6 @@ export async function createBookmark(postId: string): Promise<BookmarkResponse> 
       }
     }
     // If status is 201 but we can't find data, it's still a success
-    // Return a minimal response or throw a more helpful error
-    console.warn("Received 201 Created but could not extract response data", { error, response });
     throw new Error("Bookmark created successfully but response data could not be parsed");
   }
 

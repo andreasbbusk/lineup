@@ -3,7 +3,6 @@
 import { memo, useState } from "react";
 import { Avatar } from "@/app/modules/components/avatar";
 import { Separator } from "@/app/modules/components/separator";
-import { BookmarkButton } from "@/app/modules/components/bookmark-button";
 import {
   formatTimeAgo,
   formatServiceType,
@@ -17,7 +16,6 @@ type ServiceResponse = components["schemas"]["ServiceResponse"];
 
 interface ServiceCardProps {
   service: ServiceResponse;
-  onChatClick?: (providerId: string) => void;
 }
 
 function ServiceCardComponent({ service }: ServiceCardProps) {
@@ -50,7 +48,6 @@ function ServiceCardComponent({ service }: ServiceCardProps) {
               </>
             )}
           </div>
-          <BookmarkButton ariaLabel={`Bookmark ${service.title}`} />
         </div>
 
         <Separator />

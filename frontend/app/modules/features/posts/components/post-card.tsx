@@ -175,21 +175,6 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 						}
 					}}
 					isLiked={isLiked}
-					isBookmarked={isBookmarked}
-					setIsBookmarked={async (bookmarked: boolean) => {
-						setIsBookmarked(bookmarked);
-						try {
-							if (bookmarked) {
-								await createBookmark(post.id);
-							} else {
-								await deleteBookmark(post.id);
-							}
-						} catch (error) {
-							// Revert on error
-							setIsBookmarked(!bookmarked);
-						}
-					}}
-					showBookmarkIcon={false} // Set to true to show bookmark icon in ActionBar
 					isCommentOpen={isCommentOpen}
 					setIsCommentOpen={setIsCommentOpen}
 					commentsCount={post.commentsCount}
@@ -235,6 +220,21 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 				post={post}
 				size={"sm"}
 				compact={props.compact}
+				isBookmarked={isBookmarked}
+				onBookmarkClick={async () => {
+					const newBookmarked = !isBookmarked;
+					setIsBookmarked(newBookmarked);
+					try {
+						if (newBookmarked) {
+							await createBookmark(post.id);
+						} else {
+							await deleteBookmark(post.id);
+						}
+					} catch (error) {
+						// Revert on error
+						setIsBookmarked(!newBookmarked);
+					}
+				}}
 			/>
 			<Divider />
 			<h3 className="px-2.5 text-base font-semibold">{post.title}</h3>
@@ -276,6 +276,8 @@ function Authors({
 	post,
 	size = "xs",
 	compact,
+	isBookmarked,
+	onBookmarkClick,
 }: {
 	author?: PostResponse["author"];
 	post: PostResponse & {
@@ -283,6 +285,8 @@ function Authors({
 	};
 	size?: "xs" | "sm";
 	compact?: boolean;
+	isBookmarked?: boolean;
+	onBookmarkClick?: () => void;
 }) {
 	return post.type === "note" ? (
 		<div
@@ -388,11 +392,18 @@ function Authors({
 					width="16"
 					height="20"
 					viewBox="0 0 16 20"
-					fill="none">
+					fill="none"
+					className="cursor-pointer"
+					onClick={(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						onBookmarkClick?.();
+					}}>
 					<path
 						d="M0.75 18.75V2.75C0.75 1.64543 1.64543 0.75 2.75 0.75H12.75C13.8546 0.75 14.75 1.64543 14.75 2.75V18.75L8.83152 14.9453C8.1727 14.5217 7.3273 14.5217 6.66848 14.9453L0.75 18.75Z"
-						stroke="#131927"
-						strokeWidth="1.5"
+						stroke={isBookmarked ? "none" : "#131927"}
+						fill={isBookmarked ? "#FFCF70" : "none"}
+						strokeWidth={isBookmarked ? "0" : "1.5"}
 						strokeLinecap="round"
 						strokeLinejoin="round"
 					/>

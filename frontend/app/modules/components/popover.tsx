@@ -11,9 +11,9 @@ type PopoverProps = {
     | "note";
   /** Optional additional class names for styling, used for placement */
   className?: string;
-  /** Optional callback for bookmark action */
+  /** Optional callback for bookmark action (only used for "note" variant) */
   onBookmarkClick?: () => void;
-  /** Optional bookmark state */
+  /** Optional bookmark state (only used for "note" variant) */
   isBookmarked?: boolean;
 };
 
@@ -24,6 +24,13 @@ type PopoverItem = {
   onClick?: () => void;
 };
 
+/**
+ * Get popover configuration for each variant
+ * 
+ * Note: The bookmark-related props (onBookmarkClick, isBookmarked) are only
+ * used for the "note" variant. All other variants ignore these props and
+ * continue to work as before, ensuring backward compatibility.
+ */
 const getPopoverConfigs = (
   props?: { isBookmarked?: boolean; onBookmarkClick?: () => void }
 ): Record<PopoverProps["variant"], PopoverItem[]> => ({
@@ -50,7 +57,7 @@ const getPopoverConfigs = (
   ],
   note: [
     {
-      icon: props?.isBookmarked ? "/icons/bookmark-filled.svg" : "/icons/bookmark-empty.svg",
+      icon: "/icons/bookmark-empty.svg",
       label: props?.isBookmarked ? "Unsave note" : "Save note",
       onClick: props?.onBookmarkClick,
     },

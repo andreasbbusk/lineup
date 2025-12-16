@@ -3,14 +3,10 @@ type ActionBarProps = {
 	onClick?: () => void;
 	isLiked?: boolean;
 	setIsLiked?: (liked: boolean) => void | Promise<void>;
-	isBookmarked?: boolean;
-	setIsBookmarked?: (bookmarked: boolean) => void | Promise<void>;
 	isCommentOpen?: boolean;
 	setIsCommentOpen?: (open: boolean) => void;
 	commentsCount?: number;
 	likesCount?: number;
-	// Feature flag to show/hide bookmark icon in ActionBar
-	showBookmarkIcon?: boolean;
 	// Define any props needed for the ActionBar component
 };
 
@@ -94,49 +90,6 @@ function ActionBar(props: ActionBarProps) {
 						/>
 					</svg>
 					<p className="text-[#555] text-xs">{props.commentsCount ?? 0}</p>
-				</div>
-			)}
-
-			{/* Bookmark Icon - Only show if feature flag is enabled */}
-			{props.showBookmarkIcon && (
-				<div
-					className="flex items-center gap-[0.3125rem] cursor-pointer"
-					onClick={() => {
-						const newBookmarked = !props.isBookmarked;
-						props.setIsBookmarked?.(newBookmarked);
-					}}>
-					{props.isBookmarked ? (
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="20"
-							height="18"
-							viewBox="0 0 20 18"
-							fill="none">
-							<path
-								d="M5 21V5C5 3.89543 5.89543 3 7 3H17C18.1046 3 19 3.89543 19 5V21L13.0815 17.1953C12.4227 16.7717 11.5773 16.7717 10.9185 17.1953L5 21Z"
-								fill="#555555"
-								stroke="#555555"
-								strokeWidth="1.5"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-							/>
-						</svg>
-					) : (
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="20"
-							height="18"
-							viewBox="0 0 20 18"
-							fill="none">
-							<path
-								d="M5 21V5C5 3.89543 5.89543 3 7 3H17C18.1046 3 19 3.89543 19 5V21L13.0815 17.1953C12.4227 16.7717 11.5773 16.7717 10.9185 17.1953L5 21Z"
-								stroke="#545454"
-								strokeWidth="1.5"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-							/>
-						</svg>
-					)}
 				</div>
 			)}
 		</div>

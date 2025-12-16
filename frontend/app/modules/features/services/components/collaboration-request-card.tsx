@@ -8,6 +8,7 @@ import { Button } from "@/app/modules/components/buttons";
 import { BookmarkButton } from "@/app/modules/components/bookmark-button";
 import { formatTimeAgo, extractCity } from "@/app/modules/utils/date";
 import { useAppStore } from "@/app/modules/stores/Store";
+import { createBookmark, deleteBookmark } from "@/app/modules/api/bookmarksApi";
 import Link from "next/link";
 import Image from "next/image";
 import type { PostResponse } from "@/app/modules/api/postsApi";
@@ -22,6 +23,9 @@ function CollaborationRequestCardComponent({
   onChatClick,
 }: CollaborationRequestCardProps) {
   const [imageError, setImageError] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(
+    (post as PostResponse & { hasBookmarked?: boolean }).hasBookmarked ?? false
+  );
   const user = useAppStore((state) => state.user);
   const authorName = post.author?.firstName || post.author?.username || "User";
   const authorInitial = authorName[0]?.toUpperCase() || "U";
@@ -30,13 +34,13 @@ function CollaborationRequestCardComponent({
   const isAuthor = user?.id === post.authorId;
 
   return (
-    <article className="flex p-3.75 flex-col w-full min-h-112 gap-2.5 bg-white rounded-xl border border-grey/10 hover:shadow-md transition-shadow cursor-pointer">
+    <article className="relative flex p-3.75 flex-col w-full min-h-112 gap-2.5 bg-white rounded-xl border border-grey/10 hover:shadow-md transition-shadow cursor-pointer">
       <Link
         href={`/posts/${post.id}`}
         className="flex flex-col flex-1 min-h-0 gap-2.5"
       >
         {/* Header */}
-        <div className="flex justify-between self-stretch items-center">
+        <div className="relative flex justify-between self-stretch items-center">
           <div className="flex gap-1.25 flex-[1_0_0] items-center">
             <Avatar
               size="xs"
@@ -48,7 +52,25 @@ function CollaborationRequestCardComponent({
             <p className="text-base text-gray-500">looking for</p>
             <p className="text-base text-gray-500 truncate">#guitarist</p>
           </div>
-          <BookmarkButton ariaLabel={`Bookmark ${post.title}`} />
+          <div className="absolute right-0 z-50">
+            <BookmarkButton
+              ariaLabel={`Bookmark ${post.title}`}
+              isBookmarked={isBookmarked}
+              onToggle={async (bookmarked: boolean) => {
+                setIsBookmarked(bookmarked);
+                try {
+                  if (bookmarked) {
+                    await createBookmark(post.id);
+                  } else {
+                    await deleteBookmark(post.id);
+                  }
+                } catch (error) {
+                  // Revert on error
+                  setIsBookmarked(!bookmarked);
+                }
+              }}
+            />
+          </div>
         </div>
 
         <Separator />
