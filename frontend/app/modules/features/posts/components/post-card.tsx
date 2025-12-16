@@ -14,6 +14,7 @@ import { Popover } from "@/app/modules/components/popover";
 import { cn } from "@/app/modules/utils/twUtil";
 import { Button } from "@/app/modules/components/buttons";
 import { likePost, unlikePost } from "@/app/modules/api/postsApi";
+import { createBookmark, deleteBookmark } from "@/app/modules/api/bookmarksApi";
 
 interface PostCardProps {
 	className?: string;
@@ -90,6 +91,7 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 
 	const [isLiked, setIsLiked] = useState(post.hasLiked ?? false);
 	const [likesCount, setLikesCount] = useState(post.likesCount ?? 0);
+	const [isBookmarked, setIsBookmarked] = useState(post.hasBookmarked ?? false);
 	const [isCommentOpen, setIsCommentOpen] = useState(false);
 	const [showOption, setShowOption] = useState(false);
 
@@ -108,7 +110,26 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 				className="absolute right-2 top-2"
 			/>
 			{showOption && (
-				<Popover className="absolute right-2 top-8 z-100" variant="note" />
+				<Popover 
+					className="absolute right-2 top-8 z-100" 
+					variant="note"
+					onBookmarkClick={async () => {
+						const newBookmarked = !isBookmarked;
+						setIsBookmarked(newBookmarked);
+						setShowOption(false);
+						try {
+							if (newBookmarked) {
+								await createBookmark(post.id);
+							} else {
+								await deleteBookmark(post.id);
+							}
+						} catch (error) {
+							// Revert on error
+							setIsBookmarked(!newBookmarked);
+						}
+					}}
+					isBookmarked={isBookmarked}
+				/>
 			)}
 			{/* Author Header */}
 			<div className="mb-3 px-2.5 flex items-center gap-1.25">
@@ -154,6 +175,21 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 						}
 					}}
 					isLiked={isLiked}
+					isBookmarked={isBookmarked}
+					setIsBookmarked={async (bookmarked: boolean) => {
+						setIsBookmarked(bookmarked);
+						try {
+							if (bookmarked) {
+								await createBookmark(post.id);
+							} else {
+								await deleteBookmark(post.id);
+							}
+						} catch (error) {
+							// Revert on error
+							setIsBookmarked(!bookmarked);
+						}
+					}}
+					showBookmarkIcon={false} // Set to true to show bookmark icon in ActionBar
 					isCommentOpen={isCommentOpen}
 					setIsCommentOpen={setIsCommentOpen}
 					commentsCount={post.commentsCount}

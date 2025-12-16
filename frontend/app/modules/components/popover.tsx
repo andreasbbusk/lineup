@@ -11,15 +11,22 @@ type PopoverProps = {
     | "note";
   /** Optional additional class names for styling, used for placement */
   className?: string;
+  /** Optional callback for bookmark action */
+  onBookmarkClick?: () => void;
+  /** Optional bookmark state */
+  isBookmarked?: boolean;
 };
 
 type PopoverItem = {
   icon: string;
   label: string;
   alt?: string;
+  onClick?: () => void;
 };
 
-const popoverConfigs: Record<PopoverProps["variant"], PopoverItem[]> = {
+const getPopoverConfigs = (
+  props?: { isBookmarked?: boolean; onBookmarkClick?: () => void }
+): Record<PopoverProps["variant"], PopoverItem[]> => ({
   "other-profile": [
     { icon: "/icons/share-ios.svg", label: "Share profile" },
     { icon: "/icons/remove-user.svg", label: "Disconnect" },
@@ -42,15 +49,22 @@ const popoverConfigs: Record<PopoverProps["variant"], PopoverItem[]> = {
     { icon: "/icons/hourglass.svg", label: "Archived" },
   ],
   note: [
-    { icon: "/icons/bookmark-empty.svg", label: "Save note" },
+    {
+      icon: "/icons/bookmark-empty.svg",
+      label: props?.isBookmarked ? "Unsave note" : "Save note",
+      onClick: props?.onBookmarkClick,
+    },
     { icon: "/icons/share-ios.svg", label: "Share note" },
     { icon: "/icons/eye-empty.svg", label: "Hide notes from this user" },
     { icon: "/icons/chat-bubble-warning.svg", label: "Report note" },
   ],
-};
+});
 
 function Popover(props: PopoverProps) {
-  const items = popoverConfigs[props.variant];
+  const items = getPopoverConfigs({
+    isBookmarked: props.isBookmarked,
+    onBookmarkClick: props.onBookmarkClick,
+  })[props.variant];
 
   return (
     <ul
@@ -58,7 +72,10 @@ function Popover(props: PopoverProps) {
     >
       {items.map((item, index) => (
         <Fragment key={item.label}>
-          <li className="flex gap-2">
+          <li
+            className={`flex gap-2 ${item.onClick ? "cursor-pointer hover:opacity-80" : ""}`}
+            onClick={item.onClick}
+          >
             <Image
               src={item.icon}
               alt={item.alt || item.label}
