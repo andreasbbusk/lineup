@@ -1,11 +1,12 @@
-// src/entities/users/users.controller.ts
 import { Request as ExpressRequest } from "express";
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Header,
   Path,
+  Post,
   Put,
   Request,
   Route,
@@ -13,7 +14,12 @@ import {
   Tags,
 } from "tsoa";
 import { supabase } from "../../config/supabase.config.js";
-import { UserProfile } from "../../types/api.types.js";
+import {
+  BlockedUserResponse,
+  BlockStatusResponse,
+  UserProfile,
+} from "../../types/api.types.js";
+import { extractBearerToken, extractUserId } from "../../utils/auth-helpers.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
 import { createHttpError } from "../../utils/error-handler.js";
 import { UpdateProfileDto } from "./users.dto.js";
@@ -51,7 +57,10 @@ export class UsersController extends Controller {
         try {
           const token = authorization.substring(7);
           // Extract userId from token using Supabase
-          const { data: { user }, error } = await supabase.auth.getUser(token);
+          const {
+            data: { user },
+            error,
+          } = await supabase.auth.getUser(token);
           if (!error && user) {
             authenticatedUserId = user.id;
           }
@@ -99,7 +108,10 @@ export class UsersController extends Controller {
       const token = authorization.substring(7);
 
       // Validate token and get user ID
-      const { data: { user }, error } = await supabase.auth.getUser(token);
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser(token);
       if (error || !user) {
         throw createHttpError({
           message: "Invalid or expired token",
@@ -110,5 +122,127 @@ export class UsersController extends Controller {
 
       return this.usersService.updateProfile(username, user.id, body, token);
     });
+  }
+
+  /**
+   * Block a user
+   *
+   * Blocks the specified user, adding them to your blocked users list.
+   * This will also remove any existing direct conversations between you and the blocked user.
+   *
+   * @summary Block a user
+   * @param userId The ID of the user to block
+   * @returns Success message
+   * @throws 400 if trying to block yourself or user already blocked
+   * @throws 401 if not authenticated
+   * @throws 404 if target user not found
+   */
+  @Security("bearerAuth")
+  @Post("{userId}/block")
+  public async blockUser(
+    @Path() userId: string,
+    @Request() request: ExpressRequest
+  ): Promise<{ message: string }> {
+    return handleControllerRequest(
+      this,
+      async () => {
+        const blockerId = await extractUserId(request);
+        const token = extractBearerToken(request);
+
+        await this.usersService.blockUser(blockerId, userId, token);
+        return { message: "User blocked successfully" };
+      },
+      200
+    );
+  }
+
+  /**
+   * Unblock a user
+   *
+   * Removes the specified user from your blocked users list.
+   *
+   * @summary Unblock a user
+   * @param userId The ID of the user to unblock
+   * @returns Success message
+   * @throws 400 if user is not blocked
+   * @throws 401 if not authenticated
+   */
+  @Security("bearerAuth")
+  @Delete("{userId}/block")
+  public async unblockUser(
+    @Path() userId: string,
+    @Request() request: ExpressRequest
+  ): Promise<{ message: string }> {
+    return handleControllerRequest(
+      this,
+      async () => {
+        const blockerId = await extractUserId(request);
+        const token = extractBearerToken(request);
+
+        await this.usersService.unblockUser(blockerId, userId, token);
+        return { message: "User unblocked successfully" };
+      },
+      200
+    );
+  }
+
+  /**
+   * Get block status between two users
+   *
+   * Checks whether there is a block relationship between the authenticated user
+   * and the specified target user, and returns the direction of the block.
+   *
+   * @summary Get block status
+   * @param userId The ID of the target user to check
+   * @returns Block status information
+   * @throws 401 if not authenticated
+   * @throws 404 if target user not found
+   */
+  @Security("bearerAuth")
+  @Get("{userId}/block-status")
+  public async getBlockStatus(
+    @Path() userId: string,
+    @Request() request: ExpressRequest
+  ): Promise<BlockStatusResponse> {
+    return handleControllerRequest(
+      this,
+      async () => {
+        const requesterId = await extractUserId(request);
+        const token = extractBearerToken(request);
+
+        return this.usersService.isBlocked(requesterId, userId, token);
+      },
+      200
+    );
+  }
+
+  /**
+   * Get list of blocked users
+   *
+   * Returns a list of all users that the authenticated user has blocked.
+   *
+   * @summary Get blocked users
+   * @returns Array of blocked users
+   * @throws 401 if not authenticated
+   */
+  @Security("bearerAuth")
+  @Get("blocked")
+  public async getBlockedUsers(
+    @Request() request: ExpressRequest
+  ): Promise<{ data: BlockedUserResponse[] }> {
+    return handleControllerRequest(
+      this,
+      async () => {
+        const userId = await extractUserId(request);
+        const token = extractBearerToken(request);
+
+        const blockedUsers = await this.usersService.getBlockedUsers(
+          userId,
+          token
+        );
+        return { data: blockedUsers };
+      },
+      200
+    );
   }
 }

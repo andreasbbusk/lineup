@@ -48,7 +48,7 @@ export default function GroupSettingsPage({ params }: GroupSettingsPageProps) {
 			<header className="sticky top-0 z-10">
 				<div className="flex items-center gap-3 px-4 py-3">
 					<button
-						onClick={() => router.push(`/chats/${id}`)}
+						onClick={() => router.back()}
 						className="active:scale-95 transition-transform">
 						<ChevronLeft className="size-6 text-black" />
 					</button>

@@ -13,8 +13,8 @@ export function useCreateConversation() {
     mutationFn: (data: CreateConversationDto) =>
       chatApi.createConversation(data),
     onSuccess: () => {
-      // Invalidate conversations list to show new conversation
-      queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+      // Refetch conversations list to immediately show new conversation
+      queryClient.refetchQueries({ queryKey: chatKeys.lists() });
     },
   });
 }
@@ -46,10 +46,10 @@ export function useLeaveConversation() {
         queryKey: chatKeys.messages(conversationId),
       });
 
-      // Invalidate conversations list to remove it from the list
-      queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
-      // Invalidate unread count
-      queryClient.invalidateQueries({ queryKey: chatKeys.unread() });
+      // Refetch conversations list to immediately remove it from the list
+      queryClient.refetchQueries({ queryKey: chatKeys.lists() });
+      // Refetch unread count
+      queryClient.refetchQueries({ queryKey: chatKeys.unread() });
     },
   });
 }
@@ -64,8 +64,9 @@ export function useMarkAsRead() {
   return useMutation({
     mutationFn: (messageIds: string[]) => chatApi.markAsRead(messageIds),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: chatKeys.unread() });
-      queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+      // Refetch to immediately update unread counts and indicators
+      queryClient.refetchQueries({ queryKey: chatKeys.unread() });
+      queryClient.refetchQueries({ queryKey: chatKeys.lists() });
     },
   });
 }
@@ -85,10 +86,11 @@ export function useUpdateConversation() {
       data: UpdateConversationDto;
     }) => chatApi.updateConversation(conversationId, data),
     onSuccess: (_, { conversationId }) => {
-      queryClient.invalidateQueries({
+      // Refetch to immediately show updated conversation details
+      queryClient.refetchQueries({
         queryKey: chatKeys.detail(conversationId),
       });
-      queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+      queryClient.refetchQueries({ queryKey: chatKeys.lists() });
     },
   });
 }
@@ -108,9 +110,11 @@ export function useAddParticipants() {
       participantIds: string[];
     }) => chatApi.addParticipants(conversationId, { participantIds }),
     onSuccess: (_, { conversationId }) => {
-      queryClient.invalidateQueries({
+      // Refetch to immediately show new participants
+      queryClient.refetchQueries({
         queryKey: chatKeys.detail(conversationId),
       });
+      queryClient.refetchQueries({ queryKey: chatKeys.lists() });
     },
   });
 }
@@ -130,9 +134,11 @@ export function useRemoveParticipant() {
       userId: string;
     }) => chatApi.removeParticipant(conversationId, userId),
     onSuccess: (_, { conversationId }) => {
-      queryClient.invalidateQueries({
+      // Refetch to immediately reflect participant removal
+      queryClient.refetchQueries({
         queryKey: chatKeys.detail(conversationId),
       });
+      queryClient.refetchQueries({ queryKey: chatKeys.lists() });
     },
   });
 }

@@ -211,6 +211,70 @@
 					"themeColor": "#FF5733"
 				}
 			},
+			"BlockStatusResponse": {
+				"description": "API response format for block status between two users",
+				"properties": {
+					"isBlocked": {
+						"type": "boolean"
+					},
+					"direction": {
+						"type": "string",
+						"enum": [
+							"blocker",
+							"blocked",
+							null
+						],
+						"nullable": true
+					}
+				},
+				"required": [
+					"isBlocked",
+					"direction"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"isBlocked": true,
+					"direction": "blocker"
+				}
+			},
+			"BlockedUserResponse": {
+				"description": "API response format for a blocked user",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"username": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"avatarUrl": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"required": [
+					"id",
+					"username",
+					"firstName",
+					"lastName",
+					"avatarUrl"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"id": "user-123",
+					"username": "johndoe",
+					"firstName": "John",
+					"lastName": "Doe",
+					"avatarUrl": "https://example.com/avatar.jpg"
+				}
+			},
 			"UserSocialMediaResponse": {
 				"description": "API response format for user social media links",
 				"properties": {
@@ -3223,6 +3287,173 @@
 						}
 					}
 				}
+			}
+		},
+		"/users/{userId}/block": {
+			"post": {
+				"operationId": "BlockUser",
+				"responses": {
+					"200": {
+						"description": "Success message",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Block a user\n\nBlocks the specified user, adding them to your blocked users list.\nThis will also remove any existing direct conversations between you and the blocked user.",
+				"summary": "Block a user",
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The ID of the user to block",
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"delete": {
+				"operationId": "UnblockUser",
+				"responses": {
+					"200": {
+						"description": "Success message",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Unblock a user\n\nRemoves the specified user from your blocked users list.",
+				"summary": "Unblock a user",
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The ID of the user to unblock",
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/users/{userId}/block-status": {
+			"get": {
+				"operationId": "GetBlockStatus",
+				"responses": {
+					"200": {
+						"description": "Block status information",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BlockStatusResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get block status between two users\n\nChecks whether there is a block relationship between the authenticated user\nand the specified target user, and returns the direction of the block.",
+				"summary": "Get block status",
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The ID of the target user to check",
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/users/blocked": {
+			"get": {
+				"operationId": "GetBlockedUsers",
+				"responses": {
+					"200": {
+						"description": "Array of blocked users",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"$ref": "#/components/schemas/BlockedUserResponse"
+											},
+											"type": "array"
+										}
+									},
+									"required": [
+										"data"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get list of blocked users\n\nReturns a list of all users that the authenticated user has blocked.",
+				"summary": "Get blocked users",
+				"tags": [
+					"Users"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": []
 			}
 		},
 		"/users/{username}/social-media": {

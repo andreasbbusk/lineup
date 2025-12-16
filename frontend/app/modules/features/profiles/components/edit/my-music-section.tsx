@@ -55,7 +55,7 @@ export function MyMusicSection({
 			</div>
 			<p
 				onClick={() => setIsEditingSpotify(!isEditingSpotify)}
-				className="absolute bottom-3 right-3.5 cursor-pointer">
+				className="absolute bottom-3 right-3.5 cursor-pointer hover:underline">
 				{isEditingSpotify ? "Done" : "Edit"}
 			</p>
 		</div>

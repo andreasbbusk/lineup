@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MESSAGE_ACTION_CONFIG, MESSAGE_STATES, STYLES } from "../../constants";
+import { MESSAGE_ACTION_CONFIG, STYLES } from "../../constants";
 import { Message } from "../../types";
 import { Avatar, getInitials } from "../../../../components/avatar";
 import { MessageActionsMenu } from "./message-actions";
@@ -18,7 +18,7 @@ export function MessageBubble({
   showAvatar = true,
 }: MessageBubbleProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const isDeleted = message.content === MESSAGE_STATES.DELETED_TEXT;
+  const isDeleted = message.isDeleted;
 
   const handlePress = () => {
     if (!isMe || isDeleted) return;

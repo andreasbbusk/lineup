@@ -335,7 +335,7 @@ export default function EditProfilePage() {
 						alt={`${profileData?.username}'s avatar`}></Avatar>
 					<p
 						onClick={() => setIsAvatarUploaderOpen(true)}
-						className="text-grey font-semibold cursor-pointer hover:opacity-80 transition-opacity">
+						className="text-grey font-semibold cursor-pointer  hover:underline">
 						Edit picture
 					</p>
 				</div>
@@ -466,7 +466,7 @@ export default function EditProfilePage() {
 								))}
 								<p
 									onClick={() => setIsEditingLookingFor(!isEditingLookingFor)}
-									className="cursor-pointer">
+									className="cursor-pointer hover:underline">
 									{isEditingLookingFor ? "Done" : "Edit"}
 								</p>
 							</div>
@@ -487,7 +487,7 @@ export default function EditProfilePage() {
 										text={genre}
 										color={themeColorValue || "#1E1E1E"}></Tags>
 								))}
-								<p className="font-helvetica text-body font-normal leading-[100%] tracking-[0.03125rem] text-center text--grey">
+								<p className="font-helvetica text-body font-normal leading-[100%] tracking-[0.03125rem] text-center text--grey hover:underline">
 									Edit
 								</p>
 							</div>
@@ -534,7 +534,7 @@ export default function EditProfilePage() {
 										)}
 										<p
 											onClick={() => setIsEditingTheme(!isEditingTheme)}
-											className="cursor-pointer">
+											className="cursor-pointer hover:underline">
 											{isEditingTheme ? "Done" : "Edit"}
 										</p>
 									</div>
@@ -603,7 +603,7 @@ export default function EditProfilePage() {
 						</div>
 						<p
 							onClick={() => setIsEditingVideos(!isEditingVideos)}
-							className="absolute bottom-3 right-3.5 cursor-pointer">
+							className="absolute bottom-3 right-3.5 cursor-pointer hover:underline">
 							{isEditingVideos ? "Done" : "Edit"}
 						</p>
 					</div>

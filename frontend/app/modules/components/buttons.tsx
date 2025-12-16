@@ -74,20 +74,18 @@ const Button = (props: buttonProps) => {
 	const variantStyles = {
 		primary: ` ${
 			props.glass
-				? props.pressed
-					? "gap-[0.25rem] flex-row-reverse flex px-[30px] py-2 justify-center items-center rounded-[1.5625rem] bg-crocus-yellow/50 text-[var(--color-white)] text-nowrap"
-					: "gap-[0.25rem] flex-row-reverse flex justify-center items-center rounded-[1.5625rem] text-[var(--color-white)] text-nowrap"
-				: "flex px-2.5 py-2 justify-center items-center gap-[0.3125rem] rounded-full bg-[var(--color-crocus-yellow)]"
+				? "gap-[0.25rem] flex-row-reverse flex justify-center items-center rounded-[1.5625rem] text-[var(--color-white)] text-nowrap hover:opacity-80"
+				: "flex px-2.5 py-2 justify-center items-center gap-1.25 rounded-full bg-[var(--color-crocus-yellow)] hover:opacity-80"
 		}`,
 		secondary: ` ${
 			props.glass
-				? "flex-row-reverse flex px-2.5 py-1 justify-center items-center gap-[0.3125rem] rounded-full bg-[var(--color-crocus-yellow)]"
-				: "flex px-2.5 py-1 justify-center items-center gap-2 rounded-[5.625rem] border border-[var(--color-grey)] text-[var(--color-grey)]"
+				? "flex-row-reverse flex px-2.5 py-1 justify-center items-center gap-1.25 rounded-full bg-[var(--color-crocus-yellow)] hover:opacity-80"
+				: "flex px-2.5 py-1 justify-center items-center gap-2 rounded-[5.625rem] border border-[var(--color-grey)] text-[var(--color-grey)] hover:opacity-80"
 		}`,
 		icon: ` ${
 			props.blank
-				? "flex w-8 h-8 justify-center items-center gap-4 aspect-square rounded-[12.5rem] border border-[var(--color-black)]`"
-				: "flex w-8 h-8 p-1 justify-center items-center gap-4 aspect-square rounded-[12.5rem] bg-[var(--color-grey)]/70 "
+				? "flex w-8 h-8 justify-center items-center gap-4 aspect-square rounded-[12.5rem] border border-[var(--color-black)] hover:opacity-80"
+				: "flex w-8 h-8 p-1 justify-center items-center gap-4 aspect-square rounded-[12.5rem] bg-[var(--color-grey)]/70 hover:opacity-80"
 		}`,
 	};
 
@@ -99,11 +97,13 @@ const Button = (props: buttonProps) => {
 					height={40}
 					refraction={0}
 					dispersion={0}
-					className="px-[30px] py-2">
+					className="px-[30px] py-2 hover:opacity-80">
 					<button
 						className={`${variantStyles[props.variant]} cursor-pointer ${
 							props.className ? ` ${props.className}` : ""
-						}${props.disabled ? " opacity-50 cursor-not-allowed" : ""}`}
+						}${props.disabled ? " opacity-50 cursor-not-allowed" : ""} hover:${
+							props.pressed
+						}`}
 						type={props.type}
 						onClick={props.onClick}
 						disabled={props.disabled}>

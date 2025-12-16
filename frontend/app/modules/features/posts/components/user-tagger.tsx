@@ -182,7 +182,7 @@ export function UserTagger({
 		isOpen && (
 			<div>
 				{/* Search input */}
-				<div className="flex px-[0.9375rem] py-[0.625rem] my-[0.3125rem] mx-[0.625rem] justify-between items-center flex-[1_0_0] rounded-[18.75rem] border border-[rgba(0,0,0,0.05)]">
+				<div className="flex px-3.75 py-2.5 my-1.25 mx-2.5 justify-between items-center flex-[1_0_0] rounded-[18.75rem] border border-[rgba(0,0,0,0.05)]">
 					<Combobox
 						dropdownDisabled
 						blank
@@ -221,8 +221,8 @@ export function UserTagger({
 								<div
 									key={user.id}
 									onClick={() => handleToggleUser(user.id)}
-									className="flex px-[0.9375rem] py-[0.625rem] pl-[0.625rem] justify-between items-center">
-									<div className="flex items-center gap-[0.625rem]">
+									className="flex px-3.75 py-2.5 pl-2.5 justify-between items-center">
+									<div className="flex items-center gap-2.5">
 										<Avatar
 											size="sm"
 											fallback={

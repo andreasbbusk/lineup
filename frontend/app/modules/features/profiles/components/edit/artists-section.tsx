@@ -149,7 +149,7 @@ export function ArtistsSection({
 
 			<p
 				onClick={() => setIsEditingArtist(!isEditingArtist)}
-				className="absolute bottom-3 right-3.5 cursor-pointer">
+				className="absolute bottom-3 right-3.5 cursor-pointer hover:underline">
 				{isEditingArtist ? "Done" : "Edit"}
 			</p>
 		</div>

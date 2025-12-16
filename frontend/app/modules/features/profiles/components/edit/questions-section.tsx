@@ -113,7 +113,7 @@ export function QuestionsSection({
 							key={index}
 							className="flex flex-col items-start gap-1.25 pb-4 pl-3.75">
 							<h5 className="font-semibold">{faq.question}</h5>
-							<p className="pl-5.5">{faq.answer}</p>
+							<p className="pl-5">{faq.answer}</p>
 							<Divider />
 						</li>
 					))}

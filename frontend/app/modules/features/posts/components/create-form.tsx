@@ -134,7 +134,7 @@ export function CreateForm() {
 				<NoteForm onSubmit={handleNoteSubmit} isSubmitting={isPending} />
 			</TabsContent>
 			<TabsContent value="story">
-				<div className="flex self-center m-5 pt-[14rem] pr-[5rem] pb-[14.9375rem] pl-[5.8125rem] flex-col items-center rounded-[1.4375rem] bg-[#878787] text-white text-center text-white text-[1.25rem] font-bold">
+				<div className="flex self-center m-5 pt-56 pr-20 pb-56.75 pl-23.25 flex-col items-center rounded-[1.4375rem] bg-[#878787] text-white text-center text-5 font-bold">
 					Story feature coming soon!
 				</div>
 			</TabsContent>

@@ -38,6 +38,80 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/{userId}/block": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Block a user
+         * @description Block a user
+         *
+         *     Blocks the specified user, adding them to your blocked users list.
+         *     This will also remove any existing direct conversations between you and the blocked user.
+         */
+        post: operations["BlockUser"];
+        /**
+         * Unblock a user
+         * @description Unblock a user
+         *
+         *     Removes the specified user from your blocked users list.
+         */
+        delete: operations["UnblockUser"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{userId}/block-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get block status
+         * @description Get block status between two users
+         *
+         *     Checks whether there is a block relationship between the authenticated user
+         *     and the specified target user, and returns the direction of the block.
+         */
+        get: operations["GetBlockStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/blocked": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get blocked users
+         * @description Get list of blocked users
+         *
+         *     Returns a list of all users that the authenticated user has blocked.
+         */
+        get: operations["GetBlockedUsers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/{username}/social-media": {
         parameters: {
             query?: never;
@@ -1349,6 +1423,35 @@ export interface components {
             lookingFor?: components["schemas"]["LookingForType"][];
         };
         /**
+         * @description API response format for block status between two users
+         * @example {
+         *       "isBlocked": true,
+         *       "direction": "blocker"
+         *     }
+         */
+        BlockStatusResponse: {
+            isBlocked: boolean;
+            /** @enum {string|null} */
+            direction: "blocker" | "blocked" | null;
+        };
+        /**
+         * @description API response format for a blocked user
+         * @example {
+         *       "id": "user-123",
+         *       "username": "johndoe",
+         *       "firstName": "John",
+         *       "lastName": "Doe",
+         *       "avatarUrl": "https://example.com/avatar.jpg"
+         *     }
+         */
+        BlockedUserResponse: {
+            id: string;
+            username: string;
+            firstName: string;
+            lastName: string;
+            avatarUrl: string | null;
+        };
+        /**
          * @description API response format for user social media links
          * @example {
          *       "userId": "user-123",
@@ -2644,6 +2747,101 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserProfile"];
+                };
+            };
+        };
+    };
+    BlockUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The ID of the user to block */
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success message */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    UnblockUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The ID of the user to unblock */
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success message */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    GetBlockStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The ID of the target user to check */
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Block status information */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BlockStatusResponse"];
+                };
+            };
+        };
+    };
+    GetBlockedUsers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Array of blocked users */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BlockedUserResponse"][];
+                    };
                 };
             };
         };
