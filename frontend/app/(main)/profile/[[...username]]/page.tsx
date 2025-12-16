@@ -16,6 +16,7 @@ import {
 	useUserConnections,
 } from "@/app/modules/features/profiles";
 import { usePostsByAuthor } from "@/app/modules/hooks/queries";
+import { useStartOrNavigateToChat } from "@/app/modules/hooks";
 
 interface ProfilePageProps {
 	params: Promise<{
@@ -27,6 +28,7 @@ export default function Page({ params }: ProfilePageProps) {
 	const unwrappedParams = use(params);
 	const currentUserProfile = useAppStore((state) => state.user);
 	const router = useRouter();
+	const { startOrNavigateToChat } = useStartOrNavigateToChat();
 
 	// Extract username from params array, or use current user's username
 	// /profile -> username is undefined/empty, use current user
@@ -210,9 +212,10 @@ export default function Page({ params }: ProfilePageProps) {
 		console.log("Share profile clicked");
 	};
 
-	const message = () => {
-		// Logic to send a message
-		console.log("Message clicked");
+	const handleMessageClick = () => {
+		if (profileData?.id) {
+			startOrNavigateToChat(profileData.id);
+		}
 	};
 
 	return (
@@ -262,7 +265,7 @@ export default function Page({ params }: ProfilePageProps) {
 						isOwnProfile={isOwnProfile}
 						connections={acceptedConnectionsCount}
 						posts={postsCount}
-						onClickMessage={message}
+						onClickMessage={handleMessageClick}
 						className="md:sticky md:top-20"
 					/>
 					<ProfileBody
