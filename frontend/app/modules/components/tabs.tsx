@@ -125,7 +125,7 @@ const Tabs = (props: TabsProps) => {
 						<React.Fragment key={tab.id}>
 							<button
 								onClick={() => handleTabChange(tab.id)}
-								className={`flex w-1/2 py-[0.9375rem] justify-center items-center gap-[0.3125rem] bg-white text-base font-medium transition-colors ${
+								className={`flex w-1/2 py-3.75 justify-center items-center gap-1.25 bg-white text-base font-medium transition-colors ${
 									index === 0
 										? "rounded-tl-[2.8125rem]"
 										: "rounded-tr-[2.8125rem]"
@@ -153,7 +153,7 @@ const Tabs = (props: TabsProps) => {
 					<button
 						key={tab.id}
 						onClick={() => handleTabChange(tab.id)}
-						className={`flex h-[1.6875rem] px-3.5 py-[0.125rem] justify-center items-center gap-[0.625rem] rounded-[1.9375rem] transition-all ${
+						className={`flex h-[1.6875rem] px-3.5 py-[0.125rem] justify-center items-center gap-2.5 rounded-[1.9375rem] transition-all ${
 							props.activeTab === tab.id
 								? "bg-[var(--color-crocus-yellow)]"
 								: ""

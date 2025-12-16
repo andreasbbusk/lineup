@@ -1,7 +1,6 @@
 import { supabase } from "@/app/modules/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { MESSAGE_STATES } from "../../constants";
 import { chatKeys } from "../../queryKeys";
 import { useTypingStore } from "../../stores/typingStore";
 import {
@@ -94,7 +93,6 @@ export function useMessageSubscription(conversationId: string | null) {
             (msg) => ({
               ...msg,
               isDeleted: true,
-              content: MESSAGE_STATES.DELETED_TEXT,
             })
           );
         }

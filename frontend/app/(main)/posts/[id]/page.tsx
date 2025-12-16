@@ -57,10 +57,10 @@ export default function Page({ params }: PostDetailsPageProps) {
 	}
 
 	return (
-		<main className="space-y-4">
+		<>
 			<PostDetail
 				post={{ ...post, paidOpportunity: post.paidOpportunity ?? false }}
 			/>
-		</main>
+		</>
 	);
 }

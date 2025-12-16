@@ -102,7 +102,7 @@ export function SocialMediaSection({
 
 			<p
 				onClick={() => setIsEditingSocials(!isEditingSocials)}
-				className="absolute bottom-3 right-3.5 cursor-pointer">
+				className="absolute bottom-3 right-3.5 cursor-pointer hover:underline">
 				{isEditingSocials ? "Done" : "Edit"}
 			</p>
 		</div>
