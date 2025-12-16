@@ -30,6 +30,7 @@ import { MyMusicSection } from "@/app/modules/features/profiles/components/edit/
 import { ArtistsSection } from "@/app/modules/features/profiles/components/edit/artists-section";
 import { SocialMediaSection } from "@/app/modules/features/profiles/components/edit/social-media-section";
 import { Avatar } from "@/app/modules/components/avatar";
+import { AvatarUploader } from "@/app/modules/features/profiles/components/avatar-uploader";
 
 // Edit Profile Schema - all fields are optional
 const editProfileSchema = z.object({
@@ -128,6 +129,7 @@ export default function EditProfilePage() {
 
 	const [isEditingVideos, setIsEditingVideos] = useState(false);
 	const [isEditingArtist, setIsEditingArtist] = useState(false);
+	const [isAvatarUploaderOpen, setIsAvatarUploaderOpen] = useState(false);
 	const [removedCollaborations, setRemovedCollaborations] = useState<
 		Set<string>
 	>(new Set());
@@ -332,13 +334,13 @@ export default function EditProfilePage() {
 						src={profileData?.avatarUrl}
 						alt={`${profileData?.username}'s avatar`}></Avatar>
 					<p
-						onClick={() => {}}
-						className="text-grey font-semibold hover:underline">
+						onClick={() => setIsAvatarUploaderOpen(true)}
+						className="text-grey font-semibold cursor-pointer hover:underline">
 						Edit picture
 					</p>
 				</div>
 
-				<div className="text-grey flex flex-col gap-2.5 rounded-[1.5625rem] border border-melting-glacier bg-white py-9 px-3.75 w-full max-w-200 mx-auto">
+				<div className="text-grey flex flex-col gap-2.5 rounded-[1.5625rem] border border-melting-glacier bg-white p-3.75 w-full max-w-200 mx-auto">
 					{/* Full Name */}
 					<div className="flex flex-col items-center gap-2.5 self-stretch">
 						<div className="flex items-center self-stretch">
@@ -673,6 +675,25 @@ export default function EditProfilePage() {
 				showVideosSection={showVideosSection}
 				setShowVideosSection={setShowVideosSection}
 			/>
+
+			{/* Avatar Uploader Modal */}
+			{isAvatarUploaderOpen && (
+				<div
+					className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+					onClick={() => setIsAvatarUploaderOpen(false)}>
+					<div onClick={(e) => e.stopPropagation()}>
+						<AvatarUploader
+							currentAvatarUrl={profileData?.avatarUrl || ""}
+							username={username || ""}
+							onClose={() => setIsAvatarUploaderOpen(false)}
+							onSuccess={(newAvatarUrl) => {
+								console.log("Avatar updated:", newAvatarUrl);
+								// The profile will auto-refresh via React Query invalidation
+							}}
+						/>
+					</div>
+				</div>
+			)}
 		</main>
 	);
 }

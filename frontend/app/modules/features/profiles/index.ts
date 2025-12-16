@@ -41,6 +41,7 @@ export {
 } from "@/app/modules/hooks/queries";
 
 export { ConnectionsModal } from "./components/connections/ConnectionsModal";
+export { AvatarUploader } from "./components/avatar-uploader";
 
 // Onboarding Components
 export { OnboardingSignupStep } from "./components/onboarding/signup";
