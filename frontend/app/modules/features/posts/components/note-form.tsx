@@ -88,8 +88,8 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 			return;
 		}
 
-		if (description.trim().length < 10) {
-			alert("Description must be at least 10 characters");
+		if (description.trim().length < 1) {
+			alert("Description must be at least 1 characters");
 			return;
 		}
 
@@ -321,7 +321,7 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 					type="submit"
 					variant="primary"
 					disabled={
-						isSubmitting || !title.trim() || description.trim().length < 10
+						isSubmitting || !title.trim() || description.trim().length < 1
 					}
 					onClick={() => {}} // Required by Button component, form handles submit
 					className="w-[6.85rem] items-center justify-center ">
