@@ -7,10 +7,9 @@ import { toast } from "sonner";
 import { chatApi } from "../../api";
 import { chatKeys } from "../../queryKeys";
 import { useMessageActionsStore } from "../../stores/messageStore";
-import { Message, PaginatedMessages, GroupedConversations } from "../../types";
+import { Message, PaginatedMessages } from "../../types";
 import {
   addMessageToCache,
-  replaceMessageInCache,
   updateMessageInCache,
 } from "../../utils/cacheUpdates";
 
@@ -69,7 +68,7 @@ export function useEditMessage(conversationId: string) {
       // Force immediate refetch of conversation list to get updated last message
       await queryClient.refetchQueries({
         queryKey: chatKeys.lists(),
-        type: 'active'
+        type: "active",
       });
       queryClient.invalidateQueries({ queryKey: chatKeys.unread() });
     },
@@ -121,7 +120,7 @@ export function useDeleteMessage(conversationId: string) {
       // Force immediate refetch of conversation list to get updated last message
       await queryClient.refetchQueries({
         queryKey: chatKeys.lists(),
-        type: 'active'
+        type: "active",
       });
       queryClient.invalidateQueries({ queryKey: chatKeys.unread() });
     },
@@ -149,12 +148,9 @@ export function useSendMessage(conversationId: string, userId: string) {
         reply_to_message_id: null,
       }),
 
-    // Optimistic update: Show message immediately before server confirms
     onMutate: async (content: string) => {
-      const tempId = `temp-${Date.now()}`;
-      const now = new Date().toISOString();
+      const tempId = `temp-${Date.now()}-${Math.random()}`;
 
-      // Cancel in-flight queries to avoid race conditions
       await queryClient.cancelQueries({
         queryKey: chatKeys.messages(conversationId),
       });
@@ -162,15 +158,10 @@ export function useSendMessage(conversationId: string, userId: string) {
         queryKey: chatKeys.lists(),
       });
 
-      // Save current state for rollback on error
-      const messagesSnapshot = queryClient.getQueryData<InfiniteMessages>(
+      const snapshot = queryClient.getQueryData<InfiniteMessages>(
         chatKeys.messages(conversationId)
       );
-      const conversationsSnapshot = queryClient.getQueryData<GroupedConversations>(
-        chatKeys.lists()
-      );
 
-      // Create temporary message with client-side ID
       const optimisticMessage: Message = {
         id: tempId,
         conversationId,
@@ -182,7 +173,7 @@ export function useSendMessage(conversationId: string, userId: string) {
         isDeleted: null,
         deletedAt: null,
         replyToMessageId: null,
-        createdAt: now,
+        createdAt: new Date().toISOString(),
         sentViaWebsocket: null,
         sender: undefined,
         replyTo: null,
@@ -190,41 +181,59 @@ export function useSendMessage(conversationId: string, userId: string) {
         media: [],
       };
 
-      // Optimistically add message to messages cache
       addMessageToCache(queryClient, conversationId, optimisticMessage);
 
-      // Optimistically update conversation list with new last message preview
-      if (conversationsSnapshot) {
-        const updateConversationPreview = (conversations: typeof conversationsSnapshot.direct) => {
-          return conversations.map((conv) => {
-            if (conv.id === conversationId) {
-              return {
-                ...conv,
-                lastMessagePreview: content.length > 50 ? content.slice(0, 50) + '...' : content,
-                lastMessageAt: now,
-                lastMessageId: tempId,
-                lastMessageSenderId: userId,
-              };
-            }
-            return conv;
-          });
-        };
+      // Optimistically update conversation list (non-infinite structure)
+      const conversationsSnapshot = queryClient.getQueryData(chatKeys.lists());
+      
+      queryClient.setQueryData(
+        chatKeys.lists(),
+        (oldData: unknown) => {
+          if (!oldData || typeof oldData !== 'object') return oldData;
+          
+          const data = oldData as {
+            direct: Array<{
+              id: string;
+              lastMessage?: { content: string; senderId: string; createdAt: string };
+              updatedAt?: string;
+            }>;
+            groups: Array<{
+              id: string;
+              lastMessage?: { content: string; senderId: string; createdAt: string };
+              updatedAt?: string;
+            }>;
+          };
+          
+          const now = new Date().toISOString();
+          const newLastMessage = {
+            content,
+            senderId: userId,
+            createdAt: now,
+          };
 
-        queryClient.setQueryData<GroupedConversations>(chatKeys.lists(), {
-          direct: updateConversationPreview(conversationsSnapshot.direct),
-          groups: updateConversationPreview(conversationsSnapshot.groups),
-        });
-      }
+          return {
+            direct: data.direct.map((conv) =>
+              conv.id === conversationId
+                ? { ...conv, lastMessage: newLastMessage, updatedAt: now }
+                : conv
+            ),
+            groups: data.groups.map((conv) =>
+              conv.id === conversationId
+                ? { ...conv, lastMessage: newLastMessage, updatedAt: now }
+                : conv
+            ),
+          };
+        }
+      );
 
-      return { messagesSnapshot, conversationsSnapshot, tempId };
+      return { snapshot, conversationsSnapshot, tempId };
     },
 
-    // Rollback: Restore previous state if send fails
     onError: (_err, _content, context) => {
-      if (context?.messagesSnapshot) {
+      if (context?.snapshot) {
         queryClient.setQueryData(
           chatKeys.messages(conversationId),
-          context.messagesSnapshot
+          context.snapshot
         );
       }
       if (context?.conversationsSnapshot) {
@@ -235,21 +244,36 @@ export function useSendMessage(conversationId: string, userId: string) {
       }
     },
 
-    // Replace temporary message with server response
-    onSuccess: async (serverMessage, _content, context) => {
-      replaceMessageInCache(
-        queryClient,
-        conversationId,
-        context.tempId,
-        serverMessage
+    onSuccess: (serverMessage, _content, context) => {
+      queryClient.setQueryData<InfiniteMessages>(
+        chatKeys.messages(conversationId),
+        (oldData) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              messages: page.messages.map((msg) => {
+                if (msg.id === context.tempId) {
+                  return {
+                    ...msg,
+                    ...serverMessage,
+                    createdAt: msg.createdAt,
+                  };
+                }
+                return msg;
+              }),
+            })),
+          };
+        }
       );
 
-      // Force immediate refetch of conversation list
-      await queryClient.refetchQueries({
+      // Refetch to get accurate server state with full sender info
+      queryClient.refetchQueries({ 
         queryKey: chatKeys.lists(),
-        type: 'active'
+        type: 'active' 
       });
-      queryClient.invalidateQueries({ queryKey: chatKeys.unread() });
     },
   });
 }

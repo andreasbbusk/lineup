@@ -7,16 +7,16 @@ import { z } from "zod";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
-	useMyProfile,
-	useUpdateProfile,
-	useLookingFor,
-	useSocialMedia,
-	useUpdateSocialMedia,
-	useFaq,
-	useAllFaqQuestions,
-	useUpsertFaq,
-	useDeleteFaq,
-	useDeleteCollaboration,
+  useMyProfile,
+  useUpdateProfile,
+  useLookingFor,
+  useSocialMedia,
+  useUpdateSocialMedia,
+  useFaq,
+  useAllFaqQuestions,
+  useUpsertFaq,
+  useDeleteFaq,
+  useDeleteCollaboration,
 } from "@/app/modules/features/profiles";
 import { Button } from "@/app/modules/components/buttons";
 import { ErrorMessage } from "@/app/modules/components/error-message";
@@ -30,71 +30,72 @@ import { MyMusicSection } from "@/app/modules/features/profiles/components/edit/
 import { ArtistsSection } from "@/app/modules/features/profiles/components/edit/artists-section";
 import { SocialMediaSection } from "@/app/modules/features/profiles/components/edit/social-media-section";
 import { Avatar } from "@/app/modules/components/avatar";
+import { PageTransition } from "@/app/modules/components/page-transition";
 import { AvatarUploader } from "@/app/modules/features/profiles/components/avatar-uploader";
 
 // Edit Profile Schema - all fields are optional
 const editProfileSchema = z.object({
-	firstName: z
-		.string()
-		.min(1, "First name is required")
-		.max(50, "First name is too long"),
-	lastName: z
-		.string()
-		.min(1, "Last name is required")
-		.max(50, "Last name is too long"),
-	bio: z.string().max(100, "Bio is too long (max 100 characters)").optional(),
-	aboutMe: z
-		.string()
-		.max(500, "About me is too long (max 500 characters)")
-		.optional(),
-	location: z
-		.string()
-		.min(1, "Location is required")
-		.max(100, "Location is too long"),
-	phoneCountryCode: z
-		.number()
-		.min(1, "Country code is required")
-		.max(999, "Invalid country code"),
-	phoneNumber: z
-		.number()
-		.min(1000, "Phone number must be at least 4 digits")
-		.max(999999999999999, "Phone number must be at most 15 digits"),
-	yearOfBirth: z
-		.number()
-		.min(1900, "Invalid year")
-		.max(new Date().getFullYear() - 13, "You must be at least 13 years old"),
-	userType: z.enum(["musician", "service_provider", "other"]),
-	spotifyPlaylistUrl: z
-		.string()
-		.url("Must be a valid URL")
-		.optional()
-		.or(z.literal("")),
-	themeColor: z
-		.string()
-		.regex(/^#[0-9A-F]{6}$/i, "Invalid color")
-		.optional(),
-	lookingFor: z
-		.array(z.enum(["connect", "promote", "find-band", "find-services"]))
-		.optional(),
+  firstName: z
+    .string()
+    .min(1, "First name is required")
+    .max(50, "First name is too long"),
+  lastName: z
+    .string()
+    .min(1, "Last name is required")
+    .max(50, "Last name is too long"),
+  bio: z.string().max(100, "Bio is too long (max 100 characters)").optional(),
+  aboutMe: z
+    .string()
+    .max(500, "About me is too long (max 500 characters)")
+    .optional(),
+  location: z
+    .string()
+    .min(1, "Location is required")
+    .max(100, "Location is too long"),
+  phoneCountryCode: z
+    .number()
+    .min(1, "Country code is required")
+    .max(999, "Invalid country code"),
+  phoneNumber: z
+    .number()
+    .min(1000, "Phone number must be at least 4 digits")
+    .max(999999999999999, "Phone number must be at most 15 digits"),
+  yearOfBirth: z
+    .number()
+    .min(1900, "Invalid year")
+    .max(new Date().getFullYear() - 13, "You must be at least 13 years old"),
+  userType: z.enum(["musician", "service_provider", "other"]),
+  spotifyPlaylistUrl: z
+    .string()
+    .url("Must be a valid URL")
+    .optional()
+    .or(z.literal("")),
+  themeColor: z
+    .string()
+    .regex(/^#[0-9A-F]{6}$/i, "Invalid color")
+    .optional(),
+  lookingFor: z
+    .array(z.enum(["connect", "promote", "find-band", "find-services"]))
+    .optional(),
 });
 
 type EditProfileFormData = z.infer<typeof editProfileSchema>;
 
 const LOOKING_FOR_OPTIONS = [
-	{ value: "connect", label: "Connect" },
-	{ value: "promote", label: "Promote" },
-	{ value: "find-band", label: "Find Band" },
-	{ value: "find-services", label: "Find Services" },
+  { value: "connect", label: "Connect" },
+  { value: "promote", label: "Promote" },
+  { value: "find-band", label: "Find Band" },
+  { value: "find-services", label: "Find Services" },
 ];
 
 const THEME_COLORS = [
-	{ value: "#1E1E1E", label: "Default" },
-	{ value: "#575252", label: "Grey" },
-	{ value: "#3F4D54", label: "Green" },
-	{ value: "#3F4254", label: "Blue" },
-	{ value: "#4D3F54", label: "Purple" },
-	{ value: "#543F40", label: "Red" },
-	{ value: "#5D4C43", label: "Orange" },
+  { value: "#1E1E1E", label: "Default" },
+  { value: "#575252", label: "Grey" },
+  { value: "#3F4D54", label: "Green" },
+  { value: "#3F4254", label: "Blue" },
+  { value: "#4D3F54", label: "Purple" },
+  { value: "#543F40", label: "Red" },
+  { value: "#5D4C43", label: "Orange" },
 ];
 
 export default function EditProfilePage() {

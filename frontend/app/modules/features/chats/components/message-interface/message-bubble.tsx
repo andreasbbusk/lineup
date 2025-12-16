@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { MESSAGE_ACTION_CONFIG, STYLES } from "../../constants";
 import { Message } from "../../types";
 import { Avatar, getInitials } from "../../../../components/avatar";
 import { MessageActionsMenu } from "./message-actions";
+import { useReducedMotion } from "@/app/modules/hooks/useReducedMotion";
 
 type MessageBubbleProps = {
   message: Message;
@@ -12,13 +14,39 @@ type MessageBubbleProps = {
   showAvatar?: boolean;
 };
 
+// Track messages that existed when the component first mounted
+const initialMessageIds = new Set<string>();
+let hasInitialized = false;
+
 export function MessageBubble({
   message,
   isMe,
   showAvatar = true,
 }: MessageBubbleProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
   const isDeleted = message.isDeleted;
+
+  // On first render of MessageBubble component, mark existing messages
+  useEffect(() => {
+    if (!hasInitialized) {
+      hasInitialized = true;
+    }
+  }, []);
+
+  // Determine if this message should animate
+  const isNewMessage =
+    message.id.startsWith("temp-") || // Optimistic message
+    !initialMessageIds.has(message.id); // New message not in initial set
+
+  const shouldAnimate = isNewMessage && !prefersReducedMotion;
+
+  // After animation, add to the set so it won't animate again
+  useEffect(() => {
+    if (message.id && !message.id.startsWith("temp-")) {
+      initialMessageIds.add(message.id);
+    }
+  }, [message.id]);
 
   const handlePress = () => {
     if (!isMe || isDeleted) return;
@@ -55,7 +83,16 @@ export function MessageBubble({
   );
 
   return (
-    <div className={`flex gap-2 mb-4 ${isMe ? "flex-row-reverse" : ""}`}>
+    <motion.div
+      initial={shouldAnimate ? { opacity: 0, y: 10, scale: 0.95 } : false}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{
+        type: "spring" as const,
+        stiffness: 500,
+        damping: 30,
+      }}
+      className={`flex gap-2 mb-4 ${isMe ? "flex-row-reverse" : ""}`}
+    >
       {!isMe && (
         <>
           {showAvatar ? (
@@ -93,6 +130,6 @@ export function MessageBubble({
           </MessageActionsMenu>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

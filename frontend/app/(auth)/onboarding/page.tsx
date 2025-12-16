@@ -9,6 +9,7 @@ import { OnboardingSplash } from "@/app/modules/features/profiles/components/onb
 import { OnboardingConceptSlider } from "@/app/modules/features/profiles/components/onboarding/concept-slider";
 import { OnboardingProgress } from "@/app/modules/features/profiles/components/onboarding/progress-bar";
 import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
+import { PageTransition } from "@/app/modules/components/page-transition";
 
 const STEP_COMPONENTS = {
   0: OnboardingSplash,
@@ -38,11 +39,13 @@ export default function OnboardingPage() {
   const showProgress = STEPS_WITH_PROGRESS.includes(step);
 
   return (
-    <main className="min-h-screen bg-white">
-      {showProgress && <OnboardingProgress />}
-      <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-lg flex-col items-center justify-center px-6 py-8">
-        <Component />
-      </div>
-    </main>
+    <PageTransition>
+      <main className="min-h-screen bg-white">
+        {showProgress && <OnboardingProgress />}
+        <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-lg flex-col items-center justify-center px-6 py-8">
+          <Component />
+        </div>
+      </main>
+    </PageTransition>
   );
 }
