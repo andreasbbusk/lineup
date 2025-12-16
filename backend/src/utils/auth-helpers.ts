@@ -20,14 +20,19 @@ export async function extractUserId(request: ExpressRequest): Promise<string> {
   }
 
   const token = authHeader.split(" ")[1];
+  
+  // Log token for debugging (first/last 10 chars only for security)
+  console.log("Validating token:", token.substring(0, 10) + "..." + token.substring(token.length - 10));
+  
   const {
     data: { user },
     error,
   } = await supabase.auth.getUser(token);
 
   if (error || !user) {
+    console.error("Token validation error:", error?.message || "No user returned");
     throw createHttpError({
-      message: "Invalid or expired token",
+      message: `Invalid or expired token: ${error?.message || "No user returned"}`,
       statusCode: 401,
       code: "UNAUTHORIZED",
     });

@@ -77,7 +77,7 @@ const Button = (props: buttonProps) => {
 				? props.pressed
 					? "gap-[0.25rem] flex-row-reverse flex px-[30px] py-2 justify-center items-center rounded-[1.5625rem] bg-crocus-yellow/50 text-[var(--color-white)] text-nowrap"
 					: "gap-[0.25rem] flex-row-reverse flex justify-center items-center rounded-[1.5625rem] text-[var(--color-white)] text-nowrap"
-				: "flex px-2.5 py-2 items-center gap-[0.3125rem] rounded-full bg-[var(--color-crocus-yellow)]"
+				: "flex px-2.5 py-2 justify-center items-center gap-[0.3125rem] rounded-full bg-[var(--color-crocus-yellow)]"
 		}`,
 		secondary: ` ${
 			props.glass
