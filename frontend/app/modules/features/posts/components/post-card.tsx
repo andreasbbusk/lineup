@@ -14,6 +14,7 @@ import { Popover } from "@/app/modules/components/popover";
 import { cn } from "@/app/modules/utils/twUtil";
 import { Button } from "@/app/modules/components/buttons";
 import { likePost, unlikePost } from "@/app/modules/api/postsApi";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface PostCardProps {
 	className?: string;
@@ -87,6 +88,7 @@ function RelativeDate({ dateString }: { dateString: string | null }) {
 export function PostCard({ post, className = "", ...props }: PostCardProps) {
 	const author = post.author;
 	const type = post.type;
+	const queryClient = useQueryClient();
 
 	const [isLiked, setIsLiked] = useState(post.hasLiked ?? false);
 	const [likesCount, setLikesCount] = useState(post.likesCount ?? 0);
@@ -142,6 +144,8 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 						try {
 							if (liked) {
 								await likePost(post.id);
+								// Invalidate notification queries when liking (creates notification for post author)
+								queryClient.invalidateQueries({ queryKey: ["notifications"], exact: false });
 							} else {
 								await unlikePost(post.id);
 							}

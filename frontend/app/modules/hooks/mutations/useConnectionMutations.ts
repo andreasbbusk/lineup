@@ -28,6 +28,8 @@ export function useSendConnection() {
       queryClient.invalidateQueries({ queryKey: ["myConnections"] });
       queryClient.invalidateQueries({ queryKey: ["userConnections"] });
       queryClient.invalidateQueries({ queryKey: ["connectedUsers"] });
+      // Invalidate notification queries when sending connection request (creates notification)
+      queryClient.invalidateQueries({ queryKey: ["notifications"], exact: false });
     },
   });
 }
@@ -61,6 +63,8 @@ export function useAcceptConnection() {
         refetchType: "active",
       });
       queryClient.invalidateQueries({ queryKey: ["connectedUsers"] });
+      // Invalidate notification queries when accepting connection (creates notification)
+      queryClient.invalidateQueries({ queryKey: ["notifications"], exact: false });
     },
   });
 }

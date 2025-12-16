@@ -54,6 +54,13 @@ export function useCreatePost(options?: {
         });
       }
 
+      // Invalidate notification queries when creating post with tagged users
+      // (creates collaboration_request or tagged_in_post notifications)
+      void queryClient.invalidateQueries({
+        queryKey: ["notifications"],
+        exact: false,
+      });
+
       // Call custom onSuccess if provided
       options?.onSuccess?.(newPost);
     },

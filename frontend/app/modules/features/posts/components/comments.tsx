@@ -31,6 +31,8 @@ function Comments({ postId }: CommentsProps) {
 			queryClient.invalidateQueries({ queryKey: ["comments", "post", newComment.postId] });
 			queryClient.invalidateQueries({ queryKey: ["posts", newComment.postId] });
 			queryClient.invalidateQueries({ queryKey: ["posts"] });
+			// Invalidate notification queries when commenting (creates notification for post author)
+			queryClient.invalidateQueries({ queryKey: ["notifications"], exact: false });
 		},
 	});
 	const [commentText, setCommentText] = useState("");
@@ -136,6 +138,8 @@ function CommentItem({ comment, depth, postId }: { comment: Comment; depth: numb
 			queryClient.invalidateQueries({ queryKey: ["comments", "post", newComment.postId] });
 			queryClient.invalidateQueries({ queryKey: ["posts", newComment.postId] });
 			queryClient.invalidateQueries({ queryKey: ["posts"] });
+			// Invalidate notification queries when replying to comment (creates notification)
+			queryClient.invalidateQueries({ queryKey: ["notifications"], exact: false });
 		},
 	});
 
