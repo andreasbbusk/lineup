@@ -71,23 +71,11 @@ const cleanupService = new NotificationCleanupService();
 if (process.env.NODE_ENV !== "test") {
   cron.schedule(CLEANUP_SCHEDULE, async () => {
     try {
-      console.log(
-        `Starting notification cleanup job (deleting read notifications older than ${RETENTION_DAYS} days)...`
-      );
-      const deletedCount = await cleanupService.cleanupReadNotifications(
-        RETENTION_DAYS
-      );
-      console.log(
-        `Notification cleanup completed successfully. Deleted ${deletedCount} notifications.`
-      );
+      await cleanupService.cleanupReadNotifications(RETENTION_DAYS);
     } catch (error) {
-      console.error("Notification cleanup failed:", error);
+      // Silently handle errors
     }
   });
-
-  console.log(
-    `✅ CRON job scheduled: ${CLEANUP_SCHEDULE} for 2 am (retention: ${RETENTION_DAYS} days)`
-  );
 }
 
 app.listen(PORT, () => {
