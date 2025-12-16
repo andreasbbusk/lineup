@@ -188,7 +188,7 @@ export default function Page({ params }: ProfilePageProps) {
 		username: profileData.username,
 		firstName: profileData.firstName,
 		lastName: profileData.lastName,
-		imgSrc: profileData.avatarUrl || "/avatars/boy1.webp",
+		imgSrc: profileData.avatarUrl,
 		color: profileData.themeColor || "#1E1E1E",
 		lookingFor: user_looking_for,
 		aboutMe: profileData.aboutMe,

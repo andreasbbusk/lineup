@@ -138,7 +138,7 @@ export function AvatarUploader({
 					/>
 				) : (
 					<Image
-						src={currentAvatarUrl || "/avatars/boy1.webp"}
+						src={currentAvatarUrl}
 						alt="Current avatar"
 						fill
 						className="object-cover"
@@ -195,28 +195,28 @@ export function AvatarUploader({
 				{previewMedia ? (
 					<>
 						<Button
-							variant="secondary"
-							onClick={handleCancel}
-							disabled={isUploading}>
-							Cancel
-						</Button>
-						<Button
 							variant="primary"
 							onClick={handleUpload}
 							disabled={isUploading || isCompressing}>
 							{isUploading ? "Uploading..." : "Save"}
 						</Button>
+						<Button
+							variant="secondary"
+							onClick={handleCancel}
+							disabled={isUploading}>
+							Cancel
+						</Button>
 					</>
 				) : (
 					<>
-						<Button variant="secondary" onClick={handleCancel}>
-							Close
-						</Button>
 						<Button
 							variant="primary"
 							onClick={() => fileInputRef.current?.click()}
 							disabled={isCompressing}>
 							{isCompressing ? "Processing..." : "Choose Photo"}
+						</Button>
+						<Button variant="secondary" onClick={handleCancel}>
+							Close
 						</Button>
 					</>
 				)}
