@@ -18,7 +18,7 @@ import { useAppStore } from "@/app/modules/stores/Store";
  */
 export function NotificationsPage() {
 	const router = useRouter();
-	const { data, isLoading, error } = useNotifications({ unreadOnly: true });
+	const { data, isLoading, error } = useNotifications();
 	const acceptConnection = useAcceptConnection();
 	const markAsRead = useMarkAsRead();
 	const user = useAppStore((state) => state.user);

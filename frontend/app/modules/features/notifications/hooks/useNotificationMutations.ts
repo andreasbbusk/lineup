@@ -28,6 +28,7 @@ export function useMarkAsRead() {
       });
 
       // Optimistically update all notification queries
+      // Just update the isRead status, don't remove notifications
       queryClient.setQueriesData<{
         notifications: GroupedNotificationsResponse;
       }>(
@@ -35,35 +36,7 @@ export function useMarkAsRead() {
         (old) => {
           if (!old?.notifications) return old;
 
-          // Remove the notification from all groups if marking as read
-          if (isRead) {
-            const updated: GroupedNotificationsResponse = {
-              like: old.notifications.like.filter((n) => n.id !== notificationId),
-              comment: old.notifications.comment.filter(
-                (n) => n.id !== notificationId
-              ),
-              connection_request: old.notifications.connection_request.filter(
-                (n) => n.id !== notificationId
-              ),
-              connection_accepted: old.notifications.connection_accepted.filter(
-                (n) => n.id !== notificationId
-              ),
-              tagged_in_post: old.notifications.tagged_in_post.filter(
-                (n) => n.id !== notificationId
-              ),
-              review: old.notifications.review.filter((n) => n.id !== notificationId),
-              collaboration_request:
-                old.notifications.collaboration_request.filter(
-                  (n) => n.id !== notificationId
-                ),
-              message: old.notifications.message.filter(
-                (n) => n.id !== notificationId
-              ),
-            };
-            return { ...old, notifications: updated };
-          }
-
-          // If marking as unread, update the notification's isRead status
+          // Update the notification's isRead status in all groups
           const updateNotificationInGroup = <T extends Record<string, unknown>>(
             group: T[]
           ): T[] =>
@@ -123,9 +96,66 @@ export function useDeleteNotification() {
 
   return useMutation({
     mutationFn: (notificationId: string) => deleteNotification(notificationId),
+    onMutate: async (notificationId) => {
+      // Cancel any outgoing refetches to avoid overwriting optimistic update
+      await queryClient.cancelQueries({ queryKey: ["notifications"] });
+
+      // Snapshot the previous value
+      const previousQueries = queryClient.getQueriesData({
+        queryKey: ["notifications"],
+      });
+
+      // Optimistically remove the notification from all groups
+      queryClient.setQueriesData<{
+        notifications: GroupedNotificationsResponse;
+      }>(
+        { queryKey: ["notifications"] },
+        (old) => {
+          if (!old?.notifications) return old;
+
+          const updated: GroupedNotificationsResponse = {
+            like: old.notifications.like.filter((n) => n.id !== notificationId),
+            comment: old.notifications.comment.filter(
+              (n) => n.id !== notificationId
+            ),
+            connection_request: old.notifications.connection_request.filter(
+              (n) => n.id !== notificationId
+            ),
+            connection_accepted: old.notifications.connection_accepted.filter(
+              (n) => n.id !== notificationId
+            ),
+            tagged_in_post: old.notifications.tagged_in_post.filter(
+              (n) => n.id !== notificationId
+            ),
+            review: old.notifications.review.filter((n) => n.id !== notificationId),
+            collaboration_request:
+              old.notifications.collaboration_request.filter(
+                (n) => n.id !== notificationId
+              ),
+            message: old.notifications.message.filter(
+              (n) => n.id !== notificationId
+            ),
+          };
+          return { ...old, notifications: updated };
+        }
+      );
+
+      return { previousQueries };
+    },
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousQueries) {
+        context.previousQueries.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+    },
     onSuccess: () => {
-      // Invalidate notifications queries to refetch
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      // Invalidate notifications queries to refetch and ensure consistency
+      queryClient.invalidateQueries({
+        queryKey: ["notifications"],
+        refetchType: "active",
+      });
     },
   });
 }
