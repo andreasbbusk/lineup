@@ -42,8 +42,7 @@ export default function SettingsPage() {
 			icon: <Bookmark size={20} />,
 			label: "Saved",
 			onClick: () => {
-				// TODO: Navigate to saved posts/bookmarks page
-				// router.push("/saved");
+				router.push("/saved");
 			},
 		},
 		{
