@@ -12,7 +12,7 @@ import {
   Type,
 } from "react-swipeable-list";
 import { Trash2, LogOut, Info } from "lucide-react";
-
+import "react-swipeable-list/dist/styles.css";
 // ============================================================================
 // Types
 // ============================================================================
