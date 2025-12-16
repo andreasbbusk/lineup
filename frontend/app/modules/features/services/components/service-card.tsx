@@ -16,9 +16,10 @@ type ServiceResponse = components["schemas"]["ServiceResponse"];
 
 interface ServiceCardProps {
   service: ServiceResponse;
+  onChatClick: (userId: string) => void;
 }
 
-function ServiceCardComponent({ service }: ServiceCardProps) {
+function ServiceCardComponent({ service, onChatClick }: ServiceCardProps) {
   const [imageError, setImageError] = useState(false);
   const providerName = service.providerName || "Provider";
   const providerInitial = providerName[0]?.toUpperCase() || "P";
