@@ -138,7 +138,7 @@ export function AvatarUploader({
 					/>
 				) : (
 					<Image
-						src={currentAvatarUrl}
+						src={currentAvatarUrl ?? ""}
 						alt="Current avatar"
 						fill
 						className="object-cover"
