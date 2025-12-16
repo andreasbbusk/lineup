@@ -4,8 +4,8 @@ import { useEffect } from "react";
 import { chatKeys } from "../../queryKeys";
 import { useTypingStore } from "../../stores/typingStore";
 import {
-  mapRealtimeMessage,
-  type DbMessageRecord,
+  mapMessageWithSender,
+  type DbMessageWithSender,
 } from "../../utils/realtimeAdapter";
 import {
   updateMessageInCache,
@@ -37,15 +37,37 @@ export function useMessageSubscription(conversationId: string | null) {
           table: "messages",
           filter: `conversation_id=eq.${conversationId}`,
         },
-        (payload) => {
-          const newMessage = mapRealtimeMessage(payload.new as DbMessageRecord);
+        async (payload) => {
+          // Fetch the complete message with sender data
+          const { data } = await supabase
+            .from("messages")
+            .select(
+              `
+              *,
+              sender:profiles!messages_sender_id_fkey(
+                id, 
+                username, 
+                first_name, 
+                last_name, 
+                avatar_url
+              )
+            `
+            )
+            .eq("id", payload.new.id)
+            .single();
 
-          addMessageToCache(queryClient, conversationId, newMessage);
+          if (data) {
+            const newMessage = mapMessageWithSender(
+              data as DbMessageWithSender
+            );
 
-          // If we receive a message from a user, stop showing them as typing
-          setTyping(conversationId, newMessage.senderId, false);
+            addMessageToCache(queryClient, conversationId, newMessage);
 
-          queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+            // If we receive a message from a user, stop showing them as typing
+            setTyping(conversationId, newMessage.senderId, false);
+
+            queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+          }
         }
       )
       // ========================================================================
@@ -59,17 +81,37 @@ export function useMessageSubscription(conversationId: string | null) {
           table: "messages",
           filter: `conversation_id=eq.${conversationId}`,
         },
-        (payload) => {
-          const updatedMessage = mapRealtimeMessage(
-            payload.new as DbMessageRecord
-          );
+        async (payload) => {
+          // Fetch the complete message with sender data
+          const { data } = await supabase
+            .from("messages")
+            .select(
+              `
+              *,
+              sender:profiles!messages_sender_id_fkey(
+                id, 
+                username, 
+                first_name, 
+                last_name, 
+                avatar_url
+              )
+            `
+            )
+            .eq("id", payload.new.id)
+            .single();
 
-          updateMessageInCache(
-            queryClient,
-            conversationId,
-            updatedMessage.id,
-            () => updatedMessage
-          );
+          if (data) {
+            const updatedMessage = mapMessageWithSender(
+              data as DbMessageWithSender
+            );
+
+            updateMessageInCache(
+              queryClient,
+              conversationId,
+              updatedMessage.id,
+              () => updatedMessage
+            );
+          }
         }
       )
       // ========================================================================
