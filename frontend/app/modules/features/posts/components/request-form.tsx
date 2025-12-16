@@ -56,7 +56,7 @@ export function RequestForm({
 		updatePaidOpportunity,
 		updateTaggedUsers,
 		updateLocation,
-		// updateGenres,
+		updateGenres,
 		updateTaggedUserObjects,
 		updateMedia,
 		clearDraft,
@@ -69,21 +69,17 @@ export function RequestForm({
 	// const [availableGenres, setAvailableGenres] = useState<{ name: string }[]>(
 	// 	[]
 	// ); // Disabled
-	const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+	const [selectedGenres, setSelectedGenres] = useState<string[]>(genres || []);
 	const [isOpen, setIsOpen] = useState(false);
 
 	const updateSelectedGenres = (newGenres: string[]) => {
-		// Only allow one genre to be selected at a time
-		if (newGenres.length > 0) {
-			setSelectedGenres([newGenres[newGenres.length - 1]]);
-			setIsGenreSelectorOpen(false);
-		} else {
-			setSelectedGenres([]);
-		}
+		setSelectedGenres(newGenres);
+		updateGenres(newGenres);
 	};
 
 	const removeGenre = (genreToRemove: string) => {
 		setSelectedGenres([]);
+		updateGenres([]);
 	};
 
 	// Restore draft on mount
@@ -94,6 +90,9 @@ export function RequestForm({
 				if (draft.title || draft.description || draft.media.length > 0) {
 					// Draft exists, values are already in store from restoreDraft
 					// The store will have the restored values
+					if (draft.genres && draft.genres.length > 0) {
+						setSelectedGenres(draft.genres);
+					}
 				}
 			} catch (error) {
 				console.error("Failed to restore draft:", error);
@@ -298,7 +297,7 @@ export function RequestForm({
 							Add genres
 						</button>
 					</div>
-				) : selectedGenres.length === 1 ? (
+				) : selectedGenres.length >= 1 ? (
 					<div className="flex justify-between">
 						<div className="flex gap-2.5 flex-wrap">
 							{selectedGenres.map((genre) => (
