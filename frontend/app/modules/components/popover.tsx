@@ -50,7 +50,7 @@ const getPopoverConfigs = (
   ],
   note: [
     {
-      icon: "/icons/bookmark-empty.svg",
+      icon: props?.isBookmarked ? "/icons/bookmark-filled.svg" : "/icons/bookmark-empty.svg",
       label: props?.isBookmarked ? "Unsave note" : "Save note",
       onClick: props?.onBookmarkClick,
     },
