@@ -33,8 +33,14 @@ export function NotificationsPage() {
 		  ]
 		: [];
 
-	const uniqueConnectionRequests =
-		deduplicateConnectionRequests(connectionRequests);
+	const uniqueConnectionRequests = deduplicateConnectionRequests(
+		connectionRequests
+	).sort((a, b) => {
+		// Sort by createdAt descending (newest first)
+		const dateA = new Date(a.createdAt).getTime();
+		const dateB = new Date(b.createdAt).getTime();
+		return dateB - dateA;
+	});
 
 	// Profile interactions: likes, comments, tagged_in_post, review
 	const profileInteractions = notifications
@@ -43,7 +49,30 @@ export function NotificationsPage() {
 				...notifications.comment,
 				...notifications.tagged_in_post,
 				...notifications.review,
-		  ]
+		  ].sort((a, b) => {
+				// Sort by createdAt descending (newest first)
+				const dateA = new Date(a.createdAt).getTime();
+				const dateB = new Date(b.createdAt).getTime();
+				return dateB - dateA;
+		  })
+		: [];
+
+	// Sort collaboration requests by createdAt descending (newest first)
+	const sortedCollaborationRequests = notifications
+		? [...notifications.collaboration_request].sort((a, b) => {
+				const dateA = new Date(a.createdAt).getTime();
+				const dateB = new Date(b.createdAt).getTime();
+				return dateB - dateA;
+		  })
+		: [];
+
+	// Sort messages by createdAt descending (newest first)
+	const sortedMessages = notifications
+		? [...notifications.message].sort((a, b) => {
+				const dateA = new Date(a.createdAt).getTime();
+				const dateB = new Date(b.createdAt).getTime();
+				return dateB - dateA;
+		  })
 		: [];
 
 	const handleClose = () => {
@@ -158,10 +187,10 @@ export function NotificationsPage() {
 				)}
 
 				{/* Collaboration Requests Section */}
-				{notifications.collaboration_request.length > 0 && (
+				{sortedCollaborationRequests.length > 0 && (
 					<NotificationSection
 						title="Collaboration requests"
-						notifications={notifications.collaboration_request}
+						notifications={sortedCollaborationRequests}
 						showActionButton={true}
 						actionButtonText="Reply"
 						onActionClick={handleReplyCollaboration}
@@ -177,10 +206,10 @@ export function NotificationsPage() {
 				)}
 
 				{/* Messages Section */}
-				{notifications.message.length > 0 && (
+				{sortedMessages.length > 0 && (
 					<NotificationSection
 						title="Messages"
-						notifications={notifications.message}
+						notifications={sortedMessages}
 					/>
 				)}
 			</div>
