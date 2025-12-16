@@ -106,7 +106,7 @@ export function PostDetail({ post, compact }: PostDetailProps) {
 	const [isCommentOpen, setIsCommentOpen] = useState(false);
 
 	return type === "note" ? (
-		<article className="flex p-3.75 flex-col justify-center items-start gap-1.75 self-stretch">
+		<article className="flex p-3.75 flex-col justify-center items-start gap-1.75 self-stretch w-full max-w-200 mx-auto">
 			<div className="flex flex-wrap justify-between flex-row items-center w-full">
 				<Authors author={author} post={post} size={"sm"} compact={compact} />
 
@@ -159,7 +159,7 @@ export function PostDetail({ post, compact }: PostDetailProps) {
 			</div>
 		</article>
 	) : (
-		<article className="flex p-3.75 flex-col justify-center items-start gap-3.75 self-stretch">
+		<article className="flex p-3.75 flex-col justify-center items-start gap-3.75 self-stretch w-full max-w-200 mx-auto">
 			<div className="flex justify-between flex-wrap w-full">
 				<Authors author={author} post={post} size={"sm"} compact={compact} />
 				<div className="flex justify-end gap-1.25 text-gray-500 ml-auto">
