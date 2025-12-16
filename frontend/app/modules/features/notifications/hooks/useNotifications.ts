@@ -6,6 +6,7 @@ import type { GroupedNotificationsResponse } from "../types";
 import type { NotificationResponse } from "../types";
 import { groupNotificationsByType } from "../utils/groupNotifications";
 import { deduplicateConnectionRequests } from "../utils/connectionRequests";
+import { NOTIFICATION_QUERY_KEYS } from "../utils/queryKeys";
 
 /**
  * Hook to fetch notifications grouped by type
@@ -13,7 +14,7 @@ import { deduplicateConnectionRequests } from "../utils/connectionRequests";
  */
 export function useNotifications(options?: { unreadOnly?: boolean }) {
   return useQuery({
-    queryKey: ["notifications", "grouped", options?.unreadOnly],
+    queryKey: NOTIFICATION_QUERY_KEYS.grouped(options?.unreadOnly),
     queryFn: async () => {
       const result = await getNotifications({
         grouped: true,
@@ -51,7 +52,7 @@ export function useNotifications(options?: { unreadOnly?: boolean }) {
  */
 export function useUnreadCount() {
   return useQuery({
-    queryKey: ["notifications", "unread-count"],
+    queryKey: NOTIFICATION_QUERY_KEYS.unreadCount,
     queryFn: async () => {
       const result = await getNotifications({
         unreadOnly: true,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 import { X } from "lucide-react";
 import { useNotifications } from "../hooks/useNotifications";
 import { NotificationSection } from "./notification-section";
@@ -10,6 +11,7 @@ import { useAcceptConnection } from "@/app/modules/hooks/mutations/useConnection
 import { useMarkAsRead } from "../hooks/useNotificationMutations";
 import { deduplicateConnectionRequests } from "../utils/connectionRequests";
 import { sortNotificationsByDateDesc } from "../utils/sortNotifications";
+import { hasEntityId, hasNotificationId, hasActorId } from "../utils/typeGuards";
 import { useStartOrNavigateToChat } from "@/app/modules/hooks";
 import { useAppStore } from "@/app/modules/stores/Store";
 
@@ -27,36 +29,40 @@ export function NotificationsPage() {
 
 	const notifications = data?.notifications;
 
-	const connectionRequests = notifications
-		? [
-				...notifications.connection_request,
-				...notifications.connection_accepted,
-		  ]
-		: [];
-
-	const uniqueConnectionRequests = sortNotificationsByDateDesc(
-		deduplicateConnectionRequests(connectionRequests)
-	);
+	// Memoize sorted arrays to avoid re-sorting on every render
+	const uniqueConnectionRequests = useMemo(() => {
+		if (!notifications) return [];
+		const connectionRequests = [
+			...notifications.connection_request,
+			...notifications.connection_accepted,
+		];
+		return sortNotificationsByDateDesc(
+			deduplicateConnectionRequests(connectionRequests)
+		);
+	}, [notifications]);
 
 	// Profile interactions: likes, comments, tagged_in_post, review
-	const profileInteractions = notifications
-		? sortNotificationsByDateDesc([
-				...notifications.like,
-				...notifications.comment,
-				...notifications.tagged_in_post,
-				...notifications.review,
-		  ])
-		: [];
+	const profileInteractions = useMemo(() => {
+		if (!notifications) return [];
+		return sortNotificationsByDateDesc([
+			...notifications.like,
+			...notifications.comment,
+			...notifications.tagged_in_post,
+			...notifications.review,
+		]);
+	}, [notifications]);
 
 	// Sort collaboration requests by createdAt descending (newest first)
-	const sortedCollaborationRequests = notifications
-		? sortNotificationsByDateDesc(notifications.collaboration_request)
-		: [];
+	const sortedCollaborationRequests = useMemo(() => {
+		if (!notifications) return [];
+		return sortNotificationsByDateDesc(notifications.collaboration_request);
+	}, [notifications]);
 
 	// Sort messages by createdAt descending (newest first)
-	const sortedMessages = notifications
-		? sortNotificationsByDateDesc(notifications.message)
-		: [];
+	const sortedMessages = useMemo(() => {
+		if (!notifications) return [];
+		return sortNotificationsByDateDesc(notifications.message);
+	}, [notifications]);
 
 	const handleClose = () => {
 		router.back();
@@ -64,7 +70,7 @@ export function NotificationsPage() {
 
 	// Handle connection request accept
 	const handleAcceptConnection = (notification: NotificationResponse) => {
-		if (!notification.entityId) {
+		if (!hasEntityId(notification)) {
 			return;
 		}
 
@@ -72,7 +78,7 @@ export function NotificationsPage() {
 		acceptConnection.mutate(notification.entityId, {
 			onSuccess: () => {
 				// Mark notification as read after successful acceptance
-				if (notification.id) {
+				if (hasNotificationId(notification)) {
 					markAsRead.mutate({
 						notificationId: notification.id,
 						isRead: true,
@@ -84,10 +90,10 @@ export function NotificationsPage() {
 
 	// Handle collaboration request reply
 	const handleReplyCollaboration = (notification: NotificationResponse) => {
-		if (!user || !notification.actorId) return;
+		if (!user || !hasActorId(notification)) return;
 
 		// Mark notification as read
-		if (notification.id && !notification.isRead) {
+		if (hasNotificationId(notification) && !notification.isRead) {
 			markAsRead.mutate({
 				notificationId: notification.id,
 				isRead: true,
@@ -96,7 +102,9 @@ export function NotificationsPage() {
 
 		// Get the post ID from the notification entity
 		const postId =
-			notification.entityType === "post" ? notification.entityId : undefined;
+			notification.entityType === "post" && hasEntityId(notification)
+				? notification.entityId
+				: undefined;
 
 		// Start or navigate to chat with the collaboration requester
 		startOrNavigateToChat({

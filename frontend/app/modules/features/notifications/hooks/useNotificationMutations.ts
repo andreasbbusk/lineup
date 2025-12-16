@@ -1,8 +1,10 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { updateNotification, deleteNotification } from "../api";
 import type { GroupedNotificationsResponse } from "../types";
+import { NOTIFICATION_QUERY_KEYS } from "../utils/queryKeys";
 
 /**
  * Hook to mark a notification as read or unread
@@ -21,13 +23,13 @@ export function useMarkAsRead() {
     onMutate: async ({ notificationId, isRead }) => {
       // Cancel any outgoing refetches to avoid overwriting optimistic update
       await queryClient.cancelQueries({
-        queryKey: ["notifications"],
+        queryKey: NOTIFICATION_QUERY_KEYS.all,
         exact: false,
       });
 
       // Snapshot the previous value
       const previousQueries = queryClient.getQueriesData({
-        queryKey: ["notifications"],
+        queryKey: NOTIFICATION_QUERY_KEYS.all,
         exact: false,
       });
 
@@ -35,7 +37,7 @@ export function useMarkAsRead() {
       // Just update the isRead status, don't remove notifications
       queryClient.setQueriesData<{
         notifications: GroupedNotificationsResponse;
-      }>({ queryKey: ["notifications"], exact: false }, (old) => {
+      }>({ queryKey: NOTIFICATION_QUERY_KEYS.all, exact: false }, (old) => {
         if (!old?.notifications) return old;
 
         // Update the notification's isRead status in all groups
@@ -76,11 +78,12 @@ export function useMarkAsRead() {
           queryClient.setQueryData(queryKey, data);
         });
       }
+      toast.error("Failed to update notification. Please try again.");
     },
     onSuccess: () => {
       // Invalidate and refetch all notifications queries to ensure consistency
       queryClient.invalidateQueries({
-        queryKey: ["notifications"],
+        queryKey: NOTIFICATION_QUERY_KEYS.all,
         exact: false,
         refetchType: "active",
       });
@@ -100,13 +103,13 @@ export function useDeleteNotification() {
       // Cancel any outgoing refetches to avoid overwriting optimistic update
       // Match all notification queries (including grouped ones)
       await queryClient.cancelQueries({
-        queryKey: ["notifications"],
+        queryKey: NOTIFICATION_QUERY_KEYS.all,
         exact: false,
       });
 
       // Snapshot the previous value for all notification queries
       const previousQueries = queryClient.getQueriesData({
-        queryKey: ["notifications"],
+        queryKey: NOTIFICATION_QUERY_KEYS.all,
         exact: false,
       });
 
@@ -116,7 +119,7 @@ export function useDeleteNotification() {
         notifications: GroupedNotificationsResponse;
       }>(
         {
-          queryKey: ["notifications"],
+          queryKey: NOTIFICATION_QUERY_KEYS.all,
           exact: false,
         },
         (old) => {
@@ -160,19 +163,20 @@ export function useDeleteNotification() {
           queryClient.setQueryData(queryKey, data);
         });
       }
+      toast.error("Failed to delete notification. Please try again.");
     },
     onSuccess: () => {
       // Don't refetch immediately - wait a bit to ensure backend has processed
       // The optimistic update already removed it from UI
       // Only invalidate the unread count, and let the polling interval handle the main query
       queryClient.invalidateQueries({
-        queryKey: ["notifications", "unread-count"],
+        queryKey: NOTIFICATION_QUERY_KEYS.unreadCount,
         refetchType: "active", // Update count
       });
       // Mark notifications as stale but don't refetch immediately
       // This prevents race conditions where refetch happens before backend completes
       queryClient.invalidateQueries({
-        queryKey: ["notifications"],
+        queryKey: NOTIFICATION_QUERY_KEYS.all,
         exact: false,
         refetchType: "none", // Don't refetch, just mark as stale
       });

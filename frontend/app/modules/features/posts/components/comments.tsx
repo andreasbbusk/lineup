@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getPostComments, createComment } from "@/app/modules/api/commentsApi";
 import type { CommentResponse as ApiCommentResponse } from "@/app/modules/api/commentsApi";
+import { NOTIFICATION_QUERY_KEYS } from "@/app/modules/features/notifications";
 
 // Extended type to include nested replies
 type CommentResponseWithReplies = ApiCommentResponse & {
@@ -32,7 +33,7 @@ function Comments({ postId }: CommentsProps) {
 			queryClient.invalidateQueries({ queryKey: ["posts", newComment.postId] });
 			queryClient.invalidateQueries({ queryKey: ["posts"] });
 			// Invalidate notification queries when commenting (creates notification for post author)
-			queryClient.invalidateQueries({ queryKey: ["notifications"], exact: false });
+			queryClient.invalidateQueries({ queryKey: NOTIFICATION_QUERY_KEYS.all, exact: false });
 		},
 	});
 	const [commentText, setCommentText] = useState("");
@@ -139,7 +140,7 @@ function CommentItem({ comment, depth, postId }: { comment: Comment; depth: numb
 			queryClient.invalidateQueries({ queryKey: ["posts", newComment.postId] });
 			queryClient.invalidateQueries({ queryKey: ["posts"] });
 			// Invalidate notification queries when replying to comment (creates notification)
-			queryClient.invalidateQueries({ queryKey: ["notifications"], exact: false });
+			queryClient.invalidateQueries({ queryKey: NOTIFICATION_QUERY_KEYS.all, exact: false });
 		},
 	});
 

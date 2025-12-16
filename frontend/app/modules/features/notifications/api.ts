@@ -1,6 +1,6 @@
 import { apiClient, handleApiError } from "../../api/apiClient";
 import type { components } from "../../types/api";
-import { deduplicateConnectionRequests } from "../utils/connectionRequests";
+import { deduplicateConnectionRequests } from "./utils/connectionRequests";
 
 type NotificationResponse = components["schemas"]["NotificationResponse"];
 type GroupedNotificationsResponse =
