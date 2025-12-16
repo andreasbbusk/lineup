@@ -24,11 +24,7 @@ apiClient.use({
 
     if (token) {
       request.headers.set("Authorization", `Bearer ${token}`);
-      console.log("🔑 API Request with auth token:", {
-        url: request.url,
-        hasToken: !!token,
-        tokenPreview: token ? token.substring(0, 10) + "..." + token.substring(token.length - 10) : "none",
-      });
+      
     } else {
       console.warn("⚠️ No auth token available for request:", request.url);
     }
