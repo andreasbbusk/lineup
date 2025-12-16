@@ -160,9 +160,17 @@ export function useDeleteNotification() {
         });
       }
     },
-    onSuccess: () => {
-      // Don't refetch immediately - the optimistic update already removed it
-      // Only invalidate to mark as stale, but don't refetch
+    onSuccess: (data, notificationId) => {
+      console.log("[useDeleteNotification] onSuccess - notification deleted:", notificationId);
+      // Don't refetch immediately - wait a bit to ensure backend has processed
+      // The optimistic update already removed it from UI
+      // Only invalidate the unread count, and let the polling interval handle the main query
+      queryClient.invalidateQueries({
+        queryKey: ["notifications", "unread-count"],
+        refetchType: "active", // Update count
+      });
+      // Mark notifications as stale but don't refetch immediately
+      // This prevents race conditions where refetch happens before backend completes
       queryClient.invalidateQueries({
         queryKey: ["notifications"],
         exact: false,

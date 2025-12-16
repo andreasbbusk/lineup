@@ -101,7 +101,12 @@ export function NotificationItem({
 	const handleDelete = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		if (notification.id) {
-			deleteNotification.mutate(notification.id);
+			deleteNotification.mutate(notification.id, {
+				onError: (error) => {
+					console.error("Failed to delete notification:", error);
+					// The optimistic update will be rolled back automatically
+				},
+			});
 		}
 	};
 
@@ -129,7 +134,7 @@ export function NotificationItem({
 						alt="Like"
 						width={16}
 						height={15}
-						className="shrink-0"
+						style={{ width: "16px", height: "15px" }}
 					/>
 				</div>
 			);
@@ -175,16 +180,17 @@ export function NotificationItem({
 				<div
 					className="relative shrink-0 size-7 rounded-full overflow-hidden cursor-pointer"
 					onClick={handleAvatarClick}>
-					{actor?.avatarUrl ? (
-						<Image
-							src={actor.avatarUrl}
-							alt={actorName}
-							fill
-							className="object-cover rounded-full"
-						/>
-					) : (
-						<div className="w-full h-full bg-gray-300 rounded-full" />
-					)}
+				{actor?.avatarUrl ? (
+					<Image
+						src={actor.avatarUrl}
+						alt={actorName}
+						fill
+						sizes="28px"
+						className="object-cover rounded-full"
+					/>
+				) : (
+					<div className="w-full h-full bg-gray-300 rounded-full" />
+				)}
 				</div>
 
 				{/* Notification text */}

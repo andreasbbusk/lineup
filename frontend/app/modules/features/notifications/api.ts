@@ -109,6 +109,8 @@ export async function updateNotification(
 export async function deleteNotification(
   notificationId: string
 ): Promise<void> {
+  console.log("[deleteNotification] Attempting to delete notification:", notificationId);
+  
   const { error, response } = await apiClient.DELETE(
     "/notifications/{notificationId}",
     {
@@ -118,7 +120,33 @@ export async function deleteNotification(
     }
   );
 
+  console.log("[deleteNotification] Response:", {
+    status: response?.status,
+    statusText: response?.statusText,
+    error,
+    hasResponse: !!response,
+  });
+
+  // Verify we got a response first
+  if (!response) {
+    console.error("[deleteNotification] No response received");
+    throw new Error("Failed to delete notification: No response from server");
+  }
+
+  // Check for errors (but openapi-fetch may not set error for 204 responses)
   if (error) {
+    console.error("[deleteNotification] Error received:", error);
     handleApiError(error, response);
   }
+
+  // Verify successful deletion (204 No Content is expected for DELETE)
+  // openapi-fetch may not set error for 204 responses, so check status explicitly
+  if (response.status !== 204 && response.status !== 200) {
+    console.error("[deleteNotification] Unexpected status:", response.status);
+    throw new Error(
+      `Failed to delete notification: Unexpected status ${response.status}`
+    );
+  }
+
+  console.log("[deleteNotification] Successfully deleted notification:", notificationId);
 }

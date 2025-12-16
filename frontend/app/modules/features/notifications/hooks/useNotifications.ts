@@ -39,7 +39,9 @@ export function useNotifications(options?: { unreadOnly?: boolean }) {
 
       return { notifications: grouped, nextCursor: result.nextCursor };
     },
-    staleTime: 30 * 1000, // 30 seconds
+    staleTime: 10 * 1000, // 10 seconds - shorter to match unread count
+    refetchOnMount: true, // Always refetch when component mounts (so you see latest when navigating to page)
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 }
 
