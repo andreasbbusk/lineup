@@ -52,7 +52,7 @@ function CollaborationRequestCardComponent({
             <p className="text-base text-gray-500">looking for</p>
             <p className="text-base text-gray-500 truncate">#guitarist</p>
           </div>
-          <div className="absolute right-0 z-50">
+          <div className="absolute right-0 z-20">
             <BookmarkButton
               ariaLabel={`Bookmark ${post.title}`}
               isBookmarked={isBookmarked}
@@ -64,7 +64,7 @@ function CollaborationRequestCardComponent({
                   } else {
                     await deleteBookmark(post.id);
                   }
-                } catch (error) {
+                } catch {
                   // Revert on error
                   setIsBookmarked(!bookmarked);
                 }

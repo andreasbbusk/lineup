@@ -3,7 +3,7 @@
 import { useMemo, useCallback } from "react";
 import { usePosts } from "@/app/modules/hooks/queries/usePosts";
 import { useServices } from "@/app/modules/hooks/queries/useServices";
-import { useStartChat } from "@/app/modules/hooks";
+import { useStartOrNavigateToChat } from "@/app/modules/hooks";
 import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
 import { ServicesList } from "@/app/modules/features/services/components/services-list";
 import { SearchBar } from "@/app/modules/features/services/components/search-bar";
@@ -28,7 +28,7 @@ import type { components } from "@/app/modules/types/api";
 type ServiceResponse = components["schemas"]["ServiceResponse"];
 
 export default function ServicesPage() {
-  const startChat = useStartChat();
+  const { startOrNavigateToChat } = useStartOrNavigateToChat();
 
   // Get filters from Zustand store
   const {
@@ -64,6 +64,7 @@ export default function ServicesPage() {
   const { data: requestsData } = usePosts({
     type: "request",
     status: "active",
+    limit: 50,
   });
 
   const { data: servicesData } = useServices();
@@ -73,6 +74,7 @@ export default function ServicesPage() {
     {
       type: "request",
       status: "active",
+      limit: 50,
     },
     {
       select: useCallback(
@@ -219,7 +221,7 @@ export default function ServicesPage() {
         <ServicesList
           collaborationRequests={filteredCollaborationRequests}
           services={filteredServices}
-          onChatClick={startChat}
+          onChatClick={startOrNavigateToChat}
           hasActiveFilters={hasActiveFilters}
           onClearFilters={clearFilters}
         />

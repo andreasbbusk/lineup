@@ -3,6 +3,7 @@ export {
   useProfile,
   useMyProfile,
   useUpdateProfile,
+  useProfiles,
 } from "./hooks/queries/useProfile";
 export { useCollaborations } from "./hooks/queries/useCollaborations";
 export {
