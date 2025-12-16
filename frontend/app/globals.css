@@ -221,6 +221,9 @@
     --font-family-helvetica: "Helvetica Now Display", system-ui, -apple-system,
         sans-serif;
 
+    /* Animations */
+    --animate-shimmer: shimmer 2s infinite;
+
     /* Font Sizes */
     --font-size-h1: 1.5rem;
     --font-size-h2: 1.25rem;
@@ -378,4 +381,11 @@ h3,
 
 .swipeable-list-item__trailing-actions {
     background-color: #ef4444 !important;
+}
+
+/* Shimmer Animation Keyframes */
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
 }

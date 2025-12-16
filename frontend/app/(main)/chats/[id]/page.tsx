@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useRef, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import {
   ChatHeader,
   MessageList,
@@ -28,6 +29,7 @@ import { useBlockUser, useResolvePost } from "@/app/modules/hooks/mutations";
 import { useAppStore } from "@/app/modules/stores/Store";
 import { usePost } from "@/app/modules/hooks/queries";
 import { Button } from "@/app/modules/components/buttons";
+import { PageTransition } from "@/app/modules/components/page-transition";
 
 interface ChatPageProps {
   params: Promise<{
@@ -226,97 +228,101 @@ export default function ChatPage({ params }: ChatPageProps) {
   }
 
   return (
-    <main className="h-dvh bg-dark-cyan-blue">
-      <div className="h-full flex flex-col relative">
-        <ChatHeader
-          conversationName={name}
-          conversationAvatar={avatarUrl}
-          conversation={conversation}
-          currentUserId={user?.id}
-          onBack={() => router.back()}
-          onMenuAction={handleMenuAction}
-        />
+    <PageTransition>
+      <main className="h-dvh bg-dark-cyan-blue">
+        <div className="h-full flex flex-col relative">
+          <ChatHeader
+            conversationName={name}
+            conversationAvatar={avatarUrl}
+            conversation={conversation}
+            currentUserId={user?.id}
+            onBack={() => router.back()}
+            onMenuAction={handleMenuAction}
+          />
 
-        <MessageList
-          messages={messages}
-          isLoading={messagesLoading}
-          isFetchingNextPage={isFetchingNextPage}
-          currentUserId={user?.id ?? ""}
-          conversationName={name}
-          messagesContainerRef={messagesContainerRef}
-          messagesEndRef={messagesEndRef}
-          onScroll={handleScroll}
-        >
-          {conversation && (
-            <TypingIndicator
-              conversationId={id}
-              currentUserId={user?.id ?? ""}
-              participants={conversation.participants ?? []}
-            />
-          )}
-        </MessageList>
+          <MessageList
+            messages={messages}
+            isLoading={messagesLoading}
+            isFetchingNextPage={isFetchingNextPage}
+            currentUserId={user?.id ?? ""}
+            conversationName={name}
+            messagesContainerRef={messagesContainerRef}
+            messagesEndRef={messagesEndRef}
+            onScroll={handleScroll}
+          >
+            <AnimatePresence>
+              {conversation && (
+                <TypingIndicator
+                  conversationId={id}
+                  currentUserId={user?.id ?? ""}
+                  participants={conversation.participants ?? []}
+                />
+              )}
+            </AnimatePresence>
+          </MessageList>
 
-        <div className="bg-white">
-          {showResolveButton && (
-            <div className="px-4 py-3 border-b border-gray-200 bg-yellow-50">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">
-                    Resolve this request
-                  </p>
-                  <p className="text-xs text-gray-600 mt-0.5">
-                    Mark this request as resolved to archive it
-                  </p>
+          <div className="bg-white">
+            {showResolveButton && (
+              <div className="px-4 py-3 border-b border-gray-200 bg-yellow-50">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">
+                      Resolve this request
+                    </p>
+                    <p className="text-xs text-gray-600 mt-0.5">
+                      Mark this request as resolved to archive it
+                    </p>
+                  </div>
+                  <Button
+                    variant="primary"
+                    onClick={() => resolvePost(relatedPostId!)}
+                    disabled={isResolvingPost}
+                    className="ml-4"
+                  >
+                    {isResolvingPost ? "Resolving..." : "Resolve Request"}
+                  </Button>
                 </div>
-                <Button
-                  variant="primary"
-                  onClick={() => resolvePost(relatedPostId!)}
-                  disabled={isResolvingPost}
-                  className="ml-4"
-                >
-                  {isResolvingPost ? "Resolving..." : "Resolve Request"}
-                </Button>
               </div>
-            </div>
-          )}
-          <EditModeBanner />
-          <MessageInput
-            onSendMessage={sendMessage}
-            onEditMessage={(messageId, content) =>
-              editMessage({ messageId, content })
+            )}
+            <EditModeBanner />
+            <MessageInput
+              onSendMessage={sendMessage}
+              onEditMessage={(messageId, content) =>
+                editMessage({ messageId, content })
+              }
+              onTyping={handleTyping}
+            />
+          </div>
+
+          <ConfirmationDialog
+            open={activeMessageAction?.type === "delete"}
+            title="Delete message?"
+            description="Are you sure you want to delete this message?"
+            confirmText="Delete"
+            cancelText="Cancel"
+            onConfirm={handleDeleteMessage}
+            onCancel={clearAction}
+            isDestructive={true}
+            isLoading={isDeletingMessage}
+          />
+
+          <ConfirmationDialog
+            open={showBlockConfirmation}
+            title="Block user?"
+            description={
+              otherUser?.username
+                ? `Are you sure you want to block ${otherUser.username}? You won't be able to send messages to each other.`
+                : "Are you sure you want to block this user? You won't be able to send messages to each other."
             }
-            onTyping={handleTyping}
+            confirmText="Block"
+            cancelText="Cancel"
+            onConfirm={handleConfirmBlock}
+            onCancel={() => setShowBlockConfirmation(false)}
+            isDestructive={true}
+            isLoading={isBlockingUser}
           />
         </div>
-
-        <ConfirmationDialog
-          open={activeMessageAction?.type === "delete"}
-          title="Delete message?"
-          description="Are you sure you want to delete this message?"
-          confirmText="Delete"
-          cancelText="Cancel"
-          onConfirm={handleDeleteMessage}
-          onCancel={clearAction}
-          isDestructive={true}
-          isLoading={isDeletingMessage}
-        />
-
-        <ConfirmationDialog
-          open={showBlockConfirmation}
-          title="Block user?"
-          description={
-            otherUser?.username
-              ? `Are you sure you want to block ${otherUser.username}? You won't be able to send messages to each other.`
-              : "Are you sure you want to block this user? You won't be able to send messages to each other."
-          }
-          confirmText="Block"
-          cancelText="Cancel"
-          onConfirm={handleConfirmBlock}
-          onCancel={() => setShowBlockConfirmation(false)}
-          isDestructive={true}
-          isLoading={isBlockingUser}
-        />
-      </div>
-    </main>
+      </main>
+    </PageTransition>
   );
 }
