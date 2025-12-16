@@ -5,6 +5,7 @@ import { getNotifications } from "../api";
 import type { GroupedNotificationsResponse } from "../types";
 import type { NotificationResponse } from "../types";
 import { groupNotificationsByType } from "../utils/groupNotifications";
+import { deduplicateConnectionRequests } from "../utils/connectionRequests";
 
 /**
  * Hook to fetch notifications grouped by type
@@ -62,10 +63,24 @@ export function useUnreadCount() {
 
       // If grouped, count all unread notifications across all types
       const grouped = result.notifications as GroupedNotificationsResponse;
-      const count = Object.values(grouped).reduce(
-        (sum, notifications) => sum + notifications.length,
-        0
-      );
+      
+      // Deduplicate connection requests (connection_request + connection_accepted)
+      // to match how they're displayed on the notifications page
+      const connectionRequests = [
+        ...grouped.connection_request,
+        ...grouped.connection_accepted,
+      ];
+      const uniqueConnectionRequests = deduplicateConnectionRequests(connectionRequests);
+      
+      // Count all notification types, using deduplicated connection requests
+      const count =
+        uniqueConnectionRequests.length +
+        grouped.like.length +
+        grouped.comment.length +
+        grouped.tagged_in_post.length +
+        grouped.review.length +
+        grouped.collaboration_request.length +
+        grouped.message.length;
 
       return count;
     },
