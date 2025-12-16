@@ -25,8 +25,6 @@ apiClient.use({
     if (token) {
       request.headers.set("Authorization", `Bearer ${token}`);
       
-    } else {
-      console.warn("⚠️ No auth token available for request:", request.url);
     }
 
     return request;
