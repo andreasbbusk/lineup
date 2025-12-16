@@ -1,8 +1,10 @@
 import { apiClient, handleApiError } from "../../api/apiClient";
 import type { components } from "../../types/api";
+import { deduplicateConnectionRequests } from "../utils/connectionRequests";
 
 type NotificationResponse = components["schemas"]["NotificationResponse"];
-type GroupedNotificationsResponse = components["schemas"]["GroupedNotificationsResponse"];
+type GroupedNotificationsResponse =
+  components["schemas"]["GroupedNotificationsResponse"];
 /**
  * Get notifications for the authenticated user
  * Returns notifications grouped by type for easy filtering
@@ -45,13 +47,16 @@ export async function getNotifications(options?: {
 /**
  * Get unread notification count
  * Returns the count of unread notifications
+ * Note: This fetches all unread notifications to count them.
+ * For better performance, consider using a dedicated count endpoint.
  */
 export async function getUnreadCount(): Promise<number> {
   const { data, error, response } = await apiClient.GET("/notifications", {
     params: {
       query: {
+        grouped: true,
         unreadOnly: true,
-        limit: 1,
+        limit: 100,
       },
     },
   });
@@ -65,12 +70,31 @@ export async function getUnreadCount(): Promise<number> {
     return 0;
   }
 
-  // If we got notifications, we need to check if there are more
-  // For now, we'll return a boolean indicator (1 if unread, 0 if none)
-  // A proper count endpoint would be better, but this works for badge display
-  return Array.isArray(data.notifications) && data.notifications.length > 0
-    ? 1
-    : 0;
+  // Count unread notifications
+  if (Array.isArray(data.notifications)) {
+    return data.notifications.length;
+  }
+
+  // If grouped, count all unread notifications across all types
+  // Deduplicate connection requests to match how they're displayed
+  const grouped = data.notifications as GroupedNotificationsResponse;
+  const connectionRequests = [
+    ...grouped.connection_request,
+    ...grouped.connection_accepted,
+  ];
+  const uniqueConnectionRequests =
+    deduplicateConnectionRequests(connectionRequests);
+
+  // Count all notification types, using deduplicated connection requests
+  return (
+    uniqueConnectionRequests.length +
+    grouped.like.length +
+    grouped.comment.length +
+    grouped.tagged_in_post.length +
+    grouped.review.length +
+    grouped.collaboration_request.length +
+    grouped.message.length
+  );
 }
 
 /**
@@ -109,8 +133,6 @@ export async function updateNotification(
 export async function deleteNotification(
   notificationId: string
 ): Promise<void> {
-  console.log("[deleteNotification] Attempting to delete notification:", notificationId);
-  
   const { error, response } = await apiClient.DELETE(
     "/notifications/{notificationId}",
     {
@@ -120,33 +142,21 @@ export async function deleteNotification(
     }
   );
 
-  console.log("[deleteNotification] Response:", {
-    status: response?.status,
-    statusText: response?.statusText,
-    error,
-    hasResponse: !!response,
-  });
-
   // Verify we got a response first
   if (!response) {
-    console.error("[deleteNotification] No response received");
     throw new Error("Failed to delete notification: No response from server");
   }
 
   // Check for errors (but openapi-fetch may not set error for 204 responses)
   if (error) {
-    console.error("[deleteNotification] Error received:", error);
     handleApiError(error, response);
   }
 
   // Verify successful deletion (204 No Content is expected for DELETE)
   // openapi-fetch may not set error for 204 responses, so check status explicitly
   if (response.status !== 204 && response.status !== 200) {
-    console.error("[deleteNotification] Unexpected status:", response.status);
     throw new Error(
       `Failed to delete notification: Unexpected status ${response.status}`
     );
   }
-
-  console.log("[deleteNotification] Successfully deleted notification:", notificationId);
 }

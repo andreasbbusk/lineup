@@ -101,12 +101,7 @@ export function NotificationItem({
 	const handleDelete = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		if (notification.id) {
-			deleteNotification.mutate(notification.id, {
-				onError: (error) => {
-					console.error("Failed to delete notification:", error);
-					// The optimistic update will be rolled back automatically
-				},
-			});
+			deleteNotification.mutate(notification.id);
 		}
 	};
 

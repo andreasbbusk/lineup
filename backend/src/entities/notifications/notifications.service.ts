@@ -261,15 +261,7 @@ export class NotificationsService {
       user_id: userId,
     });
 
-    console.log("[deleteNotification] Delete result:", {
-      notificationId,
-      userId,
-      result,
-      error: error?.message,
-    });
-
     if (error) {
-      console.error("[deleteNotification] Delete error:", error);
       throw createHttpError({
         message: `Failed to delete notification: ${error.message}`,
         statusCode: 500,
@@ -279,18 +271,11 @@ export class NotificationsService {
 
     // The function returns TRUE if deleted, FALSE if not found or not recipient
     if (!result) {
-      console.warn("[deleteNotification] Notification could not be deleted:", {
-        notificationId,
-        userId,
-        recipientId: notification.recipient_id,
-      });
       throw createHttpError({
         message: "Notification could not be deleted. It may have already been deleted or you don't have permission.",
         statusCode: 404,
         code: "NOT_FOUND",
       });
     }
-
-    console.log("[deleteNotification] Successfully deleted notification:", notificationId);
   }
 }

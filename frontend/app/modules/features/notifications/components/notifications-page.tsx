@@ -9,6 +9,7 @@ import type { NotificationResponse } from "../types";
 import { useAcceptConnection } from "@/app/modules/hooks/mutations/useConnectionMutations";
 import { useMarkAsRead } from "../hooks/useNotificationMutations";
 import { deduplicateConnectionRequests } from "../utils/connectionRequests";
+import { sortNotificationsByDateDesc } from "../utils/sortNotifications";
 import { useStartOrNavigateToChat } from "@/app/modules/hooks";
 import { useAppStore } from "@/app/modules/stores/Store";
 
@@ -33,46 +34,28 @@ export function NotificationsPage() {
 		  ]
 		: [];
 
-	const uniqueConnectionRequests = deduplicateConnectionRequests(
-		connectionRequests
-	).sort((a, b) => {
-		// Sort by createdAt descending (newest first)
-		const dateA = new Date(a.createdAt).getTime();
-		const dateB = new Date(b.createdAt).getTime();
-		return dateB - dateA;
-	});
+	const uniqueConnectionRequests = sortNotificationsByDateDesc(
+		deduplicateConnectionRequests(connectionRequests)
+	);
 
 	// Profile interactions: likes, comments, tagged_in_post, review
 	const profileInteractions = notifications
-		? [
+		? sortNotificationsByDateDesc([
 				...notifications.like,
 				...notifications.comment,
 				...notifications.tagged_in_post,
 				...notifications.review,
-		  ].sort((a, b) => {
-				// Sort by createdAt descending (newest first)
-				const dateA = new Date(a.createdAt).getTime();
-				const dateB = new Date(b.createdAt).getTime();
-				return dateB - dateA;
-		  })
+		  ])
 		: [];
 
 	// Sort collaboration requests by createdAt descending (newest first)
 	const sortedCollaborationRequests = notifications
-		? [...notifications.collaboration_request].sort((a, b) => {
-				const dateA = new Date(a.createdAt).getTime();
-				const dateB = new Date(b.createdAt).getTime();
-				return dateB - dateA;
-		  })
+		? sortNotificationsByDateDesc(notifications.collaboration_request)
 		: [];
 
 	// Sort messages by createdAt descending (newest first)
 	const sortedMessages = notifications
-		? [...notifications.message].sort((a, b) => {
-				const dateA = new Date(a.createdAt).getTime();
-				const dateB = new Date(b.createdAt).getTime();
-				return dateB - dateA;
-		  })
+		? sortNotificationsByDateDesc(notifications.message)
 		: [];
 
 	const handleClose = () => {
@@ -82,7 +65,6 @@ export function NotificationsPage() {
 	// Handle connection request accept
 	const handleAcceptConnection = (notification: NotificationResponse) => {
 		if (!notification.entityId) {
-			console.error("Notification missing connection request ID");
 			return;
 		}
 
@@ -96,9 +78,6 @@ export function NotificationsPage() {
 						isRead: true,
 					});
 				}
-			},
-			onError: (error) => {
-				console.error("Failed to accept connection:", error);
 			},
 		});
 	};
