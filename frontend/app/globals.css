@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@import "react-swipeable-list/dist/styles.css";
+
+
 /* Helvetica Now Display Font Face Declarations */
 @font-face {
     font-family: "Helvetica Now Display";
