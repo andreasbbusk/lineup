@@ -3,11 +3,15 @@ import {
   createAuthenticatedClient,
   supabase,
 } from "../../config/supabase.config.js";
-import { UserProfile } from "../../types/api.types.js";
+import {
+  UserProfile,
+  BlockedUserResponse,
+  BlockStatusResponse,
+} from "../../types/api.types.js";
 import { createHttpError } from "../../utils/error-handler.js";
 import { ProfileRow, ProfileUpdate } from "../../utils/supabase-helpers.js";
 import { UpdateProfileDto } from "./users.dto.js";
-import { mapProfileToAPI } from "./users.mapper.js";
+import { mapProfileToAPI, mapBlockedUsersToResponse } from "./users.mapper.js";
 
 export class UsersService {
   /**
@@ -184,5 +188,349 @@ export class UsersService {
     }
 
     return mapProfileToAPI(updatedProfile as ProfileRow);
+  }
+
+  /**
+   * Block a user
+   * Adds the blocked user's ID to the blocker's blocked_users array and removes direct conversations
+   * @param blockerId ID of the user doing the blocking
+   * @param blockedId ID of the user being blocked
+   * @param token Bearer token for authenticated Supabase client
+   */
+  async blockUser(
+    blockerId: string,
+    blockedId: string,
+    token: string
+  ): Promise<void> {
+    const authedSupabase = createAuthenticatedClient(token);
+
+    // Prevent self-blocking
+    if (blockerId === blockedId) {
+      throw createHttpError({
+        message: "Cannot block yourself",
+        statusCode: 400,
+        code: "VALIDATION_ERROR",
+      });
+    }
+
+    // Verify target user exists
+    const { data: targetUser, error: targetError } = await authedSupabase
+      .from("profiles")
+      .select("id")
+      .eq("id", blockedId)
+      .single();
+
+    if (targetError || !targetUser) {
+      throw createHttpError({
+        message: "User not found",
+        statusCode: 404,
+        code: "NOT_FOUND",
+      });
+    }
+
+    // Get current blocker's profile
+    const { data: blockerProfile, error: blockerError } = await authedSupabase
+      .from("profiles")
+      .select("id, blocked_users")
+      .eq("id", blockerId)
+      .single();
+
+    if (blockerError || !blockerProfile) {
+      throw createHttpError({
+        message: "Failed to fetch blocker profile",
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+        details: blockerError,
+      });
+    }
+
+    // Check if already blocked
+    const currentBlocked = blockerProfile.blocked_users || [];
+    if (currentBlocked.includes(blockedId)) {
+      throw createHttpError({
+        message: "User is already blocked",
+        statusCode: 400,
+        code: "VALIDATION_ERROR",
+      });
+    }
+
+    // Add blocked user to array
+    const updatedBlocked = [...currentBlocked, blockedId];
+
+    // Update blocker's profile
+    const { error: updateError } = await authedSupabase
+      .from("profiles")
+      .update({ blocked_users: updatedBlocked })
+      .eq("id", blockerId);
+
+    if (updateError) {
+      throw createHttpError({
+        message: "Failed to block user",
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+        details: updateError,
+      });
+    }
+
+    // Remove direct conversations between the two users
+    await this.removeDirectConversations(blockerId, blockedId, authedSupabase);
+  }
+
+  /**
+   * Unblock a user
+   * Removes the blocked user's ID from the blocker's blocked_users array
+   * @param blockerId ID of the user doing the unblocking
+   * @param blockedId ID of the user being unblocked
+   * @param token Bearer token for authenticated Supabase client
+   */
+  async unblockUser(
+    blockerId: string,
+    blockedId: string,
+    token: string
+  ): Promise<void> {
+    const authedSupabase = createAuthenticatedClient(token);
+
+    // Get current blocker's profile
+    const { data: blockerProfile, error: blockerError } = await authedSupabase
+      .from("profiles")
+      .select("id, blocked_users")
+      .eq("id", blockerId)
+      .single();
+
+    if (blockerError || !blockerProfile) {
+      throw createHttpError({
+        message: "Failed to fetch blocker profile",
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+        details: blockerError,
+      });
+    }
+
+    // Check if user is blocked
+    const currentBlocked = blockerProfile.blocked_users || [];
+    if (!currentBlocked.includes(blockedId)) {
+      throw createHttpError({
+        message: "User is not blocked",
+        statusCode: 400,
+        code: "VALIDATION_ERROR",
+      });
+    }
+
+    // Remove blocked user from array
+    const updatedBlocked = currentBlocked.filter(
+      (id: string) => id !== blockedId
+    );
+
+    // Update blocker's profile
+    const { error: updateError } = await authedSupabase
+      .from("profiles")
+      .update({ blocked_users: updatedBlocked })
+      .eq("id", blockerId);
+
+    if (updateError) {
+      throw createHttpError({
+        message: "Failed to unblock user",
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+        details: updateError,
+      });
+    }
+  }
+
+  /**
+   * Check block status between two users
+   * Returns whether the users are blocked and in which direction
+   * @param userId ID of the first user
+   * @param targetId ID of the second user
+   * @param token Bearer token for authenticated Supabase client
+   */
+  async isBlocked(
+    userId: string,
+    targetId: string,
+    token: string
+  ): Promise<BlockStatusResponse> {
+    const authedSupabase = createAuthenticatedClient(token);
+
+    // Get both users' profiles
+    const { data: profiles, error: profilesError } = await authedSupabase
+      .from("profiles")
+      .select("id, blocked_users")
+      .in("id", [userId, targetId]);
+
+    if (profilesError || !profiles || profiles.length !== 2) {
+      throw createHttpError({
+        message: "Failed to fetch user profiles",
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+        details: profilesError,
+      });
+    }
+
+    const userProfile = profiles.find((p) => p.id === userId);
+    const targetProfile = profiles.find((p) => p.id === targetId);
+
+    if (!userProfile || !targetProfile) {
+      throw createHttpError({
+        message: "User not found",
+        statusCode: 404,
+        code: "NOT_FOUND",
+      });
+    }
+
+    const userBlocked = userProfile.blocked_users || [];
+    const targetBlocked = targetProfile.blocked_users || [];
+
+    const userBlockedTarget = userBlocked.includes(targetId);
+    const targetBlockedUser = targetBlocked.includes(userId);
+
+    if (userBlockedTarget) {
+      return { isBlocked: true, direction: "blocker" };
+    } else if (targetBlockedUser) {
+      return { isBlocked: true, direction: "blocked" };
+    } else {
+      return { isBlocked: false, direction: null };
+    }
+  }
+
+  /**
+   * Get list of blocked users for a given user
+   * @param userId ID of the user
+   * @param token Bearer token for authenticated Supabase client
+   */
+  async getBlockedUsers(
+    userId: string,
+    token: string
+  ): Promise<BlockedUserResponse[]> {
+    const authedSupabase = createAuthenticatedClient(token);
+
+    // Get user's profile with blocked_users array
+    const { data: profile, error: profileError } = await authedSupabase
+      .from("profiles")
+      .select("blocked_users")
+      .eq("id", userId)
+      .single();
+
+    if (profileError || !profile) {
+      throw createHttpError({
+        message: "Failed to fetch user profile",
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+        details: profileError,
+      });
+    }
+
+    const blockedIds = profile.blocked_users || [];
+
+    if (blockedIds.length === 0) {
+      return [];
+    }
+
+    // Fetch blocked users' profiles
+    const { data: blockedUsers, error: usersError } = await authedSupabase
+      .from("profiles")
+      .select("id, username, first_name, last_name, avatar_url")
+      .in("id", blockedIds);
+
+    if (usersError) {
+      throw createHttpError({
+        message: "Failed to fetch blocked users",
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+        details: usersError,
+      });
+    }
+
+    if (!blockedUsers || blockedUsers.length === 0) {
+      return [];
+    }
+
+    return mapBlockedUsersToResponse(blockedUsers);
+  }
+
+  /**
+   * Remove direct conversations between two users
+   * Sets left_at timestamp for both users in any direct conversations
+   * @param userId1 ID of the first user
+   * @param userId2 ID of the second user
+   * @param supabase Authenticated Supabase client
+   */
+  private async removeDirectConversations(
+    userId1: string,
+    userId2: string,
+    supabase: any
+  ): Promise<void> {
+    // Find all direct conversations where both users are participants
+    const { data: user1Conversations, error: conv1Error } = await supabase
+      .from("conversation_participants")
+      .select("conversation_id")
+      .eq("user_id", userId1)
+      .is("left_at", null);
+
+    if (conv1Error) {
+      throw createHttpError({
+        message: "Failed to find conversations",
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+        details: conv1Error,
+      });
+    }
+
+    if (!user1Conversations || user1Conversations.length === 0) {
+      return; // No conversations to remove
+    }
+
+    const conversationIds = user1Conversations.map(
+      (c: { conversation_id: string }) => c.conversation_id
+    );
+
+    // Find direct conversations where both users are active participants
+    const { data: directConversations, error: directError } = await supabase
+      .from("conversations")
+      .select(
+        `
+        id,
+        type,
+        conversation_participants!inner(user_id)
+      `
+      )
+      .in("id", conversationIds)
+      .eq("type", "direct")
+      .eq("conversation_participants.user_id", userId2)
+      .is("conversation_participants.left_at", null);
+
+    if (directError) {
+      throw createHttpError({
+        message: "Failed to find direct conversations",
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+        details: directError,
+      });
+    }
+
+    if (!directConversations || directConversations.length === 0) {
+      return; // No direct conversations to remove
+    }
+
+    const directConversationIds = directConversations.map(
+      (c: { id: string }) => c.id
+    );
+    const leftAtTimestamp = new Date().toISOString();
+
+    // Set left_at for both users in these conversations
+    const { error: leaveError } = await supabase
+      .from("conversation_participants")
+      .update({ left_at: leftAtTimestamp })
+      .in("conversation_id", directConversationIds)
+      .in("user_id", [userId1, userId2])
+      .is("left_at", null);
+
+    if (leaveError) {
+      throw createHttpError({
+        message: "Failed to remove conversations",
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+        details: leaveError,
+      });
+    }
   }
 }
