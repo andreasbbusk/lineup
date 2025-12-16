@@ -100,7 +100,7 @@ export default function FeedPage() {
 
 	return (
 		<PageTransition>
-			<div className="max-w-dvw h-[calc(100dvh-4rem)] mx-auto">
+			<div className="max-w-dvw h-[calc(100dvh-4rem)] mx-auto pt-16">
 				{isLoading ? (
 					// Unified loading state for everything
 					<>

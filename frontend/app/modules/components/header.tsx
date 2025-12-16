@@ -87,7 +87,7 @@ function HeaderIconButton({
  */
 function HomeHeader() {
 	return (
-		<header className="sticky top-0 z-40 w-full bg-white">
+		<header className="fixed top-0 z-40 w-full bg-white">
 			<div className=" flex h-16 items-center justify-between px-4 sm:px-6">
 				{/* Left side */}
 				<div className="flex items-center">
