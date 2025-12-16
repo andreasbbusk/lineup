@@ -5,6 +5,10 @@ import { toast } from "sonner";
 import { updateNotification, deleteNotification } from "../api";
 import type { GroupedNotificationsResponse } from "../types";
 import { NOTIFICATION_QUERY_KEYS } from "../utils/queryKeys";
+import {
+  prepareOptimisticUpdate,
+  rollbackOptimisticUpdate,
+} from "../utils/optimisticUpdates";
 
 /**
  * Hook to mark a notification as read or unread
@@ -21,17 +25,7 @@ export function useMarkAsRead() {
       isRead: boolean;
     }) => updateNotification(notificationId, isRead),
     onMutate: async ({ notificationId, isRead }) => {
-      // Cancel any outgoing refetches to avoid overwriting optimistic update
-      await queryClient.cancelQueries({
-        queryKey: NOTIFICATION_QUERY_KEYS.all,
-        exact: false,
-      });
-
-      // Snapshot the previous value
-      const previousQueries = queryClient.getQueriesData({
-        queryKey: NOTIFICATION_QUERY_KEYS.all,
-        exact: false,
-      });
+      const context = await prepareOptimisticUpdate(queryClient);
 
       // Optimistically update all notification queries
       // Just update the isRead status, don't remove notifications
@@ -69,15 +63,12 @@ export function useMarkAsRead() {
         };
       });
 
-      return { previousQueries };
+      return context;
     },
-    onError: (err, variables, context) => {
-      // Rollback on error
-      if (context?.previousQueries) {
-        context.previousQueries.forEach(([queryKey, data]) => {
-          queryClient.setQueryData(queryKey, data);
-        });
-      }
+    onError: (err, _variables, context) => {
+      // Log error for debugging
+      console.error("Failed to update notification:", err);
+      rollbackOptimisticUpdate(queryClient, context);
       toast.error("Failed to update notification. Please try again.");
     },
     onSuccess: () => {
@@ -100,18 +91,7 @@ export function useDeleteNotification() {
   return useMutation({
     mutationFn: (notificationId: string) => deleteNotification(notificationId),
     onMutate: async (notificationId) => {
-      // Cancel any outgoing refetches to avoid overwriting optimistic update
-      // Match all notification queries (including grouped ones)
-      await queryClient.cancelQueries({
-        queryKey: NOTIFICATION_QUERY_KEYS.all,
-        exact: false,
-      });
-
-      // Snapshot the previous value for all notification queries
-      const previousQueries = queryClient.getQueriesData({
-        queryKey: NOTIFICATION_QUERY_KEYS.all,
-        exact: false,
-      });
+      const context = await prepareOptimisticUpdate(queryClient);
 
       // Optimistically remove the notification from all groups
       // Update all notification queries (including grouped ones)
@@ -154,15 +134,11 @@ export function useDeleteNotification() {
         }
       );
 
-      return { previousQueries };
+      return context;
     },
-    onError: (err, variables, context) => {
-      // Rollback on error
-      if (context?.previousQueries) {
-        context.previousQueries.forEach(([queryKey, data]) => {
-          queryClient.setQueryData(queryKey, data);
-        });
-      }
+    onError: (err, _variables, context) => {
+      console.error("Failed to delete notification:", err);
+      rollbackOptimisticUpdate(queryClient, context);
       toast.error("Failed to delete notification. Please try again.");
     },
     onSuccess: () => {
