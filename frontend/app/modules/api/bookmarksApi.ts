@@ -45,16 +45,6 @@ export async function createBookmark(postId: string): Promise<BookmarkResponse> 
     } as { postId: string; post_id: string },
   });
 
-  // Log full response for debugging
-  console.log("Bookmark API response:", {
-    hasData: !!data,
-    hasError: !!error,
-    status: response?.status,
-    errorType: typeof error,
-    errorKeys: error && typeof error === "object" ? Object.keys(error) : null,
-    errorString: error ? String(error) : null,
-  });
-
   // Handle 201 Created response (backend returns 201 but types expect 200)
   // openapi-fetch may treat 201 as error if not in types, but data might still be available
   if (response?.status === 201) {
