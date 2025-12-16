@@ -34,11 +34,14 @@ function Comments({ postId }: CommentsProps) {
 			parentId?: string | null;
 		}) => createComment(data),
 		onSuccess: (newComment) => {
-			queryClient.invalidateQueries({
+			// Refetch comments for this post
+			queryClient.refetchQueries({
 				queryKey: ["comments", "post", newComment.postId],
 			});
-			queryClient.invalidateQueries({ queryKey: ["posts", newComment.postId] });
-			queryClient.invalidateQueries({ queryKey: ["posts"] });
+			// Refetch the specific post (to update comment count)
+			queryClient.refetchQueries({ queryKey: ["posts", newComment.postId] });
+			// Refetch all posts lists (to update comment counts in feeds)
+			queryClient.refetchQueries({ queryKey: ["posts"], exact: false });
 		},
 	});
 	const [commentText, setCommentText] = useState("");
@@ -155,11 +158,14 @@ function CommentItem({
 			parentId?: string | null;
 		}) => createComment(data),
 		onSuccess: (newComment) => {
-			queryClient.invalidateQueries({
+			// Refetch comments for this post
+			queryClient.refetchQueries({
 				queryKey: ["comments", "post", newComment.postId],
 			});
-			queryClient.invalidateQueries({ queryKey: ["posts", newComment.postId] });
-			queryClient.invalidateQueries({ queryKey: ["posts"] });
+			// Refetch the specific post (to update comment count)
+			queryClient.refetchQueries({ queryKey: ["posts", newComment.postId] });
+			// Refetch all posts lists (to update comment counts in feeds)
+			queryClient.refetchQueries({ queryKey: ["posts"], exact: false });
 		},
 	});
 
