@@ -73,7 +73,7 @@ function Comments({ postId }: CommentsProps) {
 
 				<button
 					type="submit"
-					className="flex w-[1.5rem] h-[1.5rem] justify-center items-center gap-[0.625rem] aspect-square rounded-[0.5rem] bg-[#FFCF70]">
+					className="flex w-[1.5rem] h-[1.5rem] justify-center items-center gap-[0.625rem] aspect-square rounded-[0.5rem] bg-[#FFCF70] hover:opacity-80">
 					<Image
 						src="/icons/arrow-right.svg"
 						alt="Send"
@@ -206,7 +206,7 @@ function CommentItem({
 			<p>{comment.description}</p>
 			<div className="flex  justify-end items-center gap-[0.9375rem] self-stretch">
 				<div
-					className="flex items-center gap-[0.3125rem] cursor-pointer"
+					className="flex items-center gap-[0.3125rem] cursor-pointer hover:opacity-60"
 					onClick={() => setIsLiked(!isLiked)}>
 					{isLiked ? (
 						<svg
@@ -242,7 +242,7 @@ function CommentItem({
 				</div>
 				<button
 					onClick={() => setShowReplyInput(!showReplyInput)}
-					className={`flex items-center gap-2 text-[#555] font-sans text-[0.875rem] font-medium leading-[1.18125rem] tracking-[0.03125rem] ${
+					className={`flex items-center gap-2 text-[#555] font-sans text-[0.875rem] font-medium leading-[1.18125rem] tracking-[0.03125rem] hover:opacity-60 ${
 						depth >= 2 ? "gap-0" : ""
 					}`}>
 					<svg
@@ -284,7 +284,7 @@ function CommentItem({
 					/>
 					<button
 						type="submit"
-						className="flex w-[1.5rem] h-[1.5rem] justify-center items-center gap-[0.625rem] aspect-square rounded-[0.5rem] bg-[#FFCF70]">
+						className="flex w-[1.5rem] h-[1.5rem] justify-center items-center gap-[0.625rem] aspect-square rounded-[0.5rem] bg-[#FFCF70] hover:opacity-80">
 						<Image
 							src="/icons/arrow-right.svg"
 							alt="Send"
