@@ -3,7 +3,6 @@ import "./globals.css";
 import { Providers } from "./providers";
 import Header from "./modules/components/header";
 import BottomNav from "./modules/components/bottom-nav";
-import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "LineUp",
@@ -25,7 +24,6 @@ export default function RootLayout({
             <BottomNav />
           </div>
         </Providers>
-        <Toaster position="top-center" duration={3000} />
       </body>
     </html>
   );
