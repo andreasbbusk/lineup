@@ -1,5 +1,6 @@
 "use client";
 import { use } from "react";
+import { motion } from "framer-motion";
 import { useAppStore } from "@/app/modules/stores/Store";
 import { ProfileHeader } from "@/app/modules/features/profiles/components/profile-header";
 import { ProfileBody } from "@/app/modules/features/profiles/components/profile-body";
@@ -26,10 +27,10 @@ interface ProfilePageProps {
 }
 
 export default function Page({ params }: ProfilePageProps) {
-	const unwrappedParams = use(params);
-	const currentUserProfile = useAppStore((state) => state.user);
-	const router = useRouter();
-	const { startOrNavigateToChat } = useStartOrNavigateToChat();
+  const unwrappedParams = use(params);
+  const currentUserProfile = useAppStore((state) => state.user);
+  const router = useRouter();
+  const { startOrNavigateToChat } = useStartOrNavigateToChat();
 
   // Extract username from params array, or use current user's username
   // /profile -> username is undefined/empty, use current user
@@ -40,7 +41,7 @@ export default function Page({ params }: ProfilePageProps) {
   // Fetch the profile data for the target username
   const {
     data: profileData,
-    isLoading,
+    isPending: isProfileLoading,
     error,
     isSuccess,
   } = useProfile(targetUsername);
@@ -53,46 +54,70 @@ export default function Page({ params }: ProfilePageProps) {
   const profileExists =
     isSuccess && !!profileData && profileData.username === targetUsername;
 
-  // Fetch collaborations using the user's ID from profileData
-  const { data: collaborations = [] } = useCollaborations(
-    profileExists ? profileData.id : undefined
-  );
-  // Fetch reviews using the username
-  const { data: reviews = [] } = useReviews(
-    profileExists ? targetUsername : undefined
-  );
-  // Fetch social media links using username
-  const { data: socialMediaData } = useSocialMedia(
-    profileExists ? targetUsername : undefined
-  );
-  // Fetch looking for preferences using username
-  const { data: lookingForData = [] } = useLookingFor(
-    profileExists ? targetUsername : undefined
-  );
-  // Fetch FAQ answers using username
-  const { data: faqs } = useFaq(profileExists ? targetUsername : undefined);
+  // Fetch all data in parallel with proper enabled flags
+  const { data: collaborations = [], isPending: collaborationsLoading } =
+    useCollaborations(profileExists ? profileData.id : undefined);
 
-  // Fetch posts to get count for header (fetch more for accurate count)
-  const { data: postsData } = usePostsByAuthor(
+  const { data: reviews = [], isPending: reviewsLoading } = useReviews(
+    profileExists ? targetUsername : undefined
+  );
+
+  const { data: socialMediaData, isPending: socialMediaLoading } =
+    useSocialMedia(profileExists ? targetUsername : undefined);
+
+  const { data: lookingForData = [], isPending: lookingForLoading } =
+    useLookingFor(profileExists ? targetUsername : undefined);
+
+  const { data: faqs, isPending: faqsLoading } = useFaq(
+    profileExists ? targetUsername : undefined
+  );
+
+  const { data: postsData, isPending: postsLoading } = usePostsByAuthor(
     profileExists && profileData?.id ? profileData.id : "",
     {
-      limit: 100, // Fetch more to get a better count
+      limit: 100,
       includeEngagement: false,
       includeMedia: false,
     }
   );
 
+  // Fetch connection data based on profile type
+  const { data: connectionRequests, isPending: connectionRequestsLoading } =
+    useConnectionRequests();
+
+  const { data: userConnections, isPending: userConnectionsLoading } =
+    useUserConnections({
+      userId: profileData?.id || null,
+      enabled: !isOwnProfile && !!profileData?.id,
+    });
+
+  // Wait for ALL data to load
+  const isLoading =
+    isProfileLoading ||
+    collaborationsLoading ||
+    reviewsLoading ||
+    socialMediaLoading ||
+    lookingForLoading ||
+    faqsLoading ||
+    postsLoading ||
+    (isOwnProfile ? connectionRequestsLoading : userConnectionsLoading);
+
+  // Show loading spinner while fetching data
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  // Handle errors
+  if (error || !profileData) {
+    return (
+      <main className="flex flex-col items-center gap-3.75">
+        <p>Profile not found</p>
+      </main>
+    );
+  }
+
   // Calculate posts count (shows up to 100, which is reasonable for display)
   const postsCount = postsData?.data?.length ?? 0;
-
-  // Fetch connection data
-  // For own profile: use connectionRequests (includes both sent and received)
-  // For other profiles: use userConnections (only accepted connections)
-  const { data: connectionRequests } = useConnectionRequests();
-  const { data: userConnections } = useUserConnections({
-    userId: profileData?.id || null,
-    enabled: !isOwnProfile && !!profileData?.id,
-  });
 
   // Calculate accepted connections count from single data source
   const acceptedConnectionsCount = isOwnProfile
@@ -128,18 +153,6 @@ export default function Page({ params }: ProfilePageProps) {
         "https://upload.wikimedia.org/wikipedia/commons/5/5c/Kanye_West_at_the_2009_Tribeca_Film_Festival_%28crop_2%29.jpg",
     },
   ]; // Hardcoded artists data - matches edit page
-
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-
-  if (error || !profileData) {
-    return (
-      <main className="flex flex-col items-center gap-3.75">
-        <p>Profile not found</p>
-      </main>
-    );
-  }
 
   // Transform collaborations data to match component expectations
   const user_collaborations = collaborations
@@ -185,24 +198,24 @@ export default function Page({ params }: ProfilePageProps) {
     answer: faq.answer,
   }));
 
-	const userDetail = {
-		username: profileData.username,
-		firstName: profileData.firstName,
-		lastName: profileData.lastName,
-		imgSrc: profileData.avatarUrl,
-		color: profileData.themeColor || "#1E1E1E",
-		lookingFor: user_looking_for,
-		aboutMe: profileData.aboutMe,
-		bio: profileData.bio,
-		genres: "Elektronisk, Ambient, Techno",
-		socialMedia: user_social_media,
-		favoriteArtists: favoriteArtists,
-		myMusic: profileData.spotifyPlaylistUrl,
-		videos: "/images/video-1.svg",
-		pastCollaborations: user_collaborations,
-		reviews: user_reviews,
-		questions: user_faq,
-	};
+  const userDetail = {
+    username: profileData.username,
+    firstName: profileData.firstName,
+    lastName: profileData.lastName,
+    imgSrc: profileData.avatarUrl,
+    color: profileData.themeColor || "#1E1E1E",
+    lookingFor: user_looking_for,
+    aboutMe: profileData.aboutMe,
+    bio: profileData.bio,
+    genres: "Elektronisk, Ambient, Techno",
+    socialMedia: user_social_media,
+    favoriteArtists: favoriteArtists,
+    myMusic: profileData.spotifyPlaylistUrl,
+    videos: "/images/video-1.svg",
+    pastCollaborations: user_collaborations,
+    reviews: user_reviews,
+    questions: user_faq,
+  };
 
   const editProfile = () => {
     router.push("/profile/edit");
@@ -213,78 +226,85 @@ export default function Page({ params }: ProfilePageProps) {
     console.log("Share profile clicked");
   };
 
-	const handleMessageClick = () => {
-		if (profileData?.id) {
-			startOrNavigateToChat(profileData.id);
-		}
-	};
+  const handleMessageClick = () => {
+    if (profileData?.id) {
+      startOrNavigateToChat(profileData.id);
+    }
+  };
 
-	return (
-		<div className="flex flex-col items-center gap-3.75 max-w-300 mx-auto md:flex-row md:items-start md:mt-4">
-			{isOwnProfile ? (
-				<>
-					<ProfileHeader
-						username={targetUsername}
-						userId={profileData.id}
-						imgSrc={userDetail.imgSrc}
-						theme={userDetail.color}
-						firstName={userDetail.firstName || "Undefined"}
-						lastName={userDetail.lastName || "Undefined"}
-						bio={userDetail.bio ?? undefined}
-						isOwnProfile={isOwnProfile}
-						connections={acceptedConnectionsCount}
-						pendingConnectionsCount={pendingCount}
-						posts={postsCount}
-						onClickConnect={editProfile}
-						onClickMessage={shareProfile}
-						className="md:sticky md:top-20"
-					/>
-					<ProfileBody
-						theme={userDetail.color}
-						aboutMe={userDetail.aboutMe ?? undefined}
-						genres={userDetail.genres.split(", ")}
-						lookingFor={user_looking_for}
-						socialMedia={user_social_media}
-						favoriteArtists={userDetail.favoriteArtists}
-						myMusic={userDetail.myMusic ?? undefined}
-						videos={[userDetail.videos]}
-						pastCollaborations={userDetail.pastCollaborations}
-						reviews={userDetail.reviews}
-						questions={userDetail.questions}
-						userId={profileData.id}
-					/>
-				</>
-			) : (
-				<>
-					<ProfileHeader
-						username={targetUsername}
-						userId={profileData.id}
-						imgSrc={userDetail.imgSrc}
-						theme={userDetail.color}
-						firstName={userDetail.firstName || "Undefined"}
-						lastName={userDetail.lastName || "Undefined"}
-						isOwnProfile={isOwnProfile}
-						connections={acceptedConnectionsCount}
-						posts={postsCount}
-						onClickMessage={handleMessageClick}
-						className="md:sticky md:top-20"
-					/>
-					<ProfileBody
-						theme={userDetail.color}
-						aboutMe={userDetail.aboutMe ?? undefined}
-						genres={userDetail.genres.split(", ")}
-						lookingFor={user_looking_for}
-						socialMedia={user_social_media}
-						favoriteArtists={userDetail.favoriteArtists}
-						myMusic={userDetail.myMusic ?? undefined}
-						videos={[userDetail.videos]}
-						pastCollaborations={userDetail.pastCollaborations}
-						reviews={userDetail.reviews}
-						questions={userDetail.questions}
-						userId={profileData.id}
-					/>
-				</>
-			)}
-		</div>
-	);
+  return (
+    <PageTransition>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="flex flex-col items-center gap-3.75 max-w-300 mx-auto md:flex-row md:items-start md:mt-4"
+      >
+        {isOwnProfile ? (
+          <>
+            <ProfileHeader
+              username={targetUsername}
+              userId={profileData.id}
+              imgSrc={userDetail.imgSrc}
+              theme={userDetail.color}
+              firstName={userDetail.firstName || "Undefined"}
+              lastName={userDetail.lastName || "Undefined"}
+              bio={userDetail.bio ?? undefined}
+              isOwnProfile={isOwnProfile}
+              connections={acceptedConnectionsCount}
+              pendingConnectionsCount={pendingCount}
+              posts={postsCount}
+              onClickConnect={editProfile}
+              onClickMessage={shareProfile}
+              className="md:sticky md:top-20"
+            />
+            <ProfileBody
+              theme={userDetail.color}
+              aboutMe={userDetail.aboutMe ?? undefined}
+              genres={userDetail.genres.split(", ")}
+              lookingFor={user_looking_for}
+              socialMedia={user_social_media}
+              favoriteArtists={userDetail.favoriteArtists}
+              myMusic={userDetail.myMusic ?? undefined}
+              videos={[userDetail.videos]}
+              pastCollaborations={userDetail.pastCollaborations}
+              reviews={userDetail.reviews}
+              questions={userDetail.questions}
+              userId={profileData.id}
+            />
+          </>
+        ) : (
+          <>
+            <ProfileHeader
+              username={targetUsername}
+              userId={profileData.id}
+              imgSrc={userDetail.imgSrc}
+              theme={userDetail.color}
+              firstName={userDetail.firstName || "Undefined"}
+              lastName={userDetail.lastName || "Undefined"}
+              isOwnProfile={isOwnProfile}
+              connections={acceptedConnectionsCount}
+              posts={postsCount}
+              onClickMessage={handleMessageClick}
+              className="md:sticky md:top-20"
+            />
+            <ProfileBody
+              theme={userDetail.color}
+              aboutMe={userDetail.aboutMe ?? undefined}
+              genres={userDetail.genres.split(", ")}
+              lookingFor={user_looking_for}
+              socialMedia={user_social_media}
+              favoriteArtists={userDetail.favoriteArtists}
+              myMusic={userDetail.myMusic ?? undefined}
+              videos={[userDetail.videos]}
+              pastCollaborations={userDetail.pastCollaborations}
+              reviews={userDetail.reviews}
+              questions={userDetail.questions}
+              userId={profileData.id}
+            />
+          </>
+        )}
+      </motion.div>
+    </PageTransition>
+  );
 }

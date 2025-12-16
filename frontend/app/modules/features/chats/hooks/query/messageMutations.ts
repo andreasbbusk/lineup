@@ -185,46 +185,51 @@ export function useSendMessage(conversationId: string, userId: string) {
 
       // Optimistically update conversation list (non-infinite structure)
       const conversationsSnapshot = queryClient.getQueryData(chatKeys.lists());
-      
-      queryClient.setQueryData(
-        chatKeys.lists(),
-        (oldData: unknown) => {
-          if (!oldData || typeof oldData !== 'object') return oldData;
-          
-          const data = oldData as {
-            direct: Array<{
-              id: string;
-              lastMessage?: { content: string; senderId: string; createdAt: string };
-              updatedAt?: string;
-            }>;
-            groups: Array<{
-              id: string;
-              lastMessage?: { content: string; senderId: string; createdAt: string };
-              updatedAt?: string;
-            }>;
-          };
-          
-          const now = new Date().toISOString();
-          const newLastMessage = {
-            content,
-            senderId: userId,
-            createdAt: now,
-          };
 
-          return {
-            direct: data.direct.map((conv) =>
-              conv.id === conversationId
-                ? { ...conv, lastMessage: newLastMessage, updatedAt: now }
-                : conv
-            ),
-            groups: data.groups.map((conv) =>
-              conv.id === conversationId
-                ? { ...conv, lastMessage: newLastMessage, updatedAt: now }
-                : conv
-            ),
-          };
-        }
-      );
+      queryClient.setQueryData(chatKeys.lists(), (oldData: unknown) => {
+        if (!oldData || typeof oldData !== "object") return oldData;
+
+        const data = oldData as {
+          direct: Array<{
+            id: string;
+            lastMessage?: {
+              content: string;
+              senderId: string;
+              createdAt: string;
+            };
+            updatedAt?: string;
+          }>;
+          groups: Array<{
+            id: string;
+            lastMessage?: {
+              content: string;
+              senderId: string;
+              createdAt: string;
+            };
+            updatedAt?: string;
+          }>;
+        };
+
+        const now = new Date().toISOString();
+        const newLastMessage = {
+          content,
+          senderId: userId,
+          createdAt: now,
+        };
+
+        return {
+          direct: data.direct.map((conv) =>
+            conv.id === conversationId
+              ? { ...conv, lastMessage: newLastMessage, updatedAt: now }
+              : conv
+          ),
+          groups: data.groups.map((conv) =>
+            conv.id === conversationId
+              ? { ...conv, lastMessage: newLastMessage, updatedAt: now }
+              : conv
+          ),
+        };
+      });
 
       return { snapshot, conversationsSnapshot, tempId };
     },
@@ -270,9 +275,8 @@ export function useSendMessage(conversationId: string, userId: string) {
       );
 
       // Refetch to get accurate server state with full sender info
-      queryClient.refetchQueries({ 
+      queryClient.refetchQueries({
         queryKey: chatKeys.lists(),
-        type: 'active' 
       });
     },
   });

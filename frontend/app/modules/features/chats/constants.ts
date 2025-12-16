@@ -1,7 +1,7 @@
 export const MESSAGE_PREVIEW_LENGTH = 50;
 export const CONVERSATION_PREVIEW_LENGTH = 40;
 export const TYPING_INDICATOR_TIMEOUT_MS = 2000;
-export const DEFAULT_SKELETON_COUNT = 5;
+export const DEFAULT_SKELETON_COUNT = 6;
 export const DEFAULT_MESSAGES_PAGE_SIZE = 50;
 
 export const STALE_TIME = {

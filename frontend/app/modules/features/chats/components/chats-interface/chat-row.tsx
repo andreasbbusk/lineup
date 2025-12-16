@@ -24,7 +24,7 @@ export function ChatRow({
     currentUserId
   );
 
-  const isSentByMe = conversation.creator?.id === currentUserId;
+  const isSentByMe = conversation.lastMessageSenderId === currentUserId;
 
   const hasUnread = conversation.unreadCount > 0;
 
