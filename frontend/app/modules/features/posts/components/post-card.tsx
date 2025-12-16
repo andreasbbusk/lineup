@@ -144,7 +144,7 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 							} else {
 								await unlikePost(post.id);
 							}
-						} catch (error) {
+						} catch {
 							// Revert on error
 							setIsLiked(!liked);
 							setLikesCount((prev) =>
