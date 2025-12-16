@@ -8,8 +8,11 @@ import { chatApi } from "../../api";
 import { chatKeys } from "../../queryKeys";
 import { useMessageActionsStore } from "../../stores/messageStore";
 import { Message, PaginatedMessages } from "../../types";
-import { addMessageToCache, replaceMessageInCache, updateMessageInCache } from "../../utils/cacheUpdates";
-import { MESSAGE_STATES } from "../../constants";
+import {
+  addMessageToCache,
+  replaceMessageInCache,
+  updateMessageInCache,
+} from "../../utils/cacheUpdates";
 
 type MessagesPage = {
   messages: Message[];
@@ -18,7 +21,6 @@ type MessagesPage = {
 };
 
 type InfiniteMessages = InfiniteData<MessagesPage, string | undefined>;
-
 
 export function useEditMessage(conversationId: string) {
   const queryClient = useQueryClient();
@@ -65,7 +67,9 @@ export function useEditMessage(conversationId: string) {
       toast.error("Failed to edit message. Please try again.");
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+      // Force refetch to get updated lastMessagePreview from server
+      queryClient.refetchQueries({ queryKey: chatKeys.lists() });
+      queryClient.refetchQueries({ queryKey: chatKeys.unread() });
     },
   });
 }
@@ -93,7 +97,6 @@ export function useDeleteMessage(conversationId: string) {
         (msg) =>
           ({
             ...msg,
-            content: MESSAGE_STATES.DELETED_TEXT,
           } as Message)
       );
 
@@ -111,11 +114,12 @@ export function useDeleteMessage(conversationId: string) {
       toast.error("Failed to delete message. Please try again.");
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+      // Force refetch to get updated lastMessagePreview from server
+      queryClient.refetchQueries({ queryKey: chatKeys.lists() });
+      queryClient.refetchQueries({ queryKey: chatKeys.unread() });
     },
   });
 }
-
 
 /**
  * Hook for sending messages with optimistic updates
@@ -196,7 +200,9 @@ export function useSendMessage(conversationId: string, userId: string) {
         serverMessage
       );
 
-      queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+      // Force refetch to get updated lastMessagePreview from server
+      queryClient.refetchQueries({ queryKey: chatKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: chatKeys.unread() });
     },
   });
 }

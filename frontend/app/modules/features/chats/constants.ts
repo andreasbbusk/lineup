@@ -5,8 +5,8 @@ export const DEFAULT_SKELETON_COUNT = 5;
 export const DEFAULT_MESSAGES_PAGE_SIZE = 50;
 
 export const STALE_TIME = {
-  CONVERSATIONS: 60_000,
-  MESSAGES: 60_000,
+  CONVERSATIONS: 5_000,
+  MESSAGES: 5_000,
   CONNECTIONS: 300_000,
   USER_SEARCH: 30_000,
 } as const;
@@ -18,7 +18,6 @@ export const MESSAGE_ACTION_CONFIG = {
 } as const;
 
 export const MESSAGE_STATES = {
-  DELETED_TEXT: "This message was deleted.",
   EMPTY_CHAT_TEXT: "No messages yet. Start the conversation!",
   NO_DIRECT_CHATS: "No direct chats yet",
   NO_GROUP_CHATS: "No group chats yet",
