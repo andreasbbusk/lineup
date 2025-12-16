@@ -12,9 +12,9 @@ type ActionBarProps = {
 
 function ActionBar(props: ActionBarProps) {
 	return (
-		<div className="flex px-2.5 w-full px-[0.625rem] items-start gap-[0.8125rem]">
+		<div className="flex w-full px-2.5 items-start gap-3.25">
 			<div
-				className="flex items-center gap-[0.3125rem] cursor-pointer hover:opacity-60"
+				className="flex items-center gap-1.25 cursor-pointer hover:opacity-60"
 				onClick={() => {
 					const newLiked = !props.isLiked;
 					props.setIsLiked?.(newLiked);
@@ -53,7 +53,7 @@ function ActionBar(props: ActionBarProps) {
 			</div>
 			{props.isCommentOpen ? (
 				<div
-					className="flex items-center gap-[0.3125rem] hover:opacity-60"
+					className="flex items-center gap-1.25 hover:opacity-60"
 					onClick={() => props.setIsCommentOpen?.(!props.isCommentOpen)}>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -74,7 +74,7 @@ function ActionBar(props: ActionBarProps) {
 				</div>
 			) : (
 				<div
-					className="flex items-center gap-[0.3125rem] hover:opacity-60"
+					className="flex items-center gap-1.25 hover:opacity-60"
 					onClick={() => props.setIsCommentOpen?.(!props.isCommentOpen)}>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -93,7 +93,7 @@ function ActionBar(props: ActionBarProps) {
 				</div>
 			)}
 
-			<div className="flex items-center gap-[0.3125rem] hover:opacity-60">
+			<div className="flex items-center gap-1.25 hover:opacity-60">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					width="20"

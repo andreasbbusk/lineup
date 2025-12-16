@@ -75,11 +75,11 @@ const Button = (props: buttonProps) => {
 		primary: ` ${
 			props.glass
 				? "gap-[0.25rem] flex-row-reverse flex justify-center items-center rounded-[1.5625rem] text-[var(--color-white)] text-nowrap hover:opacity-80"
-				: "flex px-2.5 py-2 items-center gap-[0.3125rem] rounded-full bg-[var(--color-crocus-yellow)] hover:opacity-80"
+				: "flex px-2.5 py-2 items-center gap-1.25 rounded-full bg-[var(--color-crocus-yellow)] hover:opacity-80"
 		}`,
 		secondary: ` ${
 			props.glass
-				? "flex-row-reverse flex px-2.5 py-1 justify-center items-center gap-[0.3125rem] rounded-full bg-[var(--color-crocus-yellow)] hover:opacity-80"
+				? "flex-row-reverse flex px-2.5 py-1 justify-center items-center gap-1.25 rounded-full bg-[var(--color-crocus-yellow)] hover:opacity-80"
 				: "flex px-2.5 py-1 justify-center items-center gap-2 rounded-[5.625rem] border border-[var(--color-grey)] text-[var(--color-grey)] hover:opacity-80"
 		}`,
 		icon: ` ${

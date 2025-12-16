@@ -19,7 +19,6 @@ import {
 	NOTIFICATION_FONTS,
 	NOTIFICATION_COLORS,
 } from "../utils/notificationConstants";
-import { Avatar, getInitials } from "@/app/modules/components/avatar";
 
 interface NotificationItemProps {
 	notification: NotificationResponse;
@@ -234,7 +233,7 @@ export function NotificationItem({
 							e.stopPropagation();
 							onActionClick?.();
 						}}
-						className="bg-[#ffcf70] cursor-pointer flex items-center justify-end px-[10px] py-[4px] rounded-[400px] shrink-0 hover:opacity-90 transition-opacity">
+						className="bg-[#ffcf70] cursor-pointer flex items-center justify-end px-2.5 py-1 rounded-[400px] shrink-0 hover:opacity-90 transition-opacity">
 						<span
 							className={`${NOTIFICATION_FONTS.medium} text-[14px] text-black text-center tracking-[0.5px]`}>
 							{actionButtonText}

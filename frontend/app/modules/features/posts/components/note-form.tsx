@@ -56,8 +56,8 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 		}
 	};
 
-	const removeTag = (tagToRemove: string) => {
-		setSelectedTags([]);
+	const removeTag = (tag: string) => {
+		setSelectedTags((prevTags) => prevTags.filter((t) => t !== tag));
 	};
 
 	// Restore draft on mount
@@ -113,14 +113,14 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 	return (
 		<form
 			onSubmit={handleSubmit}
-			className="flex flex-col gap-[1.5625rem] w-full min-h-full border-t border-gray-200 pt-6">
+			className="flex flex-col gap-6.25 w-full min-h-full border-t border-gray-200 pt-6">
 			<div
 				className={
 					isUserTaggerOpen
 						? "rounded-[1.875rem] border border-[rgba(0,0,0,0.07)]"
 						: "flex  justify-between items-center"
 				}>
-				<div className="w-full flex justify-between items-center p-[0.625rem]">
+				<div className="w-full flex justify-between items-center p-2.5">
 					<div className="flex items-center gap-2.5">
 						<div className="flex">
 							<Avatar
@@ -149,7 +149,7 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 								/>
 							)}
 						</div>
-						<p className="text-[#555] text-center font-['Helvetica_Now_Display'] text-lg font-normal leading-[1.1875rem] tracking-[0.03125rem]">
+						<p className="text-[#555] text-center text-lg">
 							{(() => {
 								const names = [
 									currentUser?.firstName || currentUser?.username || "User",
@@ -206,13 +206,13 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 			<div
 				className={
 					isTagSelectorOpen
-						? "rounded-[1.875rem] border border-[rgba(0,0,0,0.07)] flex flex-col gap-[0.62rem] w-full min-h-full border-t border-gray-200 px-[0.9375rem] py-[0.625rem]"
+						? "rounded-[1.875rem] border border-gray-200 flex flex-col gap-[0.62rem] w-full min-h-full border-t px-3.75 py-2.5"
 						: "flex justify-between items-center"
 				}>
 				{!isTagSelectorOpen ? (
-					<div className="flex justify-between w-full px-[0.625rem]">
+					<div className="flex justify-between w-full px-2.5">
 						{selectedTags.map((tag) => (
-							<div key={tag} className="flex gap-[0.625rem]">
+							<div key={tag} className="flex gap-2.5">
 								<Tags text={tag} hashTag onClick={() => {}} />
 								<button
 									type="button"
@@ -247,9 +247,9 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 					</div>
 				) : selectedTags.length === 1 ? (
 					<div className="flex justify-between">
-						<div className="flex gap-[0.625rem] flex-wrap">
+						<div className="flex gap-2.5 flex-wrap">
 							{selectedTags.map((tag) => (
-								<div key={tag} className="flex gap-[0.625rem]">
+								<div key={tag} className="flex gap-2.5">
 									<Tags text={tag} hashTag onClick={() => {}} />
 									<button
 										type="button"
@@ -298,7 +298,7 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 				placeholder="Write a title..."
 				maxLength={100}
 				disabled={isRestoring}
-				className="flex h-[3.75rem] p-[0.625rem] items-center gap-[0.625rem] flex-[1_0_0] rounded-[0.5rem] bg-[#F1F1F1]"
+				className="flex h-15 p-2.5 items-center gap-2.5 flex-[1_0_0] rounded-lg bg-[#F1F1F1]"
 			/>
 
 			{/* Media */}
@@ -312,7 +312,7 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 				rows={6}
 				maxLength={5000}
 				disabled={isRestoring}
-				className="flex p-[0.625rem] items-center gap-[0.625rem] rounded-[0.5rem] bg-[#F1F1F1]"
+				className="flex p-2.5 items-center gap-2.5 rounded-lg bg-[#F1F1F1]"
 			/>
 
 			{/* Submit */}
