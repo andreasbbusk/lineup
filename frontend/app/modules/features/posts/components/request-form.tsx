@@ -418,7 +418,7 @@ export function RequestForm({
 					type="submit"
 					variant="primary"
 					disabled={
-						isSubmitting || !title.trim() || description.trim().length < 10
+						isSubmitting || !title.trim() || description.trim().length < 1
 					}
 					onClick={() => {}} // Required by Button component, form handles submit
 					className="w-[6.85rem] items-center justify-center ">
