@@ -1,5 +1,6 @@
 import {
   createAuthenticatedClient,
+  getSupabaseClient,
   supabase,
 } from "../../config/supabase.config.js";
 import { CommentInsert, CommentUpdate } from "../../utils/supabase-helpers.js";
@@ -16,9 +17,13 @@ export class CommentsService {
 
   /**
    * Get all comments for a post
-   * Returns comments with author profile information
+   * Returns comments with author profile information and like counts
    */
-  async getPostComments(postId: string): Promise<CommentResponse[]> {
+  async getPostComments(
+    postId: string,
+    userId?: string,
+    token?: string
+  ): Promise<CommentResponse[]> {
     const { data: comments, error } = await supabase
       .from("comments")
       .select(
@@ -46,7 +51,44 @@ export class CommentsService {
 
     // Map comments and organize them hierarchically
     const allComments = mapCommentsToResponse(comments || []);
-    
+
+    // Fetch like counts and user's like status if authenticated
+    let likesCountMap = new Map<string, number>();
+    let isLikedMap = new Map<string, boolean>();
+
+    if (userId && token && comments && comments.length > 0) {
+      const commentIds = comments.map((c: any) => c.id);
+      const authedSupabase = getSupabaseClient(token);
+
+        // Get all likes for these comments
+      // Note: comment_id column needs to be added to the likes table via migration
+      const { data: likesData } = await authedSupabase
+        .from("likes")
+        .select("comment_id, user_id")
+        .in("comment_id", commentIds)
+        .not("comment_id", "is", null);
+
+      // Build maps
+      likesData?.forEach((like: any) => {
+        if (like.comment_id) {
+          const count = likesCountMap.get(like.comment_id) || 0;
+          likesCountMap.set(like.comment_id, count + 1);
+          if (like.user_id === userId) {
+            isLikedMap.set(like.comment_id, true);
+          }
+        }
+      });
+    }
+
+    // Add like data to comments
+    const addLikeData = (comment: CommentResponse) => {
+      comment.likesCount = likesCountMap.get(comment.id) || 0;
+      comment.isLiked = isLikedMap.get(comment.id) || false;
+      if (comment.replies) {
+        comment.replies.forEach(addLikeData);
+      }
+    };
+
     // Build comment tree: separate top-level comments and replies
     const commentMap = new Map<string, CommentResponse>();
     const topLevelComments: CommentResponse[] = [];
@@ -88,6 +130,7 @@ export class CommentsService {
     };
 
     topLevelComments.forEach(sortReplies);
+    topLevelComments.forEach(addLikeData);
 
     return topLevelComments;
   }
@@ -358,6 +401,86 @@ export class CommentsService {
     if (error) {
       throw createHttpError({
         message: `Failed to delete comment: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+  }
+
+  /**
+   * Like a comment
+   */
+  async likeComment(
+    userId: string,
+    commentId: string,
+    token: string
+  ): Promise<void> {
+    const supabase = getSupabaseClient(token);
+
+    // Verify the comment exists
+    const { data: comment, error: commentError } = await supabase
+      .from("comments")
+      .select("id")
+      .eq("id", commentId)
+      .single();
+
+    if (commentError || !comment) {
+      throw createHttpError({
+        message: "Comment not found",
+        statusCode: 404,
+        code: "NOT_FOUND",
+      });
+    }
+
+    // Check if already liked
+    // Note: comment_id column needs to be added to the likes table via migration
+    const { data: existingLike } = await supabase
+      .from("likes")
+      .select("comment_id, user_id")
+      .eq("comment_id", commentId)
+      .eq("user_id", userId)
+      .single();
+
+    if (existingLike) {
+      return; // Already liked, no-op
+    }
+
+    // Create the like
+    // Note: comment_id column needs to be added to the likes table via migration
+    const { error } = await supabase.from("likes").insert({
+      user_id: userId,
+      comment_id: commentId,
+    } as any);
+
+    if (error) {
+      throw createHttpError({
+        message: `Failed to like comment: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+  }
+
+  /**
+   * Unlike a comment
+   */
+  async unlikeComment(
+    userId: string,
+    commentId: string,
+    token: string
+  ): Promise<void> {
+    const supabase = getSupabaseClient(token);
+
+    // Delete the like
+    const { error } = await supabase
+      .from("likes")
+      .delete()
+      .eq("comment_id", commentId)
+      .eq("user_id", userId);
+
+    if (error) {
+      throw createHttpError({
+        message: `Failed to unlike comment: ${error.message}`,
         statusCode: 500,
         code: "DATABASE_ERROR",
       });

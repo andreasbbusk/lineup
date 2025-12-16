@@ -1,8 +1,8 @@
 import { Avatar } from "@/app/modules/components/avatar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getPostComments, createComment } from "@/app/modules/api/commentsApi";
+import { getPostComments, createComment, likeComment, unlikeComment } from "@/app/modules/api/commentsApi";
 import type { CommentResponse as ApiCommentResponse } from "@/app/modules/api/commentsApi";
 
 // Extended type to include nested replies
@@ -107,6 +107,8 @@ function Comments({ postId }: CommentsProps) {
 									avatarUrl: c.author.avatarUrl ?? undefined,
 							  }
 							: undefined,
+						likesCount: c.likesCount,
+						isLiked: c.isLiked,
 					});
 
 					return (
@@ -134,6 +136,7 @@ type Comment = {
 		avatarUrl?: string;
 	};
 	likesCount?: number;
+	isLiked?: boolean;
 	// Add other fields as needed
 };
 
@@ -147,10 +150,18 @@ function CommentItem({
 	postId: string;
 }) {
 	const queryClient = useQueryClient();
-	const [isLiked, setIsLiked] = useState(false);
+	const [isLiked, setIsLiked] = useState(comment.isLiked ?? false);
+	const [likesCount, setLikesCount] = useState(comment.likesCount ?? 0);
 	const [showReplies, setShowReplies] = useState(true);
 	const [showReplyInput, setShowReplyInput] = useState(false);
 	const [replyText, setReplyText] = useState("");
+
+	// Update state when comment prop changes
+	useEffect(() => {
+		setIsLiked(comment.isLiked ?? false);
+		setLikesCount(comment.likesCount ?? 0);
+	}, [comment.isLiked, comment.likesCount]);
+
 	const createCommentMutation = useMutation({
 		mutationFn: (data: {
 			postId: string;
@@ -168,6 +179,33 @@ function CommentItem({
 			queryClient.refetchQueries({ queryKey: ["posts"], exact: false });
 		},
 	});
+
+	const likeCommentMutation = useMutation({
+		mutationFn: (liked: boolean) =>
+			liked ? likeComment(comment.id) : unlikeComment(comment.id),
+		onMutate: (liked: boolean) => {
+			// Optimistic update
+			setIsLiked(liked);
+			setLikesCount((prev) => (liked ? prev + 1 : Math.max(0, prev - 1)));
+		},
+		onError: (error) => {
+			// Revert on error
+			setIsLiked(!isLiked);
+			setLikesCount((prev) => (isLiked ? Math.max(0, prev - 1) : prev + 1));
+			console.error("Failed to like/unlike comment:", error);
+		},
+		onSuccess: () => {
+			// Refetch comments to get accurate counts
+			queryClient.refetchQueries({
+				queryKey: ["comments", "post", postId],
+			});
+		},
+	});
+
+	const handleLikeClick = () => {
+		const newLikedState = !isLiked;
+		likeCommentMutation.mutate(newLikedState);
+	};
 
 	const canHaveReplies = depth < MAX_COMMENT_DEPTH;
 	const isAtMaxDepth = depth === MAX_COMMENT_DEPTH;
@@ -213,7 +251,7 @@ function CommentItem({
 			<div className="flex  justify-end items-center gap-[0.9375rem] self-stretch">
 				<div
 					className="flex items-center gap-[0.3125rem] cursor-pointer"
-					onClick={() => setIsLiked(!isLiked)}>
+					onClick={handleLikeClick}>
 					{isLiked ? (
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -244,7 +282,7 @@ function CommentItem({
 							/>
 						</svg>
 					)}
-					<p className="text-[#555] text-xs">{comment.likesCount ?? 0}</p>
+					<p className="text-[#555] text-xs">{likesCount}</p>
 				</div>
 				<button
 					onClick={() => setShowReplyInput(!showReplyInput)}
