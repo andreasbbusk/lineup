@@ -63,36 +63,41 @@ export function getSupabaseClient(token: string): SupabaseClient<Database> {
 
 /**
  * Creates a Supabase client with service role privileges.
- * 
+ *
  * ⚠️ CRITICAL SECURITY WARNING ⚠️
  * - This client BYPASSES all Row Level Security (RLS) policies
  * - Grants root-level access to your entire database
  * - Can read/write/delete ANY data in ANY table
  * - MUST NEVER be used in browser/client-side code
  * - MUST NEVER be exposed via API responses
- * 
+ * - MUST NEVER be used for user-initiated requests
+ *
  * Valid use cases ONLY:
- * - Generating signed upload URLs for storage
- * - Admin operations (user management, system configs)
- * - Background jobs and cron tasks
+ * - Background jobs and cron tasks (e.g., notification cleanup)
  * - Server-side analytics queries
- * 
+ * - System maintenance operations
+ *
+ * ❌ INVALID use cases:
+ * - Generating signed upload URLs (use authenticated client instead)
+ * - Any operation triggered by user requests
+ * - Any operation that should respect user permissions
+ *
  * @returns Supabase client with service role permissions
  * @throws Error if SUPABASE_SERVICE_ROLE_KEY is not set
  * @throws Error if called in browser environment
- * 
+ *
  * @example
- * 
- * // ✅ CORRECT: Server-side admin operation
+ *
+ * // ✅ CORRECT: Background cron job
  * const adminClient = createServiceRoleClient();
- * const url = await adminClient.storage.from('avatars').createSignedUrl(...);
- * 
- * // ❌ WRONG: Never expose in API response or use for user data
- * app.get('/api/posts', (req, res) => {
+ * await adminClient.from('notifications').delete().eq('is_read', true);
+ *
+ * // ❌ WRONG: User-initiated request
+ * app.post('/api/upload', (req, res) => {
  *   const adminClient = createServiceRoleClient(); // DANGEROUS!
- *   const posts = await adminClient.from('posts').select('*'); // BYPASSES RLS!
+ *   const url = await adminClient.storage.createSignedUploadUrl(...); // BYPASSES RLS!
  * });
- * 
+ *
  */
 export function createServiceRoleClient(): SupabaseClient<Database> {
   // Runtime check: prevent accidental browser usage
@@ -105,14 +110,14 @@ export function createServiceRoleClient(): SupabaseClient<Database> {
 
   // Keep service role key private - never export it
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  
+
   if (!serviceRoleKey) {
     throw new Error(
       "SUPABASE_SERVICE_ROLE_KEY is required for admin operations but is not set. " +
       "Set this environment variable on your server only - NEVER in client code."
     );
   }
-  
+
   return createClient<Database>(SUPABASE_URL, serviceRoleKey, {
     auth: {
       persistSession: false,
@@ -120,3 +125,4 @@ export function createServiceRoleClient(): SupabaseClient<Database> {
     },
   });
 }
+

@@ -471,7 +471,7 @@ function ProfileBody(props: ProfileBodyProps) {
 										<h5 className="font-bold leading-normal tracking-[0.03125rem]">
 											{questionObj.question}
 										</h5>
-										<p className="pl-5.5">{questionObj.answer}</p>
+										<p className="pl-5">{questionObj.answer}</p>
 									</li>
 								))}
 							</ul>

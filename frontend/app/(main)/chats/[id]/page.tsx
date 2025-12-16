@@ -155,7 +155,10 @@ export default function ChatPage({ params }: ChatPageProps) {
   };
 
   const handleConfirmBlock = () => {
-    if (!otherUser?.id) return;
+    if (!otherUser?.id) {
+      setShowBlockConfirmation(false);
+      return;
+    }
 
     blockUser(otherUser.id, {
       onSuccess: () => {
@@ -179,6 +182,7 @@ export default function ChatPage({ params }: ChatPageProps) {
         }
         break;
       case "block":
+        if (!otherUser?.id) return;
         setShowBlockConfirmation(true);
         break;
       case "report":
