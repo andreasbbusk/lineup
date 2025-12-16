@@ -17,6 +17,7 @@ import {
   useUserConnections,
 } from "@/app/modules/features/profiles";
 import { usePostsByAuthor } from "@/app/modules/hooks/queries";
+import { useStartOrNavigateToChat } from "@/app/modules/hooks";
 
 interface ProfilePageProps {
   params: Promise<{
@@ -25,9 +26,10 @@ interface ProfilePageProps {
 }
 
 export default function Page({ params }: ProfilePageProps) {
-  const unwrappedParams = use(params);
-  const currentUserProfile = useAppStore((state) => state.user);
-  const router = useRouter();
+	const unwrappedParams = use(params);
+	const currentUserProfile = useAppStore((state) => state.user);
+	const router = useRouter();
+	const { startOrNavigateToChat } = useStartOrNavigateToChat();
 
   // Extract username from params array, or use current user's username
   // /profile -> username is undefined/empty, use current user
@@ -183,24 +185,24 @@ export default function Page({ params }: ProfilePageProps) {
     answer: faq.answer,
   }));
 
-  const userDetail = {
-    username: profileData.username,
-    firstName: profileData.firstName,
-    lastName: profileData.lastName,
-    imgSrc: profileData.avatarUrl || "/avatars/boy1.webp",
-    color: profileData.themeColor || "#1E1E1E",
-    lookingFor: user_looking_for,
-    aboutMe: profileData.aboutMe,
-    bio: profileData.bio,
-    genres: "Elektronisk, Ambient, Techno",
-    socialMedia: user_social_media,
-    favoriteArtists: favoriteArtists,
-    myMusic: profileData.spotifyPlaylistUrl,
-    videos: "/images/video-1.svg",
-    pastCollaborations: user_collaborations,
-    reviews: user_reviews,
-    questions: user_faq,
-  };
+	const userDetail = {
+		username: profileData.username,
+		firstName: profileData.firstName,
+		lastName: profileData.lastName,
+		imgSrc: profileData.avatarUrl,
+		color: profileData.themeColor || "#1E1E1E",
+		lookingFor: user_looking_for,
+		aboutMe: profileData.aboutMe,
+		bio: profileData.bio,
+		genres: "Elektronisk, Ambient, Techno",
+		socialMedia: user_social_media,
+		favoriteArtists: favoriteArtists,
+		myMusic: profileData.spotifyPlaylistUrl,
+		videos: "/images/video-1.svg",
+		pastCollaborations: user_collaborations,
+		reviews: user_reviews,
+		questions: user_faq,
+	};
 
   const editProfile = () => {
     router.push("/profile/edit");
@@ -211,79 +213,78 @@ export default function Page({ params }: ProfilePageProps) {
     console.log("Share profile clicked");
   };
 
-  const message = () => {
-    // Logic to send a message
-    console.log("Message clicked");
-  };
+	const handleMessageClick = () => {
+		if (profileData?.id) {
+			startOrNavigateToChat(profileData.id);
+		}
+	};
 
-  return (
-    <PageTransition>
-      <div className="flex flex-col items-center gap-3.75 max-w-300 mx-auto md:flex-row md:items-start md:mt-4">
-        {isOwnProfile ? (
-          <>
-            <ProfileHeader
-              username={targetUsername}
-              userId={profileData.id}
-              imgSrc={userDetail.imgSrc}
-              theme={userDetail.color}
-              firstName={userDetail.firstName || "Undefined"}
-              lastName={userDetail.lastName || "Undefined"}
-              bio={userDetail.bio ?? undefined}
-              isOwnProfile={isOwnProfile}
-              connections={acceptedConnectionsCount}
-              pendingConnectionsCount={pendingCount}
-              posts={postsCount}
-              onClickConnect={editProfile}
-              onClickMessage={shareProfile}
-              className="md:sticky md:top-20"
-            />
-            <ProfileBody
-              theme={userDetail.color}
-              aboutMe={userDetail.aboutMe ?? undefined}
-              genres={userDetail.genres.split(", ")}
-              lookingFor={user_looking_for}
-              socialMedia={user_social_media}
-              favoriteArtists={userDetail.favoriteArtists}
-              myMusic={userDetail.myMusic ?? undefined}
-              videos={[userDetail.videos]}
-              pastCollaborations={userDetail.pastCollaborations}
-              reviews={userDetail.reviews}
-              questions={userDetail.questions}
-              userId={profileData.id}
-            />
-          </>
-        ) : (
-          <>
-            <ProfileHeader
-              username={targetUsername}
-              userId={profileData.id}
-              imgSrc={userDetail.imgSrc}
-              theme={userDetail.color}
-              firstName={userDetail.firstName || "Undefined"}
-              lastName={userDetail.lastName || "Undefined"}
-              isOwnProfile={isOwnProfile}
-              connections={acceptedConnectionsCount}
-              posts={postsCount}
-              onClickMessage={message}
-              className="md:sticky md:top-20"
-            />
-            <ProfileBody
-              theme={userDetail.color}
-              aboutMe={userDetail.aboutMe ?? undefined}
-              genres={userDetail.genres.split(", ")}
-              lookingFor={user_looking_for}
-              socialMedia={user_social_media}
-              favoriteArtists={userDetail.favoriteArtists}
-              myMusic={userDetail.myMusic ?? undefined}
-              videos={[userDetail.videos]}
-              pastCollaborations={userDetail.pastCollaborations}
-              reviews={userDetail.reviews}
-              questions={userDetail.questions}
-              userId={profileData.id}
-            />
-          </>
-        )}
-      </div>
-    </PageTransition>
-  );
+	return (
+		<div className="flex flex-col items-center gap-3.75 max-w-300 mx-auto md:flex-row md:items-start md:mt-4">
+			{isOwnProfile ? (
+				<>
+					<ProfileHeader
+						username={targetUsername}
+						userId={profileData.id}
+						imgSrc={userDetail.imgSrc}
+						theme={userDetail.color}
+						firstName={userDetail.firstName || "Undefined"}
+						lastName={userDetail.lastName || "Undefined"}
+						bio={userDetail.bio ?? undefined}
+						isOwnProfile={isOwnProfile}
+						connections={acceptedConnectionsCount}
+						pendingConnectionsCount={pendingCount}
+						posts={postsCount}
+						onClickConnect={editProfile}
+						onClickMessage={shareProfile}
+						className="md:sticky md:top-20"
+					/>
+					<ProfileBody
+						theme={userDetail.color}
+						aboutMe={userDetail.aboutMe ?? undefined}
+						genres={userDetail.genres.split(", ")}
+						lookingFor={user_looking_for}
+						socialMedia={user_social_media}
+						favoriteArtists={userDetail.favoriteArtists}
+						myMusic={userDetail.myMusic ?? undefined}
+						videos={[userDetail.videos]}
+						pastCollaborations={userDetail.pastCollaborations}
+						reviews={userDetail.reviews}
+						questions={userDetail.questions}
+						userId={profileData.id}
+					/>
+				</>
+			) : (
+				<>
+					<ProfileHeader
+						username={targetUsername}
+						userId={profileData.id}
+						imgSrc={userDetail.imgSrc}
+						theme={userDetail.color}
+						firstName={userDetail.firstName || "Undefined"}
+						lastName={userDetail.lastName || "Undefined"}
+						isOwnProfile={isOwnProfile}
+						connections={acceptedConnectionsCount}
+						posts={postsCount}
+						onClickMessage={handleMessageClick}
+						className="md:sticky md:top-20"
+					/>
+					<ProfileBody
+						theme={userDetail.color}
+						aboutMe={userDetail.aboutMe ?? undefined}
+						genres={userDetail.genres.split(", ")}
+						lookingFor={user_looking_for}
+						socialMedia={user_social_media}
+						favoriteArtists={userDetail.favoriteArtists}
+						myMusic={userDetail.myMusic ?? undefined}
+						videos={[userDetail.videos]}
+						pastCollaborations={userDetail.pastCollaborations}
+						reviews={userDetail.reviews}
+						questions={userDetail.questions}
+						userId={profileData.id}
+					/>
+				</>
+			)}
+		</div>
+	);
 }

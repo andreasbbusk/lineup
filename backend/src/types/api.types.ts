@@ -563,6 +563,8 @@ export interface CommentResponse {
     lastName?: string | null;
     avatarUrl?: string | null;
   };
+  likesCount?: number;
+  isLiked?: boolean;
 }
 
 // ==================== Pagination ====================

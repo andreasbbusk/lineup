@@ -88,8 +88,8 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 			return;
 		}
 
-		if (description.trim().length < 10) {
-			alert("Description must be at least 10 characters");
+		if (description.trim().length < 1) {
+			alert("Description must be at least 1 characters");
 			return;
 		}
 
@@ -109,6 +109,10 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 		// Clear draft after successful submission
 		clearDraft();
 	};
+
+	// Track if description textarea has been touched (focused and blurred)
+	const [descriptionTouched, setDescriptionTouched] = useState(false);
+	const [titleTouched, setTitleTouched] = useState(false);
 
 	return (
 		<form
@@ -290,30 +294,47 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 					/>
 				)}
 			</div>
+
 			{/* Title */}
-			<input
-				type="text"
-				value={title}
-				onChange={(e) => updateTitle(e.target.value)}
-				placeholder="Write a title..."
-				maxLength={100}
-				disabled={isRestoring}
-				className="flex h-15 p-2.5 items-center gap-2.5 flex-[1_0_0] rounded-lg bg-[#F1F1F1]"
-			/>
+			<div className="w-full">
+				<input
+					type="text"
+					value={title}
+					onChange={(e) => updateTitle(e.target.value)}
+					onFocus={() => setTitleTouched(true)}
+					placeholder="Write a title..."
+					maxLength={100}
+					disabled={isRestoring}
+					className="flex h-15 p-2.5 items-center gap-2.5 flex-[1_0_0] rounded-lg bg-[#F1F1F1] w-full"
+				/>
+				{titleTouched && title.trim().length < 1 && (
+					<p className="text-maroon text-xs px-2.5">
+						Title must be at least 1 character
+					</p>
+				)}
+			</div>
 
 			{/* Media */}
 			<MediaUploader media={media} onMediaChange={updateMedia} />
 
 			{/* Description */}
-			<textarea
-				value={description}
-				onChange={(e) => updateDescription(e.target.value)}
-				placeholder="Write a description..."
-				rows={6}
-				maxLength={5000}
-				disabled={isRestoring}
-				className="flex p-2.5 items-center gap-2.5 rounded-lg bg-[#F1F1F1]"
-			/>
+			<div className="w-full">
+				<textarea
+					value={description}
+					onChange={(e) => updateDescription(e.target.value)}
+					onFocus={() => setDescriptionTouched(true)}
+					placeholder="Write a description..."
+					rows={6}
+					maxLength={5000}
+					disabled={isRestoring}
+					className="flex p-2.5 items-center gap-2.5 rounded-lg bg-[#F1F1F1] w-full"
+				/>
+				{descriptionTouched && description.trim().length < 1 && (
+					<p className="text-maroon text-xs px-2.5">
+						Description must be at least 1 character
+					</p>
+				)}
+			</div>
 
 			{/* Submit */}
 			<div className="flex justify-end pt-4">
@@ -321,7 +342,7 @@ export function NoteForm({ onSubmit, isSubmitting = false }: NoteFormProps) {
 					type="submit"
 					variant="primary"
 					disabled={
-						isSubmitting || !title.trim() || description.trim().length < 10
+						isSubmitting || !title.trim() || description.trim().length < 1
 					}
 					onClick={() => {}} // Required by Button component, form handles submit
 					className="w-[6.85rem] items-center justify-center ">
