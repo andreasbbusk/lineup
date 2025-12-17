@@ -6,7 +6,7 @@ Frontend: https://lineup-vert.vercel.app
 
 Backend: https://lineup-o1es.onrender.com
 
-Swagger docs: https://lineup-o1es.onrender.com/docs/
+API-documentation: https://lineup-o1es.onrender.com/docs/
 
 ---
 
