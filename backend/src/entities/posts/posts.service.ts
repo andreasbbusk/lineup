@@ -966,7 +966,7 @@ export class PostsService {
     // Find all request posts by this user
     const { data: userPosts, error: postsError } = await supabase
       .from("posts")
-      .select("id")
+      .select("id, created_at")
       .eq("author_id", userId)
       .eq("type", "request");
 
@@ -984,12 +984,16 @@ export class PostsService {
 
     const postIds = userPosts.map((p) => p.id);
 
-    // Find all conversations linked to these posts
-    const { data: conversations, error: convError } = await supabase
+    // Find all conversations linked to these posts OR conversations where the user is a participant
+    // and the conversation was created by someone else (potential respondents)
+    // First, get conversations explicitly linked to posts
+    const { data: linkedConversations, error: linkedError } = await supabase
       .from("conversations")
       .select(`
         id,
         created_by,
+        created_at,
+        related_post_id,
         participants:conversation_participants(
           user_id,
           user:profiles!conversation_participants_user_id_fkey(id, username, first_name, last_name, avatar_url)
@@ -997,13 +1001,76 @@ export class PostsService {
       `)
       .in("related_post_id", postIds);
 
-    if (convError) {
+    if (linkedError) {
       throw createHttpError({
-        message: `Failed to fetch conversations: ${convError.message}`,
+        message: `Failed to fetch linked conversations: ${linkedError.message}`,
         statusCode: 500,
         code: "DATABASE_ERROR",
       });
     }
+
+    // Also find all direct conversations where the user is a participant
+    // and the conversation was created by someone else (potential respondents)
+    const { data: userParticipantConvs, error: participantError } = await supabase
+      .from("conversation_participants")
+      .select(`
+        conversation_id,
+        conversation:conversations!inner(
+          id,
+          created_by,
+          created_at,
+          related_post_id,
+          type,
+          participants:conversation_participants(
+            user_id,
+            user:profiles!conversation_participants_user_id_fkey(id, username, first_name, last_name, avatar_url)
+          )
+        )
+      `)
+      .eq("user_id", userId)
+      .is("left_at", null);
+
+    if (participantError) {
+      throw createHttpError({
+        message: `Failed to fetch participant conversations: ${participantError.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    // Filter to only direct conversations created by someone else
+    // Include conversations that are either:
+    // 1. Explicitly linked to a post (already in linkedConversations)
+    // 2. Created after any of the user's request posts (potential respondents)
+    const allConversations = (linkedConversations || []).concat(
+      (userParticipantConvs || [])
+        .map((cp: any) => cp.conversation)
+        .filter((conv: any) => {
+          if (conv.type !== "direct" || conv.created_by === userId) {
+            return false;
+          }
+          // If already linked to a post, skip (already in linkedConversations)
+          if (conv.related_post_id && postIds.includes(conv.related_post_id)) {
+            return false;
+          }
+          // Include if conversation was created after any of the user's request posts
+          return userPosts.some((post: any) => {
+            if (!post.created_at || !conv.created_at) return false;
+            const postDate = new Date(post.created_at);
+            const convDate = new Date(conv.created_at);
+            return convDate >= postDate;
+          });
+        })
+    );
+
+    // Deduplicate by conversation id
+    const conversationsMap = new Map();
+    for (const conv of allConversations) {
+      if (!conversationsMap.has(conv.id)) {
+        conversationsMap.set(conv.id, conv);
+      }
+    }
+    const conversations = Array.from(conversationsMap.values());
 
     if (!conversations || conversations.length === 0) {
       return [];

@@ -339,7 +339,9 @@ export function ProfilePostCard({ post }: ProfilePostCardProps) {
 			{post.type === "request" && isAuthor && (
 				<div className="flex justify-end">
 					{isResolved ? (
-						<span className="text-sm font-medium text-black">Request has been resolved</span>
+						<div className="flex items-center gap-2">
+							<span className="text-sm text-gray-500">Resolved</span>
+						</div>
 					) : !isEditing && (
 						<Button
 							variant="primary"
