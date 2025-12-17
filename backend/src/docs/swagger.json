@@ -1772,6 +1772,39 @@
 					}
 				}
 			},
+			"UpdatePostBody": {
+				"description": "DTO for updating an existing post\n\nAll fields are optional - only provided fields will be updated.\nOnly the post author can update their posts.",
+				"properties": {
+					"title": {
+						"type": "string",
+						"description": "Updated post title (1-100 characters)",
+						"example": "Updated Title"
+					},
+					"description": {
+						"type": "string",
+						"description": "Updated post description (10-5000 characters)",
+						"example": "Updated description text"
+					},
+					"location": {
+						"type": "string",
+						"nullable": true,
+						"description": "Updated location",
+						"example": "Los Angeles, CA"
+					},
+					"paidOpportunity": {
+						"type": "boolean",
+						"nullable": true,
+						"description": "Whether this is a paid opportunity (only for \"request\" type posts)",
+						"example": true
+					}
+				},
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"title": "Updated Title",
+					"description": "Updated description text"
+				}
+			},
 			"NotificationResponse": {
 				"description": "API response format for a notification\r\nRepresents a notification with actor information",
 				"properties": {
@@ -4551,6 +4584,83 @@
 						}
 					}
 				]
+			},
+			"put": {
+				"operationId": "UpdatePost",
+				"responses": {
+					"200": {
+						"description": "The updated post",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PostResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Update a post\n\nUpdates a post's content. Only the post author can update their own posts.",
+				"summary": "Update a post",
+				"tags": [
+					"Posts"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the post to update",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "The fields to update",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdatePostBody",
+								"description": "The fields to update"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeletePost",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Delete a post\n\nPermanently deletes a post and all its related data.\nOnly the post author can delete their own posts.",
+				"summary": "Delete a post",
+				"tags": [
+					"Posts"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the post to delete",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		},
 		"/posts/{id}/resolve": {
@@ -4649,6 +4759,126 @@
 						}
 					}
 				]
+			}
+		},
+		"/posts/{id}/respondents": {
+			"get": {
+				"operationId": "GetPostRespondents",
+				"responses": {
+					"200": {
+						"description": "List of users who started a chat on this post",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"properties": {
+											"avatarUrl": {
+												"type": "string",
+												"nullable": true
+											},
+											"lastName": {
+												"type": "string",
+												"nullable": true
+											},
+											"firstName": {
+												"type": "string",
+												"nullable": true
+											},
+											"username": {
+												"type": "string"
+											},
+											"id": {
+												"type": "string"
+											}
+										},
+										"required": [
+											"username",
+											"id"
+										],
+										"type": "object"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get users who responded to a post by starting a chat\n\nReturns a list of users who initiated a conversation in response to this request post.\nOnly the post author can view respondents.",
+				"summary": "Get post respondents",
+				"tags": [
+					"Posts"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the post",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/posts/respondents/all": {
+			"get": {
+				"operationId": "GetAllPostRespondents",
+				"responses": {
+					"200": {
+						"description": "List of unique users who started chats on the user's posts",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"properties": {
+											"avatarUrl": {
+												"type": "string",
+												"nullable": true
+											},
+											"lastName": {
+												"type": "string",
+												"nullable": true
+											},
+											"firstName": {
+												"type": "string",
+												"nullable": true
+											},
+											"username": {
+												"type": "string"
+											},
+											"id": {
+												"type": "string"
+											}
+										},
+										"required": [
+											"username",
+											"id"
+										],
+										"type": "object"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all respondents across all of the user's request posts\n\nReturns unique users who have started chats on any of the user's request posts.\nThis is useful for populating the \"past collaborators\" section on the profile.",
+				"summary": "Get all post respondents for current user",
+				"tags": [
+					"Posts"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": []
 			}
 		},
 		"/notifications": {
@@ -5942,7 +6172,11 @@
 						}
 					}
 				},
+<<<<<<< ours
+				"description": "Get all comments for a post\n\nReturns all comments on a specific post, ordered by creation date (oldest first).\nEach comment includes the author's profile information and like counts.\nIf authenticated, also includes whether the user has liked each comment.",
+=======
 				"description": "Get all comments for a post\r\n\r\nReturns all comments on a specific post, ordered by creation date (oldest first).\r\nEach comment includes the author's profile information and like counts.\r\nIf authenticated, also includes whether the user has liked each comment.",
+>>>>>>> theirs
 				"summary": "Get comments for a post",
 				"tags": [
 					"Comments"

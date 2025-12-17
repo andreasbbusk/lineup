@@ -9,7 +9,6 @@ import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
 import { PageTransition } from "@/app/modules/components/page-transition";
 import {
   useProfile,
-  useCollaborations,
   useReviews,
   useSocialMedia,
   useLookingFor,
@@ -17,7 +16,7 @@ import {
   useConnectionRequests,
   useUserConnections,
 } from "@/app/modules/features/profiles";
-import { usePostsByAuthor } from "@/app/modules/hooks/queries";
+import { usePostsByAuthor, useAllPostRespondents } from "@/app/modules/hooks/queries";
 import { useStartOrNavigateToChat } from "@/app/modules/hooks";
 
 interface ProfilePageProps {
@@ -55,8 +54,9 @@ export default function Page({ params }: ProfilePageProps) {
     isSuccess && !!profileData && profileData.username === targetUsername;
 
   // Fetch all data in parallel with proper enabled flags
-  const { data: collaborations = [], isPending: collaborationsLoading } =
-    useCollaborations(profileExists ? profileData.id : undefined);
+  // For own profile, fetch post respondents (people who started chat on your requests)
+  const { data: postRespondents = [], isPending: respondentsLoading } =
+    useAllPostRespondents();
 
   const { data: reviews = [], isPending: reviewsLoading } = useReviews(
     profileExists ? targetUsername : undefined
@@ -94,7 +94,7 @@ export default function Page({ params }: ProfilePageProps) {
   // Wait for ALL data to load
   const isLoading =
     isProfileLoading ||
-    collaborationsLoading ||
+    (isOwnProfile ? respondentsLoading : false) ||
     reviewsLoading ||
     socialMediaLoading ||
     lookingForLoading ||
@@ -154,14 +154,17 @@ export default function Page({ params }: ProfilePageProps) {
     },
   ]; // Hardcoded artists data - matches edit page
 
-  // Transform collaborations data to match component expectations
-  const user_collaborations = collaborations
-    .filter((collab) => collab.collaborator)
-    .map((collab) => ({
-      link: `/profile/${collab.collaborator?.username}`,
-      imgSrc: collab.collaborator?.avatarUrl || "/avatars/boy1.webp",
-      name: collab.collaborator?.username,
-    }));
+  // Transform post respondents to match component expectations for past collaborations
+  // These are users who started a chat on the user's request posts
+  const user_collaborations = isOwnProfile
+    ? postRespondents.map((respondent) => ({
+        link: `/profile/${respondent.username}`,
+        imgSrc: respondent.avatarUrl || "/avatars/boy1.webp",
+        name: respondent.firstName
+          ? `${respondent.firstName}${respondent.lastName ? ` ${respondent.lastName}` : ""}`
+          : respondent.username,
+      }))
+    : [];
 
   // Transform reviews data to match component expectations
   const user_reviews = reviews.map((review) => ({

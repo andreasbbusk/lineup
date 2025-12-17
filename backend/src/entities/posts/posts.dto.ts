@@ -162,6 +162,54 @@ export class CreatePostBody
 }
 
 /**
+ * DTO for updating an existing post
+ *
+ * All fields are optional - only provided fields will be updated.
+ * Only the post author can update their posts.
+ *
+ * @example
+ * {
+ *   "title": "Updated Title",
+ *   "description": "Updated description text"
+ * }
+ */
+export class UpdatePostBody {
+  /**
+   * Updated post title (1-100 characters)
+   * @example "Updated Title"
+   */
+  @IsOptional()
+  @IsString()
+  @Length(1, 100)
+  title?: string;
+
+  /**
+   * Updated post description (10-5000 characters)
+   * @example "Updated description text"
+   */
+  @IsOptional()
+  @IsString()
+  @Length(10, 5000)
+  description?: string;
+
+  /**
+   * Updated location
+   * @example "Los Angeles, CA"
+   */
+  @IsOptional()
+  @IsString()
+  location?: string | null;
+
+  /**
+   * Whether this is a paid opportunity (only for "request" type posts)
+   * @example true
+   */
+  @IsOptional()
+  @IsBoolean()
+  paidOpportunity?: boolean | null;
+}
+
+/**
  * DTO for querying posts
  *
  * Used when listing posts with filters and pagination.
