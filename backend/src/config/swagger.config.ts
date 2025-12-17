@@ -1,6 +1,5 @@
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
-import path from "path";
 
 /**
  * Custom CSS theme for Swagger UI matching LineUp frontend

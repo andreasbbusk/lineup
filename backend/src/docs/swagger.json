@@ -3025,41 +3025,22 @@
 					}
 				}
 			},
-			"Pick_CollaborationInsert.Exclude_keyofCollaborationInsert.user_id-or-created_at-or-id__": {
-				"properties": {
-					"description": {
-						"type": "string"
-					},
-					"collaborator_id": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"collaborator_id"
-				],
-				"type": "object",
-				"description": "From T, pick a set of properties whose keys are in the union K"
-			},
 			"CreateCollaborationDto": {
 				"description": "DTO for creating a collaboration\n\nRepresents a past collaboration between the authenticated user and another user.\nThe description is optional and limited to 200 characters.",
 				"properties": {
+					"collaboratorId": {
+						"type": "string",
+						"description": "The ID of the user you collaborated with (UUID format)",
+						"example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+					},
 					"description": {
 						"type": "string",
 						"nullable": true,
 						"description": "Optional description of the collaboration (max 200 characters)",
 						"example": "Worked together on a jazz album in 2023"
-					},
-					"collaborator_id": {
-						"type": "string"
-					},
-					"collaboratorId": {
-						"type": "string",
-						"description": "The ID of the user you collaborated with (UUID format)",
-						"example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
 					}
 				},
 				"required": [
-					"collaborator_id",
 					"collaboratorId"
 				],
 				"type": "object",
@@ -3172,24 +3153,9 @@
 					}
 				}
 			},
-			"Pick_BookmarkInsert.Exclude_keyofBookmarkInsert.user_id-or-created_at__": {
-				"properties": {
-					"post_id": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"post_id"
-				],
-				"type": "object",
-				"description": "From T, pick a set of properties whose keys are in the union K"
-			},
 			"CreateBookmarkDto": {
 				"description": "DTO for creating a bookmark\n\nUsed when a user wants to bookmark a post for later reference.\nThe user_id is automatically extracted from the authentication token.",
 				"properties": {
-					"post_id": {
-						"type": "string"
-					},
 					"postId": {
 						"type": "string",
 						"description": "The UUID of the post to bookmark",
@@ -3197,7 +3163,6 @@
 					}
 				},
 				"required": [
-					"post_id",
 					"postId"
 				],
 				"type": "object",

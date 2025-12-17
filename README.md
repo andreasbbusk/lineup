@@ -1,486 +1,505 @@
-# LineUp - Project Documentation
+# LineUp - Projekt Dokumentation
 
-## 1. Link(s) to the Deployed Solution
+*Where musicians connect, collaborate, and create.*
 
-Enter deployed backend and frontend links here.
+## Table of Contents
 
----
-
-## 2. Login Information for Test Users
-
-Enter login information for test users here (if relevant).
-
----
-
-## 3. Technical Description of Architecture and Technology Choices
-
-### Architecture Overview
-
-LineUp is built as a full-stack application with a clear separation between backend and frontend, following a RESTful API architecture pattern.
-
-### Backend Architecture
-
-**Technology Stack:**
-
-- **Runtime**: Node.js with Express.js 5.1.0
-- **Language**: TypeScript 5.9.3
-- **Database**: PostgreSQL via Supabase
-- **Authentication**: Supabase Auth (JWT-based)
-- **Storage**: Supabase Storage for media files
-- **API Documentation**: TSOA (TypeScript OpenAPI) for automatic Swagger/OpenAPI generation
-- **Real-time**: Socket.IO for live updates (post updates, new stories, engagement changes)
-
-**Architecture Pattern:**
-
-- RESTful API with Express.js
-- Entity-based structure organized by domain (auth, posts, users, messages, etc.)
-- Middleware-based authentication and CORS handling
-- Service layer pattern with controllers, services, DTOs, and mappers
-- 20 API endpoints (6 public, 14 authenticated)
-
-**Key Design Decisions:**
-
-- TypeScript for type safety across the entire backend
-- TSOA for automatic route generation and API documentation
-- Supabase for database, auth, and storage to reduce infrastructure complexity
-- Entity-based organization for maintainability and scalability
-
-### Frontend Architecture
-
-**Technology Stack:**
-
-- **Framework**: Next.js 16 with App Router
-- **Language**: TypeScript 5
-- **State Management**:
-  - TanStack Query (React Query) for server-derived data
-  - Zustand for client/session state
-- **Styling**: Tailwind CSS 4 with custom CSS for brand-specific components
-- **Validation**: Zod schemas for forms and API contracts
-- **UI Components**: Radix UI primitives
-- **Animation**: Framer Motion
-- **Backend Integration**: Dedicated HTTP client singleton for API communication
-
-**Architecture Pattern:**
-
-- Feature-based structure organized by domain (auth, profiles, chats, feed, etc.)
-- Client-only data fetching via TanStack Query (no Next.js Server Actions)
-- Strict separation of concerns:
-  - `components/ui/` - Pure, reusable UI primitives
-  - `components/shared/` - Cross-feature components
-  - `lib/features/*/components/` - Smart, feature-specific components
-- TypeScript types mirror backend entities using `snake_case` for consistency
-
-**Key Design Decisions:**
-
-- Next.js App Router for modern React patterns
-- Client-only data fetching to maximize React Native code reuse potential
-- Feature-based organization for better maintainability
-- TanStack Query for efficient server state management
-- Zod for runtime validation and type inference
-
-### Database Architecture
-
-**Database**: PostgreSQL (Supabase)
-
-**Schema Overview:**
-
-- **18 Database Tables** organized into:
-  - Core tables (profiles, posts, metadata, media)
-  - User profile tables (user_metadata, user_social_media, user_looking_for, user_faq)
-  - Junction tables (post_media, post_metadata, post_tagged_users)
-  - Social & collaboration tables (connection_requests, user_collaborations, user_reviews)
-  - Engagement tables (likes, bookmarks, comments)
-  - Messaging & notifications (conversations, messages, notifications)
-  - Search system (recent_searches with full-text search vectors)
-
-**Key Features:**
-
-- Full-text search using PostgreSQL TSVECTOR
-- Row Level Security (RLS) policies for data protection
-- Triggers for automatic timestamp updates and notifications
-- ENUM types for data consistency (post_type, metadata_type, media_type, etc.)
-- Comprehensive indexing for performance optimization
+- [1. Link(s) til den deployede løsning](#1-links-til-den-deployede-løsning)
+- [2. Login-information til testbrugere](#2-login-information-til-testbrugere)
+- [3. Teknisk beskrivelse af arkitektur og teknologivalg](#3-teknisk-beskrivelse-af-arkitektur-og-teknologivalg)
+  - [3.1 Arkitekturoverblik](#31-arkitekturoverblik)
+  - [3.2 Backend Arkitektur](#32-backend-arkitektur)
+  - [3.3 Frontend Arkitektur](#33-frontend-arkitektur)
+  - [3.4 Real-time og performance](#34-real-time-og-performance)
+- [4. Liste og beskrivelse af implementerede features](#4-liste-og-beskrivelse-af-implementerede-features)
+- [5. Kendte fejl eller manglende features](#5-kendte-fejl-eller-manglende-features)
+- [6. Ekstra features eller innovationer udover kravene](#6-ekstra-features-eller-innovationer-udover-kravene)
+  - [6.1 Udvidet chat funktionalitet](#61-udvidet-chat-funktionalitet)
+  - [6.2 Forbedret Collaboration Flow](#62-forbedret-collaboration-flow)
+  - [6.3 ConnectionsModal - Modal-baseret Forbindelsesvisning](#63-connectionsmodal---modal-baseret-forbindelsesvisning)
+- [7. Designbeslutninger der supplerer eller afviger fra Figma Design](#7-designbeslutninger-der-supplerer-eller-afviger-fra-figma-design)
+- [8. Link til primært Project Board](#8-link-til-primært-project-board)
+- [9. Fungerende links til GitHub Eksempler](#9-fungerende-links-til-github-eksempler)
+- [10. Database Struktur Diagram og Data Modeling Beskrivelse](#10-database-struktur-diagram-og-data-modeling-beskrivelse)
+- [11. Post-Mortem: Projekt Refleksion](#11-post-mortem-projekt-refleksion)
 
 ---
 
-## 4. List and Description of Implemented Features
+## 1. Link(s) til den deployede løsning
 
-### Authentication & Onboarding
+- **Frontend:** https://lineup-vert.vercel.app
+- **Backend:** https://lineup-o1es.onrender.com
+- **API-documentation:** https://lineup-o1es.onrender.com/docs/
 
-- Multi-step onboarding flow with splash screen, concept introduction, sign up, user type selection, basic information collection, and goals selection
-- Supabase Auth integration with JWT-based authentication
-- Login and signup pages
+## 2. Login-information til testbrugere
 
-### User Profiles
+- **Brugernavn/email:** testagain123@gmail.com
+- **Password:** Test123
 
-- Comprehensive profile system with avatar, bio, location, theme color customization
-- Profile viewing (own profile and other users' profiles)
-- Profile editing with modals for basic info, interests, genres, social links, and FAQ
-- Past collaborations display (bidirectional relationships)
-- User reviews and ratings system
+## 3. Teknisk beskrivelse af arkitektur og teknologivalg
+
+### 3.1 Arkitekturoverblik
+
+LineUp er bygget som en full-stack applikation med en klar separation mellem backend og frontend, og følger et RESTful API arkitekturmønster.
+
+### 3.2 Backend Arkitektur
+
+LineUp's backend er bygget med Node.js og Express.js og bruger TypeScript for type-sikkerhed. Serveren kommunikerer med en PostgreSQL database på Supabase, som også håndterer authentication via JWT-tokens og file storage i buckets.
+
+#### Tech-stack
+
+TSOA bruges til automatisk generering af API routes og Swagger dokumentation direkte fra TypeScript controllers og models. Request/response validering sker automatisk gennem TSOA's validering baseret på TypeScript typer og decorators på DTO'er. Authentication håndteres gennem en custom `expressAuthentication` funktion som TSOA kalder automatisk på beskyttede endpoints - denne validerer JWT tokens og understøtter både required og optional authentication.
+
+Scheduled jobs med `node-cron` kører dagligt (kl. 02:00) for at slette læste notifikationer der er ældre end 30 dage. Backend bruger ikke Supabase Realtime direkte - i stedet subscriber frontend til database events for live opdateringer af beskeder.
+
+#### Arkitektur og mappestruktur
+
+Backend følger en entity-baseret arkitektur hvor koden er organiseret efter forretningsdomæner i stedet for tekniske lag. Der er 16 entities:
+
+- `auth`
+- `bookmarks`
+- `collaborations`
+- `comments`
+- `connections`
+- `conversations`
+- `feed`
+- `messages`
+- `metadata`
+- `notifications`
+- `posts`
+- `reviews`
+- `search`
+- `services`
+- `upload`
+- `users`
+
+Hver entity følger en konsistent struktur:
+
+- **Controllers:** Håndterer HTTP requests og responses, defineret med TSOA decorators
+- **Services:** Indeholder forretningslogik og database queries
+- **DTOs:** Data Transfer Objects til request/response validering
+- **Mappers:** Konverterer mellem database modeller og API responses
+
+Backend eksponerer 80 API endpoints fordelt på 18 offentlige (login, signup, offentlige profiler) og 62 autentificerede endpoints.
+
+**Mappestruktur (src/):**
+
+- `entities/`: De 16 feature-baserede entities med deres controllers, services og DTOs
+- `middleware/`: Authentication middleware der validerer JWT tokens
+- `config/`: Supabase client konfiguration
+- `types/`: Fælles TypeScript typer inklusiv auto-genererede Supabase typer
+- `utils/`: Hjælpefunktioner til error handling og validering
+- `docs/`: Auto-genereret Swagger/OpenAPI dokumentation
+- `routes/`: Auto-genereret Express routes fra TSOA
+- `jobs/`: Scheduled tasks med node-cron
+
+Denne opdeling sikrer at hver entity er selvstændig og kan udvikles uafhængigt, mens fælles logik som authentication, CORS og error handling sikrer konsistens på tværs af hele API'et.
+
+### 3.3 Frontend Arkitektur
+
+LineUp's frontend er bygget med Next.js App Router og TypeScript. Al data hentes client-side for at gøre koden genanvendelig hvis projektet senere skal udvides til React Native. Arkitekturen har en klar opdeling mellem fælles komponenter og feature-specifik logik.
+
+#### Tech-stack
+
+State management er opdelt i to lag. TanStack Query håndterer al server data med caching, background refetching og optimistic updates.
+
+Zustand bruges til client-side state som brugerens session, onboarding flow, chat actions og service filters. Onboarding data gemmes i localStorage via persist middleware.
+
+UI-komponenter er delvist bygget med Radix UI primitives for accessibility og stylet med Tailwind CSS kombineret med custom CSS til brand-specifikke designelementer.
+
+Applikationen bruger OKLCH color system (grundet Tailwind) og Helvetica Now Display. Formularer håndteres gennem React Hook Form med Zod schemas til både runtime validering og TypeScript type inference. Animationer implementeres med Framer Motion hvor det er nødvendigt.
+
+Backend-integration sker via `openapi-fetch` client med middleware der automatisk tilføjer Supabase auth tokens til alle requests. TypeScript typer genereres automatisk fra backend's API dokumentation, så frontend og backend altid er synkroniseret. En centraliseret error handler håndterer API fejl, herunder automatisk logout hvis sessionen er udløbet (401 responses).
+
+#### Arkitektur og mappestruktur
+
+Frontenden er organiseret med klar opdeling mellem fælles funktionalitet og feature-specifik logik:
+
+**Routing:** App Router bruger route groups hvor `(auth)` indeholder login og onboarding, mens `(main)` indeholder hovedapplikationen. En AuthGuard komponent sikrer at kun autentificerede brugere får adgang til de beskyttede sider.
+
+**Fælles funktionalitet (app/modules/)** samler al logik der bruges på tværs af applikationen:
+
+- `api/`: API client setup og feature-uafhængige API funktioner
+- `components/`: Genanvendelige UI komponenter
+- `hooks/`: React hooks til generel brug. Yderligere inddeling i queries og mutations fra Tanstack Query
+- `stores/`: Global state som bruger-session og onboarding flow
+- `supabase/`: Supabase client
+- `types/`: TypeScript types genereret fra backend API
+- `utils/`: Hjælpefunktioner
+
+**Feature-specifik logik (modules/features/)** består af 7 separate domæner:
+
+- `auth`
+- `chats`
+- `notifications`
+- `posts`
+- `profiles`
+- `search`
+- `services`
+
+Hver feature indeholder baseret på use case. Igen baseret på hvad der nødvendigt for givne feature:
+
+- `components/`: UI komponenter kun brugt her
+- `hooks/`: React hooks til feature brug. Yderligere inddeling i queries og mutations fra Tanstack Query
+- `stores/`: Feature-specifik state
+- `utils/`: Util funktioner
+- `api.ts`: API calls kun for denne feature
+- `schemas.ts`: Validering af formularer
+- `types.ts`: TypeScript typer
+
+Denne struktur gør at features kan udvikles uafhængigt af hinanden, mens fælles funktionalitet sikrer konsistens.
+
+### 3.4 Real-time og performance
+
+Beskeder opdateres live gennem Supabase Realtime, hvor hver samtale har sin egen kanal der lytter efter nye, redigerede og slettede beskeder. Når en besked kommer ind, opdateres den automatisk i appens cache.
+
+Performance forbedres gennem Next.js' automatiske code-splitting, så hver side kun loader den JavaScript der er nødvendig for netop den side.
+
+Billeder komprimeres i brugerens client før upload (maks 2MB for posts, 500KB for profilbilleder), draft-indhold gemmes lokalt i browseren, og data fra serveren caches i 5 minutter (afhænger af specifikke features) for at reducere unødvendige server-kald.
+
+## 4. Liste og beskrivelse af implementerede features
+
+### Authentication & Onboarding (Andreas)
+
+- Multi-step onboarding flow med splash screen, koncept-introduktion, oprettelse, valg af brugertype og indsamling af basisinformation
+- Supabase Auth integration med JWT-baseret authentication
+- Login og oprettelses-sider
+
+### User Profiles (Andrea)
+
+**About tab:**
+- Omfattende profilsystem med avatar, bio, lokation, tilpasning af temafarve
+- Visning af profiler (egen profil og andre brugeres profiler)
+- Redigering af profil med modaler til basisinfo, interesser, genrer, sociale links og FAQ
+- Visning af tidligere samarbejder
+- Brugeranmeldelser og ratingsystem (ikke fuldt implementeret)
 - Spotify playlist integration
-- Social media links
-- "Looking for" preferences (connect, promote, find-band, find-services)
+- Links til sociale medier
+- "Looking for" præferencer (connect, promote, find-band, find-services)
+
+**Posts tab:**
+- Se egne notes og request
+- Mulighed for gennemførelse af requests
+- Slet og redigering af egne posts
+
+### Social Feed (Andrea)
+
+- Posts fra andre musikere
+- Understøttelse af tre post-typer:
+  - **Notes:** Del tanker, spørgsmål, tutorials og musik-relateret indhold
+  - **Requests:** Slå samarbejdsmuligheder op, søg efter bands eller servicebehov
+  - **Stories:** Midlertidigt indhold med 24-timers levetid (ikke fuldt implementeret i MVP)
+- Engagement features: likes, bookmarks, kommentarer
+
+### Content Creation (Christian)
+
+- Oprettelses-side med tab-navigation (Note/Request/Story)
+- Medie-understøttelse med billedkomprimering
+- Tagging system til Notes (halvt implementeret)
+- Bruger-tagging (nævn 1 person du følger)
+- Genre-valg til Requests
+- Automatisk gem af kladder (draft auto-save)
+
+### Search & Discovery (Andreas)
+
+Omfattende søgesystem med tab-navigation:
+- **For You:** Personaliserede resultater der kombinerer personer og samarbejdsforespørgsler
+- **People:** Søg efter musikere på navn, brugernavn eller rolle
+- **Collaborations:** Søg efter samarbejdsforespørgsler
+- **Services:** Find serviceudbydere
+- **Tags:** Søg efter posts via tags
+- Real-time søgning
+- Full-text search på tværs af brugere, posts og metadata
+- Sporing af søgehistorik
+
+### Messaging & Communication (Andreas)
 
-### Social Feed
+- Direct messaging system med en-til-en chats
+- Group chat understøttelse (maks 8 deltagere)
+- Real-time levering af beskeder via supabase realtime
+- Beskedhistorik og persistens
+- Sporing af ulæste beskeder
+- Mediedeling (billeder, videoer, lydfiler)
+- Voice message (ikke implementeret)
+- Chat-baseret samarbejdsflow (se sektion 6 for detaljer)
 
-- Personalized feed showing posts from followed musicians
-- Support for three post types:
-  - **Notes**: Share thoughts, questions, tutorials, and music-related content
-  - **Requests**: Post collaboration opportunities, band searches, or service needs
-  - **Stories**: Temporary content with 24-hour lifespan (not fully implemented in MVP)
-- Real-time updates via Socket.IO
-- Engagement features: likes, bookmarks, comments
+### Services & Collaborations (Andreas)
 
-### Content Creation
+- Samlet visning af collaboration requests og service-udbydere i ét unified view
+- Filtersystem efter genre, lokation og andre muligheder
+- Zustand-baseret filter state management med persistence
+- Search bar til søgning i requests og services
+- Aktive filter display med mulighed for at fjerne individuelle filtre
+- Collaboration request cards med genre tags, lokation og paid opportunity indikation
+- Service provider cards med profil information
+- Tag relevante musikere i collaboration requests
+- Direkte chat-oprettelse fra collaboration requests
+- Request resolution system (se sektion 6 for detaljer)
 
-- Create page with tabbed navigation (Note/Request)
-- Rich text posts with media support (images/videos)
-- Tagging system for Notes
-- User tagging (mention up to 4 people you follow)
-- Genre selection for Requests
-- Draft auto-save functionality
-- Media upload with image compression
+### Connections & Networking (Nikolaj)
 
-### Search & Discovery
+- LinkedIn-stil forbindelsessystem (gensidige forbindelser)
+- Follow/unfollow funktionalitet
+- Forbindelsesanmodninger med status (pending/accepted/rejected)
+- Se hvem der følger hvem
+- Blokering af brugere (Kun i message delen for nu)
 
-- Comprehensive search system with tabbed navigation:
-  - **For You**: Personalized results combining people and collaboration requests
-  - **People**: Search for musicians by name, username, or role
-  - **Collaborations**: Search collaboration requests
-  - **Services**: Find service providers
-  - **Tags**: Search posts by tags
-- Real-time search with autocomplete suggestions
-- Full-text search across users, posts, and metadata
-- Search history tracking
+### Collaboration System (Christian)
 
-### Messaging & Communication
+- Samarbejdsforespørgsler (posts med typen requests)
+- Filtrering på genre, lokation og betalte muligheder
+- Tag relevante musikere i forespørgsler
+- Sporing af tidligere samarbejder på profiler (ikke fuldt implementeret)
+- System til løsning og arkivering af forespørgsler (se sektion 6 for detaljer)
 
-- Direct messaging system with one-on-one chats
-- Group chat support (max 8 participants)
-- Real-time message delivery via Socket.IO
-- Message history and persistence
-- Unread message tracking
-- Media sharing (images, videos, audio files)
-- Voice message support
-- Chat-based collaboration flow (see section 6 for details)
+### Notifications (Nikolaj)
 
-### Connections & Networking
+- Real-time notifikationssystem
+- Notifikationstyper: likes, comments, tags, connection requests
 
-- LinkedIn-style connection system (mutual connections)
-- Follow/unfollow functionality
-- Connection requests with pending/accepted/rejected status
-- View who follows whom
-- Block users functionality
+### Media Management (Christian)
 
-### Collaboration System
+- Upload af billeder og videoer
+- Medie-lagring via Supabase Storage buckets
+- Generering af thumbnails til videoer
+- Tilknytning af medier til posts
 
-- Collaboration request posts
-- Filter by genre, location, and paid opportunities
-- Tag relevant musicians in requests
-- Past collaborations tracking on profiles
-- Request resolution and archiving system (see section 6 for details)
+## 5. Kendte fejl eller manglende features
 
-### Notifications
+### Manglende Features (Ikke en del af MVP scope)
 
-- Real-time notification system
-- WebSocket-compatible notifications
-- Notification types: likes, comments, tags, connection requests, messages
+- Hent alle kunstnere fra Spotify (Fetch all artists from Spotify)
+- **Stories:** Midlertidigt indhold med 24-timers levetid er ikke fuldt implementeret (nævnt i Sektion 4)
+- **Pro/Upgrade System:** "Get Pro lineUp" feature er ikke implementeret
+- **Insights/Analytics:** Brugeranalyse og insights side er ikke implementeret
+- **Invite Friends:** System til at invitere venner er ikke implementeret
+- **App Store Rating:** "Rate the app" funktionalitet er ikke implementeret
+- **Detaljeret Indstillingsside:** Avanceret indstillingsside er ikke implementeret
+- **Hjælpeside:** Hjælp/support side er ikke implementeret
+- **Rapporter Bruger:** Funktionalitet til at rapportere brugere er ikke implementeret
+- **Spotify Playlist Integration:** Selvom Spotify playlist URL gemmes, er visningen statisk med en pladeholder billede i stedet for embeded i koden
+- **Manglende notifikationer:** Mangler notifikationer i headeren for messages og reply på comments
 
-### Media Management
+### Kendte Fejl
 
-- Image and video upload
-- Media storage via Supabase Storage
-- Thumbnail generation for videos
-- Media association with posts
+- Givetvis mange ukendte fejl, men ingen kendte
+- Når man modtager en connection og klikker på notifikationen, sker der noget mystisk, som gør at den stadig står som pending i ens profil
+- Vores glass effect opfører sig forskelligt imellem mobil view og desktop view
 
-**Note**: Primary responsible developer information should be added for each feature where relevant.
+## 6. Ekstra features eller innovationer udover kravene
 
----
+### 6.1 Udvidet chat funktionalitet
 
-## 5. Known Issues or Missing Features
+Vi har implementeret flere chat features som ikke var specificeret i Figma-designet, men lagt op til, for at gøre messaging-oplevelsen mere komplet og brugervenlig.
 
-Enter any known issues or missing features here.
+#### New Chat Interface
 
----
+Figma-designet viste ikke hvordan brugere skulle oprette nye chats eller gruppechats. Vi har derfor implementeret en dedikeret "New Chat" side hvor brugere kan:
 
-## 6. Extra Features or Innovations Beyond Requirements
+- Søge efter brugere (både connections og generelle users)
+- Vælge mellem one-to-one chat eller gruppechat
+- Se preview af valgte deltagere før chattet oprettes
 
-### Combined Services Tab
+#### Group Chat Settings
 
-We made a design decision to combine the Services tab so it displays both collaborations and services in one unified view. This creates a smoother navigation experience, as in the original design, when navigating to "collabs", the tab would replace "home", making it impossible to navigate back to the home feed from that view. By combining services and collaborations, we maintain consistent navigation while providing access to both types of content.
+For at kunne administrere gruppechats har vi tilføjet en settings-side hvor brugere kan:
 
-### Enhanced Chat-Based Collaboration Flow
+- Redigere gruppechat navn
+- Se alle deltagere
+- Tilføje nye medlemmer
+- Fjerne medlemmer (kun chat creator)
+- Forlade gruppe chatten
 
-We have enhanced and clarified the collaboration flow based on requests. When a user (OP) creates a collaboration request, other users can open a chat directly based on that request. Within this chat, users can discuss and plan whether they want to proceed with the collaboration. If they decide to move forward, the OP can click "resolve", which:
+#### Swipe Gestures på Conversations
 
-- Adds a "resolved" tag to the request post
-- Archives the request so it's no longer visible in the main feed
-- The resolved request can still be found on profiles/posts where users can view their own posts
-- This creates a clear workflow from discovery → discussion → resolution for collaboration requests
+For at forbedre mobile brugeroplevelsen har vi implementeret swipe gestures på conversation rows:
 
-This innovation makes the collaboration process more streamlined and provides a clear path from finding an opportunity to executing it.
+- Swipe til højre: Marker som ulæst/læst
+- Swipe til venstre: Slet samtale
+- Visual feedback under swipe for at guide brugeren
 
----
+Disse tilføjelser sikrer at chat funktionaliteten giver en mere funktionel og fuldendt oplevelse.
 
-## 7. Design Decisions Supplementing or Deviating from Figma Design
+### 6.2 Forbedret Collaboration Flow
 
-### Combined Services Tab Navigation
+Vi har forbedret og tydeliggjort samarbejdsflowet baseret på forespørgsler (requests). Når en bruger (OP) opretter en samarbejdsforespørgsel, kan andre brugere åbne en chat direkte baseret på den forespørgsel. I denne chat kan brugerne diskutere og planlægge, om de ønsker at gå videre med samarbejdet. Hvis de beslutter sig for at fortsætte, kan OP gå på sin profil under "posts", og resolve posten.
 
-**Decision**: Combined the Services tab to show both collaborations and services together, rather than having separate tabs that replace the home tab.
+#### Post Collaborators Implementation
 
-**Justification**: In the original Figma design, navigating to "collabs" would replace the "home" tab, creating a navigation dead-end where users couldn't return to the home feed. By combining services and collaborations into a single tab, we maintain consistent navigation structure and ensure users can always access the home feed.
+For ikke at skulle lave en stor data migration til slut i projektet, besluttede vi at de personer man kan vælge i "past collaborators" på profilen, er de personer der har klikket "start chat" på et af dine post requests. Idéen er at i en 100% endelig version ville man kunne resolve et post request og vælge en bruger den er resolved med. Det er så disse brugere som ville blive vist under past collaborators.
 
-### Enhanced Chat-Based Request Resolution Flow
+Når en post resolves:
 
-**Decision**: Implemented a more explicit flow for creating chats based on collaboration requests, with a "resolve" action that archives resolved requests.
+- Tilføjes et "resolved" tag til request-posten
+- Arkiveres forespørgslen så den ikke længere er synlig i hovedfeedet
+- Den løste forespørgsel kan stadig findes på profiler/posts hvor brugere kan se deres egne posts
 
-**Justification**: The original design didn't clearly show how users would transition from viewing a request to discussing it and then marking it as completed. Our implementation adds:
+Dette skaber et klart workflow fra opdagelse → diskussion → løsning for samarbejdsforespørgsler og gør samarbejdsprocessen mere strømlinet.
 
-- Direct chat creation from request posts
-- Clear discussion phase within the chat
-- Explicit "resolve" action for the OP
-- Automatic archiving of resolved requests
-- Visibility of resolved requests only on user's own profile/posts
+### 6.3 ConnectionsModal - Modal-baseret Forbindelsesvisning
 
-This creates a more intuitive and complete collaboration workflow that guides users through the entire process from discovery to completion.
+Vi har implementeret en modal-baseret løsning til visning og administration af forbindelser, der åbnes direkte fra profilheaderen ved at klikke på connections-tælleren. I stedet for at navigere til en separat side, forbliver brugeren i konteksten af profilen.
 
----
+Modal'en tilpasser sig dynamisk baseret på om brugeren ser sin egen profil eller en anden brugers profil. For egen profil vises ventende forbindelsesanmodninger øverst med Accept/Reject-knapper, så brugere hurtigt kan håndtere nye anmodninger. Accepterede forbindelser vises nedenfor med mulighed for at fjerne forbindelser. For andre brugers profiler vises kun accepterede forbindelser uden mulighed for at se ventende anmodninger eller udføre handlinger, hvilket beskytter privatlivet samtidig med at der gives et overblik over brugerens netværk.
 
-## 8. Link to Primary Project Board
+Denne innovation reducerer navigation overhead og gør det muligt at administrere forbindelser.
 
-## https://app.clickup.com/90151900334/v/l/7-90151900334-1
+## 7. Designbeslutninger der supplerer eller afviger fra Figma Design
 
-## 9. Working Links to GitHub Examples
+### Kombineret Services Tab Navigation
 
-### Example GitHub Issue
+Vi traf en designbeslutning om at kombinere Services-fanen, så den viser både samarbejder (collaborations) og services i én samlet visning. Dette skaber en mere flydende navigationsoplevelse, da fanen i det oprindelige design ville erstatte "home" når man navigerede til "collabs", hvilket gjorde det umuligt at navigere tilbage til home feedet fra den visning. Ved at kombinere services og collaborations bevarer vi en konsistent navigation samtidig med at vi giver adgang til begge typer indhold.
 
-Andreas' issue, solution and PR
+**Begrundelse:** I det oprindelige Figma design ville navigation til "collabs" erstatte "home"-fanen, hvilket skabte en blindgyde for navigation, hvor brugere ikke kunne vende tilbage til home feedet. Ved at kombinere services og collaborations i en enkelt fane opretholder vi en konsistent navigationsstruktur og sikrer, at brugere altid kan tilgå home feedet.
 
-### Example Pull Request
+## 8. Link til primært Project Board
 
-Andreas' issue, solution and PR
+https://sharing.clickup.com/90151900334/l/h/6-901517756216-1/7b089d364dcb316
 
----
+## 9. Fungerende links til GitHub Eksempler
 
-## 10. Database Structure Diagram and Data Modeling Description
+### Eksempel på ClickUp Task
 
-### Database Overview
+https://sharing.clickup.com/90151900334/t/h/86c6zu7pa/ZU7M6CLINZ52TRT
 
-LineUp uses PostgreSQL (via Supabase) with 18 tables organized into logical groups:
+### Eksempel på Pull Request
 
-**Core Tables:**
+https://github.com/andreasbbusk/lineup/pull/57
 
-- `profiles` - Extends Supabase Auth with user profile data (username, name, avatar, bio, location, theme_color, etc.)
-- `posts` - All post types (Notes, Requests, Stories) with title, description, author, location, metadata
-- `metadata` - Consolidated tags, genres, and artists
-- `media` - Uploaded images and videos with URLs and thumbnails
+## 10. Database Struktur Diagram og Data Modeling Beskrivelse
 
-**User Profile Tables:**
+Vi har bygget LineUp's database med 27 tabeller i PostgreSQL via Supabase. Strukturen er delt op i seks hovedområder: brugerprofiler, posts og media, sociale forbindelser, beskeder, notifikationer, og søgning.
 
-- `user_looking_for` - What users are seeking (connect, promote, find-band, find-services)
-- `user_metadata` - Links users to genres and artists
-- `user_social_media` - Social media profile links
-- `faq_questions` - Pre-defined questions users can answer
-- `user_faq` - User answers to FAQ questions
+### Database Struktur
 
-**Junction Tables:**
+#### Core Data (5 tabeller)
 
-- `post_media` - Links posts to media with display order
-- `post_metadata` - Links posts to tags/genres
-- `post_tagged_users` - Links posts to mentioned users (max 4)
+- `profiles` - Brugerprofiler med username, avatar, bio, location, theme_color
+- `posts` - Alle post-typer (note, request, story) med status tracking
+- `metadata` - Samlet tabel for tags, genrer, interests og kunstnere
+- `media` - Media storage references med thumbnails
+- `services` - Ikke-musiker services (venues, studios, equipment rental osv.)
 
-**Social & Collaboration Tables:**
+#### User Profile Extensions (5 tabeller)
 
-- `connection_requests` - LinkedIn-style connection system (pending/accepted/rejected)
-- `user_collaborations` - Past work relationships (bidirectional)
-- `user_reviews` - 5-star rating system
+- `user_looking_for` - Hvad brugere søger (connect, promote, find-band, find-services)
+- `user_metadata` - Linker brugere til genrer og kunstnere
+- `user_social_media` - Links til sociale medier (Instagram, TikTok, SoundCloud osv.)
+- `faq_questions` - Prædefinerede FAQ spørgsmål
+- `user_faq` - Brugeres svar på FAQ spørgsmål
 
-**Engagement Tables:**
+#### Junction Tables (3 tabeller)
 
-- `likes` - Post likes
-- `bookmarks` - Saved posts
-- `comments` - Post comments with replies support
+- `post_media` - Forbinder posts med media (med display_order)
+- `post_metadata` - Forbinder posts med tags og genrer
+- `post_tagged_users` - Forbinder posts med taggede brugere (maks 1 per post)
 
-**Messaging & Notifications:**
+#### Social & Collaboration (4 tabeller)
 
-- `conversations` - Direct and group conversations (max 8 participants)
-- `conversation_participants` - Junction table for conversation members
-- `messages` - Individual messages with replies, media, read receipts
-- `message_read_receipts` - Read status tracking
-- `notifications` - Polymorphic notification system (WebSocket-ready)
+- `connection_requests` - LinkedIn-stil forbindelsessystem
+- `connections` - VIEW af accepterede forbindelser
+- `user_collaborations` - Tovejs arbejdsrelationer
+- `user_reviews` - 5-stjernet rating system
+- `story_views` - Tracking af hvem der har set stories
 
-**Search System:**
+#### Engagement (3 tabeller)
 
-- `recent_searches` - User search history
-- Full-text search vectors (TSVECTOR) on profiles, posts, and metadata
+- `likes` - Post og kommentar likes (polymorphic)
+- `bookmarks` - Gemte posts
+- `comments` - Med nested replies via parent_id
 
-### Key Data Modeling Decisions
+#### Messaging & Notifications (7 tabeller)
 
-1. **Unified Metadata Table**: Instead of separate tables for tags, genres, and artists, we use a single `metadata` table with a `type` enum. This simplifies queries and allows for consistent search functionality.
+- `conversations` - Direct og gruppe chats
+- `conversation_participants` - Deltagelsesinformation med unread tracking
+- `messages` - Med replies, edits, deletes, media support
+- `message_read_receipts` - Læsekvitteringer
+- `notifications` - Polymorphic notifikationssystem
+- `recent_searches` - Brugerens søgehistorik
 
-2. **Bidirectional Collaborations**: The `user_collaborations` table stores bidirectional relationships, meaning if User A collaborates with User B, both users appear in each other's collaboration lists. This builds trust and credibility.
+### Hvad Fungerer Godt
 
-3. **Polymorphic Notifications**: The notifications table uses a polymorphic design to support different notification types (likes, comments, tags, connections, messages) in a single table.
+#### Unified Metadata-tabel
 
-4. **Full-Text Search Integration**: We use PostgreSQL's TSVECTOR for full-text search, with generated columns and GIN indexes for performance. This allows for fast, relevant search across users, posts, and metadata.
+I stedet for separate tabeller til tags, genrer, interests og kunstnere valgte vi én samlet metadata tabel med en type enum kolonne. Dette forenkler databasestrukturen betydeligt - vi skal kun vedligeholde én tabel, queries bliver simplere (kun én tabel at søge i), og søgefunktionalitet er konsistent på tværs af alle metadata-typer. Derudover er det nemt at tilføje nye typer senere uden at skulle lave migrationer for nye tabeller. Alle metadata får automatisk samme full-text search funktionalitet via én genereret search_vector kolonne.
 
-5. **Connection System**: We implemented a LinkedIn-style connection system where both users must accept a connection request, creating mutual connections rather than one-way follows.
+#### Polymorphic Patterns
 
-6. **Media Storage**: Media files are stored in Supabase Storage, with URLs stored in the database. This separation allows for efficient media management and CDN integration.
+**Notifications:** Vi bruger et polymorphic pattern hvor notifikationstabellen har entity_type (f.eks. "posts", "comments") og entity_id som refererer til den relevante entitet. Dette betyder at én notifikationstabel kan håndtere alle typer notifikationer - likes, comments, forbindelser, reviews osv. Vi har 8 forskellige notifikationstyper implementeret uden at skulle vedligeholde separate tabeller for hver type. Når vi vil tilføje en ny notifikationstype, skal vi bare tilføje den til type enum'en - ingen nye tabeller eller joins nødvendige.
+
+**Likes:** Samme princip bruges til likes - én tabel med nullable post_id og comment_id felter. Kun ét af felterne er udfyldt ad gangen, hvilket giver os likes på både posts og comments uden at skulle duplikere logik eller vedligeholde to separate like-tabeller.
+
+#### Messaging System
+
+Vores beskedsystem understøtter både direkte chats og gruppechats med fuld real-time funktionalitet via Supabase Realtime subscriptions. Systemet håndterer redigering og sletning af beskeder gennem is_edited og is_deleted flags, så vi bevarer besked-historik. Læsekvitteringer trackes i en separat message_read_receipts junction tabel, hvilket gør det nemt at se hvem der har læst hvad. Hver deltager har et last_read_message_id så vi kan beregne unread counts effektivt. UI'en bruger optimistic updates, så beskeder vises øjeblikkeligt når du sender dem, mens serveren håndterer persistering i baggrunden.
+
+**Halvt implementeret:** Database-strukturen har reply_to_message_id felt og backend accepterer det, men UI komponenten til at reply på beskeder er ikke bygget endnu - frontend sender altid null. Ligeledes har messages-tabellen et media_ids array felt til at uploade billeder/videoer, men upload-flowet i UI er ikke færdigt implementeret.
+
+#### PostgreSQL Full-Text Search
+
+Vi bruger PostgreSQL's indbyggede full-text search i stedet for en ekstern service. Vi har genererede tsvector kolonner på profiles, posts, metadata og services tabeller med weighted search - brugernavne og titler vægtes højere (A) end beskrivelser (B) og bio-tekst (C). Dette betyder søgeresultater rangeres efter relevans automatisk. GIN indexes på alle search vectors gør søgningen hurtig, selv med mange records. Fordelen er at det er simpelt at vedligeholde (ingen ekstra services), og search vectors opdateres automatisk når data ændres via generated columns.
+
+### Overvejelser og Læringer
+
+#### Features vi ikke fik brugt
+
+**user_metadata** - Vi designede en tabel til at forbinde brugere med deres genrer og kunstnere for at kunne vise disse på profiler og bruge dem til recommendations. Tabellen eksisterer i databasen med korrekte foreign keys til både profiles og metadata, men vi har aldrig bygget onboarding-flowet eller profile-edit UI'en til at udfylde dette. Det betyder alle brugere har 0 metadata-links, og featuren står ubrugt. Vi overvejede om det var fordi konceptet var forvirrende for brugerne, eller bare fordi det aldrig blev prioriteret i UI-udviklingen.
+
+**user_collaborations** - Vi implementerede et tovejs system til at markere tidligere samarbejdspartnere, hvor hvis du tilføjer mig som samarbejdspartner, vises vi begge på hinandens profiler (bidirectional relationship). Det endte dog under implementering med at blive lidt vandet, da vi endte med at håndtere det i post-tabellen, som en post, med typen "request". Dette har gjort det svært at køre fuldt bidiretional i de posts som skulle være collaboration (request) posts, da vi i post tabellen ikke har de rigtige attributter (user_id OG collaborator_id) Dette ville vi som sagt have løst med user_collaborations, men problemet med det table er, at der her mangler info om selve collaboration'en. En tænkelig løsning ville være at forkaste user_collaboration tablet, og istedet lave et reelt collaboration table med de manglende attributer og andet relevant information fra post tablet.
+
+Ideen er ikke helt færdigbagt, da dette også ville efterlade os med mange duplikeret attributter mellem post og collaboration. Istedet for at bruge mere tid på det valgte vi at emulere et bidirectional relationship i collaborations ved at man bare kan tagge folk man har collaborated med i sin profil.
+
+#### Vi ville genoverveje
+
+**Blocked users som array** - Vi gemmer blokerede brugere som en PostgreSQL array (blocked_users: uuid[]) direkte på profiles tabellen. Dette virkede simpelt i starten, men arrays i SQL er besværlige at arbejde med - de er svære at query effektivt (ingen index support), man kan ikke lave foreign key constraints til at sikre data-integritet, og det er umuligt at lave reverse lookups (se "hvem har blokeret mig"). En separat user_blocks junction tabel med (blocker_id, blocked_id) ville give bedre query performance og mere fleksibilitet, men ville kræve en migration af eksisterende blocked_users data. Plus så har vi ikke implementeret blocked features andre stedet end i messages indtil videre.
+
+**Media mangler owner reference** - Vi har en user_metadata som egentlig skulle gemme ting som media uploads for en user. I kampens hede er det ikke blevet koblet på ved upload af media-filer. Man kunne genoverveje om man ville have mindre komplekse tables, for at undgå at miste funktionalitet i svinget. Vi har derfor ikke kunne arbejde med media som er koblet til en specifik bruger, da den eneste forældre et media har, hvis nogen, er det post, som det tilhører.
 
 ### Database Diagram
 
-```
-┌─────────────┐
-│ auth.users  │ (Supabase Auth)
-└──────┬──────┘
-       │
-       │ 1:1
-       ▼
-┌─────────────────────────────────────────────────────────┐
-│                      CORE TABLES                        │
-├─────────────────────────────────────────────────────────┤
-│  profiles (extends auth.users)                          │
-│  ├─ Basic info: username, name, avatar, bio             │
-│  ├─ Contact: phone_country_code, phone_number          │
-│  ├─ Preferences: theme_color, spotify_playlist_url      │
-│  └─ Security: blocked_users[]                          │
-│                                                         │
-│  posts (Notes, Requests, Stories)                       │
-│  ├─ type: 'note' | 'request' | 'story'                  │
-│  ├─ content: title, description                         │
-│  └─ metadata: location, paid_opportunity, expires_at   │
-│                                                         │
-│  metadata (tags, genres, artists)                      │
-│  └─ type: 'tag' | 'genre' | 'artist'                    │
-│                                                         │
-│  media (images, videos)                                │
-│  └─ type: 'image' | 'video'                             │
-└─────────────────────────────────────────────────────────┘
+https://dbdocs.io/andreasbuskmikkelsen/LineUp?view=table_structure
 
-┌─────────────────────────────────────────────────────────┐
-│                  USER PROFILE TABLES                    │
-├─────────────────────────────────────────────────────────┤
-│  user_looking_for (what users seek)                     │
-│  user_metadata (genres, artists)                       │
-│  user_social_media (social links)                      │
-│  faq_questions (seed data)                              │
-│  user_faq (user answers to questions)                   │
-└─────────────────────────────────────────────────────────┘
+## 11. Post-Mortem: Projekt Refleksion
 
-┌─────────────────────────────────────────────────────────┐
-│                   JUNCTION TABLES                       │
-├─────────────────────────────────────────────────────────┤
-│  post_media (posts ↔ media, with display_order)         │
-│  post_metadata (posts ↔ tags/genres)                    │
-│  post_tagged_users (posts ↔ users, max 4)               │
-└─────────────────────────────────────────────────────────┘
+### Hvad gik godt
 
-┌─────────────────────────────────────────────────────────┐
-│              SOCIAL & COLLABORATION                      │
-├─────────────────────────────────────────────────────────┤
-│  connection_requests (LinkedIn-style)                   │
-│  ├─ status: 'pending' | 'accepted' | 'rejected'         │
-│  └─ Both users must accept                              │
-│                                                         │
-│  user_collaborations (past work together)               │
-│  user_reviews (5-star ratings)                          │
-└─────────────────────────────────────────────────────────┘
+#### Tekniske Valg:
 
-┌─────────────────────────────────────────────────────────┐
-│                    ENGAGEMENT                           │
-├─────────────────────────────────────────────────────────┤
-│  likes, bookmarks, comments                             │
-└─────────────────────────────────────────────────────────┘
+- **Supabase Integration:** Brug af Supabase til database, auth og storage reducerede infrastrukturens kompleksitet betydeligt og gav os mulighed for at fokusere på at bygge features frem for at administrere infrastruktur.
+- **TypeScript Overalt:** At have TypeScript på både frontend og backend gav fremragende typesikkerhed og fangede mange fejl under udviklingen.
+- **TanStack Query:** Brug af Tanstack Query til server state management simplificerede data fetching og gav fremragende caching og synkronisering.
+- **TSOA til API Dokumentation:** Automatisk OpenAPI/Swagger generering fra TypeScript typer sikrede, at vores API dokumentation forblev synkroniseret med koden.
+- **Entity-Baseret Arkitektur:** Organisering af kode efter entities i backenden frem for teknisk lag gjorde kodebasen mere vedligeholdelsesvenlig og nemmere at navigere i.
 
-┌─────────────────────────────────────────────────────────┐
-│              MESSAGING & NOTIFICATIONS                  │
-├─────────────────────────────────────────────────────────┤
-│  conversations (direct | group, max 8 participants)     │
-│  conversation_participants                              │
-│  messages (with replies, media, read receipts)          │
-│  message_read_receipts                                  │
-│  notifications (polymorphic, WebSocket-ready)           │
-└─────────────────────────────────────────────────────────┘
+#### Samarbejde:
 
-┌─────────────────────────────────────────────────────────┐
-│                   SEARCH SYSTEM                         │
-├─────────────────────────────────────────────────────────┤
-│  recent_searches (user search history)                  │
-│  + Full-text search vectors on profiles/posts/metadata  │
-│  + Search functions (for_you, people, collaborations)   │
-└─────────────────────────────────────────────────────────┘
-```
+- Klar adskillelse af backend og frontend tillod teammedlemmer i teorien at arbejde parallelt med minimale konflikter.
+- Feature-baseret organisering gjorde det nemt at identificere ejerskab og ansvar for forskellige dele af applikationen.
+- Mødte ofte ind fysisk for at kunne bedre koordinere i person. Simplificerede mange kommunikationsveje.
 
-### Data Modeling Considerations and Regrets
+#### Projektledelse:
 
-**Considerations:**
+- Når vi opdager bugs eller issues, opretter man det i ClickUp og assigner den person det giver mest mening for
+- I slutningen af hver dag, tager vi altid en status, og baseret på det, giver os selv lektier for
+- Inden vi går hjem hver dag, går vi igennem ClickUp, og rydder op i alle tasks, og rykker dem rundt som de burde.
 
-- We chose to use Supabase Auth's built-in `auth.users` table and extend it with our `profiles` table rather than creating a custom auth system. This reduces complexity and provides built-in security features.
-- The unified metadata table approach simplifies queries but requires careful type checking in application code.
-- Bidirectional collaborations require careful handling to ensure data consistency when adding or removing collaborations.
+### Hvad vi ville gøre anderledes
 
-**Potential Regrets:**
+#### Tekniske Valg:
 
-- The notification system's polymorphic design, while flexible, may become complex as more notification types are added. A more structured approach with separate tables or a better type system might have been beneficial.
-- The search system relies heavily on PostgreSQL full-text search, which works well but may need additional search infrastructure (like Elasticsearch) if the platform scales significantly.
-- Media storage in Supabase Storage is convenient but may require migration to a CDN for better global performance as the user base grows.
+- **Test Strategi:** Vi ville implementere en mere omfattende teststrategi fra begyndelsen. Dette ville have fanget problemer tidligere og gjort refaktorering mere sikker.
+- **Fejlhåndtering:** Vi ville etablere et mere konsistent fejlhåndteringsmønster på tværs af hele applikationen tidligere i projektet.
+- **Arkitektur:** Den originale intention var at spejle entity tilgangen fra backenden i frontenden. Problematikken lå i at god del logik skulle anvendes flere forskellige steder, hvilket gjorde det sværere at identificere hvad der tilhørte hvad, og hvor det kunne findes.
+
+#### Samarbejde:
+
+- **Code Reviews:** Vi ville implementere flere code reviews tidligere for at fange problemer og dele viden på tværs.
+- **Dokumentation:** Vi ville vedligeholde mere opdateret dokumentation under udviklingen frem for at dokumentere til sidst, hvilket ville have hjulpet med onboarding og vidensdeling.
+
+#### Database:
+
+- **Migrationsstrategi:** Vi ville etablere en mere formel database migrationsstrategi og review proces for at undgå schema ændringer, der krævede betydelig refaktorering.
 
 ---
 
-## 11. Post-Mortem: Project Reflection
-
-### What Worked Well
-
-**Technical Choices:**
-
-- **Supabase Integration**: Using Supabase for database, auth, and storage significantly reduced infrastructure complexity and allowed us to focus on building features rather than managing infrastructure.
-- **TypeScript Throughout**: Having TypeScript on both frontend and backend provided excellent type safety and caught many errors during development.
-- **Feature-Based Architecture**: Organizing code by domain/feature rather than by technical layer made the codebase more maintainable and easier to navigate.
-- **TanStack Query**: Using React Query for server state management eliminated many common data fetching bugs and provided excellent caching and synchronization.
-- **TSOA for API Documentation**: Automatic OpenAPI/Swagger generation from TypeScript types ensured our API documentation stayed in sync with the code.
-
-**Collaboration:**
-
-- Clear separation of backend and frontend allowed team members to work in parallel without conflicts.
-- Feature-based organization made it easy to identify ownership and responsibility for different parts of the application.
-
-**Project Management:**
-
-- The vertical slice approach (building complete features end-to-end) ensured we always had working, testable features rather than incomplete implementations.
-
-### What We Would Do Differently
-
-**Technical Choices:**
-
-- **Real-time Implementation**: While Socket.IO works, we might consider using Supabase Realtime subscriptions more extensively to reduce the number of different technologies in our stack.
-- **Testing Strategy**: We would implement a more comprehensive testing strategy from the beginning, including unit tests, integration tests, and E2E tests. This would have caught issues earlier and made refactoring safer.
-- **Error Handling**: We would establish a more consistent error handling pattern across the entire application earlier in the project.
-- **State Management**: While Zustand works well, we might have benefited from a more structured approach to global state management, potentially using Redux Toolkit or a more opinionated state management solution.
-
-**Collaboration:**
-
-- **Code Reviews**: We would implement more rigorous code review processes earlier to catch issues and share knowledge across the team.
-- **Documentation**: We would maintain more up-to-date documentation during development rather than documenting at the end, which would have helped with onboarding and knowledge sharing.
-- **Communication**: More frequent stand-ups and clearer communication about architectural decisions would have helped align the team better.
-
-**Project Management:**
-
-- **Sprint Planning**: We would implement more structured sprint planning with clearer goals and deliverables.
-- **Feature Flags**: Implementing feature flags earlier would have allowed us to deploy incomplete features and test them in production without exposing them to all users.
-- **Performance Monitoring**: We would set up performance monitoring and error tracking (like Sentry) from the beginning to catch issues in production earlier.
-
-**Database Design:**
-
-- **Migration Strategy**: We would establish a more formal database migration strategy and review process to avoid schema changes that required significant refactoring.
-- **Indexing Strategy**: While we have indexes, we would have benefited from a more systematic approach to identifying and creating indexes based on query patterns.
-
-**General:**
-
-- **CI/CD Pipeline**: Setting up a proper CI/CD pipeline earlier would have caught integration issues faster and made deployments more reliable.
-- **Environment Management**: Better separation and management of development, staging, and production environments would have reduced deployment risks.
-
----
-
-_LineUp - Where musicians connect, collaborate, and create._
+**LineUp - Where musicians connect, collaborate, and create.**

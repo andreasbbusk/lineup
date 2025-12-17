@@ -2741,11 +2741,6 @@ export interface components {
                 id: string;
             };
         };
-        /** @description From T, pick a set of properties whose keys are in the union K */
-        "Pick_CollaborationInsert.Exclude_keyofCollaborationInsert.user_id-or-created_at-or-id__": {
-            description?: string;
-            collaborator_id: string;
-        };
         /**
          * @description DTO for creating a collaboration
          *
@@ -2758,16 +2753,15 @@ export interface components {
          */
         CreateCollaborationDto: {
             /**
-             * @description Optional description of the collaboration (max 200 characters)
-             * @example Worked together on a jazz album in 2023
-             */
-            description?: string | null;
-            collaborator_id: string;
-            /**
              * @description The ID of the user you collaborated with (UUID format)
              * @example a1b2c3d4-e5f6-7890-1234-567890abcdef
              */
             collaboratorId: string;
+            /**
+             * @description Optional description of the collaboration (max 200 characters)
+             * @example Worked together on a jazz album in 2023
+             */
+            description?: string | null;
         };
         /**
          * @description API response format for a bookmark
@@ -2813,10 +2807,6 @@ export interface components {
                 id: string;
             };
         };
-        /** @description From T, pick a set of properties whose keys are in the union K */
-        "Pick_BookmarkInsert.Exclude_keyofBookmarkInsert.user_id-or-created_at__": {
-            post_id: string;
-        };
         /**
          * @description DTO for creating a bookmark
          *
@@ -2827,7 +2817,6 @@ export interface components {
          *     }
          */
         CreateBookmarkDto: {
-            post_id: string;
             /**
              * @description The UUID of the post to bookmark
              * @example 123e4567-e89b-12d3-a456-426614174000

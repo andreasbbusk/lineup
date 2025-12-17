@@ -136,7 +136,7 @@ const Tabs = (props: TabsProps) => {
 							<React.Fragment key={tab.id}>
 								<button
 									onClick={() => handleTabChange(tab.id)}
-									className={`relative flex w-1/2 py-3.75 justify-center items-center gap-1.25 bg-white text-base transition-colors hover:text-black${
+									className={`relative flex w-1/2 py-3.75 justify-center items-center gap-1.25 bg-white text-base transition-colors hover:text-black ${
 										index === 0
 											? "rounded-tl-[2.8125rem]"
 											: "rounded-tr-[2.8125rem]"
@@ -148,7 +148,7 @@ const Tabs = (props: TabsProps) => {
 									<span className="relative inline-flex items-center">
 										{tab.label}
 										{hasUnread && (
-											<span className="absolute left-full -top-0.5 -ml-0.6 flex min-w-[14px] h-[14px] items-center justify-center rounded-full bg-crocus-yellow" />
+											<span className="absolute left-full -top-0.5 -ml-0.5 size-3.5 bg-crocus-yellow rounded-full border-2 border-white" />
 										)}
 									</span>
 								</button>

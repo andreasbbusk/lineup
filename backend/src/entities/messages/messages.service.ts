@@ -140,17 +140,6 @@ export class MessagesService {
         code: "DATABASE_ERROR",
       });
 
-    // Increment unread_count for all other participants
-    const { error: rpcError } = await supabase.rpc("increment_unread_count", {
-      p_conversation_id: dto.conversation_id,
-      p_sender_id: userId,
-    });
-
-    if (rpcError) {
-      console.error("Failed to increment unread count:", rpcError);
-      // Don't throw error - message was sent successfully
-    }
-
     return mapMessageToResponse(data);
   }
 

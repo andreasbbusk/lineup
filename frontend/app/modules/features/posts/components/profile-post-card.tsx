@@ -9,13 +9,18 @@ import { Avatar } from "@/app/modules/components/avatar";
 import { Tags } from "@/app/modules/components/tags";
 import { Button } from "@/app/modules/components/buttons";
 import { useStartOrNavigateToChat } from "@/app/modules/hooks";
-import { useResolvePost, useUpdatePost, useDeletePost } from "@/app/modules/hooks/mutations";
+import {
+	useResolvePost,
+	useUpdatePost,
+	useDeletePost,
+} from "@/app/modules/hooks/mutations";
 import { useAppStore } from "@/app/modules/stores/Store";
 import {
-	Popover,
+	Popover as PopoverRoot,
 	PopoverTrigger,
 	PopoverContent,
 } from "@/app/modules/components/radix-popover";
+import { Popover as StyledPopover } from "@/app/modules/components/popover";
 
 interface ProfilePostCardProps {
 	post: PostResponse & {
@@ -94,7 +99,9 @@ export function ProfilePostCard({ post }: ProfilePostCardProps) {
 	const [isEditing, setIsEditing] = useState(false);
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [editTitle, setEditTitle] = useState(post.title);
-	const [editDescription, setEditDescription] = useState(post.description || "");
+	const [editDescription, setEditDescription] = useState(
+		post.description || ""
+	);
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
 	const handleStartChat = () => {
@@ -159,47 +166,51 @@ export function ProfilePostCard({ post }: ProfilePostCardProps) {
 	const firstMedia = post.media && post.media.length > 0 ? post.media[0] : null;
 
 	// Get genre tags (metadata with type "genre") - for requests
-	const genreTags = post.metadata?.filter(
-		(meta) => meta.type === "genre"
-	) || [];
+	const genreTags =
+		post.metadata?.filter((meta) => meta.type === "genre") || [];
 
 	// Get tag metadata (for notes)
-	const tagMetadata = post.metadata?.filter(
-		(meta) => meta.type === "tag"
-	) || [];
+	const tagMetadata =
+		post.metadata?.filter((meta) => meta.type === "tag") || [];
 
 	// Get looking for tag (e.g., "#guitarist") - typically the first tag for requests
-	const lookingForTag = post.type === "request" 
-		? (post.metadata?.find(
-			(meta) => meta.type === "tag" && 
-			(meta.name.toLowerCase().includes("guitarist") ||
-			 meta.name.toLowerCase().includes("drummer") ||
-			 meta.name.toLowerCase().includes("bassist") ||
-			 meta.name.toLowerCase().includes("vocalist") ||
-			 meta.name.toLowerCase().includes("songwriter"))
-		) || post.metadata?.find((meta) => meta.type === "tag"))
-		: null;
+	const lookingForTag =
+		post.type === "request"
+			? post.metadata?.find(
+					(meta) =>
+						meta.type === "tag" &&
+						(meta.name.toLowerCase().includes("guitarist") ||
+							meta.name.toLowerCase().includes("drummer") ||
+							meta.name.toLowerCase().includes("bassist") ||
+							meta.name.toLowerCase().includes("vocalist") ||
+							meta.name.toLowerCase().includes("songwriter"))
+			  ) || post.metadata?.find((meta) => meta.type === "tag")
+			: null;
 
 	return (
 		<article className="flex flex-col gap-4 bg-white rounded-[1.5625rem] p-4 shadow-sm border border-gray-200 relative">
 			{/* Delete Confirmation Modal */}
 			{showDeleteConfirm && (
 				<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-					<div className="bg-white rounded-2xl p-6 max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
+					<div
+						className="bg-white rounded-2xl p-6 max-w-sm w-full"
+						onClick={(e) => e.stopPropagation()}>
 						<h3 className="text-lg font-semibold mb-2">Delete Post?</h3>
 						<p className="text-gray-600 mb-4">
-							Are you sure you want to delete this post? This action cannot be undone.
+							Are you sure you want to delete this post? This action cannot be
+							undone.
 						</p>
 						<div className="flex gap-3 justify-end">
-							<Button variant="secondary" onClick={() => setShowDeleteConfirm(false)}>
+							<Button
+								variant="secondary"
+								onClick={() => setShowDeleteConfirm(false)}>
 								Cancel
 							</Button>
 							<Button
 								variant="primary"
 								onClick={confirmDelete}
 								disabled={isDeletingPost}
-								className="bg-red-500 hover:bg-red-600"
-							>
+								className="bg-red-500 hover:bg-red-600">
 								{isDeletingPost ? "Deleting..." : "Delete"}
 							</Button>
 						</div>
@@ -237,7 +248,7 @@ export function ProfilePostCard({ post }: ProfilePostCardProps) {
 
 				{/* Dropdown Menu for Author */}
 				{isAuthor && !isEditing && (
-					<Popover open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+					<PopoverRoot open={isMenuOpen} onOpenChange={setIsMenuOpen}>
 						<PopoverTrigger asChild>
 							<button className="p-1.5 rounded-full hover:bg-gray-100 transition-colors">
 								<Image
@@ -248,25 +259,16 @@ export function ProfilePostCard({ post }: ProfilePostCardProps) {
 								/>
 							</button>
 						</PopoverTrigger>
-						<PopoverContent align="end" className="w-44">
-							<div className="flex flex-col gap-1">
-								<button
-									onClick={handleEditPost}
-									className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-white/10 rounded-lg transition-colors"
-								>
-									<Image src="/icons/edit-pencil.svg" alt="" width={16} height={16} className="invert" />
-									Edit Post
-								</button>
-								<button
-									onClick={handleDeletePost}
-									className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-white/10 rounded-lg transition-colors text-red-300"
-								>
-									<Image src="/icons/delete-circle.svg" alt="" width={16} height={16} className="invert opacity-80" />
-									Delete Post
-								</button>
-							</div>
+						<PopoverContent
+							align="end"
+							className="p-0 bg-transparent border-none shadow-none w-auto">
+							<StyledPopover
+								variant="post-options"
+								onEditClick={handleEditPost}
+								onDeleteClick={handleDeletePost}
+							/>
 						</PopoverContent>
-					</Popover>
+					</PopoverRoot>
 				)}
 			</div>
 
@@ -328,8 +330,7 @@ export function ProfilePostCard({ post }: ProfilePostCardProps) {
 					<Button
 						variant="primary"
 						onClick={handleSaveEdit}
-						disabled={isUpdatingPost}
-					>
+						disabled={isUpdatingPost}>
 						{isUpdatingPost ? "Saving..." : "Save"}
 					</Button>
 				</div>
@@ -342,14 +343,15 @@ export function ProfilePostCard({ post }: ProfilePostCardProps) {
 						<div className="flex items-center gap-2">
 							<span className="text-sm text-gray-500">Resolved</span>
 						</div>
-					) : !isEditing && (
-						<Button
-							variant="primary"
-							onClick={handleResolveRequest}
-							disabled={isResolvingPost}
-						>
-							{isResolvingPost ? "Resolving..." : "Resolve"}
-						</Button>
+					) : (
+						!isEditing && (
+							<Button
+								variant="primary"
+								onClick={handleResolveRequest}
+								disabled={isResolvingPost}>
+								{isResolvingPost ? "Resolving..." : "Resolve"}
+							</Button>
+						)
 					)}
 				</div>
 			)}
@@ -386,14 +388,10 @@ export function ProfilePostCard({ post }: ProfilePostCardProps) {
 			{/* Genre Tags for Requests - Styled like the image (black with white text) */}
 			{post.type === "request" && genreTags.length > 0 && (
 				<div className="flex flex-col gap-2">
-					<h3 className="text-sm font-semibold text-gray-500">Genre</h3>
+					<h3 className="text-sm font-semibold">Genre</h3>
 					<div className="flex flex-wrap gap-2">
 						{genreTags.map((meta) => (
-							<span
-								key={meta.id}
-								className="rounded-full bg-gray-900 text-white px-4 py-2 text-sm font-medium">
-								{meta.name}
-							</span>
+							<Tags color={"#1e1e1e"} key={meta.id} text={meta.name} />
 						))}
 					</div>
 				</div>
@@ -401,4 +399,3 @@ export function ProfilePostCard({ post }: ProfilePostCardProps) {
 		</article>
 	);
 }
-

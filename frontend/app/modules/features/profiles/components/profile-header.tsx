@@ -71,11 +71,11 @@ function ProfileHeader(props: ProfileHeaderProps) {
 
 	return (
 		<div
-			className={`text-white flex max-w-93.25 w-full py-6.25 flex-col justify-center items-center gap-3.75 rounded-[2.8125rem] bg-(--profile-theme) ${props.className}`}
+			className={`relative text-white flex max-w-93.25 w-full py-6.25 flex-col justify-center items-center gap-3.75 rounded-[2.8125rem] bg-(--profile-theme) ${props.className}`}
 			style={{ "--profile-theme": `${props.theme}` } as CSSProperties}>
 			<span
 				onClick={() => setIsMenuOpen(!isMenuOpen)}
-				className="absolute top-9 right-7 flex w-5.25 items-center gap-1 cursor-pointer">
+				className="absolute top-7 right-7 flex w-5.25 h-5.25 items-center gap-1 cursor-pointer">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					width="3"

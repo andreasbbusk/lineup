@@ -8,11 +8,16 @@ type PopoverProps = {
     | "message"
     | "profile-actions"
     | "other-profile"
-    | "note";
-  /** Optional additional class names for styling, used for placement */
+    | "note"
+    | "post-options";
+  /** Optional additional class names for styling, used for styling */
   className?: string;
   /** Optional callback for bookmark action (only used for "note" variant) */
   onBookmarkClick?: () => void;
+  /** Optional callback for edit action (only used for "post-options" variant) */
+  onEditClick?: () => void;
+  /** Optional callback for delete action (only used for "post-options" variant) */
+  onDeleteClick?: () => void;
   /** Optional bookmark state (only used for "note" variant) */
   isBookmarked?: boolean;
 };
@@ -32,8 +37,25 @@ type PopoverItem = {
  * continue to work as before, ensuring backward compatibility.
  */
 const getPopoverConfigs = (
-  props?: { isBookmarked?: boolean; onBookmarkClick?: () => void }
+  props?: {
+    isBookmarked?: boolean;
+    onBookmarkClick?: () => void;
+    onEditClick?: () => void;
+    onDeleteClick?: () => void;
+  }
 ): Record<PopoverProps["variant"], PopoverItem[]> => ({
+  "post-options": [
+    {
+      icon: "/icons/edit-pencil.svg",
+      label: "Edit Post",
+      onClick: props?.onEditClick,
+    },
+    {
+      icon: "/icons/delete-circle.svg",
+      label: "Delete Post",
+      onClick: props?.onDeleteClick,
+    },
+  ],
   "other-profile": [
     { icon: "/icons/share-ios.svg", label: "Share profile" },
     { icon: "/icons/remove-user.svg", label: "Disconnect" },
@@ -71,6 +93,8 @@ function Popover(props: PopoverProps) {
   const items = getPopoverConfigs({
     isBookmarked: props.isBookmarked,
     onBookmarkClick: props.onBookmarkClick,
+    onEditClick: props.onEditClick,
+    onDeleteClick: props.onDeleteClick,
   })[props.variant];
 
   return (

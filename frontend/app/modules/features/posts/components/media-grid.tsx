@@ -58,14 +58,14 @@ export function MediaGrid({
 		const item = sortedMedia[0];
 		return (
 			<>
-				<div className={`relative min-h-[200px] ${className}`}>
+				<div className={`px-2.5 ${className}`}>
 					{item.type === "image" ? (
 						<>
 							{/* eslint-disable-next-line @next/next/no-img-element */}
 							<img
 								src={item.url}
 								alt="Post media"
-								className="px-2.5 flex w-full justify-center items-center gap-2.5 rounded-[1.5625rem] object-cover"
+								className="w-full rounded-[1.5625rem] object-cover"
 								onClick={() => handleMediaClick(0)}
 								style={{
 									cursor: showLightbox ? "pointer" : "default",
