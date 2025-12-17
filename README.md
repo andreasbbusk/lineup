@@ -3,7 +3,9 @@ x# LineUp - Projekt Dokumentation
 ## 1. Link(s) til den deployede løsning
 
 Frontend: https://lineup-vert.vercel.app
+
 Backend: https://lineup-o1es.onrender.com
+
 Swagger docs: https://lineup-o1es.onrender.com/docs/
 
 ---
