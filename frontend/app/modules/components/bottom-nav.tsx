@@ -91,11 +91,7 @@ function BottomNav() {
 	const username = useAppStore((state) => state.user?.username);
 
 	// Only fetch unread count if user is logged in
-	const { data: unreadCount, isError, error } = useUnreadCount();
-
-	// Debug logging (remove after fixing)
-	console.log("Unread count data:", unreadCount);
-	console.log("Is error:", isError, error);
+	const { data: unreadCount } = useUnreadCount();
 
 	// Memoize navigation items with dynamic badge
 	const navItems = useMemo<NavItem[]>(
