@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePostsByAuthor } from "@/app/modules/hooks/queries";
 import { ProfilePostCard } from "@/app/modules/features/posts/components/profile-post-card";
 import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
+import { Avatar } from "@/app/modules/components/avatar";
 
 // Helper components
 const ProfileSection = ({
@@ -392,11 +393,11 @@ function ProfileBody(props: ProfileBodyProps) {
 													<Link
 														href={collab.link}
 														className="flex flex-col items-center gap-2">
-														<Image
-															src={collab.imgSrc || "/default-avatar.png"}
+														<Avatar
+															src={collab.imgSrc}
+															size="xl"
+															fallback={collab.name?.charAt(0) || ""}
 															alt="Collaborator"
-															width={77}
-															height={77}
 															className="rounded-full border-3 border-white aspect-square object-cover drop-shadow-[0_2px_8px_rgba(99,99,99,0.20)]"
 														/>
 													</Link>
@@ -424,11 +425,11 @@ function ProfileBody(props: ProfileBodyProps) {
 												.map((collab, index) => (
 													<li key={index} className="first:ml-0 -ml-[25px]">
 														<Link href={collab.link}>
-															<Image
-																src={collab.imgSrc || "/default-avatar.png"}
+															<Avatar
+																src={collab.imgSrc}
+																size="xl"
+																fallback={collab.name?.charAt(0) || ""}
 																alt="Collaborator"
-																width={77}
-																height={77}
 																className="rounded-full border-3 border-white aspect-square object-cover drop-shadow-[0_2px_8px_rgba(99,99,99,0.20)]"
 															/>
 														</Link>
