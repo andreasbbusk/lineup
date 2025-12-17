@@ -19,7 +19,7 @@ export { useAllFaqQuestions } from "./hooks/queries/useAllFaqQuestions";
 
 // Hooks - mutations
 export { useUpsertFaq, useDeleteFaq } from "./hooks/mutations/useFaqMutations";
-export { useDeleteCollaboration } from "./hooks/mutations/useCollaborationMutations";
+export { useDeleteCollaboration, useCreateCollaboration } from "./hooks/mutations/useCollaborationMutations";
 
 // Hooks - onboarding
 export { useOnboardingNavigation } from "./hooks/onboarding/useOnboardingNavigation";

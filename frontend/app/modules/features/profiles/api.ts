@@ -303,6 +303,31 @@ export async function deleteCollaboration(
 }
 
 /**
+ * Create a collaboration
+ * Requires authentication
+ */
+export async function createCollaboration(
+  collaboratorId: string
+): Promise<CollaborationResponse> {
+  const { data, error, response } = await apiClient.POST("/collaborations", {
+    body: {
+      collaboratorId,
+      collaborator_id: collaboratorId,
+    },
+  });
+
+  if (error) {
+    handleApiError(error, response);
+  }
+
+  if (!data) {
+    throw new Error("No data returned from API");
+  }
+
+  return data;
+}
+
+/**
  * Get user's reviews by username
  * Public endpoint - returns all reviews for a user
  */
