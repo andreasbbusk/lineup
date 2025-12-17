@@ -4,7 +4,8 @@ import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, Search, Bell, Menu } from "lucide-react";
-import { useUnreadCount } from "@/app/modules/features/notifications";
+import { NotificationBadge } from "./notification-badge";
+import { useUnreadCount } from "../features/notifications";
 
 export default function Header() {
 	const pathname = usePathname();
@@ -39,13 +40,12 @@ function NotificationButton() {
 	return (
 		<Link
 			href="/notifications"
-			className="relative flex items-center justify-center text-grey hover:opacity-70 transition-opacity"
+			className="relative flex h-10 w-10 items-center justify-center text-grey hover:opacity-70 transition-opacity"
 			aria-label="Notifications">
-			<Bell size={24} />
-			{/* Notification badge - show when there are unread notifications */}
-			{unreadCount && unreadCount > 0 && (
-				<span className="absolute right-0 top-0 h-3 w-3 rounded-full bg-crocus-yellow" />
-			)}
+			<div className="relative">
+				<Bell size={24} />
+				<NotificationBadge count={unreadCount} size="xs" />
+			</div>
 		</Link>
 	);
 }

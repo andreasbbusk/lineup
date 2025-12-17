@@ -13,6 +13,8 @@ import AddIcon from "../../../public/icons/add-icon";
 import ChatIcon from "../../../public/icons/chat-icon";
 import UserIcon from "../../../public/icons/user-icon";
 import { useAppStore } from "@/app/modules/stores/Store";
+import { useUnreadCount } from "../features/chats";
+import { NotificationBadge } from "./notification-badge";
 
 interface NavItem {
 	href: string;
