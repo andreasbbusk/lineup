@@ -7,14 +7,19 @@
     "specVersion": 3,
     "x-enum-varnames": true,
     "name": "LineUp API",
-    "description": "API documentation for the LineUp application",
+    "description": "LineUp is a social platform for connecting creatives and professionals through collaboration opportunities, posts, and real-time messaging. This API provides endpoints for user authentication, profile management, content creation, notifications, and more.",
     "version": "1.0.0",
+    "contact": {
+      "name": "LineUp Development Team",
+      "email": "support@lineup.app"
+    },
     "basePath": "/api",
     "securityDefinitions": {
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "bearerFormat": "JWT"
+        "bearerFormat": "JWT",
+        "description": "Enter your JWT token obtained from the authentication endpoint. Format: Bearer <token>"
       }
     }
   },

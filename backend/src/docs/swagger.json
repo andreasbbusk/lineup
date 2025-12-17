@@ -1773,7 +1773,7 @@
 				}
 			},
 			"UpdatePostBody": {
-				"description": "DTO for updating an existing post\n\nAll fields are optional - only provided fields will be updated.\nOnly the post author can update their posts.",
+				"description": "DTO for updating an existing post\r\n\r\nAll fields are optional - only provided fields will be updated.\r\nOnly the post author can update their posts.",
 				"properties": {
 					"title": {
 						"type": "string",
@@ -3211,19 +3211,21 @@
 			"bearerAuth": {
 				"type": "http",
 				"scheme": "bearer",
-				"bearerFormat": "JWT"
+				"bearerFormat": "JWT",
+				"description": "Enter your JWT token obtained from the authentication endpoint. Format: Bearer <token>"
 			}
 		}
 	},
 	"info": {
 		"title": "LineUp API",
 		"version": "1.0.0",
-		"description": "API documentation for the LineUp application",
+		"description": "LineUp is a social platform for connecting creatives and professionals through collaboration opportunities, posts, and real-time messaging. This API provides endpoints for user authentication, profile management, content creation, notifications, and more.",
 		"license": {
 			"name": "ISC"
 		},
 		"contact": {
-			"name": "Pinnaacle"
+			"name": "LineUp Development Team",
+			"email": "support@lineup.app"
 		}
 	},
 	"paths": {
@@ -4599,7 +4601,7 @@
 						}
 					}
 				},
-				"description": "Update a post\n\nUpdates a post's content. Only the post author can update their own posts.",
+				"description": "Update a post\r\n\r\nUpdates a post's content. Only the post author can update their own posts.",
 				"summary": "Update a post",
 				"tags": [
 					"Posts"
@@ -4640,7 +4642,7 @@
 						"description": "No content"
 					}
 				},
-				"description": "Delete a post\n\nPermanently deletes a post and all its related data.\nOnly the post author can delete their own posts.",
+				"description": "Delete a post\r\n\r\nPermanently deletes a post and all its related data.\r\nOnly the post author can delete their own posts.",
 				"summary": "Delete a post",
 				"tags": [
 					"Posts"
@@ -4803,7 +4805,7 @@
 						}
 					}
 				},
-				"description": "Get users who responded to a post by starting a chat\n\nReturns a list of users who initiated a conversation in response to this request post.\nOnly the post author can view respondents.",
+				"description": "Get users who responded to a post by starting a chat\r\n\r\nReturns a list of users who initiated a conversation in response to this request post.\r\nOnly the post author can view respondents.",
 				"summary": "Get post respondents",
 				"tags": [
 					"Posts"
@@ -4868,7 +4870,7 @@
 						}
 					}
 				},
-				"description": "Get all respondents across all of the user's request posts\n\nReturns unique users who have started chats on any of the user's request posts.\nThis is useful for populating the \"past collaborators\" section on the profile.",
+				"description": "Get all respondents across all of the user's request posts\r\n\r\nReturns unique users who have started chats on any of the user's request posts.\r\nThis is useful for populating the \"past collaborators\" section on the profile.",
 				"summary": "Get all post respondents for current user",
 				"tags": [
 					"Posts"
@@ -6172,11 +6174,7 @@
 						}
 					}
 				},
-<<<<<<< ours
-				"description": "Get all comments for a post\n\nReturns all comments on a specific post, ordered by creation date (oldest first).\nEach comment includes the author's profile information and like counts.\nIf authenticated, also includes whether the user has liked each comment.",
-=======
 				"description": "Get all comments for a post\r\n\r\nReturns all comments on a specific post, ordered by creation date (oldest first).\r\nEach comment includes the author's profile information and like counts.\r\nIf authenticated, also includes whether the user has liked each comment.",
->>>>>>> theirs
 				"summary": "Get comments for a post",
 				"tags": [
 					"Comments"
