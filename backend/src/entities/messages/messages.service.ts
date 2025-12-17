@@ -170,10 +170,41 @@ export class MessagesService {
         code: "NOT_FOUND",
       });
 
+    // Check if this is the last message and update conversation preview
+    const { data: conversation } = await supabase
+      .from("conversations")
+      .select("last_message_id")
+      .eq("id", data.conversation_id)
+      .single();
+
+    if (conversation?.last_message_id === messageId) {
+      await supabase
+        .from("conversations")
+        .update({
+          last_message_preview: dto.content,
+        })
+        .eq("id", data.conversation_id);
+    }
+
     return data;
   }
 
   async deleteMessage(userId: string, messageId: string): Promise<void> {
+    // Get the message info before deleting
+    const { data: messageToDelete } = await supabase
+      .from("messages")
+      .select("id, conversation_id")
+      .eq("id", messageId)
+      .eq("sender_id", userId)
+      .single();
+
+    if (!messageToDelete)
+      throw createHttpError({
+        message: "Message not found",
+        statusCode: 404,
+        code: "NOT_FOUND",
+      });
+
     const { data, error } = await supabase
       .from("messages")
       .update({
@@ -191,14 +222,35 @@ export class MessagesService {
         statusCode: 500,
         code: "DATABASE_ERROR",
       });
-    if (!data?.length)
-      throw createHttpError({
-        message: "Message not found",
-        statusCode: 404,
-        code: "NOT_FOUND",
-      });
 
-    // No return statement - void – REST convention for DELETE requests
+    // Check if this was the last message and update conversation accordingly
+    const { data: conversation } = await supabase
+      .from("conversations")
+      .select("last_message_id")
+      .eq("id", messageToDelete.conversation_id)
+      .single();
+
+    // If the deleted message was the last message, find the new last message
+    if (conversation?.last_message_id === messageId) {
+      const { data: newLastMessage } = await supabase
+        .from("messages")
+        .select("id, content, created_at")
+        .eq("conversation_id", messageToDelete.conversation_id)
+        .eq("is_deleted", false)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      // Update conversation with new last message (or null if no messages left)
+      await supabase
+        .from("conversations")
+        .update({
+          last_message_id: newLastMessage?.id || null,
+          last_message_preview: newLastMessage?.content || null,
+          last_message_at: newLastMessage?.created_at || null,
+        })
+        .eq("id", messageToDelete.conversation_id);
+    }
   }
 
   async markAsRead(userId: string, messageIds: string[]) {

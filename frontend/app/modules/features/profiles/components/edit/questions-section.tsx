@@ -76,7 +76,7 @@ export function QuestionsSection({
 	if (!showQuestionsSection) return null;
 
 	return (
-		<div className="relative flex flex-col self-stretch gap-[0.875rem] rounded-[1.5625rem] border border-black/10 py-9 px-[0.9375rem]">
+		<div className="relative flex flex-col self-stretch gap-3.5 rounded-[1.5625rem] border border-black/10 py-9 px-3.75 w-full max-w-200 mx-auto">
 			<Image
 				src={"/icons/close.svg"}
 				width={24}
@@ -86,12 +86,12 @@ export function QuestionsSection({
 				onClick={() => setShowQuestionsSection(false)}
 			/>
 
-			<h4 className="w-full max-w-[6rem] font-semibold">Questions</h4>
+			<h4 className="w-full max-w-24 font-semibold">Questions</h4>
 			{isEditingQuestions ? (
 				// Show all available questions when editing
-				<div className="flex flex-col self-stretch gap-[0.625rem]">
+				<div className="flex flex-col self-stretch gap-2.5">
 					{allFaqQuestions?.map((question) => (
-						<div key={question.id} className="px-[0.9375rem]">
+						<div key={question.id} className="px-3.75">
 							<h5 className="font-semibold">{question.question}</h5>
 							<textarea
 								value={faqAnswers[question.id] || ""}
@@ -107,20 +107,20 @@ export function QuestionsSection({
 				</div>
 			) : (
 				// Show answered questions when not editing
-				<ul className="flex flex-col gap-[0.625rem]">
+				<ul className="flex flex-col gap-2.5">
 					{faqData?.map((faq, index) => (
 						<li
 							key={index}
-							className="flex flex-col items-start gap-[0.3125rem] pb-4 pl-[0.9375rem]">
+							className="flex flex-col items-start gap-1.25 pb-4 pl-3.75">
 							<h5 className="font-semibold">{faq.question}</h5>
-							<p className="pl-[1.375rem]">{faq.answer}</p>
-							<Divider long />
+							<p className="pl-5">{faq.answer}</p>
+							<Divider />
 						</li>
 					))}
 				</ul>
 			)}
 			{!isEditingQuestions ? (
-				<div className="flex self-center gap-[0.3125rem]">
+				<div className="flex self-center gap-1.25">
 					<Image
 						src={"/icons/add-circle.svg"}
 						width={16}

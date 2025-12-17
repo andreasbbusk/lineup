@@ -3,13 +3,14 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { chatApi } from "../../api";
 import { chatKeys } from "../../queryKeys";
 import { useMessageActionsStore } from "../../stores/messageStore";
 import { Message, PaginatedMessages } from "../../types";
-import { addMessageToCache, replaceMessageInCache, updateMessageInCache } from "../../utils/cacheUpdates";
-import { MESSAGE_STATES } from "../../constants";
+import {
+  addMessageToCache,
+  updateMessageInCache,
+} from "../../utils/cacheUpdates";
 
 type MessagesPage = {
   messages: Message[];
@@ -18,7 +19,6 @@ type MessagesPage = {
 };
 
 type InfiniteMessages = InfiniteData<MessagesPage, string | undefined>;
-
 
 export function useEditMessage(conversationId: string) {
   const queryClient = useQueryClient();
@@ -39,11 +39,11 @@ export function useEditMessage(conversationId: string) {
         queryKey: chatKeys.messages(conversationId),
       });
 
-      const previousMessages = queryClient.getQueryData<
+      const messagesSnapshot = queryClient.getQueryData<
         InfiniteData<PaginatedMessages>
       >(chatKeys.messages(conversationId));
 
-      // Optimistic update
+      // Optimistic update: update message in messages cache only
       updateMessageInCache(queryClient, conversationId, messageId, (msg) => ({
         ...msg,
         content,
@@ -52,20 +52,23 @@ export function useEditMessage(conversationId: string) {
 
       clearAction();
 
-      return { previousMessages };
+      return { messagesSnapshot };
     },
     onError: (_err, _vars, context) => {
-      // Rollback
-      if (context?.previousMessages) {
+      if (context?.messagesSnapshot) {
         queryClient.setQueryData(
           chatKeys.messages(conversationId),
-          context.previousMessages
+          context.messagesSnapshot
         );
       }
-      toast.error("Failed to edit message. Please try again.");
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+    onSuccess: async () => {
+      // Force immediate refetch of conversation list to get updated last message
+      await queryClient.refetchQueries({
+        queryKey: chatKeys.lists(),
+        type: "active",
+      });
+      queryClient.invalidateQueries({ queryKey: chatKeys.unread() });
     },
   });
 }
@@ -81,11 +84,11 @@ export function useDeleteMessage(conversationId: string) {
         queryKey: chatKeys.messages(conversationId),
       });
 
-      const previousMessages = queryClient.getQueryData<
+      const messagesSnapshot = queryClient.getQueryData<
         InfiniteData<PaginatedMessages>
       >(chatKeys.messages(conversationId));
 
-      // Optimistic update
+      // Optimistic update: mark message as deleted in messages cache only
       updateMessageInCache(
         queryClient,
         conversationId,
@@ -93,29 +96,33 @@ export function useDeleteMessage(conversationId: string) {
         (msg) =>
           ({
             ...msg,
-            content: MESSAGE_STATES.DELETED_TEXT,
+            isDeleted: true,
+            deletedAt: new Date().toISOString(),
           } as Message)
       );
 
       clearAction();
 
-      return { previousMessages };
+      return { messagesSnapshot };
     },
     onError: (_err, _messageId, context) => {
-      if (context?.previousMessages) {
+      if (context?.messagesSnapshot) {
         queryClient.setQueryData(
           chatKeys.messages(conversationId),
-          context.previousMessages
+          context.messagesSnapshot
         );
       }
-      toast.error("Failed to delete message. Please try again.");
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+    onSuccess: async () => {
+      // Force immediate refetch of conversation list to get updated last message
+      await queryClient.refetchQueries({
+        queryKey: chatKeys.lists(),
+        type: "active",
+      });
+      queryClient.invalidateQueries({ queryKey: chatKeys.unread() });
     },
   });
 }
-
 
 /**
  * Hook for sending messages with optimistic updates
@@ -138,21 +145,20 @@ export function useSendMessage(conversationId: string, userId: string) {
         reply_to_message_id: null,
       }),
 
-    // Optimistic update: Show message immediately before server confirms
     onMutate: async (content: string) => {
-      const tempId = `temp-${Date.now()}`;
+      const tempId = `temp-${Date.now()}-${Math.random()}`;
 
-      // Cancel in-flight queries to avoid race conditions
       await queryClient.cancelQueries({
         queryKey: chatKeys.messages(conversationId),
       });
+      await queryClient.cancelQueries({
+        queryKey: chatKeys.lists(),
+      });
 
-      // Save current state for rollback on error
       const snapshot = queryClient.getQueryData<InfiniteMessages>(
         chatKeys.messages(conversationId)
       );
 
-      // Create temporary message with client-side ID
       const optimisticMessage: Message = {
         id: tempId,
         conversationId,
@@ -174,10 +180,57 @@ export function useSendMessage(conversationId: string, userId: string) {
 
       addMessageToCache(queryClient, conversationId, optimisticMessage);
 
-      return { snapshot, tempId };
+      // Optimistically update conversation list (non-infinite structure)
+      const conversationsSnapshot = queryClient.getQueryData(chatKeys.lists());
+
+      queryClient.setQueryData(chatKeys.lists(), (oldData: unknown) => {
+        if (!oldData || typeof oldData !== "object") return oldData;
+
+        const data = oldData as {
+          direct: Array<{
+            id: string;
+            lastMessage?: {
+              content: string;
+              senderId: string;
+              createdAt: string;
+            };
+            updatedAt?: string;
+          }>;
+          groups: Array<{
+            id: string;
+            lastMessage?: {
+              content: string;
+              senderId: string;
+              createdAt: string;
+            };
+            updatedAt?: string;
+          }>;
+        };
+
+        const now = new Date().toISOString();
+        const newLastMessage = {
+          content,
+          senderId: userId,
+          createdAt: now,
+        };
+
+        return {
+          direct: data.direct.map((conv) =>
+            conv.id === conversationId
+              ? { ...conv, lastMessage: newLastMessage, updatedAt: now }
+              : conv
+          ),
+          groups: data.groups.map((conv) =>
+            conv.id === conversationId
+              ? { ...conv, lastMessage: newLastMessage, updatedAt: now }
+              : conv
+          ),
+        };
+      });
+
+      return { snapshot, conversationsSnapshot, tempId };
     },
 
-    // Rollback: Restore previous state if send fails
     onError: (_err, _content, context) => {
       if (context?.snapshot) {
         queryClient.setQueryData(
@@ -185,18 +238,43 @@ export function useSendMessage(conversationId: string, userId: string) {
           context.snapshot
         );
       }
+      if (context?.conversationsSnapshot) {
+        queryClient.setQueryData(
+          chatKeys.lists(),
+          context.conversationsSnapshot
+        );
+      }
     },
 
-    // Replace temporary message with server response
     onSuccess: (serverMessage, _content, context) => {
-      replaceMessageInCache(
-        queryClient,
-        conversationId,
-        context.tempId,
-        serverMessage
+      queryClient.setQueryData<InfiniteMessages>(
+        chatKeys.messages(conversationId),
+        (oldData) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              messages: page.messages.map((msg) => {
+                if (msg.id === context.tempId) {
+                  return {
+                    ...msg,
+                    ...serverMessage,
+                    createdAt: msg.createdAt,
+                  };
+                }
+                return msg;
+              }),
+            })),
+          };
+        }
       );
 
-      queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+      // Refetch to get accurate server state with full sender info
+      queryClient.refetchQueries({
+        queryKey: chatKeys.lists(),
+      });
     },
   });
 }

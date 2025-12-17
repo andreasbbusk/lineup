@@ -1,6 +1,6 @@
 // src/entities/users/users.mapper.ts
 import { ProfileRow } from "../../utils/supabase-helpers.js";
-import { UserProfile } from "../../types/api.types.js";
+import { UserProfile, BlockedUserResponse } from "../../types/api.types.js";
 
 /**
  * Maps database profile (snake_case) to API profile format (camelCase)
@@ -40,4 +40,26 @@ export function mapProfileToAPI(
 
   // Public profile (no phone, no yearOfBirth)
   return baseProfile;
+}
+
+/**
+ * Maps database profile to blocked user response format
+ * @param user - Database profile object
+ */
+export function mapBlockedUserToResponse(user: any): BlockedUserResponse {
+  return {
+    id: user.id,
+    username: user.username,
+    firstName: user.first_name,
+    lastName: user.last_name,
+    avatarUrl: user.avatar_url ?? null,
+  };
+}
+
+/**
+ * Maps array of database profiles to blocked users response format
+ * @param users - Array of database profile objects
+ */
+export function mapBlockedUsersToResponse(users: any[]): BlockedUserResponse[] {
+  return users.map(mapBlockedUserToResponse);
 }

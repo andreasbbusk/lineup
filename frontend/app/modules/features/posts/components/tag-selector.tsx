@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Modal } from "./modal";
 import { Tags } from "@/app/modules/components/tags";
-import { Button } from "@/app/modules/components/buttons";
 import { Combobox } from "@/app/modules/components/combobox";
 
 interface TagSelectorProps {
@@ -28,11 +26,10 @@ export function TagSelector({
 	selectedTags,
 	onTagsChange,
 	isOpen,
-	onClose,
 	maxTags = 10,
 }: TagSelectorProps) {
 	const [searchQuery, setSearchQuery] = useState("");
-	const { data: metadata, isLoading } = useQuery({
+	const { data: metadata } = useQuery({
 		queryKey: ["metadata"],
 		queryFn: fetchMetadata,
 		staleTime: Infinity, // Cache forever
@@ -77,32 +74,11 @@ export function TagSelector({
 		}
 	};
 
-	const handleAddCustomTag = () => {
-		const trimmed = searchQuery.trim();
-		if (!trimmed) return;
-
-		// Check if already selected
-		if (selectedTags.includes(trimmed)) {
-			setSearchQuery("");
-			return;
-		}
-
-		// Check limit
-		if (selectedTags.length >= maxTags) {
-			alert(`You can only select up to ${maxTags} tags`);
-			return;
-		}
-
-		// Add custom tag
-		onTagsChange([...selectedTags, trimmed]);
-		setSearchQuery("");
-	};
-
 	return (
 		isOpen && (
 			<div>
 				{/* Search input */}
-				<div className="flex px-[0.9375rem] py-[0.625rem] my-[0.3125rem]  justify-between items-center flex-[1_0_0] rounded-[18.75rem] border border-[rgba(0,0,0,0.05)]">
+				<div className="flex px-3.75 py-2.5 my-1.25  justify-between items-center flex-[1_0_0] rounded-[18.75rem] border border-[rgba(0,0,0,0.05)]">
 					<Combobox
 						dropdownDisabled
 						blank
@@ -150,7 +126,7 @@ export function TagSelector({
 
 				{/* Available tags */}
 				{filteredTags.length > 0 && (
-					<div className="flex px-[0.625rem] items-center content-center gap-[0.625rem] self-stretch flex-wrap">
+					<div className="flex px-2.5 items-center content-center gap-2.5 self-stretch flex-wrap">
 						{filteredTags
 							.filter(
 								(tag: { name: string }) => !selectedTags.includes(tag.name)

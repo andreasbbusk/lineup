@@ -1,14 +1,17 @@
 // Feature-specific hooks only
-export { useNoteDraftAutoSave, useRequestDraftAutoSave } from "./hooks/useDraftAutoSave";
+export {
+  useNoteDraftAutoSave,
+  useRequestDraftAutoSave,
+} from "./hooks/useDraftAutoSave";
 
 // Components
 export * from "./components/post-card";
 export * from "./components/post-detail";
 export * from "./components/media-grid";
 export * from "./components/tagged-users";
-export * from "./components/create-form";
-export * from "./components/note-form";
-export * from "./components/request-form";
+export * from "./components/create/create-form";
+export * from "./components/create/note-form";
+export * from "./components/create/request-form";
 
 // Types (including re-exports from global)
 export * from "./types";
