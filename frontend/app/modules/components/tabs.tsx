@@ -125,14 +125,14 @@ const Tabs = (props: TabsProps) => {
 						<React.Fragment key={tab.id}>
 							<button
 								onClick={() => handleTabChange(tab.id)}
-								className={`flex w-1/2 py-3.75 justify-center items-center gap-1.25 bg-white text-base font-medium transition-colors ${
+								className={`flex w-1/2 py-3.75 justify-center items-center gap-1.25 bg-white text-base transition-colors hover:text-black ${
 									index === 0
 										? "rounded-tl-[2.8125rem]"
 										: "rounded-tr-[2.8125rem]"
 								} ${
 									props.activeTab === tab.id
-										? "text-[var(--color-black)]"
-										: "text-[var(--color-grey)]"
+										? "font-bold text-black"
+										: "font-medium text-gray-500"
 								}`}>
 								{tab.label}
 							</button>
