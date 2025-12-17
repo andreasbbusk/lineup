@@ -302,7 +302,7 @@ export function RequestForm({
 						</div>
 						<button
 							type="button"
-							className="flex items-center gap-[0.2125rem]"
+							className="flex items-center justify-end gap-[0.2125rem] whitespace-nowrap"
 							onClick={() => setIsGenreSelectorOpen(true)}>
 							<Image
 								src="/icons/plus.svg"
