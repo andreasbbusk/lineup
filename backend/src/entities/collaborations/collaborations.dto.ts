@@ -1,5 +1,4 @@
 import { IsString, IsUUID, IsOptional, Length } from "class-validator";
-import { CollaborationInsert } from "../../utils/supabase-helpers.js";
 
 /**
  * DTO for creating a collaboration
@@ -13,9 +12,7 @@ import { CollaborationInsert } from "../../utils/supabase-helpers.js";
  *   "description": "Worked together on a jazz album in 2023"
  * }
  */
-export class CreateCollaborationDto
-  implements Omit<CollaborationInsert, "user_id" | "created_at" | "id">
-{
+export class CreateCollaborationDto {
   /**
    * The ID of the user you collaborated with (UUID format)
    * @example "a1b2c3d4-e5f6-7890-1234-567890abcdef"

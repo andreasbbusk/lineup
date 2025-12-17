@@ -2,8 +2,6 @@ import { createAuthenticatedClient } from "../../config/supabase.config.js";
 import { createHttpError } from "../../utils/error-handler.js";
 import { SignedUrlResponse } from "../../types/api.types.js";
 
-const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
-const MAX_FILES = 4;
 const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
   "image/png",
@@ -17,11 +15,7 @@ export class UploadService {
    * Delete a media file from storage and database
    * Only the owner can delete their media
    */
-  async deleteMedia(
-    mediaId: string,
-    userId: string,
-    token: string
-  ): Promise<void> {
+  async deleteMedia(mediaId: string, token: string): Promise<void> {
     const authedSupabase = createAuthenticatedClient(token);
 
     // Get media record to find the file path
@@ -114,10 +108,10 @@ export class UploadService {
     const uniqueFileName = `${Date.now()}-${Math.random()
       .toString(36)
       .substring(7)}.${fileExt}`;
-    
+
     // Path relative to bucket (for upload - doesn't include bucket name)
     const pathInBucket = `${userId}/${uniqueFileName}`;
-    
+
     // Full file path including bucket (for frontend URL construction)
     const filePath = `${bucket}/${pathInBucket}`;
 

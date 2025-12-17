@@ -1,11 +1,5 @@
 // DTOs for user details endpoints (social media, FAQ, looking for)
-import {
-  IsString,
-  IsOptional,
-  IsUrl,
-  IsUUID,
-  Length,
-} from "class-validator";
+import { IsString, IsOptional, IsUUID, Length } from "class-validator";
 
 /**
  * DTO for updating user social media links

@@ -12,11 +12,9 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-// ✅ Safe to export - these are public values
 export const SUPABASE_URL = supabaseUrl;
 export const SUPABASE_ANON_KEY = supabaseAnonKey;
 
-// ✅ Default client for server-side operations with RLS
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Type exports
@@ -25,18 +23,18 @@ export type { SupabaseClient };
 
 /**
  * Creates an authenticated Supabase client for user-specific operations.
- * 
+ *
  * This client enforces Row Level Security (RLS) policies based on the user's token.
  * Creating new client instances per request is necessary and lightweight.
- * 
+ *
  * @param token - User's JWT access token from Authorization header
  * @returns Authenticated Supabase client that respects RLS policies
- * 
+ *
  * @example
- * 
+ *
  * const authedSupabase = createAuthenticatedClient(userToken);
  * const { data } = await authedSupabase.from("posts").insert({ ... });
- * 
+ *
  */
 export function createAuthenticatedClient(
   token: string
@@ -101,10 +99,10 @@ export function getSupabaseClient(token: string): SupabaseClient<Database> {
  */
 export function createServiceRoleClient(): SupabaseClient<Database> {
   // Runtime check: prevent accidental browser usage
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     throw new Error(
-      'CRITICAL SECURITY ERROR: Service role client cannot be created in browser environment. ' +
-      'This would expose root database credentials to users.'
+      "CRITICAL SECURITY ERROR: Service role client cannot be created in browser environment. " +
+        "This would expose root database credentials to users."
     );
   }
 
@@ -114,7 +112,7 @@ export function createServiceRoleClient(): SupabaseClient<Database> {
   if (!serviceRoleKey) {
     throw new Error(
       "SUPABASE_SERVICE_ROLE_KEY is required for admin operations but is not set. " +
-      "Set this environment variable on your server only - NEVER in client code."
+        "Set this environment variable on your server only - NEVER in client code."
     );
   }
 
@@ -125,4 +123,3 @@ export function createServiceRoleClient(): SupabaseClient<Database> {
     },
   });
 }
-

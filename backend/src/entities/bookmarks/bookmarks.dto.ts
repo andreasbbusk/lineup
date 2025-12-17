@@ -1,5 +1,4 @@
 import { IsString, IsUUID } from "class-validator";
-import { BookmarkInsert } from "../../utils/supabase-helpers.js";
 
 /**
  * DTO for creating a bookmark
@@ -12,9 +11,7 @@ import { BookmarkInsert } from "../../utils/supabase-helpers.js";
  *   "postId": "123e4567-e89b-12d3-a456-426614174000"
  * }
  */
-export class CreateBookmarkDto
-  implements Omit<BookmarkInsert, "user_id" | "created_at">
-{
+export class CreateBookmarkDto {
   /**
    * The UUID of the post to bookmark
    * @example "123e4567-e89b-12d3-a456-426614174000"

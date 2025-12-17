@@ -126,6 +126,7 @@ export class FeedService {
     const commentsCountMap = new Map<string, number>();
 
     likesData?.forEach((like) => {
+      if (!like.post_id) return;
       const count = likesCountMap.get(like.post_id) || 0;
       likesCountMap.set(like.post_id, count + 1);
       if (like.user_id === userId) {
