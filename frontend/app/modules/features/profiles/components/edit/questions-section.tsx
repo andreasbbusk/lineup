@@ -126,6 +126,7 @@ export function QuestionsSection({
 						width={16}
 						height={16}
 						alt="Add"
+						style={{ height: "auto" }}
 					/>
 					<p
 						onClick={() => setIsEditingQuestions(true)}

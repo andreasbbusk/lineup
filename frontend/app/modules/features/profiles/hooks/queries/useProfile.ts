@@ -65,6 +65,11 @@ export function useUpdateProfile() {
         queryKey: ["profile", username],
       });
 
+      // Invalidate looking-for data since it's updated in the profile mutation
+      queryClient.invalidateQueries({
+        queryKey: ["looking-for", username],
+      });
+
       // Optimistic update for instant UI
       queryClient.setQueryData(["profile", username], updatedProfile);
     },
