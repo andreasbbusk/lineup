@@ -7,11 +7,12 @@ import {
   keepPreviousData
 } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { listPosts, getPostById } from "@/app/modules/api/postsApi";
+import { listPosts, getPostById, getPostRespondents, getAllPostRespondents } from "@/app/modules/api/postsApi";
 import type {
   PaginatedResponse,
   PostResponse,
   PostsQueryParams,
+  PostRespondent,
 } from "@/app/modules/api/postsApi";
 
 /**
@@ -158,4 +159,52 @@ export function useInfinitePosts(params?: Omit<PostsQueryParams, "cursor">) {
   }, [query.data]);
 
   return { ...query, posts };
+}
+
+/**
+ * Hook for fetching respondents of a specific post
+ *
+ * Returns users who started a chat in response to this post.
+ * Only the post author can view respondents.
+ *
+ * @param postId - The UUID of the post
+ * @returns Query result with respondents data
+ *
+ * @example
+ * ```
+ * const { data: respondents, isLoading } = usePostRespondents(postId);
+ * ```
+ */
+export function usePostRespondents(postId: string) {
+  return useQuery<PostRespondent[], Error>({
+    queryKey: ["posts", postId, "respondents"],
+    queryFn: () => getPostRespondents(postId),
+    staleTime: 60 * 1000, // 1 minute
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
+    enabled: !!postId,
+  });
+}
+
+/**
+ * Hook for fetching all respondents across the user's request posts
+ *
+ * Returns unique users who have started chats on any of the user's request posts.
+ * This is useful for populating the "past collaborators" section on the profile.
+ *
+ * @returns Query result with all respondents data
+ *
+ * @example
+ * ```
+ * const { data: allRespondents, isLoading } = useAllPostRespondents();
+ * ```
+ */
+export function useAllPostRespondents() {
+  return useQuery<PostRespondent[], Error>({
+    queryKey: ["posts", "respondents", "all"],
+    queryFn: () => getAllPostRespondents(),
+    staleTime: 60 * 1000, // 1 minute
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
+  });
 }

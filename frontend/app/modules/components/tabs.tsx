@@ -24,6 +24,10 @@ type TabsPropsChat = {
 	/** Tab content */
 	children: React.ReactNode;
 	className?: string;
+	/** Show badge indicator for chats tab */
+	hasUnreadChats?: boolean;
+	/** Show badge indicator for groups tab */
+	hasUnreadGroups?: boolean;
 };
 
 type TabsPropsCreate = {
@@ -121,24 +125,37 @@ const Tabs = (props: TabsProps) => {
 		return (
 			<div className={`${props.className} max-w-200`}>
 				<ul className="flex items-center rounded-tl-[2.8125rem] rounded-tr-[2.8125rem] bg-white">
-					{tabs.map((tab, index) => (
-						<React.Fragment key={tab.id}>
-							<button
-								onClick={() => handleTabChange(tab.id)}
-								className={`flex w-1/2 py-3.75 justify-center items-center gap-1.25 bg-white text-base font-medium transition-colors ${
-									index === 0
-										? "rounded-tl-[2.8125rem]"
-										: "rounded-tr-[2.8125rem]"
-								} ${
-									props.activeTab === tab.id
-										? "text-[var(--color-black)]"
-										: "text-[var(--color-grey)]"
-								}`}>
-								{tab.label}
-							</button>
-							{index === 0 && <TabDivider />}
-						</React.Fragment>
-					))}
+					{tabs.map((tab, index) => {
+						// Check if this tab has unread messages (only for chat variant)
+						const hasUnread =
+							props.variant === "chat" &&
+							((tab.id === "chats" && props.hasUnreadChats) ||
+								(tab.id === "groups" && props.hasUnreadGroups));
+
+						return (
+							<React.Fragment key={tab.id}>
+								<button
+									onClick={() => handleTabChange(tab.id)}
+									className={`relative flex w-1/2 py-3.75 justify-center items-center gap-1.25 bg-white text-base transition-colors hover:text-black${
+										index === 0
+											? "rounded-tl-[2.8125rem]"
+											: "rounded-tr-[2.8125rem]"
+									} ${
+										props.activeTab === tab.id
+											? "font-bold text-black"
+											: "font-medium text-gray-500"
+									}`}>
+									<span className="relative inline-flex items-center">
+										{tab.label}
+										{hasUnread && (
+											<span className="absolute left-full -top-0.5 -ml-0.6 flex min-w-[14px] h-[14px] items-center justify-center rounded-full bg-crocus-yellow" />
+										)}
+									</span>
+								</button>
+								{index === 0 && <TabDivider />}
+							</React.Fragment>
+						);
+					})}
 				</ul>
 				<div>{renderContent()}</div>
 			</div>

@@ -1,7 +1,7 @@
 // src/entities/posts/posts.controller.ts
-import { Controller, Route, Tags, Post, Get, Body, Query, Path, Request, Security, Delete } from "tsoa";
+import { Controller, Route, Tags, Post, Get, Body, Query, Path, Request, Security, Delete, Put } from "tsoa";
 import { Request as ExpressRequest } from "express";
-import { CreatePostBody, PostsQueryDto } from "./posts.dto.js";
+import { CreatePostBody, PostsQueryDto, UpdatePostBody } from "./posts.dto.js";
 import { extractUserId, extractBearerToken } from "../../utils/auth-helpers.js";
 import { handleControllerRequest } from "../../utils/controller-helpers.js";
 import { PostsService } from "./posts.service.js";
@@ -261,6 +261,135 @@ export class PostsController extends Controller {
         const userId = await extractUserId(req);
         const token = extractBearerToken(req);
         return this.postsService.unlikePost(userId, id, token);
+      },
+      204
+    );
+  }
+
+  /**
+   * Get users who responded to a post by starting a chat
+   *
+   * Returns a list of users who initiated a conversation in response to this request post.
+   * Only the post author can view respondents.
+   *
+   * @summary Get post respondents
+   * @param id The UUID of the post
+   * @returns List of users who started a chat on this post
+   * @throws 403 if user is not the post author
+   * @throws 404 if post not found
+   * @throws 401 if not authenticated
+   */
+  @Security("bearerAuth")
+  @Get("{id}/respondents")
+  public async getPostRespondents(
+    @Path() id: string,
+    @Request() req: ExpressRequest
+  ): Promise<{
+    id: string;
+    username: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    avatarUrl?: string | null;
+  }[]> {
+    return handleControllerRequest(
+      this,
+      async () => {
+        const userId = await extractUserId(req);
+        const token = extractBearerToken(req);
+        return this.postsService.getPostRespondents(id, userId, token);
+      },
+      200
+    );
+  }
+
+  /**
+   * Get all respondents across all of the user's request posts
+   *
+   * Returns unique users who have started chats on any of the user's request posts.
+   * This is useful for populating the "past collaborators" section on the profile.
+   *
+   * @summary Get all post respondents for current user
+   * @returns List of unique users who started chats on the user's posts
+   * @throws 401 if not authenticated
+   */
+  @Security("bearerAuth")
+  @Get("respondents/all")
+  public async getAllPostRespondents(
+    @Request() req: ExpressRequest
+  ): Promise<{
+    id: string;
+    username: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    avatarUrl?: string | null;
+  }[]> {
+    return handleControllerRequest(
+      this,
+      async () => {
+        const userId = await extractUserId(req);
+        const token = extractBearerToken(req);
+        return this.postsService.getAllPostRespondents(userId, token);
+      },
+      200
+    );
+  }
+
+  /**
+   * Update a post
+   *
+   * Updates a post's content. Only the post author can update their own posts.
+   *
+   * @summary Update a post
+   * @param id The UUID of the post to update
+   * @param body The fields to update
+   * @returns The updated post
+   * @throws 403 if user is not the post author
+   * @throws 404 if post not found
+   * @throws 401 if not authenticated
+   */
+  @Security("bearerAuth")
+  @Put("{id}")
+  public async updatePost(
+    @Path() id: string,
+    @Body() body: UpdatePostBody,
+    @Request() req: ExpressRequest
+  ): Promise<PostResponse> {
+    return handleControllerRequest(
+      this,
+      async () => {
+        const userId = await extractUserId(req);
+        const token = extractBearerToken(req);
+        return this.postsService.updatePost(id, userId, body, token);
+      },
+      200
+    );
+  }
+
+  /**
+   * Delete a post
+   *
+   * Permanently deletes a post and all its related data.
+   * Only the post author can delete their own posts.
+   *
+   * @summary Delete a post
+   * @param id The UUID of the post to delete
+   * @returns No content on success
+   * @throws 403 if user is not the post author
+   * @throws 404 if post not found
+   * @throws 401 if not authenticated
+   */
+  @Security("bearerAuth")
+  @Delete("{id}")
+  public async deletePost(
+    @Path() id: string,
+    @Request() req: ExpressRequest
+  ): Promise<void> {
+    return handleControllerRequest(
+      this,
+      async () => {
+        const userId = await extractUserId(req);
+        const token = extractBearerToken(req);
+        return this.postsService.deletePost(id, userId, token);
       },
       204
     );

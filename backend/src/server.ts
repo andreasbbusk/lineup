@@ -1,11 +1,10 @@
 import express, { Request, Response, NextFunction } from "express";
 import cron from "node-cron";
 import { corsMiddleware } from "./middleware/cors.middleware.js";
-import swaggerUi from "swagger-ui-express";
 import { RegisterRoutes } from "./routes/tsoa-routes.js";
 import { buildErrorResponse } from "./utils/error-handler.js";
 import { NotificationCleanupService } from "./jobs/notification-cleanup.service.js";
-import fs from "fs";
+import { setupSwagger } from "./config/swagger.config.js";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -20,14 +19,9 @@ const PORT = process.env.PORT || 3001;
 app.use(corsMiddleware);
 app.use(express.json());
 
-// Swagger UI
-try {
-  const swaggerPath = path.join(__dirname, "docs", "swagger.json");
-  const swaggerDocument = JSON.parse(fs.readFileSync(swaggerPath, "utf8"));
-  app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-} catch (err) {
-  console.error("Unable to load swagger.json", err);
-}
+// Swagger UI with custom theme matching frontend
+const swaggerPath = path.join(__dirname, "docs", "swagger.json");
+setupSwagger(app, "/docs", swaggerPath);
 
 // TSOA Routes (all routes are prefixed with /api in tsoa.json)
 const apiRouter = express.Router();

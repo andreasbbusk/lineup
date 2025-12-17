@@ -53,6 +53,7 @@ export type Database = {
           content: string
           created_at: string | null
           id: string
+          parent_id: string | null
           post_id: string
           updated_at: string | null
         }
@@ -61,6 +62,7 @@ export type Database = {
           content: string
           created_at?: string | null
           id?: string
+          parent_id?: string | null
           post_id: string
           updated_at?: string | null
         }
@@ -69,6 +71,7 @@ export type Database = {
           content?: string
           created_at?: string | null
           id?: string
+          parent_id?: string | null
           post_id?: string
           updated_at?: string | null
         }
@@ -78,6 +81,13 @@ export type Database = {
             columns: ["author_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
             referencedColumns: ["id"]
           },
           {
@@ -274,21 +284,34 @@ export type Database = {
       }
       likes: {
         Row: {
+          comment_id: string | null
           created_at: string | null
-          post_id: string
+          id: string
+          post_id: string | null
           user_id: string
         }
         Insert: {
+          comment_id?: string | null
           created_at?: string | null
-          post_id: string
+          id?: string
+          post_id?: string | null
           user_id: string
         }
         Update: {
+          comment_id?: string | null
           created_at?: string | null
-          post_id?: string
+          id?: string
+          post_id?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "likes_post_id_fkey"
             columns: ["post_id"]
@@ -1111,6 +1134,10 @@ export type Database = {
         Returns: undefined
       }
       clear_recent_searches: { Args: { p_user_id: string }; Returns: undefined }
+      delete_notification: {
+        Args: { notification_id: string; user_id: string }
+        Returns: boolean
+      }
       get_connection_status: {
         Args: { user_a: string; user_b: string }
         Returns: string
@@ -1163,6 +1190,10 @@ export type Database = {
       has_viewed_story: {
         Args: { story_id: string; user_id: string }
         Returns: boolean
+      }
+      increment_unread_count: {
+        Args: { p_conversation_id: string; p_sender_id: string }
+        Returns: undefined
       }
       log_search: {
         Args: {
@@ -1267,10 +1298,10 @@ export type Database = {
       }
       search_tags: {
         Args: {
-          filter_type: string
-          limit_count: number
-          offset_count: number
-          search_query: string
+          filter_type?: string
+          limit_count?: number
+          offset_count?: number
+          search_query?: string
         }
         Returns: {
           id: string

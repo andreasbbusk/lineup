@@ -30,13 +30,14 @@ export const useConversations = () =>
     staleTime: STALE_TIME.CONVERSATIONS,
   });
 
-export const useUnreadCount = () =>
-  useQuery({
-    queryKey: chatKeys.unread(),
-    queryFn: async () => {
-      const data = await chatApi.getUnreadCount();
-      return data?.unread_count ?? 0;
-    },
-    staleTime: STALE_TIME.USER_SEARCH,
-  });
+  export const useUnreadCount = () =>
+    useQuery({
+      queryKey: chatKeys.unread(),
+      queryFn: async () => {
+        const data = await chatApi.getUnreadCount();
+        return data?.count ?? 0;  // Changed from unread_count to count
+      },
+      staleTime: STALE_TIME.USER_SEARCH,
+    });
+  
 

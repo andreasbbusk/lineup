@@ -142,7 +142,7 @@ export default function FeedPage() {
 						<RequestCarousel data={requestsData} />
 
 						{posts.length > 0 ? (
-							<div className="flex flex-col items-center pb-20">
+							<div className="flex flex-col items-center pb-20 md:p-5 md:w-full md:max-w-200 md:mx-auto md:rounded-(--Corner-Radius-M---Corner-Radius,1.5625rem) md:bg-white">
 								{posts.map((post) => (
 									<PostCard key={post.id} post={post} />
 								))}

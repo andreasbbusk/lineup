@@ -13,6 +13,7 @@ import AddIcon from "../../../public/icons/add-icon";
 import ChatIcon from "../../../public/icons/chat-icon";
 import UserIcon from "../../../public/icons/user-icon";
 import { useAppStore } from "@/app/modules/stores/Store";
+import { useUnreadCount } from "@/app/modules/features/chats/hooks/query/conversations";
 
 interface NavItem {
   href: string;
@@ -20,18 +21,6 @@ interface NavItem {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   badge?: number;
 }
-
-const NAV_ITEMS: NavItem[] = [
-  { href: "/", label: "Home", icon: HomeIcon },
-  { href: "/services", label: "Services", icon: ShopIcon },
-  { href: "/create", label: "Create", icon: AddIcon },
-  {
-    href: "/chats",
-    label: "Chats",
-    icon: ChatIcon,
-  },
-  { href: "/profile", label: "Profile", icon: UserIcon },
-];
 
 // Memoized glass surface for active tab indicator
 const ActiveTabIndicator = memo(function ActiveTabIndicator() {
@@ -81,9 +70,9 @@ const NavItem = memo(function NavItem({
               isActive ? "text-crocus-yellow" : "text-white"
             )}
           />
-          {item.badge && (
+          {item.badge !== undefined && item.badge > 0 && (
             <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-[#ffcf70] text-[9px] font-medium leading-none text-black">
-              {item.badge}
+              {item.badge > 99 ? "99+" : item.badge}
             </span>
           )}
         </div>
@@ -103,6 +92,28 @@ const NavItem = memo(function NavItem({
 function BottomNav() {
   const pathname = usePathname();
   const username = useAppStore((state) => state.user?.username);
+  
+  // Only fetch unread count if user is logged in
+  const { data: unreadCount, isError, error } = useUnreadCount();
+
+  // Debug logging (remove after fixing)
+  console.log("Unread count data:", unreadCount);
+  console.log("Is error:", isError, error);
+
+  // Memoize navigation items with dynamic badge
+  const navItems = useMemo<NavItem[]>(() => [
+    { href: "/", label: "Home", icon: HomeIcon },
+    { href: "/services", label: "Services", icon: ShopIcon },
+    { href: "/create", label: "Create", icon: AddIcon },
+    {
+      href: "/chats",
+      label: "Chats",
+      icon: ChatIcon,
+      badge: unreadCount ?? undefined,
+    },
+    { href: "/profile", label: "Profile", icon: UserIcon },
+  ], [unreadCount]);
+
   // Memoize visibility checks
   const shouldHide = useMemo(() => {
     const isAuthPage =
@@ -133,12 +144,12 @@ function BottomNav() {
 
   // Memoize active states for all items
   const activeStates = useMemo(() => {
-    return NAV_ITEMS.map(
+    return navItems.map(
       (item) =>
         pathname === item.href ||
         (item.href !== "/" && pathname?.startsWith(item.href))
     );
-  }, [pathname]);
+  }, [pathname, navItems]);
 
   if (shouldHide) {
     return null;
@@ -148,7 +159,7 @@ function BottomNav() {
     <>
       <nav className="fixed bottom-0 left-1/2 z-50 -translate-x-1/2 pb-4">
         <div className="relative flex h-[69px] w-full xs:w-[368px] items-center justify-between rounded-[45px] bg-[#1e1e1e] px-1 py-3">
-          {NAV_ITEMS.map((item, index) => (
+          {navItems.map((item, index) => (
             <NavItem
               key={item.href}
               item={item}

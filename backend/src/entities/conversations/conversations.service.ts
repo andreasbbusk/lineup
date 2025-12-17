@@ -225,7 +225,7 @@ export class ConversationsService {
     }
 
     // For direct conversations, check if one already exists between these users
-    if (data.type === "direct") {
+    if (data.type === "direct" && !data.postId) {
       const otherUserId = data.participantIds[0];
 
       // Find all direct conversations where the current user is a participant
@@ -408,19 +408,35 @@ export class ConversationsService {
         code: "NOT_FOUND",
       });
 
-    const { error } = await supabase
-      .from("conversation_participants")
-      .update({ left_at: new Date().toISOString() })
-      .eq("conversation_id", conversationId)
-      .eq("user_id", userId)
-      .is("left_at", null);
+    // For direct conversations, delete the entire conversation
+    if (conversation.type === "direct") {
+      const { error: deleteError } = await supabase
+        .from("conversations")
+        .delete()
+        .eq("id", conversationId);
 
-    if (error)
-      throw createHttpError({
-        message: `Failed to leave: ${error.message}`,
-        statusCode: 500,
-        code: "DATABASE_ERROR",
-      });
+      if (deleteError)
+        throw createHttpError({
+          message: `Failed to delete conversation: ${deleteError.message}`,
+          statusCode: 500,
+          code: "DATABASE_ERROR",
+        });
+    } else {
+      // For group conversations, just mark the user as having left
+      const { error } = await supabase
+        .from("conversation_participants")
+        .update({ left_at: new Date().toISOString() })
+        .eq("conversation_id", conversationId)
+        .eq("user_id", userId)
+        .is("left_at", null);
+
+      if (error)
+        throw createHttpError({
+          message: `Failed to leave: ${error.message}`,
+          statusCode: 500,
+          code: "DATABASE_ERROR",
+        });
+    }
   }
 
   async addParticipants(
@@ -597,10 +613,12 @@ export class ConversationsService {
   async getUnreadCount(
     userId: string,
     token: string
-  ): Promise<{ unread_count: number }> {
-    const { data, error } = await createAuthenticatedClient(token)
+  ): Promise<{ count: number }> {
+    const client = createAuthenticatedClient(token);
+
+    const { data, error } = await client
       .from("conversation_participants")
-      .select("unread_count")
+      .select("unread_count, user_id, conversation_id")
       .eq("user_id", userId)
       .is("left_at", null);
 
@@ -611,9 +629,10 @@ export class ConversationsService {
         code: "DATABASE_ERROR",
       });
 
+    const totalUnread =
+      data?.reduce((sum, p) => sum + (p.unread_count || 0), 0) || 0;
     return {
-      unread_count:
-        data?.reduce((sum, p) => sum + (p.unread_count || 0), 0) || 0,
+      count: totalUnread, // Changed from unread_count to count
     };
   }
 }

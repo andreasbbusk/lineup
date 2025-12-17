@@ -7,6 +7,7 @@ import {
   removeConnection,
 } from "@/app/modules/api/connectionsApi";
 import { useAppStore } from "@/app/modules/stores/Store";
+import { NOTIFICATION_QUERY_KEYS } from "@/app/modules/features/notifications";
 
 /**
  * Hook to send a connection request
@@ -28,6 +29,12 @@ export function useSendConnection() {
       queryClient.invalidateQueries({ queryKey: ["myConnections"] });
       queryClient.invalidateQueries({ queryKey: ["userConnections"] });
       queryClient.invalidateQueries({ queryKey: ["connectedUsers"] });
+      // Invalidate notification queries when sending connection request (creates notification)
+      // This includes unread count since unreadCount key starts with ["notifications"]
+      queryClient.invalidateQueries({
+        queryKey: NOTIFICATION_QUERY_KEYS.all,
+        exact: false,
+      });
     },
   });
 }
@@ -61,6 +68,12 @@ export function useAcceptConnection() {
         refetchType: "active",
       });
       queryClient.invalidateQueries({ queryKey: ["connectedUsers"] });
+      // Invalidate notification queries when accepting connection (creates notification)
+      // This includes unread count since unreadCount key starts with ["notifications"]
+      queryClient.invalidateQueries({
+        queryKey: NOTIFICATION_QUERY_KEYS.all,
+        exact: false,
+      });
     },
   });
 }
