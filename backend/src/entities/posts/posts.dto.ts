@@ -235,7 +235,7 @@ export class PostsQueryDto {
    */
   @IsOptional()
   @IsArray()
-  @IsUUID({ each: true })
+  @IsUUID(4, { each: true })
   genreIds?: string[];
 
   /**

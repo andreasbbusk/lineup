@@ -7,7 +7,8 @@
     "tsoa": "tsoa spec-and-routes",
     "build": "npm run tsoa",
     "start": "node --import tsx src/server.ts",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "generate:supabase-types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_ID > src/types/supabase.ts"
   },
   "keywords": [],
   "author": "Pinnaacle",

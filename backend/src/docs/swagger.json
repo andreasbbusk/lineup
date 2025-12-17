@@ -4866,6 +4866,43 @@
 				]
 			}
 		},
+		"/notifications/count": {
+			"get": {
+				"operationId": "GetUnreadCount",
+				"responses": {
+					"200": {
+						"description": "Object containing the count of unread notifications",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"count": {
+											"type": "number",
+											"format": "double"
+										}
+									},
+									"required": [
+										"count"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get unread notification count\r\n\r\nReturns the total count of unread notifications for the authenticated user.\r\nThis is optimized for badge display and avoids fetching all notification data.",
+				"summary": "Get unread notification count",
+				"tags": [
+					"Notifications"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": []
+			}
+		},
 		"/metadata": {
 			"get": {
 				"operationId": "GetMetadata",

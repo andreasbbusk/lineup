@@ -1,5 +1,8 @@
 import { createAuthenticatedClient } from "../../config/supabase.config.js";
-import { NotificationUpdate, NotificationType } from "../../utils/supabase-helpers.js";
+import {
+  NotificationUpdate,
+  NotificationType,
+} from "../../utils/supabase-helpers.js";
 import { createHttpError } from "../../utils/error-handler.js";
 import {
   mapNotificationsToResponse,
@@ -221,6 +224,33 @@ export class NotificationsService {
   }
 
   /**
+   * Get unread notification count for the authenticated user
+   * Returns the total count of unread notifications
+   * Note: Connection requests (connection_request + connection_accepted) are counted separately
+   * The frontend may deduplicate these, but this endpoint returns the raw count
+   */
+  async getUnreadCount(userId: string, token: string): Promise<number> {
+    const authedSupabase = createAuthenticatedClient(token);
+
+    // Count all unread notifications
+    const { count, error } = await authedSupabase
+      .from("notifications")
+      .select("*", { count: "exact", head: true })
+      .eq("recipient_id", userId)
+      .eq("is_read", false);
+
+    if (error) {
+      throw createHttpError({
+        message: `Failed to count notifications: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    return count ?? 0;
+  }
+
+  /**
    * Delete a notification
    * Only the recipient can delete their own notifications
    */
@@ -256,10 +286,13 @@ export class NotificationsService {
 
     // Delete the notification using a database function
     // This function uses SECURITY DEFINER to bypass RLS but enforces recipient check
-    const { data: result, error } = await authedSupabase.rpc("delete_notification", {
-      notification_id: notificationId,
-      user_id: userId,
-    });
+    const { data: result, error } = await authedSupabase.rpc(
+      "delete_notification",
+      {
+        notification_id: notificationId,
+        user_id: userId,
+      }
+    );
 
     if (error) {
       throw createHttpError({
@@ -272,7 +305,8 @@ export class NotificationsService {
     // The function returns TRUE if deleted, FALSE if not found or not recipient
     if (!result) {
       throw createHttpError({
-        message: "Notification could not be deleted. It may have already been deleted or you don't have permission.",
+        message:
+          "Notification could not be deleted. It may have already been deleted or you don't have permission.",
         statusCode: 404,
         code: "NOT_FOUND",
       });

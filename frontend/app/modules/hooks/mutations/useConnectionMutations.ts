@@ -30,7 +30,14 @@ export function useSendConnection() {
       queryClient.invalidateQueries({ queryKey: ["userConnections"] });
       queryClient.invalidateQueries({ queryKey: ["connectedUsers"] });
       // Invalidate notification queries when sending connection request (creates notification)
-      queryClient.invalidateQueries({ queryKey: NOTIFICATION_QUERY_KEYS.all, exact: false });
+      queryClient.invalidateQueries({
+        queryKey: NOTIFICATION_QUERY_KEYS.all,
+        exact: false,
+      });
+      // Also invalidate unread count to update badge immediately
+      queryClient.invalidateQueries({
+        queryKey: NOTIFICATION_QUERY_KEYS.unreadCount,
+      });
     },
   });
 }
@@ -65,7 +72,14 @@ export function useAcceptConnection() {
       });
       queryClient.invalidateQueries({ queryKey: ["connectedUsers"] });
       // Invalidate notification queries when accepting connection (creates notification)
-      queryClient.invalidateQueries({ queryKey: NOTIFICATION_QUERY_KEYS.all, exact: false });
+      queryClient.invalidateQueries({
+        queryKey: NOTIFICATION_QUERY_KEYS.all,
+        exact: false,
+      });
+      // Also invalidate unread count to update badge immediately
+      queryClient.invalidateQueries({
+        queryKey: NOTIFICATION_QUERY_KEYS.unreadCount,
+      });
     },
   });
 }

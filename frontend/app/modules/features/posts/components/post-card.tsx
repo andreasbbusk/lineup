@@ -147,6 +147,8 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 								await likePost(post.id);
 								// Invalidate notification queries when liking (creates notification for post author)
 								queryClient.invalidateQueries({ queryKey: NOTIFICATION_QUERY_KEYS.all, exact: false });
+								// Also invalidate unread count to update badge immediately
+								queryClient.invalidateQueries({ queryKey: NOTIFICATION_QUERY_KEYS.unreadCount });
 							} else {
 								await unlikePost(post.id);
 							}

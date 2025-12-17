@@ -1,6 +1,5 @@
 import { apiClient, handleApiError } from "../../api/apiClient";
 import type { components } from "../../types/api";
-import { deduplicateConnectionRequests } from "./utils/connectionRequests";
 
 type NotificationResponse = components["schemas"]["NotificationResponse"];
 type GroupedNotificationsResponse =
@@ -46,55 +45,16 @@ export async function getNotifications(options?: {
 
 /**
  * Get unread notification count
- * Returns the count of unread notifications
- * Note: This fetches all unread notifications to count them.
- * For better performance, consider using a dedicated count endpoint.
+ * Returns the count of unread notifications using the optimized count endpoint
  */
 export async function getUnreadCount(): Promise<number> {
-  const { data, error, response } = await apiClient.GET("/notifications", {
-    params: {
-      query: {
-        grouped: true,
-        unreadOnly: true,
-        limit: 100,
-      },
-    },
-  });
+  const { data, error, response } = await apiClient.GET("/notifications/count");
 
   if (error) {
     handleApiError(error, response);
   }
 
-  // If no data or notifications, return 0
-  if (!data || !data.notifications) {
-    return 0;
-  }
-
-  // Count unread notifications
-  if (Array.isArray(data.notifications)) {
-    return data.notifications.length;
-  }
-
-  // If grouped, count all unread notifications across all types
-  // Deduplicate connection requests to match how they're displayed
-  const grouped = data.notifications as GroupedNotificationsResponse;
-  const connectionRequests = [
-    ...grouped.connection_request,
-    ...grouped.connection_accepted,
-  ];
-  const uniqueConnectionRequests =
-    deduplicateConnectionRequests(connectionRequests);
-
-  // Count all notification types, using deduplicated connection requests
-  return (
-    uniqueConnectionRequests.length +
-    grouped.like.length +
-    grouped.comment.length +
-    grouped.tagged_in_post.length +
-    grouped.review.length +
-    grouped.collaboration_request.length +
-    grouped.message.length
-  );
+  return data?.count ?? 0;
 }
 
 /**

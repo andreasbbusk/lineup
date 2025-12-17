@@ -34,6 +34,8 @@ function Comments({ postId }: CommentsProps) {
 			queryClient.invalidateQueries({ queryKey: ["posts"] });
 			// Invalidate notification queries when commenting (creates notification for post author)
 			queryClient.invalidateQueries({ queryKey: NOTIFICATION_QUERY_KEYS.all, exact: false });
+			// Also invalidate unread count to update badge immediately
+			queryClient.invalidateQueries({ queryKey: NOTIFICATION_QUERY_KEYS.unreadCount });
 		},
 	});
 	const [commentText, setCommentText] = useState("");
@@ -141,6 +143,8 @@ function CommentItem({ comment, depth, postId }: { comment: Comment; depth: numb
 			queryClient.invalidateQueries({ queryKey: ["posts"] });
 			// Invalidate notification queries when replying to comment (creates notification)
 			queryClient.invalidateQueries({ queryKey: NOTIFICATION_QUERY_KEYS.all, exact: false });
+			// Also invalidate unread count to update badge immediately
+			queryClient.invalidateQueries({ queryKey: NOTIFICATION_QUERY_KEYS.unreadCount });
 		},
 	});
 

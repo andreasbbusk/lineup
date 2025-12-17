@@ -147,6 +147,34 @@ export class NotificationsController extends Controller {
   }
 
   /**
+   * Get unread notification count
+   *
+   * Returns the total count of unread notifications for the authenticated user.
+   * This is optimized for badge display and avoids fetching all notification data.
+   *
+   * @summary Get unread notification count
+   * @returns Object containing the count of unread notifications
+   * @throws 401 if not authenticated
+   */
+  @Security("bearerAuth")
+  @Get("/count")
+  public async getUnreadCount(
+    @Request() request?: ExpressRequest
+  ): Promise<{ count: number }> {
+    return handleControllerRequest(this, async () => {
+      const userId = await extractUserId(request!);
+      const token =
+        request!.headers.authorization?.replace("Bearer ", "") || "";
+
+      const count = await this.notificationsService.getUnreadCount(
+        userId,
+        token
+      );
+      return { count };
+    });
+  }
+
+  /**
    * Delete a notification
    *
    * Permanently deletes a notification.
