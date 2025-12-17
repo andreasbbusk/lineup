@@ -12,10 +12,11 @@ import { useStartOrNavigateToChat } from "@/app/modules/hooks";
 import { useResolvePost, useUpdatePost, useDeletePost } from "@/app/modules/hooks/mutations";
 import { useAppStore } from "@/app/modules/stores/Store";
 import {
-	Popover,
+	Popover as PopoverRoot,
 	PopoverTrigger,
 	PopoverContent,
 } from "@/app/modules/components/radix-popover";
+import { Popover as StyledPopover } from "@/app/modules/components/popover";
 
 interface ProfilePostCardProps {
 	post: PostResponse & {
@@ -237,7 +238,7 @@ export function ProfilePostCard({ post }: ProfilePostCardProps) {
 
 				{/* Dropdown Menu for Author */}
 				{isAuthor && !isEditing && (
-					<Popover open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+					<PopoverRoot open={isMenuOpen} onOpenChange={setIsMenuOpen}>
 						<PopoverTrigger asChild>
 							<button className="p-1.5 rounded-full hover:bg-gray-100 transition-colors">
 								<Image
@@ -248,25 +249,14 @@ export function ProfilePostCard({ post }: ProfilePostCardProps) {
 								/>
 							</button>
 						</PopoverTrigger>
-						<PopoverContent align="end" className="w-44">
-							<div className="flex flex-col gap-1">
-								<button
-									onClick={handleEditPost}
-									className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-white/10 rounded-lg transition-colors"
-								>
-									<Image src="/icons/edit-pencil.svg" alt="" width={16} height={16} className="invert" />
-									Edit Post
-								</button>
-								<button
-									onClick={handleDeletePost}
-									className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-white/10 rounded-lg transition-colors text-red-300"
-								>
-									<Image src="/icons/delete-circle.svg" alt="" width={16} height={16} className="invert opacity-80" />
-									Delete Post
-								</button>
-							</div>
+						<PopoverContent align="end" className="p-0 bg-transparent border-none shadow-none w-auto">
+							<StyledPopover
+								variant="post-options"
+								onEditClick={handleEditPost}
+								onDeleteClick={handleDeletePost}
+							/>
 						</PopoverContent>
-					</Popover>
+					</PopoverRoot>
 				)}
 			</div>
 
