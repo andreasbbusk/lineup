@@ -728,6 +728,29 @@ export interface paths {
         patch: operations["UpdateNotification"];
         trace?: never;
     };
+    "/notifications/count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get unread notification count
+         * @description Get unread notification count
+         *
+         *     Returns the total count of unread notifications for the authenticated user.
+         *     This is optimized for badge display and avoids fetching all notification data.
+         */
+        get: operations["GetUnreadCount"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/metadata": {
         parameters: {
             query?: never;
@@ -3836,6 +3859,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NotificationResponse"];
+                };
+            };
+        };
+    };
+    GetUnreadCount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Object containing the count of unread notifications */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: double */
+                        count: number;
+                    };
                 };
             };
         };

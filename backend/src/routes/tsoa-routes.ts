@@ -1422,6 +1422,37 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsNotificationsController_getUnreadCount: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"request","name":"request","dataType":"object"},
+        };
+        app.get('/notifications/count',
+            authenticateMiddleware([[{"bearerAuth":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(NotificationsController)),
+            ...(fetchMiddlewares<RequestHandler>(NotificationsController.prototype.getUnreadCount)),
+
+            async function NotificationsController_getUnreadCount(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsNotificationsController_getUnreadCount, request, response });
+
+                const controller = new NotificationsController();
+
+              await templateService.apiHandler({
+                methodName: 'getUnreadCount',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsNotificationsController_deleteNotification: Record<string, TsoaRoute.ParameterSchema> = {
                 notificationId: {"in":"path","name":"notificationId","required":true,"dataType":"string"},
                 request: {"in":"request","name":"request","dataType":"object"},

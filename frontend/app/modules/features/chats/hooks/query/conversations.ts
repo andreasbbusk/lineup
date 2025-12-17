@@ -35,7 +35,7 @@ export const useUnreadCount = () =>
     queryKey: chatKeys.unread(),
     queryFn: async () => {
       const data = await chatApi.getUnreadCount();
-      return data?.unread_count ?? 0;
+      return data?.count ?? 0;
     },
     staleTime: STALE_TIME.USER_SEARCH,
   });

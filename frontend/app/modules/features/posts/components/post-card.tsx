@@ -14,6 +14,8 @@ import { Popover } from "@/app/modules/components/popover";
 import { cn } from "@/app/modules/utils/twUtil";
 import { Button } from "@/app/modules/components/buttons";
 import { likePost, unlikePost } from "@/app/modules/api/postsApi";
+import { useQueryClient } from "@tanstack/react-query";
+import { NOTIFICATION_QUERY_KEYS } from "@/app/modules/features/notifications";
 import { createBookmark, deleteBookmark } from "@/app/modules/api/bookmarksApi";
 
 interface PostCardProps {
@@ -88,6 +90,7 @@ function RelativeDate({ dateString }: { dateString: string | null }) {
 export function PostCard({ post, className = "", ...props }: PostCardProps) {
 	const author = post.author;
 	const type = post.type;
+	const queryClient = useQueryClient();
 
 	const [isLiked, setIsLiked] = useState(post.hasLiked ?? false);
 	const [likesCount, setLikesCount] = useState(post.likesCount ?? 0);
@@ -123,7 +126,7 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 							} else {
 								await deleteBookmark(post.id);
 							}
-						} catch (error) {
+						} catch {
 							// Revert on error
 							setIsBookmarked(!newBookmarked);
 						}
@@ -162,6 +165,9 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 						try {
 							if (liked) {
 								await likePost(post.id);
+								// Invalidate notification queries when liking (creates notification for post author)
+								// This includes unread count since unreadCount key starts with ["notifications"]
+								queryClient.invalidateQueries({ queryKey: NOTIFICATION_QUERY_KEYS.all, exact: false });
 							} else {
 								await unlikePost(post.id);
 							}
@@ -229,7 +235,7 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 						} else {
 							await deleteBookmark(post.id);
 						}
-					} catch (error) {
+					} catch {
 						// Revert on error
 						setIsBookmarked(!newBookmarked);
 					}
