@@ -1,5 +1,5 @@
 import { Avatar } from "@/app/modules/components/avatar";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -41,6 +41,7 @@ function Comments({ postId }: CommentsProps) {
     }) => createComment(data),
     onSuccess: (newComment) => {
       // Invalidate notification queries when commenting (creates notification for post author)
+      // This includes unread count since unreadCount key starts with ["notifications"]
       queryClient.invalidateQueries({
         queryKey: NOTIFICATION_QUERY_KEYS.all,
         exact: false,
@@ -53,10 +54,6 @@ function Comments({ postId }: CommentsProps) {
       queryClient.refetchQueries({ queryKey: ["posts", newComment.postId] });
       // Refetch all posts lists (to update comment counts in feeds)
       queryClient.refetchQueries({ queryKey: ["posts"], exact: false });
-      // Also invalidate unread count to update badge immediately
-      queryClient.invalidateQueries({
-        queryKey: NOTIFICATION_QUERY_KEYS.unreadCount,
-      });
     },
   });
   const [commentText, setCommentText] = useState("");
@@ -167,17 +164,23 @@ function CommentItem({
   postId: string;
 }) {
   const queryClient = useQueryClient();
-  const [isLiked, setIsLiked] = useState(comment.isLiked ?? false);
-  const [likesCount, setLikesCount] = useState(comment.likesCount ?? 0);
-  const [showReplies, setShowReplies] = useState(true);
+  // Use state only for optimistic updates during mutations
+  const [optimisticIsLiked, setOptimisticIsLiked] = useState<boolean | null>(
+    null
+  );
+  const [optimisticLikesCount, setOptimisticLikesCount] = useState<
+    number | null
+  >(null);
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyText, setReplyText] = useState("");
 
-  // Update state when comment prop changes
-  useEffect(() => {
-    setIsLiked(comment.isLiked ?? false);
-    setLikesCount(comment.likesCount ?? 0);
-  }, [comment.isLiked, comment.likesCount]);
+  // Derive display values: use optimistic state if available, otherwise use props
+  const isLiked =
+    optimisticIsLiked !== null ? optimisticIsLiked : comment.isLiked ?? false;
+  const likesCount =
+    optimisticLikesCount !== null
+      ? optimisticLikesCount
+      : comment.likesCount ?? 0;
 
   const createCommentMutation = useMutation({
     mutationFn: (data: {
@@ -207,16 +210,25 @@ function CommentItem({
       liked ? likeComment(comment.id) : unlikeComment(comment.id),
     onMutate: (liked: boolean) => {
       // Optimistic update
-      setIsLiked(liked);
-      setLikesCount((prev) => (liked ? prev + 1 : Math.max(0, prev - 1)));
+      const currentLikesCount =
+        optimisticLikesCount !== null
+          ? optimisticLikesCount
+          : comment.likesCount ?? 0;
+      setOptimisticIsLiked(liked);
+      setOptimisticLikesCount(
+        liked ? currentLikesCount + 1 : Math.max(0, currentLikesCount - 1)
+      );
     },
     onError: (error) => {
-      // Revert on error
-      setIsLiked(!isLiked);
-      setLikesCount((prev) => (isLiked ? Math.max(0, prev - 1) : prev + 1));
+      // Revert on error - clear optimistic state to fall back to props
+      setOptimisticIsLiked(null);
+      setOptimisticLikesCount(null);
       console.error("Failed to like/unlike comment:", error);
     },
     onSuccess: () => {
+      // Clear optimistic state after success - refetch will update props
+      setOptimisticIsLiked(null);
+      setOptimisticLikesCount(null);
       // Refetch comments to get accurate counts
       queryClient.refetchQueries({
         queryKey: ["comments", "post", postId],
@@ -233,7 +245,6 @@ function CommentItem({
     likeCommentMutation.mutate(newLikedState);
   };
 
-  const canHaveReplies = depth < MAX_COMMENT_DEPTH;
   const isAtMaxDepth = depth === MAX_COMMENT_DEPTH;
 
   const handleReplySubmit = async (e: React.FormEvent) => {

@@ -54,13 +54,10 @@ export function useCreatePost(options?: {
       }
 
       // Invalidate notification queries when creating post (creates notifications for tagged users)
+      // This includes unread count since unreadCount key starts with ["notifications"]
       void queryClient.invalidateQueries({
         queryKey: NOTIFICATION_QUERY_KEYS.all,
         exact: false,
-      });
-      // Also invalidate unread count to update badge immediately
-      void queryClient.invalidateQueries({
-        queryKey: NOTIFICATION_QUERY_KEYS.unreadCount,
       });
 
       // Call custom onSuccess if provided

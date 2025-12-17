@@ -96,7 +96,7 @@ export class CreatePostBody
    * @example "I'm looking for an experienced drummer to join our band..."
    */
   @IsString()
-  @Length(10, 5000)
+  @Length(1, 5000)
   description!: string;
 
   /**
