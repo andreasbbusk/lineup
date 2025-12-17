@@ -638,7 +638,7 @@ export default function EditProfilePage() {
 								onClick={() => setShowPastCollaborationsSection(false)}
 							/>
 							<div className="flex items-center">
-								<h4 className="w-full max-w-28 font-semibold whitespace-normal sm:whitespace-nowrap ">
+								<h4 className="w-full max-w-28 font-semibold whitespace-normal">
 									Past collaborations
 								</h4>
 
