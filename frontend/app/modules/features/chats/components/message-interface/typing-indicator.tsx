@@ -1,7 +1,9 @@
+import { motion } from "framer-motion";
 import { Avatar, getInitials } from "@/app/modules/components/avatar";
 import { STYLES } from "../../constants";
 import { useTypingStore } from "../../stores/typingStore";
 import { Participant } from "../../types";
+import { useReducedMotion } from "@/app/modules/hooks/useReducedMotion";
 
 type TypingIndicatorProps = {
   conversationId: string;
@@ -17,15 +19,12 @@ export function TypingIndicator({
   const typingUsers = useTypingStore(
     (state) => state.typingUsers[conversationId]
   );
-
-  if (!typingUsers || typingUsers.size === 0) return null;
+  const prefersReducedMotion = useReducedMotion();
 
   // Filter out self
-  const otherTypingUsers = Array.from(typingUsers).filter(
+  const otherTypingUsers = Array.from(typingUsers || []).filter(
     (id) => id !== currentUserId
   );
-
-  if (otherTypingUsers.length === 0) return null;
 
   // Get the first typing user to show their avatar
   const firstTypingUserId = otherTypingUsers[0];
@@ -34,8 +33,18 @@ export function TypingIndicator({
   );
   const user = participant?.user;
 
+  if (!typingUsers || typingUsers.size === 0 || otherTypingUsers.length === 0) {
+    return null;
+  }
+
   return (
-    <div className="flex gap-2 mb-4">
+    <motion.div
+      initial={prefersReducedMotion ? undefined : { opacity: 0, y: 10 }}
+      animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+      exit={prefersReducedMotion ? undefined : { opacity: 0, y: -10 }}
+      transition={{ duration: 0.2 }}
+      className="flex gap-2 mb-4"
+    >
       <Avatar
         src={user?.avatarUrl}
         alt={user?.username || "User"}
@@ -55,6 +64,6 @@ export function TypingIndicator({
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

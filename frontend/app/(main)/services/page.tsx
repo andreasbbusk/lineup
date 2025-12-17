@@ -3,13 +3,14 @@
 import { useMemo, useCallback } from "react";
 import { usePosts } from "@/app/modules/hooks/queries/usePosts";
 import { useServices } from "@/app/modules/hooks/queries/useServices";
-import { useStartChat } from "@/app/modules/hooks";
+import { useStartOrNavigateToChat } from "@/app/modules/hooks";
 import { LoadingSpinner } from "@/app/modules/components/loading-spinner";
 import { ServicesList } from "@/app/modules/features/services/components/services-list";
 import { SearchBar } from "@/app/modules/features/services/components/search-bar";
 import { FiltersPanel } from "@/app/modules/features/services/components/filters-panel";
 import { ActiveFilters } from "@/app/modules/features/services/components/active-filters";
 import { useServiceFiltersStore } from "@/app/modules/features/services/stores/serviceFiltersStore";
+import { PageTransition } from "@/app/modules/components/page-transition";
 import {
   filterCollaborationRequests,
   filterServices,
@@ -27,7 +28,7 @@ import type { components } from "@/app/modules/types/api";
 type ServiceResponse = components["schemas"]["ServiceResponse"];
 
 export default function ServicesPage() {
-  const startChat = useStartChat();
+  const { startOrNavigateToChat } = useStartOrNavigateToChat();
 
   // Get filters from Zustand store
   const {
@@ -63,6 +64,7 @@ export default function ServicesPage() {
   const { data: requestsData } = usePosts({
     type: "request",
     status: "active",
+    limit: 50,
   });
 
   const { data: servicesData } = useServices();
@@ -72,6 +74,7 @@ export default function ServicesPage() {
     {
       type: "request",
       status: "active",
+      limit: 50,
     },
     {
       select: useCallback(
@@ -172,55 +175,57 @@ export default function ServicesPage() {
   }
 
   return (
-    <div className="bg-background">
-      {/* Sticky Filter Bar */}
-      <div className="sticky top-16 z-30 bg-background pb-1 pt-2 mb-3 shadow-sm">
-        <div className="px-4">
-          {/* Search and Filters Row */}
-          <div className="flex gap-2 mb-2">
-            <div className="flex-1">
-              <SearchBar value={search} onChange={setSearch} />
-            </div>
-            <FiltersPanel
-              location={location}
-              serviceTypes={serviceTypes}
-              genres={genres}
-              paidOpportunity={paidOpportunity}
-              contentType={contentType}
-              availableCities={availableCities}
-              availableGenres={availableGenres}
-              onLocationChange={setLocation}
-              onServiceTypesChange={setServiceTypes}
-              onGenresChange={setGenres}
-              onPaidOpportunityChange={setPaidOpportunity}
-              onContentTypeChange={setContentType}
-              onClearFilters={clearFilters}
-              activeFilterCount={activeFilterCount}
-              hasActiveFilters={hasActiveFilters}
-            />
-          </div>
-
-          {/* Active Filters */}
-          {hasActiveFilters && (
-            <div className="mb-2">
-              <ActiveFilters
-                filters={filters}
-                onRemoveFilter={removeFilter}
-                onClearAll={clearFilters}
+    <PageTransition>
+      <div className="bg-background">
+        {/* Sticky Filter Bar */}
+        <div className="sticky top-16 z-30 bg-background pb-1 pt-2 mb-3 shadow-sm">
+          <div className="px-4">
+            {/* Search and Filters Row */}
+            <div className="flex gap-2 mb-2">
+              <div className="flex-1">
+                <SearchBar value={search} onChange={setSearch} />
+              </div>
+              <FiltersPanel
+                location={location}
+                serviceTypes={serviceTypes}
+                genres={genres}
+                paidOpportunity={paidOpportunity}
+                contentType={contentType}
+                availableCities={availableCities}
+                availableGenres={availableGenres}
+                onLocationChange={setLocation}
+                onServiceTypesChange={setServiceTypes}
+                onGenresChange={setGenres}
+                onPaidOpportunityChange={setPaidOpportunity}
+                onContentTypeChange={setContentType}
+                onClearFilters={clearFilters}
+                activeFilterCount={activeFilterCount}
+                hasActiveFilters={hasActiveFilters}
               />
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* Services List */}
-      <ServicesList
-        collaborationRequests={filteredCollaborationRequests}
-        services={filteredServices}
-        onChatClick={startChat}
-        hasActiveFilters={hasActiveFilters}
-        onClearFilters={clearFilters}
-      />
-    </div>
+            {/* Active Filters */}
+            {hasActiveFilters && (
+              <div className="mb-2">
+                <ActiveFilters
+                  filters={filters}
+                  onRemoveFilter={removeFilter}
+                  onClearAll={clearFilters}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Services List */}
+        <ServicesList
+          collaborationRequests={filteredCollaborationRequests}
+          services={filteredServices}
+          onChatClick={startOrNavigateToChat}
+          hasActiveFilters={hasActiveFilters}
+          onClearFilters={clearFilters}
+        />
+      </div>
+    </PageTransition>
   );
 }

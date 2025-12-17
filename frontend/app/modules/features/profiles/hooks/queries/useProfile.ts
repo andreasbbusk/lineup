@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useAppStore } from "@/app/modules/stores/Store";
 import { updateUserProfile, getUserProfile } from "../../api";
@@ -29,7 +29,6 @@ export function useMyProfile() {
     queryKey,
     queryFn: async () => {
       if (!username) {
-        console.error("useMyProfile: No username in user store", { user });
         throw new Error(
           "No username found. Please ensure you are logged in and have completed onboarding."
         );
@@ -37,8 +36,11 @@ export function useMyProfile() {
       return getUserProfile(username);
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // Cache for 10 minutes
     retry: 1,
     enabled: !!username,
+    placeholderData: keepPreviousData,
+    refetchOnMount: false,
   });
 }
 
@@ -66,5 +68,30 @@ export function useUpdateProfile() {
       // Optimistic update for instant UI
       queryClient.setQueryData(["profile", username], updatedProfile);
     },
+  });
+}
+
+/**
+ * Hook for fetching multiple user profiles at once
+ * Useful for story carousels or lists of users
+ */
+export function useProfiles(usernames: string[]) {
+  const queryKey = useMemo(
+    () => ["profiles", [...usernames].sort().join(",")],
+    [usernames]
+  );
+
+  return useQuery({
+    queryKey,
+    queryFn: async () => {
+      const uniqueUsernames = Array.from(new Set(usernames));
+      const profiles = await Promise.all(
+        uniqueUsernames.map((username) => getUserProfile(username))
+      );
+      return profiles;
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes - same as single profile
+    gcTime: 10 * 60 * 1000, // 10 minutes cache
+    enabled: usernames.length > 0,
   });
 }

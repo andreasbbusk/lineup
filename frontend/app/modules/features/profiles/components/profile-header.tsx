@@ -25,7 +25,7 @@ type ProfileHeaderProps = {
 	/** User ID of the profile (for connection functionality) */
 	userId?: string | null;
 	/** Image source URL */
-	imgSrc: string;
+	imgSrc?: string | null;
 	/** Short biography */
 	bio?: string;
 	/** Profile color theme:

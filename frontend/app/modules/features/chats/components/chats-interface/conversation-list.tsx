@@ -11,9 +11,8 @@ import {
   SwipeAction,
   Type,
 } from "react-swipeable-list";
-import "react-swipeable-list/dist/styles.css";
 import { Trash2, LogOut, Info } from "lucide-react";
-
+import "react-swipeable-list/dist/styles.css";
 // ============================================================================
 // Types
 // ============================================================================
