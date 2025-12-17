@@ -110,8 +110,8 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 				className="absolute right-2 top-2"
 			/>
 			{showOption && (
-				<Popover 
-					className="absolute right-2 top-8 z-100" 
+				<Popover
+					className="absolute right-2 top-8 z-100"
 					variant="note"
 					onBookmarkClick={async () => {
 						const newBookmarked = !isBookmarked;
@@ -183,7 +183,7 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 			</div>
 		</article>
 	) : props.compact ? (
-		<article className="flex p-3.75 flex-col w-85 h-full justify-center gap-2.5 bg-white rounded-(--Corner-Radius-M---Corner-Radius,1.5625rem) shadow-sm">
+		<article className="flex p-3.75 flex-col w-85 h-[238px] justify-center gap-2.5 bg-white rounded-(--Corner-Radius-M---Corner-Radius,1.5625rem) shadow-sm">
 			<div className="flex justify-between self-stretch">
 				<Authors
 					author={author}
@@ -194,7 +194,7 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 			</div>
 			<Divider />
 			<h3 className="px-2.5 text-base font-semibold">{post.title}</h3>
-			<p className="min-h-24 px-2.5 line-clamp-4 text-gray-600">
+			<p className="h-full px-2.5 line-clamp-4 text-gray-600">
 				{post.description}
 			</p>
 			<div className="flex self-stretch gap-2.5 items-end">
