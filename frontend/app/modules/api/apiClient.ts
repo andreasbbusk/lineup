@@ -24,6 +24,7 @@ apiClient.use({
 
     if (token) {
       request.headers.set("Authorization", `Bearer ${token}`);
+      
     }
 
     return request;

@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@import "react-swipeable-list/dist/styles.css";
+
+
 /* Helvetica Now Display Font Face Declarations */
 @font-face {
     font-family: "Helvetica Now Display";
@@ -218,6 +221,9 @@
     --font-family-helvetica: "Helvetica Now Display", system-ui, -apple-system,
         sans-serif;
 
+    /* Animations */
+    --animate-shimmer: shimmer 2s infinite;
+
     /* Font Sizes */
     --font-size-h1: 1.5rem;
     --font-size-h2: 1.25rem;
@@ -343,4 +349,43 @@ h3,
 .custom-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* React Swipeable List Overrides */
+.swipeable-list {
+    width: 100%;
+    background-color: white;
+}
+
+.swipeable-list-item {
+    background-color: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.swipeable-list-item__content {
+    background-color: white !important;
+    width: 100%;
+}
+
+.swipeable-list-item__leading-actions,
+.swipeable-list-item__trailing-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.swipeable-list-item__leading-actions {
+    background-color: #3b82f6 !important;
+}
+
+.swipeable-list-item__trailing-actions {
+    background-color: #ef4444 !important;
+}
+
+/* Shimmer Animation Keyframes */
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
 }

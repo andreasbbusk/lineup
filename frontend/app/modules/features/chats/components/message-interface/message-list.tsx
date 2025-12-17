@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { MessageBubbleSkeleton } from "@/app/modules/components/skeleton";
 import { formatMessageSessionTime } from "../../utils/formatting/time";
 import { getMessageGroupingInfo } from "../../utils/messageGrouping";
@@ -5,6 +6,7 @@ import { Message } from "../../types";
 import { MessageBubble } from "./message-bubble";
 import { MessageCircle } from "lucide-react";
 import { ReactNode } from "react";
+import { useReducedMotion } from "@/app/modules/hooks/useReducedMotion";
 
 type MessageListProps = {
   messages: Message[];
@@ -19,24 +21,38 @@ type MessageListProps = {
 };
 
 export function TimestampDivider({ timestamp }: { timestamp: string }) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
-    <div className="flex justify-center my-4">
+    <motion.div
+      initial={prefersReducedMotion ? false : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="flex justify-center my-4"
+    >
       <span className="text-xs text-grey bg-white px-3 py-1 rounded-full">
         {timestamp}
       </span>
-    </div>
+    </motion.div>
   );
 }
 
 export function UnreadDivider() {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
-    <div className="flex items-center gap-3 my-4">
+    <motion.div
+      initial={prefersReducedMotion ? false : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="flex items-center gap-3 my-4"
+    >
       <div className="flex-1 h-px bg-light-grey" />
       <span className="text-xs font-medium text-grey uppercase tracking-wide">
         Unread Messages
       </span>
       <div className="flex-1 h-px bg-light-grey" />
-    </div>
+    </motion.div>
   );
 }
 
@@ -45,18 +61,30 @@ export function EmptyChatState({
 }: {
   conversationName?: string;
 }) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
-    <div className="flex flex-col items-center justify-center h-full gap-4 px-4">
-      <div className="w-24 h-24 rounded-full bg-melting-glacier flex items-center justify-center">
+    <motion.div
+      initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="flex flex-col items-center justify-center h-full gap-4 px-4"
+    >
+      <motion.div
+        initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        className="w-24 h-24 rounded-full bg-melting-glacier flex items-center justify-center"
+      >
         <MessageCircle className="text-grey size-10" />
-      </div>
+      </motion.div>
       <div className="text-center">
         <h3 className="font-semibold text-black mb-1">{conversationName}</h3>
         <p className="text-sm text-grey">
           No messages yet. Start the conversation!
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -104,8 +132,12 @@ export function MessageList({
                 index
               );
 
+            // Generate stable key that persists across temp -> server ID transition
+            // Use createdAt as the stable identifier since it doesn't change
+            const messageKey = message.createdAt || message.id;
+
             return (
-              <div key={message.id}>
+              <div key={messageKey}>
                 {showTimestamp && message.createdAt && (
                   <TimestampDivider
                     timestamp={formatMessageSessionTime(message.createdAt)}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { PostResponse } from "../types";
@@ -14,6 +14,7 @@ import { Popover } from "@/app/modules/components/popover";
 import { cn } from "@/app/modules/utils/twUtil";
 import { Button } from "@/app/modules/components/buttons";
 import { likePost, unlikePost } from "@/app/modules/api/postsApi";
+import { createBookmark, deleteBookmark } from "@/app/modules/api/bookmarksApi";
 
 interface PostCardProps {
 	className?: string;
@@ -90,14 +91,9 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 
 	const [isLiked, setIsLiked] = useState(post.hasLiked ?? false);
 	const [likesCount, setLikesCount] = useState(post.likesCount ?? 0);
+	const [isBookmarked, setIsBookmarked] = useState(post.hasBookmarked ?? false);
 	const [isCommentOpen, setIsCommentOpen] = useState(false);
 	const [showOption, setShowOption] = useState(false);
-
-	// Sync state when post data changes
-	useEffect(() => {
-		setIsLiked(post.hasLiked ?? false);
-		setLikesCount(post.likesCount ?? 0);
-	}, [post.hasLiked, post.likesCount]);
 
 	return type === "note" ? (
 		<article
@@ -114,7 +110,26 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 				className="absolute right-2 top-2"
 			/>
 			{showOption && (
-				<Popover className="absolute right-2 top-8 z-100" variant="note" />
+				<Popover
+					className="absolute right-2 top-8 z-100"
+					variant="note"
+					onBookmarkClick={async () => {
+						const newBookmarked = !isBookmarked;
+						setIsBookmarked(newBookmarked);
+						setShowOption(false);
+						try {
+							if (newBookmarked) {
+								await createBookmark(post.id);
+							} else {
+								await deleteBookmark(post.id);
+							}
+						} catch (error) {
+							// Revert on error
+							setIsBookmarked(!newBookmarked);
+						}
+					}}
+					isBookmarked={isBookmarked}
+				/>
 			)}
 			{/* Author Header */}
 			<div className="mb-3 px-2.5 flex items-center gap-1.25">
@@ -124,7 +139,6 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 					size={"xs"}
 					compact={props.compact}
 				/>
-				<Tags hashTag text="dummy" className="text-xs" />
 			</div>
 
 			{/* Post Content */}
@@ -151,7 +165,7 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 							} else {
 								await unlikePost(post.id);
 							}
-						} catch (error) {
+						} catch {
 							// Revert on error
 							setIsLiked(!liked);
 							setLikesCount((prev) =>
@@ -169,7 +183,7 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 			</div>
 		</article>
 	) : props.compact ? (
-		<article className="flex p-3.75 flex-col w-85 h-full justify-center gap-2.5 bg-white rounded-(--Corner-Radius-M---Corner-Radius,1.5625rem) shadow-sm">
+		<article className="flex p-3.75 flex-col w-85 h-[238px] justify-center gap-2.5 bg-white rounded-(--Corner-Radius-M---Corner-Radius,1.5625rem) shadow-sm">
 			<div className="flex justify-between self-stretch">
 				<Authors
 					author={author}
@@ -178,9 +192,9 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 					compact={props.compact}
 				/>
 			</div>
-			<Divider long />
+			<Divider />
 			<h3 className="px-2.5 text-base font-semibold">{post.title}</h3>
-			<p className="min-h-24 px-2.5 line-clamp-4 text-gray-600">
+			<p className="h-full px-2.5 line-clamp-4 text-gray-600">
 				{post.description}
 			</p>
 			<div className="flex self-stretch gap-2.5 items-end">
@@ -205,15 +219,29 @@ export function PostCard({ post, className = "", ...props }: PostCardProps) {
 				post={post}
 				size={"sm"}
 				compact={props.compact}
+				isBookmarked={isBookmarked}
+				onBookmarkClick={async () => {
+					const newBookmarked = !isBookmarked;
+					setIsBookmarked(newBookmarked);
+					try {
+						if (newBookmarked) {
+							await createBookmark(post.id);
+						} else {
+							await deleteBookmark(post.id);
+						}
+					} catch (error) {
+						// Revert on error
+						setIsBookmarked(!newBookmarked);
+					}
+				}}
 			/>
-			<Divider long />
+			<Divider />
 			<h3 className="px-2.5 text-base font-semibold">{post.title}</h3>
 			<div className="flex px-1.25 justify-between items-center self-stretch">
 				<div className="flex items-center gap-1.25">
 					{post.type === "request" && post.paidOpportunity && (
 						<Tags hashTag text="paid-gig" />
 					)}
-					<Tags hashTag text="dummy" />
 				</div>
 				<div className="flex justify-end gap-1.25 text-gray-500">
 					<p>{post.location}</p>
@@ -246,6 +274,8 @@ function Authors({
 	post,
 	size = "xs",
 	compact,
+	isBookmarked,
+	onBookmarkClick,
 }: {
 	author?: PostResponse["author"];
 	post: PostResponse & {
@@ -253,6 +283,8 @@ function Authors({
 	};
 	size?: "xs" | "sm";
 	compact?: boolean;
+	isBookmarked?: boolean;
+	onBookmarkClick?: () => void;
 }) {
 	return post.type === "note" ? (
 		<div
@@ -260,7 +292,7 @@ function Authors({
 				compact ? "text-xs" : ""
 			}`}>
 			<div className="flex gap-1.25">
-				<Link href={`/users/${author?.id}`}>
+				<Link href={`/profile/${author?.username}`}>
 					<Avatar
 						size={size}
 						fallback={(author?.firstName ||
@@ -272,7 +304,7 @@ function Authors({
 				</Link>
 				{post.taggedUsers?.map((user, idx) => (
 					<Link
-						href={`/users/${user.id}`}
+						href={`/profile/${user.username}`}
 						key={user.id || idx}
 						className="-ml-2">
 						<Avatar
@@ -309,7 +341,7 @@ function Authors({
 				className={`flex gap-1.25 flex-[1_0_0] text-gray-500 items-center ${
 					compact ? "text-xs" : ""
 				}`}>
-				<Link href={`/users/${author?.id}`}>
+				<Link href={`/profile/${author?.username}`}>
 					<Avatar
 						size={size}
 						fallback={(author?.firstName ||
@@ -321,7 +353,7 @@ function Authors({
 				</Link>
 				{post.taggedUsers?.map((user, idx) => (
 					<Link
-						href={`/users/${user.id}`}
+						href={`/profile/${user.username}`}
 						key={user.id || idx}
 						className="-ml-2">
 						<Avatar
@@ -358,11 +390,18 @@ function Authors({
 					width="16"
 					height="20"
 					viewBox="0 0 16 20"
-					fill="none">
+					fill="none"
+					className="cursor-pointer"
+					onClick={(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						onBookmarkClick?.();
+					}}>
 					<path
 						d="M0.75 18.75V2.75C0.75 1.64543 1.64543 0.75 2.75 0.75H12.75C13.8546 0.75 14.75 1.64543 14.75 2.75V18.75L8.83152 14.9453C8.1727 14.5217 7.3273 14.5217 6.66848 14.9453L0.75 18.75Z"
-						stroke="#131927"
-						strokeWidth="1.5"
+						stroke={isBookmarked ? "none" : "#131927"}
+						fill={isBookmarked ? "#FFCF70" : "none"}
+						strokeWidth={isBookmarked ? "0" : "1.5"}
 						strokeLinecap="round"
 						strokeLinejoin="round"
 					/>

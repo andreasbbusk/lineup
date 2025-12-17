@@ -14,6 +14,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { useLogout } from "@/app/modules/features/auth";
+import { PageTransition } from "@/app/modules/components/page-transition";
 
 interface MenuItem {
   icon: React.ReactNode;
@@ -42,8 +43,7 @@ export default function SettingsPage() {
       icon: <Bookmark size={20} />,
       label: "Saved",
       onClick: () => {
-        // TODO: Navigate to saved posts/bookmarks page
-        // router.push("/saved");
+        router.push("/saved");
       },
     },
     {
@@ -94,36 +94,40 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white text-foreground">
-      {/* Header */}
-      <header className="sticky top-0 z-40 w-full border-b border-light-grey bg-white">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
-          <button
-            onClick={() => router.back()}
-            className="flex h-10 w-10 items-center justify-center text-foreground hover:opacity-70 transition-opacity"
-            aria-label="Close menu"
-          >
-            <X size={24} />
-          </button>
-          <h1 className="text-lg font-semibold text-foreground">Menu</h1>
-          <div className="w-10" /> {/* Spacer for centering */}
-        </div>
-      </header>
+    <PageTransition>
+      <div className="min-h-screen bg-white text-foreground flex flex-col items-start gap-4 pb-24">
+        {/* Header */}
+        <header className="sticky top-0 z-40 w-full border-b border-light-grey bg-white px-4">
+          <div className="flex h-12 items-center justify-between">
+            <button
+              onClick={() => router.back()}
+              className="flex items-center justify-center text-foreground hover:opacity-70 transition-opacity"
+              aria-label="Close menu"
+            >
+              <X size={18} />
+            </button>
+            <h1 className="text-sm! font-semibold text-foreground">Menu</h1>
+            <div className="w-10" /> {/* Spacer for centering */}
+          </div>
+        </header>
 
-      {/* Content */}
-      <main className="container mx-auto px-4 sm:px-6 py-6">
-        <div className="space-y-0">
+        {/* Content */}
+        <main className="flex flex-col gap-9 items-end px-3 py-6 w-full max-w-200 mx-auto">
           {menuItems.map((item) => {
             const isLogout = item.label === "Log out";
             const content = (
-              <div className="flex items-center justify-between px-4 py-4">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`text-foreground ${isLogout ? "text-red-600" : ""}`}>
+                  <div
+                    className={`text-foreground ${
+                      isLogout ? "text-maroon" : ""
+                    }`}
+                  >
                     {item.icon}
                   </div>
                   <span
                     className={`text-sm font-medium ${
-                      isLogout ? "text-red-600" : "text-foreground"
+                      isLogout ? "text-maroon" : "text-foreground"
                     }`}
                   >
                     {item.label}
@@ -141,17 +145,15 @@ export default function SettingsPage() {
                 key={item.label}
                 onClick={item.onClick}
                 className={`w-full text-left transition-colors cursor-pointer ${
-                  isLogout
-                    ? "hover:bg-red-50"
-                    : "hover:bg-light-grey/30"
+                  isLogout ? "hover:bg-red-50" : "hover:bg-light-grey/30"
                 }`}
               >
                 {content}
               </button>
             );
           })}
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </PageTransition>
   );
 }

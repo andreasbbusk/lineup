@@ -1,6 +1,12 @@
 "use client";
 
-import { useQuery, UseQueryOptions, keepPreviousData } from "@tanstack/react-query";
+import {
+  useQuery,
+  useInfiniteQuery,
+  UseQueryOptions,
+  keepPreviousData
+} from "@tanstack/react-query";
+import { useMemo } from "react";
 import { listPosts, getPostById } from "@/app/modules/api/postsApi";
 import type {
   PaginatedResponse,
@@ -39,7 +45,7 @@ export function usePosts(
     gcTime: 5 * 60 * 1000, // 5 minutes
     // Performance optimizations
     placeholderData: keepPreviousData, // Prevents UI flicker during refetches
-    refetchOnMount: false, // Don't refetch if data is fresh
+    refetchOnMount: true, // Don't refetch if data is fresh
     refetchOnWindowFocus: false, // Reduce unnecessary refetches
     // Spread user options, they can override defaults
     ...options,
@@ -65,7 +71,7 @@ export function usePostsByAuthor(
     enabled: !!authorId,
     // Performance optimizations
     placeholderData: keepPreviousData,
-    refetchOnMount: false,
+    refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
 }
@@ -102,4 +108,54 @@ export function usePost(
     // Performance optimization
     refetchOnMount: false,
   });
+}
+
+/**
+ * Hook for fetching posts with infinite scroll pagination
+ *
+ * @param params - Query parameters for filtering (without cursor, handled by infinite query)
+ * @returns Infinite query result with flattened posts array
+ *
+ * @example
+ * ```
+ * const { posts, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfinitePosts({
+ *   type: "note",
+ *   limit: 20
+ * });
+ * ```
+ */
+export function useInfinitePosts(params?: Omit<PostsQueryParams, "cursor">) {
+  const query = useInfiniteQuery({
+    queryKey: ["posts", "infinite", params],
+    queryFn: async ({ pageParam }) => {
+      const response = await listPosts({
+        ...params,
+        cursor: pageParam,
+        includeEngagement: true,
+      });
+      return response;
+    },
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage.pagination.nextCursor ?? undefined,
+    staleTime: 30 * 1000, // 30 seconds
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+  });
+
+  // Flatten all pages into a single deduplicated array
+  const posts = useMemo(() => {
+    if (!query.data?.pages) return [];
+
+    const allPosts = query.data.pages.flatMap((page) => page.data);
+
+    // Deduplicate by ID
+    const seen = new Set<string>();
+    return allPosts.filter((post) => {
+      if (seen.has(post.id)) return false;
+      seen.add(post.id);
+      return true;
+    });
+  }, [query.data]);
+
+  return { ...query, posts };
 }

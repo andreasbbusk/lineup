@@ -3,6 +3,7 @@
 import { use } from "react";
 import { usePost } from "@/app/modules/hooks/queries";
 import { PostDetail } from "@/app/modules/features/posts/components/post-detail";
+import { PageTransition } from "@/app/modules/components/page-transition";
 
 interface PostDetailsPageProps {
   params: Promise<{
@@ -57,8 +58,10 @@ export default function Page({ params }: PostDetailsPageProps) {
   }
 
   return (
-    <main className="space-y-4">
-      <PostDetail post={post} />
-    </main>
+    <PageTransition>
+      <PostDetail
+        post={{ ...post, paidOpportunity: post.paidOpportunity ?? false }}
+      />
+    </PageTransition>
   );
 }

@@ -40,6 +40,40 @@ export interface UserProfile {
   updatedAt: string | null;
 }
 
+/**
+ * API response format for a blocked user
+ *
+ * @example
+ * {
+ *   "id": "user-123",
+ *   "username": "johndoe",
+ *   "firstName": "John",
+ *   "lastName": "Doe",
+ *   "avatarUrl": "https://example.com/avatar.jpg"
+ * }
+ */
+export interface BlockedUserResponse {
+  id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl: string | null;
+}
+
+/**
+ * API response format for block status between two users
+ *
+ * @example
+ * {
+ *   "isBlocked": true,
+ *   "direction": "blocker"
+ * }
+ */
+export interface BlockStatusResponse {
+  isBlocked: boolean;
+  direction: "blocker" | "blocked" | null;
+}
+
 // ==================== Auth Types ====================
 
 /**
@@ -529,6 +563,8 @@ export interface CommentResponse {
     lastName?: string | null;
     avatarUrl?: string | null;
   };
+  likesCount?: number;
+  isLiked?: boolean;
 }
 
 // ==================== Pagination ====================

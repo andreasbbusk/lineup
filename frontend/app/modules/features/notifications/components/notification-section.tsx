@@ -5,11 +5,11 @@ import type { NotificationResponse } from "../types";
 import { shouldShowActionButton } from "../utils/notificationHelpers";
 
 interface NotificationSectionProps {
-  title: string;
-  notifications: NotificationResponse[];
-  showActionButton?: boolean;
-  actionButtonText?: string;
-  onActionClick?: (notification: NotificationResponse) => void;
+	title: string;
+	notifications: NotificationResponse[];
+	showActionButton?: boolean;
+	actionButtonText?: string;
+	onActionClick?: (notification: NotificationResponse) => void;
 }
 
 /**
@@ -17,40 +17,40 @@ interface NotificationSectionProps {
  * Displays a section title and list of notifications
  */
 export function NotificationSection({
-  title,
-  notifications,
-  showActionButton = false,
-  actionButtonText,
-  onActionClick,
+	title,
+	notifications,
+	showActionButton = false,
+	actionButtonText,
+	onActionClick,
 }: NotificationSectionProps) {
-  if (notifications.length === 0) {
-    return null;
-  }
+	if (notifications.length === 0) {
+		return null;
+	}
 
-  return (
-    <div className="flex flex-col gap-5 items-start w-full">
-      {/* Section title */}
-      <h2 className="text-[12px]! font-['Helvetica_Now_Display',sans-serif] font-medium text-[#555555] leading-none tracking-[0.5px] w-full">
-        {title}
-      </h2>
+	return (
+		<div className="flex flex-col gap-3.75 items-start w-full">
+			{/* Section title */}
+			<h2 className="text-[12px]! font-medium text-[#555555] w-full">
+				{title}
+			</h2>
 
-      {/* Notification items */}
-      <div className="flex flex-col gap-4 items-start w-full">
-        {notifications.map((notification) => {
-          const itemShowAction =
-            showActionButton && shouldShowActionButton(notification);
+			{/* Notification items */}
+			<div className="flex flex-col gap-4 items-start w-full">
+				{notifications.map((notification) => {
+					const itemShowAction =
+						showActionButton && shouldShowActionButton(notification);
 
-          return (
-            <NotificationItem
-              key={notification.id}
-              notification={notification}
-              showActionButton={itemShowAction}
-              actionButtonText={actionButtonText}
-              onActionClick={() => onActionClick?.(notification)}
-            />
-          );
-        })}
-      </div>
-    </div>
-  );
+					return (
+						<NotificationItem
+							key={notification.id}
+							notification={notification}
+							showActionButton={itemShowAction}
+							actionButtonText={actionButtonText}
+							onActionClick={() => onActionClick?.(notification)}
+						/>
+					);
+				})}
+			</div>
+		</div>
+	);
 }
