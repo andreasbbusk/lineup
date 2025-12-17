@@ -18,10 +18,9 @@ export const useConversations = () =>
   useQuery({
     queryKey: chatKeys.lists(),
     queryFn: async () => {
-      const conversations =
-        (await chatApi.getConversations())?.filter(
-          (conv) => conv.type === "group" || conv.lastMessagePreview
-        ) ?? [];
+      // Don't filter out direct conversations without lastMessagePreview
+      // A conversation can exist without messages (newly created or all deleted)
+      const conversations = (await chatApi.getConversations()) ?? [];
 
       return {
         direct: conversations.filter((conv) => conv.type === "direct"),

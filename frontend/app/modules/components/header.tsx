@@ -4,8 +4,8 @@ import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, Search, Bell, Menu } from "lucide-react";
-import { useUnreadCount } from "@/app/modules/features/notifications";
 import { NotificationBadge } from "./notification-badge";
+import { useUnreadCount } from "../features/notifications";
 
 export default function Header() {
 	const pathname = usePathname();

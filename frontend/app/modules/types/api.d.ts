@@ -1067,7 +1067,8 @@ export interface paths {
          * @description Get all comments for a post
          *
          *     Returns all comments on a specific post, ordered by creation date (oldest first).
-         *     Each comment includes the author's profile information.
+         *     Each comment includes the author's profile information and like counts.
+         *     If authenticated, also includes whether the user has liked each comment.
          */
         get: operations["GetPostComments"];
         put?: never;
@@ -1148,6 +1149,35 @@ export interface paths {
          *     Removes a comment. Only the comment author can delete their own comment.
          */
         delete: operations["DeleteComment"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/comments/{commentId}/like": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Like a comment
+         * @description Like a comment
+         *
+         *     Adds a like from the authenticated user to the specified comment.
+         *     If the comment is already liked by the user, this is a no-op.
+         */
+        post: operations["LikeComment"];
+        /**
+         * Unlike a comment
+         * @description Unlike a comment
+         *
+         *     Removes the like from the authenticated user for the specified comment.
+         */
+        delete: operations["UnlikeComment"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2172,6 +2202,9 @@ export interface components {
                 username: string;
                 id: string;
             };
+            /** Format: double */
+            likesCount?: number;
+            isLiked?: boolean;
         };
         /**
          * @description API response format for a notification
@@ -4249,7 +4282,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Array of comments with author details */
+            /** @description Array of comments with author details and like data */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -4342,6 +4375,48 @@ export interface operations {
             header?: never;
             path: {
                 /** @description The UUID of the comment to delete */
+                commentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    LikeComment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The UUID of the comment to like */
+                commentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UnlikeComment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The UUID of the comment to unlike */
                 commentId: string;
             };
             cookie?: never;

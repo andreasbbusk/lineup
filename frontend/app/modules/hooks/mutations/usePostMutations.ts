@@ -37,21 +37,19 @@ export function useCreatePost(options?: {
       // This makes it available immediately without a refetch
       queryClient.setQueryData(["posts", newPost.id], newPost);
 
-      // Invalidate posts queries to refetch with new post
-      // Using void to ignore the promise returned by invalidateQueries
-      void queryClient.invalidateQueries({
+      // Refetch all posts queries to include the new post
+      // Using refetchQueries (not invalidateQueries) to force immediate refetch
+      // even when refetchOnMount is false
+      void queryClient.refetchQueries({
         queryKey: ["posts"],
+        exact: false, // Match all queries starting with ["posts"]
       });
 
-      // Invalidate feed queries if they exist
-      void queryClient.invalidateQueries({
-        queryKey: ["feed"],
-      });
-
-      // Invalidate author's posts if we have authorId
+      // Refetch author's posts if we have authorId
       if (newPost.authorId) {
-        void queryClient.invalidateQueries({
+        void queryClient.refetchQueries({
           queryKey: ["posts", "author", newPost.authorId],
+          exact: false,
         });
       }
 
@@ -104,20 +102,17 @@ export function useResolvePost(options?: {
       // Update the post in cache
       queryClient.setQueryData(["posts", updatedPost.id], updatedPost);
 
-      // Invalidate posts queries to refetch with updated status
-      void queryClient.invalidateQueries({
+      // Refetch all posts queries to reflect the resolved status
+      void queryClient.refetchQueries({
         queryKey: ["posts"],
+        exact: false,
       });
 
-      // Invalidate feed queries if they exist
-      void queryClient.invalidateQueries({
-        queryKey: ["feed"],
-      });
-
-      // Invalidate author's posts if we have authorId
+      // Refetch author's posts if we have authorId
       if (updatedPost.authorId) {
-        void queryClient.invalidateQueries({
+        void queryClient.refetchQueries({
           queryKey: ["posts", "author", updatedPost.authorId],
+          exact: false,
         });
       }
 

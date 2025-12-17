@@ -30,4 +30,47 @@ export async function createComment(
   return data;
 }
 
+/**
+ * Like a comment
+ *
+ * Adds a like from the authenticated user to the specified comment.
+ *
+ * @param commentId - The UUID of the comment to like
+ * @throws ApiError if request fails
+ */
+export async function likeComment(commentId: string): Promise<void> {
+  const { error, response } = await apiClient.POST("/comments/{commentId}/like", {
+    params: {
+      path: {
+        commentId,
+      },
+    },
+  });
+
+  if (error) {
+    handleApiError(error, response);
+  }
+}
+
+/**
+ * Unlike a comment
+ *
+ * Removes the like from the authenticated user for the specified comment.
+ *
+ * @param commentId - The UUID of the comment to unlike
+ * @throws ApiError if request fails
+ */
+export async function unlikeComment(commentId: string): Promise<void> {
+  const { error, response } = await apiClient.DELETE("/comments/{commentId}/like", {
+    params: {
+      path: {
+        commentId,
+      },
+    },
+  });
+
+  if (error) {
+    handleApiError(error, response);
+  }
+}
 

@@ -1737,6 +1737,13 @@
 							"id"
 						],
 						"type": "object"
+					},
+					"likesCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"isLiked": {
+						"type": "boolean"
 					}
 				},
 				"required": [
@@ -5922,7 +5929,7 @@
 				"operationId": "GetPostComments",
 				"responses": {
 					"200": {
-						"description": "Array of comments with author details",
+						"description": "Array of comments with author details and like data",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -5935,7 +5942,7 @@
 						}
 					}
 				},
-				"description": "Get all comments for a post\r\n\r\nReturns all comments on a specific post, ordered by creation date (oldest first).\r\nEach comment includes the author's profile information.",
+				"description": "Get all comments for a post\r\n\r\nReturns all comments on a specific post, ordered by creation date (oldest first).\r\nEach comment includes the author's profile information and like counts.\r\nIf authenticated, also includes whether the user has liked each comment.",
 				"summary": "Get comments for a post",
 				"tags": [
 					"Comments"
@@ -6100,6 +6107,66 @@
 				"parameters": [
 					{
 						"description": "The UUID of the comment to delete",
+						"in": "path",
+						"name": "commentId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/comments/{commentId}/like": {
+			"post": {
+				"operationId": "LikeComment",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Like a comment\r\n\r\nAdds a like from the authenticated user to the specified comment.\r\nIf the comment is already liked by the user, this is a no-op.",
+				"summary": "Like a comment",
+				"tags": [
+					"Comments"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the comment to like",
+						"in": "path",
+						"name": "commentId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"delete": {
+				"operationId": "UnlikeComment",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Unlike a comment\r\n\r\nRemoves the like from the authenticated user for the specified comment.",
+				"summary": "Unlike a comment",
+				"tags": [
+					"Comments"
+				],
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "The UUID of the comment to unlike",
 						"in": "path",
 						"name": "commentId",
 						"required": true,

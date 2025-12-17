@@ -57,8 +57,12 @@ function Tags(props: TagsProps) {
 					? "border-blackberry-harvest bg-blackberry-harvest text-white"
 					: "border-gray-500 text-gray-500"
 			}
-			${props.color ? "bg-(--profile-theme) text-white border-(--profile-theme)" : ""}
-			${props.className ?? ""}`}
+			${
+				props.color
+					? "bg-(--profile-theme) text-white border-(--profile-theme)"
+					: "hover:opacity-80"
+			}
+			${props.className ?? ""} `}
 			onClick={handleClick}>
 			{props.hashTag && "#"}
 			{props.text}
