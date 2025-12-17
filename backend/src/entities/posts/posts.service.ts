@@ -3,7 +3,11 @@ import { getSupabaseClient, supabase, SupabaseClient } from "../../config/supaba
 import { CreatePostBody, PostsQueryDto, UpdatePostBody } from "./posts.dto.js";
 import { PostInsert, MediaType, PostRow } from "../../utils/supabase-helpers.js";
 import { mapPostToResponse } from "./posts.mapper.js";
-import { PostResponse, PaginatedResponse, CommentResponse } from "../../types/api.types.js";
+import {
+  PostResponse,
+  PaginatedResponse,
+  CommentResponse,
+} from "../../types/api.types.js";
 import { createHttpError } from "../../utils/error-handler.js";
 import { Database } from "../../types/supabase.js";
 import { mapCommentsToResponse } from "../comments/comments.mapper.js";
@@ -239,7 +243,7 @@ export class PostsService {
 
   /**
    * List posts with filters and pagination
-   * 
+   *
    * Returns a paginated list of posts with optional filters.
    * Supports public access (no auth required) but can include engagement data if authenticated.
    */
@@ -341,9 +345,12 @@ export class PostsService {
 
     // Check if there's a next page
     const hasNextPage = posts.length > limit;
-    const postsToReturn = (hasNextPage ? posts.slice(0, limit) : posts) as (PostRow & any)[];
+    const postsToReturn = (
+      hasNextPage ? posts.slice(0, limit) : posts
+    ) as (PostRow & any)[];
     const nextCursor = hasNextPage
-      ? (postsToReturn[postsToReturn.length - 1] as PostRow & any).created_at ?? undefined
+      ? (postsToReturn[postsToReturn.length - 1] as PostRow & any).created_at ??
+        undefined
       : undefined;
 
     // Filter by genres if provided
@@ -510,7 +517,7 @@ export class PostsService {
 
     // Count likes and check if user liked
     likesData?.forEach((like) => {
-      const engagement = engagementMap.get(like.post_id);
+      const engagement = engagementMap.get(like.post_id ?? "");
       if (engagement) {
         engagement.likesCount++;
         if (like.user_id === userId) {
@@ -543,7 +550,7 @@ export class PostsService {
 
   /**
    * Get a single post by ID
-   * 
+   *
    * Returns a post with full details including author, metadata, media, and tagged users.
    * Can optionally include comments and engagement data.
    */
@@ -594,7 +601,9 @@ export class PostsService {
 
     if (postError || !post) {
       throw createHttpError({
-        message: `Post not found: ${postError?.message || "Post does not exist"}`,
+        message: `Post not found: ${
+          postError?.message || "Post does not exist"
+        }`,
         statusCode: 404,
         code: "NOT_FOUND",
       });
@@ -661,7 +670,7 @@ export class PostsService {
 
   /**
    * Resolve a request post
-   * 
+   *
    * Marks a request post as resolved and archives it. Only the post author can resolve their own posts.
    * Resolved posts are excluded from the main feed but remain accessible via user's post history.
    */
@@ -681,7 +690,9 @@ export class PostsService {
 
     if (postError || !post) {
       throw createHttpError({
-        message: `Post not found: ${postError?.message || "Post does not exist"}`,
+        message: `Post not found: ${
+          postError?.message || "Post does not exist"
+        }`,
         statusCode: 404,
         code: "NOT_FOUND",
       });
@@ -769,11 +780,7 @@ export class PostsService {
   /**
    * Like a post
    */
-  async likePost(
-    userId: string,
-    postId: string,
-    token: string
-  ): Promise<void> {
+  async likePost(userId: string, postId: string, token: string): Promise<void> {
     const supabase = getSupabaseClient(token);
 
     // Verify the post exists

@@ -207,12 +207,20 @@ export function ConversationList({
       </div>
     );
 
+  // Calculate if there are unread messages in each tab
+  const hasUnreadChats =
+    conversations?.direct?.some((conv) => conv.unreadCount > 0) ?? false;
+  const hasUnreadGroups =
+    conversations?.groups?.some((conv) => conv.unreadCount > 0) ?? false;
+
   return (
     <div className="flex flex-col h-full overflow-hidden bg-dark-cyan-blue rounded-t-[45px]">
       <Tabs
         variant="chat"
         activeTab={activeTab}
         onTabChange={onTabChange}
+        hasUnreadChats={hasUnreadChats}
+        hasUnreadGroups={hasUnreadGroups}
         className="mx-auto w-full max-w-200 flex flex-col h-full [&>ul]:shrink-0 [&>div:last-child]:flex-1 [&>div:last-child]:overflow-hidden [&>div:last-child]:min-h-0 [&>div:last-child]:flex [&>div:last-child]:flex-col"
       >
         <TabsContent value="chats" className="min-h-0! overflow-y-auto pb-24!">
