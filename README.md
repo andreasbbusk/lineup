@@ -13,6 +13,7 @@ Swagger docs: https://lineup-o1es.onrender.com/docs/
 ## 2. Login-information til testbrugere
 
 Brugernavn/email: testagain123@gmail.com
+
 Password: Test123
 
 ---
