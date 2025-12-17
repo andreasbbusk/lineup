@@ -15,6 +15,7 @@ export function StoryPreview({ imageUrl, alt = "Story preview" }: StoryPreviewPr
         src={imageUrl}
         alt={alt}
         fill
+        sizes="28px"
         className="rounded-[6.811px] object-cover"
       />
     </div>

@@ -5,6 +5,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   useMyProfile,
@@ -17,7 +18,10 @@ import {
   useUpsertFaq,
   useDeleteFaq,
   useDeleteCollaboration,
+  useCollaborations,
+  useCreateCollaboration,
 } from "@/app/modules/features/profiles";
+import { useAllPostRespondents } from "@/app/modules/hooks/queries";
 import { Button } from "@/app/modules/components/buttons";
 import { ErrorMessage } from "@/app/modules/components/error-message";
 import { useAppStore } from "@/app/modules/stores/Store";
@@ -113,6 +117,11 @@ export default function EditProfilePage() {
   const { mutate: deleteCollaboration } = useDeleteCollaboration(
     profileData?.id
   );
+  const { mutate: addCollaboration, isPending: isAddingCollaboratorPending } = useCreateCollaboration(
+    profileData?.id
+  );
+  const { data: postRespondents = [] } = useAllPostRespondents();
+  const { data: existingCollaborations = [] } = useCollaborations(profileData?.id);
 
   const [selectedLookingFor, setSelectedLookingFor] = useState<
     ("connect" | "promote" | "find-band" | "find-services")[]
@@ -130,6 +139,7 @@ export default function EditProfilePage() {
 
   const [isEditingVideos, setIsEditingVideos] = useState(false);
   const [isEditingArtist, setIsEditingArtist] = useState(false);
+  const [isEditingPastCollaborations, setIsEditingPastCollaborations] = useState(false);
   const [isAvatarUploaderOpen, setIsAvatarUploaderOpen] = useState(false);
   const [removedCollaborations, setRemovedCollaborations] = useState<
     Set<string>
@@ -137,6 +147,7 @@ export default function EditProfilePage() {
   const [pendingAction, setPendingAction] = useState<
     "save" | "addBlock" | null
   >(null);
+  const [isAddingCollaborator, setIsAddingCollaborator] = useState(false);
 
   const [socialMediaLinks, setSocialMediaLinks] = useState<
     Record<string, string>
@@ -621,7 +632,7 @@ export default function EditProfilePage() {
             </div>
           )}
 
-          {/* Past collaborations - UNCLEAR HOW THIS WOULD WORK - styled to look like figma */}
+          {/* Past collaborations */}
           {showPastCollaborationsSection && (
             <div className="relative self-stretch rounded-[1.5625rem] border border-black/10 py-9 px-3.75 w-full max-w-200 mx-auto">
               <Image
@@ -632,7 +643,214 @@ export default function EditProfilePage() {
                 className="absolute top-2 right-2 cursor-pointer"
                 onClick={() => setShowPastCollaborationsSection(false)}
               />
-              <h4 className="w-full font-semibold">Past collaborations</h4>
+              <div className="flex items-center gap-16">
+                <h4 className="w-full max-w-24 font-semibold whitespace-normal sm:whitespace-nowrap">
+                  Past collaborations
+                </h4>
+
+                {isEditingPastCollaborations ? (
+                  // Grid layout when editing
+                  <div className="flex flex-col gap-6">
+                    <ul className="flex flex-wrap gap-4 items-center">
+                      {existingCollaborations
+                        .filter((collab) => collab.collaborator && !removedCollaborations.has(collab.id))
+                        .map((collab) => (
+                          <li key={collab.id} className="flex flex-col items-center">
+                            <div className="relative">
+                              <Avatar
+                                size="xl"
+                                fallback={
+                                  (collab.collaborator?.firstName?.charAt(0)?.toUpperCase() || "") +
+                                  (collab.collaborator?.lastName?.charAt(0)?.toUpperCase() || "")
+                                }
+                                src={collab.collaborator?.avatarUrl}
+                                className="rounded-full border-3 border-white aspect-square object-cover drop-shadow-[0_2px_8px_rgba(99,99,99,0.20)]"
+                                alt={collab.collaborator?.username || ""}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setRemovedCollaborations((prev) => new Set([...prev, collab.id]));
+                                  deleteCollaboration(collab.id);
+                                }}
+                                style={{ background: themeColorValue || "#1E1E1E" }}
+                                className="absolute top-0 right-0 rounded-full p-0.5 transition"
+                              >
+                                <Image
+                                  src="/icons/close.svg"
+                                  width={16}
+                                  height={16}
+                                  alt="Delete"
+                                  className="invert brightens-0"
+                                />
+                              </button>
+                            </div>
+                            <p className="text-sm font-medium text-center text-grey max-w-[90px] truncate">
+                              {collab.collaborator?.firstName
+                                ? `${collab.collaborator.firstName}${collab.collaborator.lastName ? ` ${collab.collaborator.lastName}` : ""}`
+                                : collab.collaborator?.username || ""}
+                            </p>
+                          </li>
+                        ))}
+                      {/* Add more button */}
+                      <li className="relative">
+                        <div className="relative pb-5">
+                          <button
+                            type="button"
+                            onClick={() => setIsAddingCollaborator(!isAddingCollaborator)}
+                            className="w-[72px] h-[72px] rounded-full border-3 border-white flex items-center justify-center drop-shadow-[0_2px_8px_rgba(99,99,99,0.20)] bg-gray-100 hover:bg-gray-200 transition-colors"
+                          >
+                            <Image
+                              src="/icons/add-circle.svg"
+                              width={24}
+                              height={24}
+                              alt="Add"
+                            />
+                          </button>
+                          
+                          {/* Dropdown for selecting collaborators */}
+                          {isAddingCollaborator && postRespondents.length > 0 && (
+                            <div className="absolute top-full mt-2 left-0 z-50 bg-white rounded-xl shadow-lg border border-gray-200 max-h-60 overflow-y-auto min-w-[250px]">
+                              <div className="p-2">
+                                <p className="text-xs text-gray-500 px-2 py-1 mb-1">
+                                  People who responded to your posts
+                                </p>
+                                {postRespondents
+                                  .filter((respondent) => 
+                                    !existingCollaborations.some(
+                                      (collab) => collab.collaborator?.id === respondent.id
+                                    ) && !removedCollaborations.has(respondent.id)
+                                  )
+                                  .map((respondent) => (
+                                    <button
+                                      key={respondent.id}
+                                      type="button"
+                                      onClick={() => {
+                                        addCollaboration(respondent.id, {
+                                          onSuccess: () => {
+                                            setIsAddingCollaborator(false);
+                                          },
+                                        });
+                                      }}
+                                      disabled={isAddingCollaboratorPending}
+                                      className="flex items-center gap-2 w-full px-2 py-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                    >
+                                      <Avatar
+                                        size="sm"
+                                        src={respondent.avatarUrl}
+                                        fallback={
+                                          (respondent.firstName?.charAt(0)?.toUpperCase() || "") +
+                                          (respondent.lastName?.charAt(0)?.toUpperCase() || "")
+                                        }
+                                        alt={respondent.username}
+                                      />
+                                      <div className="flex flex-col items-start">
+                                        <span className="text-sm font-medium">
+                                          {respondent.firstName
+                                            ? `${respondent.firstName}${respondent.lastName ? ` ${respondent.lastName}` : ""}`
+                                            : respondent.username}
+                                        </span>
+                                        <span className="text-xs text-gray-500">@{respondent.username}</span>
+                                      </div>
+                                    </button>
+                                  ))}
+                                {postRespondents.filter(
+                                  (respondent) =>
+                                    !existingCollaborations.some(
+                                      (collab) => collab.collaborator?.id === respondent.id
+                                    ) && !removedCollaborations.has(respondent.id)
+                                ).length === 0 && (
+                                  <p className="text-sm text-gray-500 px-2 py-2">
+                                    All respondents already added
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {isAddingCollaborator && postRespondents.length === 0 && (
+                            <div className="absolute top-full mt-2 left-0 z-50 bg-white rounded-xl shadow-lg border border-gray-200 p-4 min-w-[250px]">
+                              <p className="text-sm text-gray-500">
+                                No respondents yet. People who start a chat on your collaboration requests will appear here.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                ) : (
+                  // Overlapping layout when not editing
+                  <div className="flex items-center gap-4">
+                    {existingCollaborations.filter((collab) => collab.collaborator && !removedCollaborations.has(collab.id)).length > 0 ? (
+                      <ul className="flex">
+                        {existingCollaborations
+                          .filter((collab) => collab.collaborator && !removedCollaborations.has(collab.id))
+                          .slice(0, 3)
+                          .map((collab, index) => (
+                            <li key={collab.id} className="first:ml-0 -ml-[25px]">
+                              <Link href={`/profile/${collab.collaborator?.username || ""}`}>
+                                <Avatar
+                                  size="xl"
+                                  fallback={
+                                    (collab.collaborator?.firstName?.charAt(0)?.toUpperCase() || "") +
+                                    (collab.collaborator?.lastName?.charAt(0)?.toUpperCase() || "")
+                                  }
+                                  src={collab.collaborator?.avatarUrl}
+                                  className="rounded-full border-3 border-white aspect-square object-cover drop-shadow-[0_2px_8px_rgba(99,99,99,0.20)]"
+                                  alt={collab.collaborator?.username || ""}
+                                />
+                              </Link>
+                            </li>
+                          ))}
+                        {existingCollaborations.filter((collab) => collab.collaborator && !removedCollaborations.has(collab.id)).length > 3 && (
+                          <li className="-ml-[25px]">
+                            <div
+                              className="w-[72px] h-[72px] rounded-full border-3 border-white flex items-center justify-center drop-shadow-[0_2px_8px_rgba(99,99,99,0.20)]"
+                              style={{
+                                backgroundColor: themeColorValue || "#1E1E1E",
+                              }}
+                            >
+                              <span className="text-white font-semibold">
+                                +{existingCollaborations.filter((collab) => collab.collaborator && !removedCollaborations.has(collab.id)).length - 3}
+                              </span>
+                            </div>
+                          </li>
+                        )}
+                      </ul>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsEditingPastCollaborations(true);
+                          setIsAddingCollaborator(true);
+                        }}
+                        className="flex items-center gap-2 text-grey hover:opacity-70 transition-opacity"
+                      >
+                        <div className="w-6 h-6 rounded-full border-grey flex items-center justify-center">
+                          <Image
+                            src="/icons/add-circle.svg"
+                            width={16}
+                            height={16}
+                            alt=""
+                            className="opacity-70"
+                          />
+                        </div>
+                        <span className="text-sm font-normal">Add past collaborators</span>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {(existingCollaborations.filter((collab) => collab.collaborator && !removedCollaborations.has(collab.id)).length > 0 || isEditingPastCollaborations) && (
+                <p
+                  onClick={() => setIsEditingPastCollaborations(!isEditingPastCollaborations)}
+                  className="absolute bottom-3 right-3.5 cursor-pointer hover:underline"
+                >
+                  {isEditingPastCollaborations ? "Done" : "Edit"}
+                </p>
+              )}
             </div>
           )}
 

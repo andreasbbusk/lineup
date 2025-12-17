@@ -225,7 +225,7 @@ export class ConversationsService {
     }
 
     // For direct conversations, check if one already exists between these users
-    if (data.type === "direct") {
+    if (data.type === "direct" && !data.postId) {
       const otherUserId = data.participantIds[0];
 
       // Find all direct conversations where the current user is a participant

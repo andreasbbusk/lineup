@@ -228,3 +228,150 @@ export async function unlikePost(postId: string): Promise<void> {
     handleApiError(error, response);
   }
 }
+
+// ==================== Update ====================
+
+/**
+ * Update post body
+ */
+export interface UpdatePostBody {
+  title?: string;
+  description?: string;
+  location?: string | null;
+  paidOpportunity?: boolean | null;
+}
+
+/**
+ * Update a post
+ *
+ * Updates a post's content. Only the post author can update their own posts.
+ *
+ * @param postId - The UUID of the post to update
+ * @param data - The fields to update
+ * @returns The updated post
+ * @throws ApiError if request fails
+ */
+export async function updatePost(
+  postId: string,
+  data: UpdatePostBody
+): Promise<PostResponse> {
+  const { data: responseData, error, response } = await apiClient.PUT(
+    "/posts/{id}",
+    {
+      params: {
+        path: {
+          id: postId,
+        },
+      },
+      body: data,
+    }
+  );
+
+  if (error) {
+    handleApiError(error, response);
+  }
+
+  if (!responseData) {
+    throw new Error("No data returned from API");
+  }
+
+  return responseData;
+}
+
+// ==================== Delete ====================
+
+/**
+ * Delete a post
+ *
+ * Permanently deletes a post and all its related data.
+ * Only the post author can delete their own posts.
+ *
+ * @param postId - The UUID of the post to delete
+ * @throws ApiError if request fails
+ */
+export async function deletePost(postId: string): Promise<void> {
+  const { error, response } = await apiClient.DELETE("/posts/{id}", {
+    params: {
+      path: {
+        id: postId,
+      },
+    },
+  });
+
+  if (error) {
+    handleApiError(error, response);
+  }
+}
+
+// ==================== Respondents ====================
+
+/**
+ * Post respondent user data
+ */
+export interface PostRespondent {
+  id: string;
+  username: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  avatarUrl?: string | null;
+}
+
+/**
+ * Get users who responded to a post by starting a chat
+ *
+ * Returns a list of users who initiated a conversation in response to this request post.
+ * Only the post author can view respondents.
+ *
+ * @param postId - The UUID of the post
+ * @returns List of users who started a chat on this post
+ * @throws ApiError if request fails
+ */
+export async function getPostRespondents(
+  postId: string
+): Promise<PostRespondent[]> {
+  const { data, error, response } = await apiClient.GET(
+    "/posts/{id}/respondents",
+    {
+      params: {
+        path: {
+          id: postId,
+        },
+      },
+    }
+  );
+
+  if (error) {
+    handleApiError(error, response);
+  }
+
+  if (!data) {
+    throw new Error("No data returned from API");
+  }
+
+  return data as PostRespondent[];
+}
+
+/**
+ * Get all respondents across all of the user's request posts
+ *
+ * Returns unique users who have started chats on any of the user's request posts.
+ * This is useful for populating the "past collaborators" section on the profile.
+ *
+ * @returns List of unique users who started chats on the user's posts
+ * @throws ApiError if request fails
+ */
+export async function getAllPostRespondents(): Promise<PostRespondent[]> {
+  const { data, error, response } = await apiClient.GET(
+    "/posts/respondents/all"
+  );
+
+  if (error) {
+    handleApiError(error, response);
+  }
+
+  if (!data) {
+    throw new Error("No data returned from API");
+  }
+
+  return data as PostRespondent[];
+}

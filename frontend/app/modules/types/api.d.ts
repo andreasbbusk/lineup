@@ -548,9 +548,22 @@ export interface paths {
          *     (likes, comments, bookmarks) requires authentication.
          */
         get: operations["GetPost"];
-        put?: never;
+        /**
+         * Update a post
+         * @description Update a post
+         *
+         *     Updates a post's content. Only the post author can update their own posts.
+         */
+        put: operations["UpdatePost"];
         post?: never;
-        delete?: never;
+        /**
+         * Delete a post
+         * @description Delete a post
+         *
+         *     Permanently deletes a post and all its related data.
+         *     Only the post author can delete their own posts.
+         */
+        delete: operations["DeletePost"];
         options?: never;
         head?: never;
         patch?: never;
@@ -603,6 +616,52 @@ export interface paths {
          *     Removes the like from the authenticated user for the specified post.
          */
         delete: operations["UnlikePost"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/posts/{id}/respondents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get post respondents
+         * @description Get users who responded to a post by starting a chat
+         *
+         *     Returns a list of users who initiated a conversation in response to this request post.
+         *     Only the post author can view respondents.
+         */
+        get: operations["GetPostRespondents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/posts/respondents/all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all post respondents for current user
+         * @description Get all respondents across all of the user's request posts
+         *
+         *     Returns unique users who have started chats on any of the user's request posts.
+         *     This is useful for populating the "past collaborators" section on the profile.
+         */
+        get: operations["GetAllPostRespondents"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -667,6 +726,29 @@ export interface paths {
          *     Only the recipient can update their own notifications.
          */
         patch: operations["UpdateNotification"];
+        trace?: never;
+    };
+    "/notifications/count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get unread notification count
+         * @description Get unread notification count
+         *
+         *     Returns the total count of unread notifications for the authenticated user.
+         *     This is optimized for badge display and avoids fetching all notification data.
+         */
+        get: operations["GetUnreadCount"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/metadata": {
@@ -2184,6 +2266,38 @@ export interface components {
             isLiked?: boolean;
         };
         /**
+         * @description DTO for updating an existing post
+         *
+         *     All fields are optional - only provided fields will be updated.
+         *     Only the post author can update their posts.
+         * @example {
+         *       "title": "Updated Title",
+         *       "description": "Updated description text"
+         *     }
+         */
+        UpdatePostBody: {
+            /**
+             * @description Updated post title (1-100 characters)
+             * @example Updated Title
+             */
+            title?: string;
+            /**
+             * @description Updated post description (10-5000 characters)
+             * @example Updated description text
+             */
+            description?: string;
+            /**
+             * @description Updated location
+             * @example Los Angeles, CA
+             */
+            location?: string | null;
+            /**
+             * @description Whether this is a paid opportunity (only for "request" type posts)
+             * @example true
+             */
+            paidOpportunity?: boolean | null;
+        };
+        /**
          * @description API response format for a notification
          *     Represents a notification with actor information
          */
@@ -3471,6 +3585,55 @@ export interface operations {
             };
         };
     };
+    UpdatePost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The UUID of the post to update */
+                id: string;
+            };
+            cookie?: never;
+        };
+        /** @description The fields to update */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePostBody"];
+            };
+        };
+        responses: {
+            /** @description The updated post */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostResponse"];
+                };
+            };
+        };
+    };
+    DeletePost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The UUID of the post to delete */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     ResolvePost: {
         parameters: {
             query?: never;
@@ -3533,6 +3696,61 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    GetPostRespondents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The UUID of the post */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of users who started a chat on this post */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        avatarUrl?: string | null;
+                        lastName?: string | null;
+                        firstName?: string | null;
+                        username: string;
+                        id: string;
+                    }[];
+                };
+            };
+        };
+    };
+    GetAllPostRespondents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of unique users who started chats on the user's posts */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        avatarUrl?: string | null;
+                        lastName?: string | null;
+                        firstName?: string | null;
+                        username: string;
+                        id: string;
+                    }[];
+                };
             };
         };
     };
@@ -3641,6 +3859,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NotificationResponse"];
+                };
+            };
+        };
+    };
+    GetUnreadCount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Object containing the count of unread notifications */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: double */
+                        count: number;
+                    };
                 };
             };
         };

@@ -5,6 +5,8 @@ import { getNotifications } from "../api";
 import type { GroupedNotificationsResponse } from "../types";
 import type { NotificationResponse } from "../types";
 import { groupNotificationsByType } from "../utils/groupNotifications";
+import { deduplicateConnectionRequests } from "../utils/connectionRequests";
+import { NOTIFICATION_QUERY_KEYS } from "../utils/queryKeys";
 
 /**
  * Hook to fetch notifications grouped by type
@@ -12,7 +14,7 @@ import { groupNotificationsByType } from "../utils/groupNotifications";
  */
 export function useNotifications(options?: { unreadOnly?: boolean }) {
   return useQuery({
-    queryKey: ["notifications", "grouped", options?.unreadOnly],
+    queryKey: NOTIFICATION_QUERY_KEYS.grouped(options?.unreadOnly),
     queryFn: async () => {
       const result = await getNotifications({
         grouped: true,
@@ -38,19 +40,23 @@ export function useNotifications(options?: { unreadOnly?: boolean }) {
 
       return { notifications: grouped, nextCursor: result.nextCursor };
     },
-    staleTime: 30 * 1000, // 30 seconds
+    staleTime: 10 * 1000, // 10 seconds - shorter to match unread count
+    refetchOnMount: true, // Always refetch when component mounts (so you see latest when navigating to page)
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 }
 
 /**
  * Hook to get unread notification count
  * Used for showing badge in header
+ * Deduplicates connection requests to match how they're displayed on the notifications page
  */
 export function useUnreadCount() {
   return useQuery({
-    queryKey: ["notifications", "unread-count"],
+    queryKey: NOTIFICATION_QUERY_KEYS.unreadCount,
     queryFn: async () => {
       const result = await getNotifications({
+        grouped: true,
         unreadOnly: true,
         limit: 100, // Get enough to count all unread
       });
@@ -62,15 +68,31 @@ export function useUnreadCount() {
 
       // If grouped, count all unread notifications across all types
       const grouped = result.notifications as GroupedNotificationsResponse;
-      const count = Object.values(grouped).reduce(
-        (sum, notifications) => sum + notifications.length,
-        0
-      );
+
+      // Deduplicate connection requests (connection_request + connection_accepted)
+      // to match how they're displayed on the notifications page
+      const connectionRequests = [
+        ...grouped.connection_request,
+        ...grouped.connection_accepted,
+      ];
+      const uniqueConnectionRequests =
+        deduplicateConnectionRequests(connectionRequests);
+
+      // Count all notification types, using deduplicated connection requests
+      const count =
+        uniqueConnectionRequests.length +
+        grouped.like.length +
+        grouped.comment.length +
+        grouped.tagged_in_post.length +
+        grouped.review.length +
+        grouped.collaboration_request.length +
+        grouped.message.length;
 
       return count;
     },
-    staleTime: 10 * 1000, // 10 seconds - more frequent updates for badge
-    refetchInterval: 30 * 1000, // Refetch every 30 seconds
+    staleTime: 10 * 1000, // 10 seconds
+    refetchOnMount: true, // Always refetch when component mounts
+    refetchOnWindowFocus: true, // Refetch when window regains focus
+    refetchInterval: 30 * 1000, // Refetch every 30 seconds as fallback
   });
 }
-

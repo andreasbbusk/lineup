@@ -96,7 +96,7 @@ export class CreatePostBody
    * @example "I'm looking for an experienced drummer to join our band..."
    */
   @IsString()
-  @Length(10, 5000)
+  @Length(1, 5000)
   description!: string;
 
   /**
@@ -159,6 +159,54 @@ export class CreatePostBody
   @ValidateNested({ each: true })
   @Type(() => MediaItemDto)
   media?: MediaItemDto[];
+}
+
+/**
+ * DTO for updating an existing post
+ *
+ * All fields are optional - only provided fields will be updated.
+ * Only the post author can update their posts.
+ *
+ * @example
+ * {
+ *   "title": "Updated Title",
+ *   "description": "Updated description text"
+ * }
+ */
+export class UpdatePostBody {
+  /**
+   * Updated post title (1-100 characters)
+   * @example "Updated Title"
+   */
+  @IsOptional()
+  @IsString()
+  @Length(1, 100)
+  title?: string;
+
+  /**
+   * Updated post description (10-5000 characters)
+   * @example "Updated description text"
+   */
+  @IsOptional()
+  @IsString()
+  @Length(10, 5000)
+  description?: string;
+
+  /**
+   * Updated location
+   * @example "Los Angeles, CA"
+   */
+  @IsOptional()
+  @IsString()
+  location?: string | null;
+
+  /**
+   * Whether this is a paid opportunity (only for "request" type posts)
+   * @example true
+   */
+  @IsOptional()
+  @IsBoolean()
+  paidOpportunity?: boolean | null;
 }
 
 /**
@@ -235,7 +283,7 @@ export class PostsQueryDto {
    */
   @IsOptional()
   @IsArray()
-  @IsUUID({ each: true })
+  @IsUUID(4, { each: true })
   genreIds?: string[];
 
   /**

@@ -1,8 +1,14 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { updateNotification, deleteNotification } from "../api";
 import type { GroupedNotificationsResponse } from "../types";
+import { NOTIFICATION_QUERY_KEYS } from "../utils/queryKeys";
+import {
+  prepareOptimisticUpdate,
+  rollbackOptimisticUpdate,
+} from "../utils/optimisticUpdates";
 
 /**
  * Hook to mark a notification as read or unread
@@ -19,96 +25,57 @@ export function useMarkAsRead() {
       isRead: boolean;
     }) => updateNotification(notificationId, isRead),
     onMutate: async ({ notificationId, isRead }) => {
-      // Cancel any outgoing refetches to avoid overwriting optimistic update
-      await queryClient.cancelQueries({ queryKey: ["notifications"] });
-
-      // Snapshot the previous value
-      const previousQueries = queryClient.getQueriesData({
-        queryKey: ["notifications"],
-      });
+      const context = await prepareOptimisticUpdate(queryClient);
 
       // Optimistically update all notification queries
+      // Just update the isRead status, don't remove notifications
       queryClient.setQueriesData<{
         notifications: GroupedNotificationsResponse;
-      }>(
-        { queryKey: ["notifications"] },
-        (old) => {
-          if (!old?.notifications) return old;
+      }>({ queryKey: NOTIFICATION_QUERY_KEYS.all, exact: false }, (old) => {
+        if (!old?.notifications) return old;
 
-          // Remove the notification from all groups if marking as read
-          if (isRead) {
-            const updated: GroupedNotificationsResponse = {
-              like: old.notifications.like.filter((n) => n.id !== notificationId),
-              comment: old.notifications.comment.filter(
-                (n) => n.id !== notificationId
-              ),
-              connection_request: old.notifications.connection_request.filter(
-                (n) => n.id !== notificationId
-              ),
-              connection_accepted: old.notifications.connection_accepted.filter(
-                (n) => n.id !== notificationId
-              ),
-              tagged_in_post: old.notifications.tagged_in_post.filter(
-                (n) => n.id !== notificationId
-              ),
-              review: old.notifications.review.filter((n) => n.id !== notificationId),
-              collaboration_request:
-                old.notifications.collaboration_request.filter(
-                  (n) => n.id !== notificationId
-                ),
-              message: old.notifications.message.filter(
-                (n) => n.id !== notificationId
-              ),
-            };
-            return { ...old, notifications: updated };
-          }
+        // Update the notification's isRead status in all groups
+        const updateNotificationInGroup = <T extends Record<string, unknown>>(
+          group: T[]
+        ): T[] =>
+          group.map((n) => (n.id === notificationId ? { ...n, isRead } : n));
 
-          // If marking as unread, update the notification's isRead status
-          const updateNotificationInGroup = <T extends Record<string, unknown>>(
-            group: T[]
-          ): T[] =>
-            group.map((n) =>
-              n.id === notificationId ? { ...n, isRead } : n
-            );
+        return {
+          ...old,
+          notifications: {
+            like: updateNotificationInGroup(old.notifications.like),
+            comment: updateNotificationInGroup(old.notifications.comment),
+            connection_request: updateNotificationInGroup(
+              old.notifications.connection_request
+            ),
+            connection_accepted: updateNotificationInGroup(
+              old.notifications.connection_accepted
+            ),
+            tagged_in_post: updateNotificationInGroup(
+              old.notifications.tagged_in_post
+            ),
+            review: updateNotificationInGroup(old.notifications.review),
+            collaboration_request: updateNotificationInGroup(
+              old.notifications.collaboration_request
+            ),
+            message: updateNotificationInGroup(old.notifications.message),
+          },
+        };
+      });
 
-          return {
-            ...old,
-            notifications: {
-              like: updateNotificationInGroup(old.notifications.like),
-              comment: updateNotificationInGroup(old.notifications.comment),
-              connection_request: updateNotificationInGroup(
-                old.notifications.connection_request
-              ),
-              connection_accepted: updateNotificationInGroup(
-                old.notifications.connection_accepted
-              ),
-              tagged_in_post: updateNotificationInGroup(
-                old.notifications.tagged_in_post
-              ),
-              review: updateNotificationInGroup(old.notifications.review),
-              collaboration_request: updateNotificationInGroup(
-                old.notifications.collaboration_request
-              ),
-              message: updateNotificationInGroup(old.notifications.message),
-            },
-          };
-        }
-      );
-
-      return { previousQueries };
+      return context;
     },
-    onError: (err, variables, context) => {
-      // Rollback on error
-      if (context?.previousQueries) {
-        context.previousQueries.forEach(([queryKey, data]) => {
-          queryClient.setQueryData(queryKey, data);
-        });
-      }
+    onError: (err, _variables, context) => {
+      // Log error for debugging
+      console.error("Failed to update notification:", err);
+      rollbackOptimisticUpdate(queryClient, context);
+      toast.error("Failed to update notification. Please try again.");
     },
     onSuccess: () => {
       // Invalidate and refetch all notifications queries to ensure consistency
       queryClient.invalidateQueries({
-        queryKey: ["notifications"],
+        queryKey: NOTIFICATION_QUERY_KEYS.all,
+        exact: false,
         refetchType: "active",
       });
     },
@@ -123,9 +90,72 @@ export function useDeleteNotification() {
 
   return useMutation({
     mutationFn: (notificationId: string) => deleteNotification(notificationId),
+    onMutate: async (notificationId) => {
+      const context = await prepareOptimisticUpdate(queryClient);
+
+      // Optimistically remove the notification from all groups
+      // Update all notification queries (including grouped ones)
+      queryClient.setQueriesData<{
+        notifications: GroupedNotificationsResponse;
+      }>(
+        {
+          queryKey: NOTIFICATION_QUERY_KEYS.all,
+          exact: false,
+        },
+        (old) => {
+          if (!old?.notifications) return old;
+
+          const updated: GroupedNotificationsResponse = {
+            like: old.notifications.like.filter((n) => n.id !== notificationId),
+            comment: old.notifications.comment.filter(
+              (n) => n.id !== notificationId
+            ),
+            connection_request: old.notifications.connection_request.filter(
+              (n) => n.id !== notificationId
+            ),
+            connection_accepted: old.notifications.connection_accepted.filter(
+              (n) => n.id !== notificationId
+            ),
+            tagged_in_post: old.notifications.tagged_in_post.filter(
+              (n) => n.id !== notificationId
+            ),
+            review: old.notifications.review.filter(
+              (n) => n.id !== notificationId
+            ),
+            collaboration_request:
+              old.notifications.collaboration_request.filter(
+                (n) => n.id !== notificationId
+              ),
+            message: old.notifications.message.filter(
+              (n) => n.id !== notificationId
+            ),
+          };
+          return { ...old, notifications: updated };
+        }
+      );
+
+      return context;
+    },
+    onError: (err, _variables, context) => {
+      console.error("Failed to delete notification:", err);
+      rollbackOptimisticUpdate(queryClient, context);
+      toast.error("Failed to delete notification. Please try again.");
+    },
     onSuccess: () => {
-      // Invalidate notifications queries to refetch
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      // Don't refetch immediately - wait a bit to ensure backend has processed
+      // The optimistic update already removed it from UI
+      // Only invalidate the unread count, and let the polling interval handle the main query
+      queryClient.invalidateQueries({
+        queryKey: NOTIFICATION_QUERY_KEYS.unreadCount,
+        refetchType: "active", // Update count
+      });
+      // Mark notifications as stale but don't refetch immediately
+      // This prevents race conditions where refetch happens before backend completes
+      queryClient.invalidateQueries({
+        queryKey: NOTIFICATION_QUERY_KEYS.all,
+        exact: false,
+        refetchType: "none", // Don't refetch, just mark as stale
+      });
     },
   });
 }
