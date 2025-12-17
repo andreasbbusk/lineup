@@ -312,7 +312,6 @@ export async function createCollaboration(
   const { data, error, response } = await apiClient.POST("/collaborations", {
     body: {
       collaboratorId,
-      collaborator_id: collaboratorId,
     },
   });
 
