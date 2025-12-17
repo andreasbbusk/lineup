@@ -1,14 +1,17 @@
-# LineUp - Projekt Dokumentation
+x# LineUp - Projekt Dokumentation
 
 ## 1. Link(s) til den deployede løsning
 
-Indsæt links til deployet backend og frontend her.
+Frontend: https://lineup-vert.vercel.app
+Backend: https://lineup-o1es.onrender.com
+Swagger docs: https://lineup-o1es.onrender.com/docs/
 
 ---
 
 ## 2. Login-information til testbrugere
 
-Indsæt login-information til testbrugere her (hvis relevant).
+Brugernavn/email: testagain123@gmail.com
+Password: Test123
 
 ---
 
