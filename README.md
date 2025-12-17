@@ -471,6 +471,10 @@ LineUp bruger PostgreSQL (via Supabase) med 18 tabeller organiseret i logiske gr
 **Projektledelse:**
 
 - "Vertical slice" tilgangen (bygning af komplette features end-to-end) sikrede, at vi altid havde fungerende, testbare features frem for ufærdige implementeringer.
+<img width="1494" height="704" alt="image" src="https://github.com/user-attachments/assets/527f325d-136a-4b96-a6a0-b780b8063a52" />
+
+<img width="1494" height="704" alt="image" src="https://github.com/user-attachments/assets/144062d8-7343-4492-be46-f084dd5b0aac" />
+
 
 ### Hvad vi ville gøre anderledes
 
