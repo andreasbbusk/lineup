@@ -17,7 +17,10 @@ import {
   useUpsertFaq,
   useDeleteFaq,
   useDeleteCollaboration,
+  useCollaborations,
+  useCreateCollaboration,
 } from "@/app/modules/features/profiles";
+import { useAllPostRespondents } from "@/app/modules/hooks/queries";
 import { Button } from "@/app/modules/components/buttons";
 import { ErrorMessage } from "@/app/modules/components/error-message";
 import { useAppStore } from "@/app/modules/stores/Store";
@@ -113,6 +116,11 @@ export default function EditProfilePage() {
   const { mutate: deleteCollaboration } = useDeleteCollaboration(
     profileData?.id
   );
+  const { mutate: addCollaboration, isPending: isAddingCollaboratorPending } = useCreateCollaboration(
+    profileData?.id
+  );
+  const { data: postRespondents = [] } = useAllPostRespondents();
+  const { data: existingCollaborations = [] } = useCollaborations(profileData?.id);
 
   const [selectedLookingFor, setSelectedLookingFor] = useState<
     ("connect" | "promote" | "find-band" | "find-services")[]
@@ -137,6 +145,7 @@ export default function EditProfilePage() {
   const [pendingAction, setPendingAction] = useState<
     "save" | "addBlock" | null
   >(null);
+  const [isAddingCollaborator, setIsAddingCollaborator] = useState(false);
 
   const [socialMediaLinks, setSocialMediaLinks] = useState<
     Record<string, string>
@@ -621,7 +630,7 @@ export default function EditProfilePage() {
             </div>
           )}
 
-          {/* Past collaborations - UNCLEAR HOW THIS WOULD WORK - styled to look like figma */}
+          {/* Past collaborations */}
           {showPastCollaborationsSection && (
             <div className="relative self-stretch rounded-[1.5625rem] border border-black/10 py-9 px-3.75 w-full max-w-200 mx-auto">
               <Image
@@ -632,7 +641,123 @@ export default function EditProfilePage() {
                 className="absolute top-2 right-2 cursor-pointer"
                 onClick={() => setShowPastCollaborationsSection(false)}
               />
-              <h4 className="w-full font-semibold">Past collaborations</h4>
+              <div className="flex flex-col gap-4">
+                <h4 className="w-full font-semibold">Past collaborations</h4>
+                
+                {/* Existing collaborators */}
+                <div className="flex flex-wrap gap-3 items-center">
+                  {existingCollaborations
+                    .filter((collab) => collab.collaborator && !removedCollaborations.has(collab.id))
+                    .map((collab) => (
+                      <div key={collab.id} className="relative">
+                        <Avatar
+                          size="lg"
+                          src={collab.collaborator?.avatarUrl}
+                          fallback={
+                            (collab.collaborator?.firstName?.charAt(0)?.toUpperCase() || "") +
+                            (collab.collaborator?.lastName?.charAt(0)?.toUpperCase() || "")
+                          }
+                          alt={collab.collaborator?.username || ""}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setRemovedCollaborations((prev) => new Set([...prev, collab.id]));
+                            deleteCollaboration(collab.id);
+                          }}
+                          className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                </div>
+                
+                {/* Add past collaborators link */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingCollaborator(!isAddingCollaborator)}
+                    className="flex items-center gap-2 text-grey hover:opacity-70 transition-opacity"
+                  >
+                    <Image
+                      src="/icons/add-circle.svg"
+                      width={16}
+                      height={16}
+                      alt=""
+                    />
+                    <span className="text-sm">Add past collaborators</span>
+                  </button>
+                  
+                  {/* Dropdown for selecting collaborators */}
+                  {isAddingCollaborator && postRespondents.length > 0 && (
+                    <div className="absolute top-full mt-2 left-0 z-50 bg-white rounded-xl shadow-lg border border-gray-200 max-h-60 overflow-y-auto min-w-[250px]">
+                      <div className="p-2">
+                        <p className="text-xs text-gray-500 px-2 py-1 mb-1">
+                          People who responded to your posts
+                        </p>
+                        {postRespondents
+                          .filter((respondent) => 
+                            !existingCollaborations.some(
+                              (collab) => collab.collaborator?.id === respondent.id
+                            )
+                          )
+                          .map((respondent) => (
+                            <button
+                              key={respondent.id}
+                              type="button"
+                              onClick={() => {
+                                addCollaboration(respondent.id, {
+                                  onSuccess: () => {
+                                    setIsAddingCollaborator(false);
+                                  },
+                                });
+                              }}
+                              disabled={isAddingCollaboratorPending}
+                              className="flex items-center gap-2 w-full px-2 py-2 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                              <Avatar
+                                size="sm"
+                                src={respondent.avatarUrl}
+                                fallback={
+                                  (respondent.firstName?.charAt(0)?.toUpperCase() || "") +
+                                  (respondent.lastName?.charAt(0)?.toUpperCase() || "")
+                                }
+                                alt={respondent.username}
+                              />
+                              <div className="flex flex-col items-start">
+                                <span className="text-sm font-medium">
+                                  {respondent.firstName
+                                    ? `${respondent.firstName}${respondent.lastName ? ` ${respondent.lastName}` : ""}`
+                                    : respondent.username}
+                                </span>
+                                <span className="text-xs text-gray-500">@{respondent.username}</span>
+                              </div>
+                            </button>
+                          ))}
+                        {postRespondents.filter(
+                          (respondent) =>
+                            !existingCollaborations.some(
+                              (collab) => collab.collaborator?.id === respondent.id
+                            )
+                        ).length === 0 && (
+                          <p className="text-sm text-gray-500 px-2 py-2">
+                            All respondents already added
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {isAddingCollaborator && postRespondents.length === 0 && (
+                    <div className="absolute top-full mt-2 left-0 z-50 bg-white rounded-xl shadow-lg border border-gray-200 p-4 min-w-[250px]">
+                      <p className="text-sm text-gray-500">
+                        No respondents yet. People who start a chat on your collaboration requests will appear here.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 

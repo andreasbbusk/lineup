@@ -1,6 +1,6 @@
 // src/entities/posts/posts.service.ts
 import { getSupabaseClient, supabase, SupabaseClient } from "../../config/supabase.config.js";
-import { CreatePostBody, PostsQueryDto } from "./posts.dto.js";
+import { CreatePostBody, PostsQueryDto, UpdatePostBody } from "./posts.dto.js";
 import { PostInsert, MediaType, PostRow } from "../../utils/supabase-helpers.js";
 import { mapPostToResponse } from "./posts.mapper.js";
 import { PostResponse, PaginatedResponse, CommentResponse } from "../../types/api.types.js";
@@ -838,6 +838,337 @@ export class PostsService {
     if (error) {
       throw createHttpError({
         message: `Failed to unlike post: ${error.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+  }
+
+  /**
+   * Get users who have started a chat on a post (post respondents)
+   * 
+   * Returns a list of users who initiated a conversation in response to this post.
+   * This is useful for showing potential collaborators on the profile.
+   */
+  async getPostRespondents(
+    postId: string,
+    userId: string,
+    token: string
+  ): Promise<{
+    id: string;
+    username: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    avatarUrl?: string | null;
+  }[]> {
+    const supabase = getSupabaseClient(token);
+
+    // First, verify the post exists and belongs to the user
+    const { data: post, error: postError } = await supabase
+      .from("posts")
+      .select("id, author_id")
+      .eq("id", postId)
+      .single();
+
+    if (postError || !post) {
+      throw createHttpError({
+        message: `Post not found: ${postError?.message || "Post does not exist"}`,
+        statusCode: 404,
+        code: "NOT_FOUND",
+      });
+    }
+
+    // Only the post author can view respondents
+    if (post.author_id !== userId) {
+      throw createHttpError({
+        message: "Only the post author can view respondents",
+        statusCode: 403,
+        code: "FORBIDDEN",
+      });
+    }
+
+    // Find all conversations linked to this post
+    const { data: conversations, error: convError } = await supabase
+      .from("conversations")
+      .select(`
+        id,
+        created_by,
+        participants:conversation_participants(
+          user_id,
+          user:profiles!conversation_participants_user_id_fkey(id, username, first_name, last_name, avatar_url)
+        )
+      `)
+      .eq("related_post_id", postId);
+
+    if (convError) {
+      throw createHttpError({
+        message: `Failed to fetch conversations: ${convError.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    if (!conversations || conversations.length === 0) {
+      return [];
+    }
+
+    // Collect unique respondents (users who started the chat, excluding the post author)
+    const respondentsMap = new Map<string, {
+      id: string;
+      username: string;
+      firstName?: string | null;
+      lastName?: string | null;
+      avatarUrl?: string | null;
+    }>();
+
+    for (const conversation of conversations) {
+      // The respondent is the one who created the conversation (started the chat)
+      // and is not the post author
+      if (conversation.created_by && conversation.created_by !== userId) {
+        // Find the creator in participants
+        const creatorParticipant = (conversation.participants as any[])?.find(
+          (p) => p.user_id === conversation.created_by
+        );
+        
+        if (creatorParticipant?.user && !respondentsMap.has(creatorParticipant.user.id)) {
+          respondentsMap.set(creatorParticipant.user.id, {
+            id: creatorParticipant.user.id,
+            username: creatorParticipant.user.username,
+            firstName: creatorParticipant.user.first_name,
+            lastName: creatorParticipant.user.last_name,
+            avatarUrl: creatorParticipant.user.avatar_url,
+          });
+        }
+      }
+    }
+
+    return Array.from(respondentsMap.values());
+  }
+
+  /**
+   * Get all respondents across all of a user's request posts
+   * 
+   * Returns unique users who have started chats on any of the user's request posts.
+   * This is useful for populating the "past collaborators" section on the profile.
+   */
+  async getAllPostRespondents(
+    userId: string,
+    token: string
+  ): Promise<{
+    id: string;
+    username: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    avatarUrl?: string | null;
+  }[]> {
+    const supabase = getSupabaseClient(token);
+
+    // Find all request posts by this user
+    const { data: userPosts, error: postsError } = await supabase
+      .from("posts")
+      .select("id")
+      .eq("author_id", userId)
+      .eq("type", "request");
+
+    if (postsError) {
+      throw createHttpError({
+        message: `Failed to fetch posts: ${postsError.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    if (!userPosts || userPosts.length === 0) {
+      return [];
+    }
+
+    const postIds = userPosts.map((p) => p.id);
+
+    // Find all conversations linked to these posts
+    const { data: conversations, error: convError } = await supabase
+      .from("conversations")
+      .select(`
+        id,
+        created_by,
+        participants:conversation_participants(
+          user_id,
+          user:profiles!conversation_participants_user_id_fkey(id, username, first_name, last_name, avatar_url)
+        )
+      `)
+      .in("related_post_id", postIds);
+
+    if (convError) {
+      throw createHttpError({
+        message: `Failed to fetch conversations: ${convError.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    if (!conversations || conversations.length === 0) {
+      return [];
+    }
+
+    // Collect unique respondents (users who started the chat, excluding the post author)
+    const respondentsMap = new Map<string, {
+      id: string;
+      username: string;
+      firstName?: string | null;
+      lastName?: string | null;
+      avatarUrl?: string | null;
+    }>();
+
+    for (const conversation of conversations) {
+      // The respondent is the one who created the conversation (started the chat)
+      // and is not the post author
+      if (conversation.created_by && conversation.created_by !== userId) {
+        // Find the creator in participants
+        const creatorParticipant = (conversation.participants as any[])?.find(
+          (p) => p.user_id === conversation.created_by
+        );
+        
+        if (creatorParticipant?.user && !respondentsMap.has(creatorParticipant.user.id)) {
+          respondentsMap.set(creatorParticipant.user.id, {
+            id: creatorParticipant.user.id,
+            username: creatorParticipant.user.username,
+            firstName: creatorParticipant.user.first_name,
+            lastName: creatorParticipant.user.last_name,
+            avatarUrl: creatorParticipant.user.avatar_url,
+          });
+        }
+      }
+    }
+
+    return Array.from(respondentsMap.values());
+  }
+
+  /**
+   * Update a post
+   * 
+   * Updates a post's content. Only the post author can update their own posts.
+   */
+  async updatePost(
+    postId: string,
+    userId: string,
+    data: UpdatePostBody,
+    token: string
+  ): Promise<PostResponse> {
+    const supabase = getSupabaseClient(token);
+
+    // First, fetch the post to verify it exists and check permissions
+    const { data: post, error: postError } = await supabase
+      .from("posts")
+      .select("id, author_id")
+      .eq("id", postId)
+      .single();
+
+    if (postError || !post) {
+      throw createHttpError({
+        message: `Post not found: ${postError?.message || "Post does not exist"}`,
+        statusCode: 404,
+        code: "NOT_FOUND",
+      });
+    }
+
+    // Only the post author can update it
+    if (post.author_id !== userId) {
+      throw createHttpError({
+        message: "Only the post author can update this post",
+        statusCode: 403,
+        code: "FORBIDDEN",
+      });
+    }
+
+    // Build update object
+    const updateData: any = {};
+    if (data.title !== undefined) updateData.title = data.title.trim();
+    if (data.description !== undefined) updateData.description = data.description.trim();
+    if (data.location !== undefined) updateData.location = data.location;
+    if (data.paidOpportunity !== undefined) updateData.paid_opportunity = data.paidOpportunity;
+
+    // Update the post
+    const { error: updateError } = await supabase
+      .from("posts")
+      .update(updateData)
+      .eq("id", postId);
+
+    if (updateError) {
+      throw createHttpError({
+        message: `Failed to update post: ${updateError.message}`,
+        statusCode: 500,
+        code: "DATABASE_ERROR",
+      });
+    }
+
+    // Fetch and return the updated post
+    return this.getPostById(postId, {}, userId, token);
+  }
+
+  /**
+   * Delete a post
+   * 
+   * Permanently deletes a post and all its related data.
+   * Only the post author can delete their own posts.
+   */
+  async deletePost(
+    postId: string,
+    userId: string,
+    token: string
+  ): Promise<void> {
+    const supabase = getSupabaseClient(token);
+
+    // First, fetch the post to verify it exists and check permissions
+    const { data: post, error: postError } = await supabase
+      .from("posts")
+      .select("id, author_id")
+      .eq("id", postId)
+      .single();
+
+    if (postError || !post) {
+      throw createHttpError({
+        message: `Post not found: ${postError?.message || "Post does not exist"}`,
+        statusCode: 404,
+        code: "NOT_FOUND",
+      });
+    }
+
+    // Only the post author can delete it
+    if (post.author_id !== userId) {
+      throw createHttpError({
+        message: "Only the post author can delete this post",
+        statusCode: 403,
+        code: "FORBIDDEN",
+      });
+    }
+
+    // Delete related data first (cascade should handle this but being explicit)
+    // Delete post_metadata
+    await supabase.from("post_metadata").delete().eq("post_id", postId);
+    
+    // Delete post_media
+    await supabase.from("post_media").delete().eq("post_id", postId);
+    
+    // Delete post_tagged_users
+    await supabase.from("post_tagged_users").delete().eq("post_id", postId);
+    
+    // Delete likes
+    await supabase.from("likes").delete().eq("post_id", postId);
+    
+    // Delete bookmarks
+    await supabase.from("bookmarks").delete().eq("post_id", postId);
+    
+    // Delete comments
+    await supabase.from("comments").delete().eq("post_id", postId);
+
+    // Finally delete the post
+    const { error: deleteError } = await supabase
+      .from("posts")
+      .delete()
+      .eq("id", postId);
+
+    if (deleteError) {
+      throw createHttpError({
+        message: `Failed to delete post: ${deleteError.message}`,
         statusCode: 500,
         code: "DATABASE_ERROR",
       });

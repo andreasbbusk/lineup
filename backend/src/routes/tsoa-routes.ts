@@ -115,6 +115,7 @@ const models: TsoaRoute.Models = {
     "CreatePostBody": {"dataType":"refObject","properties":{"description":{"dataType":"string","required":true},"expires_at":{"dataType":"string"},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"paid_opportunity":{"dataType":"boolean"},"resolved_at":{"dataType":"string"},"status":{"dataType":"string"},"title":{"dataType":"string","required":true},"type":{"ref":"PostType","required":true},"paidOpportunity":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}]},"expiresAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"tags":{"dataType":"array","array":{"dataType":"string"}},"genres":{"dataType":"array","array":{"dataType":"string"}},"taggedUsers":{"dataType":"array","array":{"dataType":"string"}},"media":{"dataType":"array","array":{"dataType":"refObject","ref":"MediaItemDto"}}},"additionalProperties":false},
     "PaginatedResponse_PostResponse_": {"dataType":"refObject","properties":{"data":{"dataType":"array","array":{"dataType":"refObject","ref":"PostResponse"},"required":true},"pagination":{"dataType":"nestedObjectLiteral","nestedProperties":{"total":{"dataType":"double"},"hasMore":{"dataType":"boolean","required":true},"nextCursor":{"dataType":"string"}},"required":true}},"additionalProperties":false},
     "CommentResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"postId":{"dataType":"string","required":true},"authorId":{"dataType":"string","required":true},"content":{"dataType":"string","required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"updatedAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"parentId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"replies":{"dataType":"array","array":{"dataType":"refObject","ref":"CommentResponse"}},"author":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}},"likesCount":{"dataType":"double"},"isLiked":{"dataType":"boolean"}},"additionalProperties":false},
+    "UpdatePostBody": {"dataType":"refObject","properties":{"title":{"dataType":"string"},"description":{"dataType":"string"},"location":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"paidOpportunity":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}]}},"additionalProperties":false},
     "NotificationResponse": {"dataType":"refObject","properties":{"id":{"dataType":"string","required":true},"recipientId":{"dataType":"string","required":true},"actorId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"type":{"dataType":"string","required":true},"entityType":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"entityId":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"title":{"dataType":"string","required":true},"body":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"actionUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"isRead":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"isArchived":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"createdAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"readAt":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"sentViaWebsocket":{"dataType":"union","subSchemas":[{"dataType":"boolean"},{"dataType":"enum","enums":[null]}],"required":true},"actor":{"dataType":"nestedObjectLiteral","nestedProperties":{"avatarUrl":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"lastName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"firstName":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},"username":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}}},"additionalProperties":false},
     "Record_like-or-comment-or-connection_request-or-connection_accepted-or-tagged_in_post-or-review-or-collaboration_request-or-message.NotificationResponse-Array_": {"dataType":"refAlias","type":{"dataType":"nestedObjectLiteral","nestedProperties":{"like":{"dataType":"array","array":{"dataType":"refObject","ref":"NotificationResponse"},"required":true},"comment":{"dataType":"array","array":{"dataType":"refObject","ref":"NotificationResponse"},"required":true},"connection_request":{"dataType":"array","array":{"dataType":"refObject","ref":"NotificationResponse"},"required":true},"connection_accepted":{"dataType":"array","array":{"dataType":"refObject","ref":"NotificationResponse"},"required":true},"tagged_in_post":{"dataType":"array","array":{"dataType":"refObject","ref":"NotificationResponse"},"required":true},"review":{"dataType":"array","array":{"dataType":"refObject","ref":"NotificationResponse"},"required":true},"collaboration_request":{"dataType":"array","array":{"dataType":"refObject","ref":"NotificationResponse"},"required":true},"message":{"dataType":"array","array":{"dataType":"refObject","ref":"NotificationResponse"},"required":true}},"validators":{}}},
     "GroupedNotificationsResponse": {"dataType":"refAlias","type":{"ref":"Record_like-or-comment-or-connection_request-or-connection_accepted-or-tagged_in_post-or-review-or-collaboration_request-or-message.NotificationResponse-Array_","validators":{}}},
@@ -1181,6 +1182,134 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'unlikePost',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsPostsController_getPostRespondents: Record<string, TsoaRoute.ParameterSchema> = {
+                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+        };
+        app.get('/posts/:id/respondents',
+            authenticateMiddleware([[{"bearerAuth":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(PostsController)),
+            ...(fetchMiddlewares<RequestHandler>(PostsController.prototype.getPostRespondents)),
+
+            async function PostsController_getPostRespondents(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsPostsController_getPostRespondents, request, response });
+
+                const controller = new PostsController();
+
+              await templateService.apiHandler({
+                methodName: 'getPostRespondents',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsPostsController_getAllPostRespondents: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+        };
+        app.get('/posts/respondents/all',
+            authenticateMiddleware([[{"bearerAuth":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(PostsController)),
+            ...(fetchMiddlewares<RequestHandler>(PostsController.prototype.getAllPostRespondents)),
+
+            async function PostsController_getAllPostRespondents(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsPostsController_getAllPostRespondents, request, response });
+
+                const controller = new PostsController();
+
+              await templateService.apiHandler({
+                methodName: 'getAllPostRespondents',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsPostsController_updatePost: Record<string, TsoaRoute.ParameterSchema> = {
+                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+                body: {"in":"body","name":"body","required":true,"ref":"UpdatePostBody"},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+        };
+        app.put('/posts/:id',
+            authenticateMiddleware([[{"bearerAuth":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(PostsController)),
+            ...(fetchMiddlewares<RequestHandler>(PostsController.prototype.updatePost)),
+
+            async function PostsController_updatePost(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsPostsController_updatePost, request, response });
+
+                const controller = new PostsController();
+
+              await templateService.apiHandler({
+                methodName: 'updatePost',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsPostsController_deletePost: Record<string, TsoaRoute.ParameterSchema> = {
+                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+        };
+        app.delete('/posts/:id',
+            authenticateMiddleware([[{"bearerAuth":[]}]]),
+            ...(fetchMiddlewares<RequestHandler>(PostsController)),
+            ...(fetchMiddlewares<RequestHandler>(PostsController.prototype.deletePost)),
+
+            async function PostsController_deletePost(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsPostsController_deletePost, request, response });
+
+                const controller = new PostsController();
+
+              await templateService.apiHandler({
+                methodName: 'deletePost',
                 controller,
                 response,
                 next,
