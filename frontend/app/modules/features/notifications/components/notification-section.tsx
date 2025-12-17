@@ -35,7 +35,7 @@ export function NotificationSection({
 			</h2>
 
 			{/* Notification items */}
-			<div className="flex flex-col gap-4 items-start w-full">
+			<div className="flex flex-col gap-2 items-start w-full">
 				{notifications.map((notification) => {
 					const itemShowAction =
 						showActionButton && shouldShowActionButton(notification);

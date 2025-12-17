@@ -7,7 +7,10 @@ import Link from "next/link";
 import { formatNotificationTime } from "../utils/formatTime";
 import { getNotificationText } from "../utils/notificationText";
 import type { NotificationResponse } from "../types";
-import { useMarkAsRead, useDeleteNotification } from "../hooks/useNotificationMutations";
+import {
+	useMarkAsRead,
+	useDeleteNotification,
+} from "../hooks/useNotificationMutations";
 import { FileText, Tag, X } from "lucide-react";
 import {
 	getStoryImageUrl,
@@ -165,37 +168,44 @@ export function NotificationItem({
 
 	return (
 		<div
-			className={`flex items-start justify-between gap-2 w-full ${
+			className={`flex items-center justify-between w-full ${
 				notification.isRead ? "opacity-60" : ""
-			}`}
+			} hover:bg-gray-100 hover:transition hover:duration-200`}
 			onClick={handleClick}>
-			<div className="flex flex-1 gap-2 items-center min-w-0">
+			<div className="flex flex-1 p-2 gap-2 items-center justify-center min-w-0 ">
 				{/* Avatar */}
 				<div
 					className="relative shrink-0 size-7 rounded-full overflow-hidden cursor-pointer"
 					onClick={handleAvatarClick}>
-				{actor?.avatarUrl ? (
-					<Image
-						src={actor.avatarUrl}
-						alt={actorName}
-						fill
-						sizes="28px"
-						className="object-cover rounded-full"
-					/>
-				) : (
-					<div className="w-full h-full bg-gray-300 rounded-full" />
-				)}
+					{actor?.avatarUrl ? (
+						<Image
+							src={actor.avatarUrl}
+							alt={actorName}
+							fill
+							sizes="28px"
+							className="object-cover rounded-full"
+						/>
+					) : (
+						<div className="w-full h-full bg-gray-300 rounded-full" />
+					)}
 				</div>
 
 				{/* Notification text */}
 				<div className="flex flex-1 flex-col gap-1 items-start justify-center min-w-0">
-					<div className="flex flex-wrap gap-1 items-center text-[14px] leading-[1.35] tracking-[0.5px]">
+					<div
+						className={`flex flex-wrap gap-1 items-center text-[14px] leading-[1.35] tracking-[0.5px] `}>
 						<span
-							className={`${NOTIFICATION_FONTS.bold} ${NOTIFICATION_COLORS.foreground}`}>
+							className={`${
+								notification.isRead ? NOTIFICATION_FONTS.bold : "font-bold"
+							} ${NOTIFICATION_COLORS.foreground}`}>
 							{actorName}
 						</span>
 						<span
-							className={`${NOTIFICATION_FONTS.medium} ${NOTIFICATION_COLORS.foreground}`}>
+							className={`${
+								notification.isRead
+									? NOTIFICATION_FONTS.medium
+									: "font-semibold"
+							} ${NOTIFICATION_COLORS.foreground}`}>
 							{notificationText}
 						</span>
 						{timeAgo && (
@@ -209,7 +219,11 @@ export function NotificationItem({
 					{/* Body text (for collaboration requests, comments, etc.) */}
 					{notification.body && (
 						<p
-							className={`${NOTIFICATION_FONTS.medium} text-[14px] ${NOTIFICATION_COLORS.muted} leading-[1.35] tracking-[0.5px]`}>
+							className={` text-[14px] ${
+								NOTIFICATION_COLORS.muted
+							} leading-[1.35] tracking-[0.5px] ${
+								notification.isRead ? NOTIFICATION_FONTS.medium : "font-bold"
+							}`}>
 							{notification.body}
 						</p>
 					)}
