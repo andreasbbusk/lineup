@@ -114,7 +114,7 @@
 				]
 			},
 			"UpdateProfileDto": {
-				"description": "DTO for updating user profile\r\n\r\nUsed to update user profile information. All fields are optional - only\r\nprovided fields will be updated. The user_id is automatically extracted\r\nfrom the authentication token.",
+				"description": "DTO for updating user profile\n\nUsed to update user profile information. All fields are optional - only\nprovided fields will be updated. The user_id is automatically extracted\nfrom the authentication token.",
 				"properties": {
 					"username": {
 						"type": "string",
@@ -482,7 +482,7 @@
 				}
 			},
 			"SignedUrlResponse": {
-				"description": "API response format for signed upload URL\r\n\r\nReturns a temporary signed URL that allows direct client uploads to Supabase Storage.\r\nThe client uses this URL to upload files directly, bypassing the backend.",
+				"description": "API response format for signed upload URL\n\nReturns a temporary signed URL that allows direct client uploads to Supabase Storage.\nThe client uses this URL to upload files directly, bypassing the backend.",
 				"properties": {
 					"signedUrl": {
 						"type": "string"
@@ -503,7 +503,7 @@
 				}
 			},
 			"SignedUrlRequestDto": {
-				"description": "DTO for requesting a signed upload URL\r\n\r\nUsed to generate a temporary signed URL for direct client uploads to Supabase Storage.\r\nThe client will use this signed URL to upload files directly, bypassing the backend.",
+				"description": "DTO for requesting a signed upload URL\n\nUsed to generate a temporary signed URL for direct client uploads to Supabase Storage.\nThe client will use this signed URL to upload files directly, bypassing the backend.",
 				"properties": {
 					"fileName": {
 						"type": "string",
@@ -539,7 +539,7 @@
 				}
 			},
 			"ServiceResponse": {
-				"description": "API response format for a service\r\nRepresents a service offering (seeded data - no creation endpoint).\r\nServices can be: rehearsal_space, studio, recording, art, venue, teaching, or equipment_rental.\r\nprovider_id is practically always null since there are no provider users.",
+				"description": "API response format for a service\nRepresents a service offering (seeded data - no creation endpoint).\nServices can be: rehearsal_space, studio, recording, art, venue, teaching, or equipment_rental.\nprovider_id is practically always null since there are no provider users.",
 				"properties": {
 					"id": {
 						"type": "string"
@@ -909,7 +909,7 @@
 				}
 			},
 			"ForYouSearchResult": {
-				"description": "Search result for \"For You\" tab (from search_for_you)\r\nPolymorphic result that can be a user, collaboration, service, or tag",
+				"description": "Search result for \"For You\" tab (from search_for_you)\nPolymorphic result that can be a user, collaboration, service, or tag",
 				"properties": {
 					"type": {
 						"type": "string",
@@ -1069,7 +1069,7 @@
 				}
 			},
 			"SaveRecentSearchDto": {
-				"description": "DTO for saving a recent search\r\n\r\nUsed when a user performs a search to save it to their history",
+				"description": "DTO for saving a recent search\n\nUsed when a user performs a search to save it to their history",
 				"properties": {
 					"query": {
 						"type": "string",
@@ -1113,7 +1113,7 @@
 				}
 			},
 			"ReviewResponse": {
-				"description": "API response format for a user review\r\nRepresents a 5-star rating and review text for a user",
+				"description": "API response format for a user review\nRepresents a 5-star rating and review text for a user",
 				"properties": {
 					"id": {
 						"type": "string"
@@ -1206,7 +1206,7 @@
 				"description": "From T, pick a set of properties whose keys are in the union K"
 			},
 			"CreateReviewDto": {
-				"description": "DTO for creating a review\r\n\r\nUsed when writing a review for a user.\r\nThe reviewer_id is automatically extracted from the authentication token.",
+				"description": "DTO for creating a review\n\nUsed when writing a review for a user.\nThe reviewer_id is automatically extracted from the authentication token.",
 				"properties": {
 					"description": {
 						"type": "string",
@@ -1232,7 +1232,7 @@
 				}
 			},
 			"UpdateReviewDto": {
-				"description": "DTO for updating a review\r\n\r\nUsed when editing your own review.",
+				"description": "DTO for updating a review\n\nUsed when editing your own review.",
 				"properties": {
 					"rating": {
 						"type": "number",
@@ -1255,7 +1255,7 @@
 				}
 			},
 			"PostResponse": {
-				"description": "API response format for a post with flattened relations\r\nThis is the camelCase version of PostRow (database format)\r\nThe mapper transforms PostRow (snake_case) → PostResponse (camelCase)",
+				"description": "API response format for a post with flattened relations\nThis is the camelCase version of PostRow (database format)\nThe mapper transforms PostRow (snake_case) → PostResponse (camelCase)",
 				"properties": {
 					"id": {
 						"type": "string"
@@ -1524,7 +1524,7 @@
 				"description": "From T, pick a set of properties whose keys are in the union K"
 			},
 			"CreatePostBody": {
-				"description": "DTO for creating a new post\r\n\r\nUsed when creating a post (note, request, or story). The author_id is\r\nautomatically extracted from the authentication token.\r\n\r\nFor \"note\" posts, you can include tags.\r\nFor \"request\" posts, you can include genres and paidOpportunity flag.\r\nAll post types can include media attachments and tagged users.",
+				"description": "DTO for creating a new post\n\nUsed when creating a post (note, request, or story). The author_id is\nautomatically extracted from the authentication token.\n\nFor \"note\" posts, you can include tags.\nFor \"request\" posts, you can include genres and paidOpportunity flag.\nAll post types can include media attachments and tagged users.",
 				"properties": {
 					"description": {
 						"type": "string",
@@ -1679,7 +1679,7 @@
 				"additionalProperties": false
 			},
 			"CommentResponse": {
-				"description": "API response format for a comment\r\nRepresents a comment on a post with author information",
+				"description": "API response format for a comment\nRepresents a comment on a post with author information",
 				"properties": {
 					"id": {
 						"type": "string"
@@ -1773,7 +1773,7 @@
 				}
 			},
 			"UpdatePostBody": {
-				"description": "DTO for updating an existing post\r\n\r\nAll fields are optional - only provided fields will be updated.\r\nOnly the post author can update their posts.",
+				"description": "DTO for updating an existing post\n\nAll fields are optional - only provided fields will be updated.\nOnly the post author can update their posts.",
 				"properties": {
 					"title": {
 						"type": "string",
@@ -1806,7 +1806,7 @@
 				}
 			},
 			"NotificationResponse": {
-				"description": "API response format for a notification\r\nRepresents a notification with actor information",
+				"description": "API response format for a notification\nRepresents a notification with actor information",
 				"properties": {
 					"id": {
 						"type": "string"
@@ -1967,10 +1967,10 @@
 			},
 			"GroupedNotificationsResponse": {
 				"$ref": "#/components/schemas/Record_like-or-comment-or-connection_request-or-connection_accepted-or-tagged_in_post-or-review-or-collaboration_request-or-message.NotificationResponse-Array_",
-				"description": "API response format for grouped notifications\r\nReturns notifications organized by type for easy filtering in the frontend\r\nUses Record type to ensure all notification types are included"
+				"description": "API response format for grouped notifications\nReturns notifications organized by type for easy filtering in the frontend\nUses Record type to ensure all notification types are included"
 			},
 			"UpdateNotificationDto": {
-				"description": "DTO for updating a notification\r\n\r\nUsed when marking a notification as read or unread.",
+				"description": "DTO for updating a notification\n\nUsed when marking a notification as read or unread.",
 				"properties": {
 					"isRead": {
 						"type": "boolean",
@@ -2025,7 +2025,7 @@
 				}
 			},
 			"MetadataResponse": {
-				"description": "API response format for metadata endpoint\r\nReturns all available tags, genres, and artists organized by type",
+				"description": "API response format for metadata endpoint\nReturns all available tags, genres, and artists organized by type",
 				"properties": {
 					"tags": {
 						"items": {
@@ -2081,7 +2081,7 @@
 				}
 			},
 			"MessageResponse": {
-				"description": "API response format for a message\r\nRepresents a message in a conversation with sender info and optional reply",
+				"description": "API response format for a message\nRepresents a message in a conversation with sender info and optional reply",
 				"properties": {
 					"id": {
 						"type": "string"
@@ -2274,7 +2274,7 @@
 				}
 			},
 			"PaginatedMessagesResponse": {
-				"description": "API response format for paginated messages\r\nUsed by GET /messages/:conversationId endpoint",
+				"description": "API response format for paginated messages\nUsed by GET /messages/:conversationId endpoint",
 				"properties": {
 					"messages": {
 						"items": {
@@ -2352,7 +2352,7 @@
 				"additionalProperties": false
 			},
 			"FeedPostResponse": {
-				"description": "API response format for a post in the feed\r\nExtends PostResponse with engagement data and user interaction state",
+				"description": "API response format for a post in the feed\nExtends PostResponse with engagement data and user interaction state",
 				"properties": {
 					"id": {
 						"type": "string"
@@ -2636,7 +2636,7 @@
 				"additionalProperties": false
 			},
 			"ConversationResponse": {
-				"description": "API response format for a conversation\r\nRepresents a direct message or group conversation",
+				"description": "API response format for a conversation\nRepresents a direct message or group conversation",
 				"properties": {
 					"id": {
 						"type": "string"
@@ -2813,7 +2813,7 @@
 				"description": "Status of a connection request between two users"
 			},
 			"Connection": {
-				"description": "API response format for a connection request\r\nRepresents a connection request between two users with requester/recipient profiles",
+				"description": "API response format for a connection request\nRepresents a connection request between two users with requester/recipient profiles",
 				"properties": {
 					"id": {
 						"type": "string"
@@ -2854,7 +2854,7 @@
 				"additionalProperties": false
 			},
 			"CreateConnectionRequestDto": {
-				"description": "DTO for creating a connection request\r\n\r\nUsed when sending a connection request to another user.\r\nThe requester_id is automatically extracted from the authentication token.",
+				"description": "DTO for creating a connection request\n\nUsed when sending a connection request to another user.\nThe requester_id is automatically extracted from the authentication token.",
 				"properties": {
 					"recipientId": {
 						"type": "string",
@@ -2872,7 +2872,7 @@
 				}
 			},
 			"UpdateConnectionRequestDto": {
-				"description": "DTO for updating a connection request status\r\n\r\nUsed when accepting or rejecting a connection request.\r\nOnly the recipient can update the status.",
+				"description": "DTO for updating a connection request status\n\nUsed when accepting or rejecting a connection request.\nOnly the recipient can update the status.",
 				"properties": {
 					"status": {
 						"$ref": "#/components/schemas/ConnectionStatus",
@@ -2906,7 +2906,7 @@
 				"description": "Construct a type with the properties of T except for those in type K."
 			},
 			"CreateCommentDto": {
-				"description": "DTO for creating a comment\r\n\r\nUsed when creating a comment on a post. The author_id is automatically\r\nextracted from the authentication token.",
+				"description": "DTO for creating a comment\n\nUsed when creating a comment on a post. The author_id is automatically\nextracted from the authentication token.",
 				"properties": {
 					"postId": {
 						"type": "string",
@@ -2921,7 +2921,7 @@
 					"parentId": {
 						"type": "string",
 						"nullable": true,
-						"description": "Optional parent comment ID for nested replies (UUID format)\r\nIf provided, this comment will be a reply to the parent comment",
+						"description": "Optional parent comment ID for nested replies (UUID format)\nIf provided, this comment will be a reply to the parent comment",
 						"example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
 					}
 				},
@@ -2937,7 +2937,7 @@
 				}
 			},
 			"UpdateCommentDto": {
-				"description": "DTO for updating a comment\r\n\r\nUsed when updating an existing comment. Only the content can be updated.",
+				"description": "DTO for updating a comment\n\nUsed when updating an existing comment. Only the content can be updated.",
 				"properties": {
 					"content": {
 						"type": "string",
@@ -2955,7 +2955,7 @@
 				}
 			},
 			"CollaborationResponse": {
-				"description": "API response format for a user collaboration\r\nRepresents a past collaboration between two users",
+				"description": "API response format for a user collaboration\nRepresents a past collaboration between two users",
 				"properties": {
 					"id": {
 						"type": "string"
@@ -3041,7 +3041,7 @@
 				"description": "From T, pick a set of properties whose keys are in the union K"
 			},
 			"CreateCollaborationDto": {
-				"description": "DTO for creating a collaboration\r\n\r\nRepresents a past collaboration between the authenticated user and another user.\r\nThe description is optional and limited to 200 characters.",
+				"description": "DTO for creating a collaboration\n\nRepresents a past collaboration between the authenticated user and another user.\nThe description is optional and limited to 200 characters.",
 				"properties": {
 					"description": {
 						"type": "string",
@@ -3070,7 +3070,7 @@
 				}
 			},
 			"BookmarkResponse": {
-				"description": "API response format for a bookmark\r\nIncludes the bookmark details and optional post information with author",
+				"description": "API response format for a bookmark\nIncludes the bookmark details and optional post information with author",
 				"properties": {
 					"postId": {
 						"type": "string"
@@ -3185,7 +3185,7 @@
 				"description": "From T, pick a set of properties whose keys are in the union K"
 			},
 			"CreateBookmarkDto": {
-				"description": "DTO for creating a bookmark\r\n\r\nUsed when a user wants to bookmark a post for later reference.\r\nThe user_id is automatically extracted from the authentication token.",
+				"description": "DTO for creating a bookmark\n\nUsed when a user wants to bookmark a post for later reference.\nThe user_id is automatically extracted from the authentication token.",
 				"properties": {
 					"post_id": {
 						"type": "string"
@@ -3244,7 +3244,7 @@
 						}
 					}
 				},
-				"description": "Get user profile by username\r\n\r\nRetrieves a user's profile information. Returns public profile data by default.\r\nIf authenticated and viewing your own profile, returns additional private fields\r\nsuch as phone number, year of birth, etc.\r\n\r\nAuthentication is optional - endpoint can be accessed without a token for public profiles.",
+				"description": "Get user profile by username\n\nRetrieves a user's profile information. Returns public profile data by default.\nIf authenticated and viewing your own profile, returns additional private fields\nsuch as phone number, year of birth, etc.\n\nAuthentication is optional - endpoint can be accessed without a token for public profiles.",
 				"summary": "Get user profile",
 				"tags": [
 					"Users"
@@ -3288,7 +3288,7 @@
 						}
 					}
 				},
-				"description": "Update own profile\r\n\r\nUpdates the authenticated user's profile information. Only the profile owner\r\ncan update their own profile. All fields in the request body are optional -\r\nonly provided fields will be updated.",
+				"description": "Update own profile\n\nUpdates the authenticated user's profile information. Only the profile owner\ncan update their own profile. All fields in the request body are optional -\nonly provided fields will be updated.",
 				"summary": "Update user profile",
 				"tags": [
 					"Users"
@@ -3354,7 +3354,7 @@
 						}
 					}
 				},
-				"description": "Block a user\r\n\r\nBlocks the specified user, adding them to your blocked users list.\r\nThis will also remove any existing direct conversations between you and the blocked user.",
+				"description": "Block a user\n\nBlocks the specified user, adding them to your blocked users list.\nThis will also remove any existing direct conversations between you and the blocked user.",
 				"summary": "Block a user",
 				"tags": [
 					"Users"
@@ -3398,7 +3398,7 @@
 						}
 					}
 				},
-				"description": "Unblock a user\r\n\r\nRemoves the specified user from your blocked users list.",
+				"description": "Unblock a user\n\nRemoves the specified user from your blocked users list.",
 				"summary": "Unblock a user",
 				"tags": [
 					"Users"
@@ -3436,7 +3436,7 @@
 						}
 					}
 				},
-				"description": "Get block status between two users\r\n\r\nChecks whether there is a block relationship between the authenticated user\r\nand the specified target user, and returns the direction of the block.",
+				"description": "Get block status between two users\n\nChecks whether there is a block relationship between the authenticated user\nand the specified target user, and returns the direction of the block.",
 				"summary": "Get block status",
 				"tags": [
 					"Users"
@@ -3485,7 +3485,7 @@
 						}
 					}
 				},
-				"description": "Get list of blocked users\r\n\r\nReturns a list of all users that the authenticated user has blocked.",
+				"description": "Get list of blocked users\n\nReturns a list of all users that the authenticated user has blocked.",
 				"summary": "Get blocked users",
 				"tags": [
 					"Users"
@@ -3513,7 +3513,7 @@
 						}
 					}
 				},
-				"description": "Get user's social media links\r\n\r\nReturns all social media platform links for the specified user.\r\nThis endpoint is public and does not require authentication.",
+				"description": "Get user's social media links\n\nReturns all social media platform links for the specified user.\nThis endpoint is public and does not require authentication.",
 				"summary": "Get user social media",
 				"tags": [
 					"User Details"
@@ -3545,7 +3545,7 @@
 						}
 					}
 				},
-				"description": "Update user's social media links\r\n\r\nUpdates the authenticated user's social media links.\r\nOnly the profile owner can update their own social media.",
+				"description": "Update user's social media links\n\nUpdates the authenticated user's social media links.\nOnly the profile owner can update their own social media.",
 				"summary": "Update user social media",
 				"tags": [
 					"User Details"
@@ -3598,7 +3598,7 @@
 						}
 					}
 				},
-				"description": "Get user's FAQ answers\r\n\r\nReturns all FAQ answers for the specified user with their corresponding questions.\r\nThis endpoint is public and does not require authentication.",
+				"description": "Get user's FAQ answers\n\nReturns all FAQ answers for the specified user with their corresponding questions.\nThis endpoint is public and does not require authentication.",
 				"summary": "Get user FAQ",
 				"tags": [
 					"User Details"
@@ -3630,7 +3630,7 @@
 						}
 					}
 				},
-				"description": "Create or update user's FAQ answer\r\n\r\nAdds or updates an answer to an FAQ question for the authenticated user.\r\nOnly the profile owner can manage their own FAQ.",
+				"description": "Create or update user's FAQ answer\n\nAdds or updates an answer to an FAQ question for the authenticated user.\nOnly the profile owner can manage their own FAQ.",
 				"summary": "Upsert user FAQ answer",
 				"tags": [
 					"User Details"
@@ -3673,7 +3673,7 @@
 						"description": "No content"
 					}
 				},
-				"description": "Delete user's FAQ answer\r\n\r\nRemoves an answer to an FAQ question for the authenticated user.\r\nOnly the profile owner can delete their own FAQ answers.",
+				"description": "Delete user's FAQ answer\n\nRemoves an answer to an FAQ question for the authenticated user.\nOnly the profile owner can delete their own FAQ answers.",
 				"summary": "Delete user FAQ answer",
 				"tags": [
 					"User Details"
@@ -3723,7 +3723,7 @@
 						}
 					}
 				},
-				"description": "Get what user is looking for\r\n\r\nReturns the user's \"looking for\" preferences (connect, promote, find-band, find-services).\r\nThis endpoint is public and does not require authentication.",
+				"description": "Get what user is looking for\n\nReturns the user's \"looking for\" preferences (connect, promote, find-band, find-services).\nThis endpoint is public and does not require authentication.",
 				"summary": "Get user looking for preferences",
 				"tags": [
 					"User Details"
@@ -3760,7 +3760,7 @@
 						}
 					}
 				},
-				"description": "Get all available FAQ questions\r\n\r\nReturns all active FAQ questions that users can answer on their profiles.\r\nThis endpoint is public and does not require authentication.",
+				"description": "Get all available FAQ questions\n\nReturns all active FAQ questions that users can answer on their profiles.\nThis endpoint is public and does not require authentication.",
 				"summary": "Get all FAQ questions",
 				"tags": [
 					"FAQ Questions"
@@ -3784,7 +3784,7 @@
 						}
 					}
 				},
-				"description": "Generate a signed upload URL for direct client uploads\r\n\r\nReturns a temporary signed URL that allows clients to upload files directly\r\nto Supabase Storage, bypassing the backend. This improves scalability by\r\navoiding large file buffers in the Node.js server.\r\n\r\nThe client should:\r\n1. Call this endpoint to get a signed URL\r\n2. Upload the file directly to the signed URL using fetch/PUT\r\n3. Use the returned filePath to construct the public URL\r\n4. Include the public URL when creating posts or updating avatars\r\n\r\n- **Images**: JPEG, PNG, GIF, WebP\r\n- **Videos**: MP4, WebM, QuickTime\r\n- **Upload Types**: \"post\" (default) for post media, \"avatar\" for profile pictures",
+				"description": "Generate a signed upload URL for direct client uploads\n\nReturns a temporary signed URL that allows clients to upload files directly\nto Supabase Storage, bypassing the backend. This improves scalability by\navoiding large file buffers in the Node.js server.\n\nThe client should:\n1. Call this endpoint to get a signed URL\n2. Upload the file directly to the signed URL using fetch/PUT\n3. Use the returned filePath to construct the public URL\n4. Include the public URL when creating posts or updating avatars\n\n- **Images**: JPEG, PNG, GIF, WebP\n- **Videos**: MP4, WebM, QuickTime\n- **Upload Types**: \"post\" (default) for post media, \"avatar\" for profile pictures",
 				"summary": "Generate signed upload URL",
 				"tags": [
 					"Upload"
@@ -3817,7 +3817,7 @@
 						"description": "No content"
 					}
 				},
-				"description": "Delete a media file\r\n\r\nRemoves the file from Supabase Storage and deletes the media record from the database.\r\nOnly authenticated users can delete media.",
+				"description": "Delete a media file\n\nRemoves the file from Supabase Storage and deletes the media record from the database.\nOnly authenticated users can delete media.",
 				"summary": "Delete media",
 				"tags": [
 					"Upload"
@@ -3866,7 +3866,7 @@
 						}
 					}
 				},
-				"description": "List services with optional filters\r\n\r\nReturns a list of services with optional filtering by service type and location.\r\nServices are public and can be viewed without authentication.\r\nServices are seeded data - there is no creation endpoint.",
+				"description": "List services with optional filters\n\nReturns a list of services with optional filtering by service type and location.\nServices are public and can be viewed without authentication.\nServices are seeded data - there is no creation endpoint.",
 				"summary": "List services",
 				"tags": [
 					"Services"
@@ -3919,7 +3919,7 @@
 						}
 					}
 				},
-				"description": "Search for users, posts, or tags\r\n\r\nPerforms a search across different entity types based on the specified tab.\r\nReturns polymorphic results that vary by tab type.\r\n\r\n- **for_you**: Personalized results combining people and collaboration requests\r\n- **people**: Search for users with filters (location, genres, looking for)\r\n- **collaborations**: Search for collaboration request posts\r\n- **services**: Search for services\r\n- **tags**: Search for metadata (tags, genres, artists)",
+				"description": "Search for users, posts, or tags\n\nPerforms a search across different entity types based on the specified tab.\nReturns polymorphic results that vary by tab type.\n\n- **for_you**: Personalized results combining people and collaboration requests\n- **people**: Search for users with filters (location, genres, looking for)\n- **collaborations**: Search for collaboration request posts\n- **services**: Search for services\n- **tags**: Search for metadata (tags, genres, artists)",
 				"summary": "Search across users, posts, services, and tags",
 				"tags": [
 					"Search"
@@ -4034,7 +4034,7 @@
 						}
 					}
 				},
-				"description": "Get recent searches for the authenticated user\r\n\r\nReturns the user's recent search history, ordered by most recent first.\r\nLimited to the last 15 searches by default.",
+				"description": "Get recent searches for the authenticated user\n\nReturns the user's recent search history, ordered by most recent first.\nLimited to the last 15 searches by default.",
 				"summary": "Get recent searches",
 				"tags": [
 					"Search"
@@ -4064,7 +4064,7 @@
 						"description": "No content"
 					}
 				},
-				"description": "Save a recent search\r\n\r\nSaves a search query to the user's recent search history.\r\nAutomatically deduplicates identical query+tab combinations.",
+				"description": "Save a recent search\n\nSaves a search query to the user's recent search history.\nAutomatically deduplicates identical query+tab combinations.",
 				"summary": "Save recent search",
 				"tags": [
 					"Search"
@@ -4097,7 +4097,7 @@
 						"description": "No content"
 					}
 				},
-				"description": "Clear all recent searches\r\n\r\nRemoves all search entries from the user's recent search history.",
+				"description": "Clear all recent searches\n\nRemoves all search entries from the user's recent search history.",
 				"summary": "Clear all recent searches",
 				"tags": [
 					"Search"
@@ -4118,7 +4118,7 @@
 						"description": "No content"
 					}
 				},
-				"description": "Delete a specific recent search\r\n\r\nRemoves a single search entry from the user's recent search history.",
+				"description": "Delete a specific recent search\n\nRemoves a single search entry from the user's recent search history.",
 				"summary": "Delete recent search",
 				"tags": [
 					"Search"
@@ -4159,7 +4159,7 @@
 						}
 					}
 				},
-				"description": "Get all reviews for a user\r\n\r\nReturns all reviews for a specific user with reviewer information.\r\nThis endpoint is public and does not require authentication.",
+				"description": "Get all reviews for a user\n\nReturns all reviews for a specific user with reviewer information.\nThis endpoint is public and does not require authentication.",
 				"summary": "Get user reviews",
 				"tags": [
 					"Reviews"
@@ -4191,7 +4191,7 @@
 						}
 					}
 				},
-				"description": "Create a review for a user\r\n\r\nAllows the authenticated user to write a review for another user.\r\nPrevents self-reviews and duplicate reviews.",
+				"description": "Create a review for a user\n\nAllows the authenticated user to write a review for another user.\nPrevents self-reviews and duplicate reviews.",
 				"summary": "Create a review",
 				"tags": [
 					"Reviews"
@@ -4241,7 +4241,7 @@
 						}
 					}
 				},
-				"description": "Get a review by ID\r\n\r\nReturns a specific review with reviewer information.\r\nThis endpoint is public and does not require authentication.",
+				"description": "Get a review by ID\n\nReturns a specific review with reviewer information.\nThis endpoint is public and does not require authentication.",
 				"summary": "Get review by ID",
 				"tags": [
 					"Reviews"
@@ -4273,7 +4273,7 @@
 						}
 					}
 				},
-				"description": "Update a review\r\n\r\nUpdates the rating and/or description of a review.\r\nOnly the reviewer can update their own review.",
+				"description": "Update a review\n\nUpdates the rating and/or description of a review.\nOnly the reviewer can update their own review.",
 				"summary": "Update a review",
 				"tags": [
 					"Reviews"
@@ -4314,7 +4314,7 @@
 						"description": "No content"
 					}
 				},
-				"description": "Delete a review\r\n\r\nPermanently deletes a review.\r\nOnly the reviewer can delete their own review.",
+				"description": "Delete a review\n\nPermanently deletes a review.\nOnly the reviewer can delete their own review.",
 				"summary": "Delete a review",
 				"tags": [
 					"Reviews"
@@ -4352,7 +4352,7 @@
 						}
 					}
 				},
-				"description": "Create a new post\r\n\r\nCreates a new post (note, request, or story) with optional metadata, media,\r\nand tagged users. The post is automatically associated with the authenticated user.\r\n\r\nFor \"note\" type posts, you can include tags.\r\nFor \"request\" type posts, you can include genres and paid_opportunity flag.\r\nAll post types can include media and tagged users.",
+				"description": "Create a new post\n\nCreates a new post (note, request, or story) with optional metadata, media,\nand tagged users. The post is automatically associated with the authenticated user.\n\nFor \"note\" type posts, you can include tags.\nFor \"request\" type posts, you can include genres and paid_opportunity flag.\nAll post types can include media and tagged users.",
 				"summary": "Create a post",
 				"tags": [
 					"Posts"
@@ -4390,7 +4390,7 @@
 						}
 					}
 				},
-				"description": "List posts with filters and pagination\r\n\r\nReturns a paginated list of posts with optional filters.\r\nSupports filtering by type, author, location, genres, tags, and paid opportunities.\r\nCan optionally include engagement data (requires authentication).\r\n\r\nPosts are public and can be viewed without authentication, but engagement data\r\n(likes, comments, bookmarks) requires authentication.",
+				"description": "List posts with filters and pagination\n\nReturns a paginated list of posts with optional filters.\nSupports filtering by type, author, location, genres, tags, and paid opportunities.\nCan optionally include engagement data (requires authentication).\n\nPosts are public and can be viewed without authentication, but engagement data\n(likes, comments, bookmarks) requires authentication.",
 				"summary": "List posts",
 				"tags": [
 					"Posts"
@@ -4550,7 +4550,7 @@
 						}
 					}
 				},
-				"description": "Get a single post by ID\r\n\r\nReturns a single post with full details including author, metadata, media, and tagged users.\r\nCan optionally include comments and engagement data (requires authentication).\r\n\r\nPosts are public and can be viewed without authentication, but engagement data\r\n(likes, comments, bookmarks) requires authentication.",
+				"description": "Get a single post by ID\n\nReturns a single post with full details including author, metadata, media, and tagged users.\nCan optionally include comments and engagement data (requires authentication).\n\nPosts are public and can be viewed without authentication, but engagement data\n(likes, comments, bookmarks) requires authentication.",
 				"summary": "Get post by ID",
 				"tags": [
 					"Posts"
@@ -4601,7 +4601,7 @@
 						}
 					}
 				},
-				"description": "Update a post\r\n\r\nUpdates a post's content. Only the post author can update their own posts.",
+				"description": "Update a post\n\nUpdates a post's content. Only the post author can update their own posts.",
 				"summary": "Update a post",
 				"tags": [
 					"Posts"
@@ -4642,7 +4642,7 @@
 						"description": "No content"
 					}
 				},
-				"description": "Delete a post\r\n\r\nPermanently deletes a post and all its related data.\r\nOnly the post author can delete their own posts.",
+				"description": "Delete a post\n\nPermanently deletes a post and all its related data.\nOnly the post author can delete their own posts.",
 				"summary": "Delete a post",
 				"tags": [
 					"Posts"
@@ -4680,7 +4680,7 @@
 						}
 					}
 				},
-				"description": "Resolve a request post\r\n\r\nMarks a request post as resolved and archives it. Only the post author can resolve their own posts.\r\nResolved posts are excluded from the main feed but remain accessible via user's post history.",
+				"description": "Resolve a request post\n\nMarks a request post as resolved and archives it. Only the post author can resolve their own posts.\nResolved posts are excluded from the main feed but remain accessible via user's post history.",
 				"summary": "Resolve a request post",
 				"tags": [
 					"Posts"
@@ -4711,7 +4711,7 @@
 						"description": "No content"
 					}
 				},
-				"description": "Like a post\r\n\r\nAdds a like from the authenticated user to the specified post.\r\nIf the post is already liked by the user, this is a no-op.",
+				"description": "Like a post\n\nAdds a like from the authenticated user to the specified post.\nIf the post is already liked by the user, this is a no-op.",
 				"summary": "Like a post",
 				"tags": [
 					"Posts"
@@ -4740,7 +4740,7 @@
 						"description": "No content"
 					}
 				},
-				"description": "Unlike a post\r\n\r\nRemoves the like from the authenticated user for the specified post.",
+				"description": "Unlike a post\n\nRemoves the like from the authenticated user for the specified post.",
 				"summary": "Unlike a post",
 				"tags": [
 					"Posts"
@@ -4805,7 +4805,7 @@
 						}
 					}
 				},
-				"description": "Get users who responded to a post by starting a chat\r\n\r\nReturns a list of users who initiated a conversation in response to this request post.\r\nOnly the post author can view respondents.",
+				"description": "Get users who responded to a post by starting a chat\n\nReturns a list of users who initiated a conversation in response to this request post.\nOnly the post author can view respondents.",
 				"summary": "Get post respondents",
 				"tags": [
 					"Posts"
@@ -4870,7 +4870,7 @@
 						}
 					}
 				},
-				"description": "Get all respondents across all of the user's request posts\r\n\r\nReturns unique users who have started chats on any of the user's request posts.\r\nThis is useful for populating the \"past collaborators\" section on the profile.",
+				"description": "Get all respondents across all of the user's request posts\n\nReturns unique users who have started chats on any of the user's request posts.\nThis is useful for populating the \"past collaborators\" section on the profile.",
 				"summary": "Get all post respondents for current user",
 				"tags": [
 					"Posts"
@@ -4930,7 +4930,7 @@
 						}
 					}
 				},
-				"description": "Get notifications for the authenticated user\r\n\r\nReturns notifications for the authenticated user with optional filters.\r\nSupports filtering by type and unread status, with cursor-based pagination.\r\nWhen grouped=true, returns notifications organized by type for easy filtering.",
+				"description": "Get notifications for the authenticated user\n\nReturns notifications for the authenticated user with optional filters.\nSupports filtering by type and unread status, with cursor-based pagination.\nWhen grouped=true, returns notifications organized by type for easy filtering.",
 				"summary": "Get user notifications",
 				"tags": [
 					"Notifications"
@@ -5005,7 +5005,7 @@
 						}
 					}
 				},
-				"description": "Get a notification by ID\r\n\r\nReturns a specific notification with actor information.\r\nOnly the recipient can access their own notifications.",
+				"description": "Get a notification by ID\n\nReturns a specific notification with actor information.\nOnly the recipient can access their own notifications.",
 				"summary": "Get notification by ID",
 				"tags": [
 					"Notifications"
@@ -5041,7 +5041,7 @@
 						}
 					}
 				},
-				"description": "Update a notification\r\n\r\nMarks a notification as read or unread.\r\nOnly the recipient can update their own notifications.",
+				"description": "Update a notification\n\nMarks a notification as read or unread.\nOnly the recipient can update their own notifications.",
 				"summary": "Mark notification as read/unread",
 				"tags": [
 					"Notifications"
@@ -5082,7 +5082,7 @@
 						"description": "No content"
 					}
 				},
-				"description": "Delete a notification\r\n\r\nPermanently deletes a notification.\r\nOnly the recipient can delete their own notifications.",
+				"description": "Delete a notification\n\nPermanently deletes a notification.\nOnly the recipient can delete their own notifications.",
 				"summary": "Delete a notification",
 				"tags": [
 					"Notifications"
@@ -5129,7 +5129,7 @@
 						}
 					}
 				},
-				"description": "Get unread notification count\r\n\r\nReturns the total count of unread notifications for the authenticated user.\r\nThis is optimized for badge display and avoids fetching all notification data.",
+				"description": "Get unread notification count\n\nReturns the total count of unread notifications for the authenticated user.\nThis is optimized for badge display and avoids fetching all notification data.",
 				"summary": "Get unread notification count",
 				"tags": [
 					"Notifications"
@@ -5157,7 +5157,7 @@
 						}
 					}
 				},
-				"description": "Get all metadata\r\n\r\nReturns all tags, genres, and artists grouped by type.\r\nUsed for dropdowns, autocomplete, and tag/genre selectors.\r\nThis endpoint is public and does not require authentication.",
+				"description": "Get all metadata\n\nReturns all tags, genres, and artists grouped by type.\nUsed for dropdowns, autocomplete, and tag/genre selectors.\nThis endpoint is public and does not require authentication.",
 				"summary": "Get all metadata",
 				"tags": [
 					"Metadata"
@@ -5524,7 +5524,7 @@
 						}
 					}
 				},
-				"description": "Get home feed\r\n\r\nReturns feed content based on the specified component:\r\n- \"posts\": Posts from users you follow (with pagination)\r\n- \"recommendations\": Collaboration request recommendations\r\n- \"stories\": Stories from followed users (coming soon)\r\n\r\nPosts feed includes engagement data (likes, comments, bookmarks counts)\r\nand user interaction state (hasLiked, hasBookmarked).",
+				"description": "Get home feed\n\nReturns feed content based on the specified component:\n- \"posts\": Posts from users you follow (with pagination)\n- \"recommendations\": Collaboration request recommendations\n- \"stories\": Stories from followed users (coming soon)\n\nPosts feed includes engagement data (likes, comments, bookmarks counts)\nand user interaction state (hasLiked, hasBookmarked).",
 				"summary": "Get home feed",
 				"tags": [
 					"Feed"
@@ -5644,13 +5644,13 @@
 							"application/json": {
 								"schema": {
 									"properties": {
-										"unread_count": {
+										"count": {
 											"type": "number",
 											"format": "double"
 										}
 									},
 									"required": [
-										"unread_count"
+										"count"
 									],
 									"type": "object"
 								}
@@ -5872,7 +5872,7 @@
 						}
 					}
 				},
-				"description": "Get all connection requests for the authenticated user\r\n\r\nReturns both sent and received connection requests for the authenticated user.\r\nEach request includes requester and recipient profile information.",
+				"description": "Get all connection requests for the authenticated user\n\nReturns both sent and received connection requests for the authenticated user.\nEach request includes requester and recipient profile information.",
 				"summary": "Get user's connection requests",
 				"tags": [
 					"Connections"
@@ -5898,7 +5898,7 @@
 						}
 					}
 				},
-				"description": "Create a connection request\r\n\r\nAllows the authenticated user to send a connection request to another user.\r\nThe recipient must exist and there must not be an existing connection request.",
+				"description": "Create a connection request\n\nAllows the authenticated user to send a connection request to another user.\nThe recipient must exist and there must not be an existing connection request.",
 				"summary": "Send a connection request",
 				"tags": [
 					"Connections"
@@ -5941,7 +5941,7 @@
 						}
 					}
 				},
-				"description": "Get connection requests sent by a user\r\n\r\nReturns all connection requests sent by the specified user.\r\nThis endpoint can be accessed without authentication.",
+				"description": "Get connection requests sent by a user\n\nReturns all connection requests sent by the specified user.\nThis endpoint can be accessed without authentication.",
 				"summary": "Get sent connection requests by user",
 				"tags": [
 					"Connections"
@@ -5978,7 +5978,7 @@
 						}
 					}
 				},
-				"description": "Get connection requests received by a user\r\n\r\nReturns all connection requests received by the specified user.\r\nThis endpoint can be accessed without authentication.",
+				"description": "Get connection requests received by a user\n\nReturns all connection requests received by the specified user.\nThis endpoint can be accessed without authentication.",
 				"summary": "Get received connection requests by user",
 				"tags": [
 					"Connections"
@@ -6017,7 +6017,7 @@
 						}
 					}
 				},
-				"description": "Get connection status between the authenticated user and another user\r\n\r\nReturns the connection if it exists (pending, accepted), null otherwise.\r\nRejected connections are not returned.",
+				"description": "Get connection status between the authenticated user and another user\n\nReturns the connection if it exists (pending, accepted), null otherwise.\nRejected connections are not returned.",
 				"summary": "Get connection status between two users",
 				"tags": [
 					"Connections"
@@ -6058,7 +6058,7 @@
 						}
 					}
 				},
-				"description": "Get accepted connections for a specific user\r\n\r\nReturns only accepted connections for the specified user.\r\nThis endpoint can be accessed without authentication.",
+				"description": "Get accepted connections for a specific user\n\nReturns only accepted connections for the specified user.\nThis endpoint can be accessed without authentication.",
 				"summary": "Get accepted connections by user",
 				"tags": [
 					"Connections"
@@ -6092,7 +6092,7 @@
 						}
 					}
 				},
-				"description": "Update a connection request status\r\n\r\nAllows the recipient to accept or reject a connection request.\r\nOnly the recipient can update the status, and only pending requests can be updated.",
+				"description": "Update a connection request status\n\nAllows the recipient to accept or reject a connection request.\nOnly the recipient can update the status, and only pending requests can be updated.",
 				"summary": "Accept or reject a connection request",
 				"tags": [
 					"Connections"
@@ -6133,7 +6133,7 @@
 						"description": "No content"
 					}
 				},
-				"description": "Delete a connection request\r\n\r\nRemoves a connection request. Only the requester can delete a pending request.",
+				"description": "Delete a connection request\n\nRemoves a connection request. Only the requester can delete a pending request.",
 				"summary": "Delete a connection request",
 				"tags": [
 					"Connections"
@@ -6174,7 +6174,7 @@
 						}
 					}
 				},
-				"description": "Get all comments for a post\r\n\r\nReturns all comments on a specific post, ordered by creation date (oldest first).\r\nEach comment includes the author's profile information and like counts.\r\nIf authenticated, also includes whether the user has liked each comment.",
+				"description": "Get all comments for a post\n\nReturns all comments on a specific post, ordered by creation date (oldest first).\nEach comment includes the author's profile information and like counts.\nIf authenticated, also includes whether the user has liked each comment.",
 				"summary": "Get comments for a post",
 				"tags": [
 					"Comments"
@@ -6211,7 +6211,7 @@
 						}
 					}
 				},
-				"description": "Get all comments by a user\r\n\r\nReturns all comments created by a specific user, ordered by creation date (newest first).\r\nEach comment includes the author's profile information.",
+				"description": "Get all comments by a user\n\nReturns all comments created by a specific user, ordered by creation date (newest first).\nEach comment includes the author's profile information.",
 				"summary": "Get comments by user",
 				"tags": [
 					"Comments"
@@ -6245,7 +6245,7 @@
 						}
 					}
 				},
-				"description": "Create a comment on a post\r\n\r\nAllows the authenticated user to create a comment on a post.\r\nThe post must exist and the comment content must be between 1 and 1000 characters.",
+				"description": "Create a comment on a post\n\nAllows the authenticated user to create a comment on a post.\nThe post must exist and the comment content must be between 1 and 1000 characters.",
 				"summary": "Create a comment",
 				"tags": [
 					"Comments"
@@ -6285,7 +6285,7 @@
 						}
 					}
 				},
-				"description": "Update a comment\r\n\r\nAllows the authenticated user to update their own comment.\r\nOnly the comment author can update their comment.",
+				"description": "Update a comment\n\nAllows the authenticated user to update their own comment.\nOnly the comment author can update their comment.",
 				"summary": "Update a comment",
 				"tags": [
 					"Comments"
@@ -6326,7 +6326,7 @@
 						"description": "No content"
 					}
 				},
-				"description": "Delete a comment\r\n\r\nRemoves a comment. Only the comment author can delete their own comment.",
+				"description": "Delete a comment\n\nRemoves a comment. Only the comment author can delete their own comment.",
 				"summary": "Delete a comment",
 				"tags": [
 					"Comments"
@@ -6357,7 +6357,7 @@
 						"description": "No content"
 					}
 				},
-				"description": "Like a comment\r\n\r\nAdds a like from the authenticated user to the specified comment.\r\nIf the comment is already liked by the user, this is a no-op.",
+				"description": "Like a comment\n\nAdds a like from the authenticated user to the specified comment.\nIf the comment is already liked by the user, this is a no-op.",
 				"summary": "Like a comment",
 				"tags": [
 					"Comments"
@@ -6386,7 +6386,7 @@
 						"description": "No content"
 					}
 				},
-				"description": "Unlike a comment\r\n\r\nRemoves the like from the authenticated user for the specified comment.",
+				"description": "Unlike a comment\n\nRemoves the like from the authenticated user for the specified comment.",
 				"summary": "Unlike a comment",
 				"tags": [
 					"Comments"
@@ -6427,7 +6427,7 @@
 						}
 					}
 				},
-				"description": "Get all collaborations for the authenticated user\r\n\r\nReturns a list of all collaborations where the authenticated user is involved.\r\nEach collaboration includes the collaborator's profile information.",
+				"description": "Get all collaborations for the authenticated user\n\nReturns a list of all collaborations where the authenticated user is involved.\nEach collaboration includes the collaborator's profile information.",
 				"summary": "Get user's collaborations",
 				"tags": [
 					"Collaborations"
@@ -6453,7 +6453,7 @@
 						}
 					}
 				},
-				"description": "Create a collaboration\r\n\r\nAllows the authenticated user to record a past collaboration with another user.\r\nThe collaborator must exist and the collaboration must not already exist.",
+				"description": "Create a collaboration\n\nAllows the authenticated user to record a past collaboration with another user.\nThe collaborator must exist and the collaboration must not already exist.",
 				"summary": "Create a collaboration",
 				"tags": [
 					"Collaborations"
@@ -6496,7 +6496,7 @@
 						}
 					}
 				},
-				"description": "Get collaborations for a specific user\r\n\r\nReturns all collaborations for the specified user. This endpoint can be\r\naccessed without authentication to view public collaboration information.",
+				"description": "Get collaborations for a specific user\n\nReturns all collaborations for the specified user. This endpoint can be\naccessed without authentication to view public collaboration information.",
 				"summary": "Get collaborations by user ID",
 				"tags": [
 					"Collaborations"
@@ -6523,7 +6523,7 @@
 						"description": "No content"
 					}
 				},
-				"description": "Delete a collaboration\r\n\r\nRemoves a collaboration. Only the user who created the collaboration\r\ncan delete it.",
+				"description": "Delete a collaboration\n\nRemoves a collaboration. Only the user who created the collaboration\ncan delete it.",
 				"summary": "Delete a collaboration",
 				"tags": [
 					"Collaborations"
@@ -6564,7 +6564,7 @@
 						}
 					}
 				},
-				"description": "Get all bookmarks for the authenticated user\r\n\r\nReturns a list of all bookmarks created by the authenticated user.\r\nEach bookmark includes the post details and author information.",
+				"description": "Get all bookmarks for the authenticated user\n\nReturns a list of all bookmarks created by the authenticated user.\nEach bookmark includes the post details and author information.",
 				"summary": "Get user's bookmarks",
 				"tags": [
 					"Bookmarks"
@@ -6590,7 +6590,7 @@
 						}
 					}
 				},
-				"description": "Create a bookmark for a post\r\n\r\nAllows the authenticated user to bookmark a post for later reference.\r\nThe post must exist and must not already be bookmarked by the user.",
+				"description": "Create a bookmark for a post\n\nAllows the authenticated user to bookmark a post for later reference.\nThe post must exist and must not already be bookmarked by the user.",
 				"summary": "Create a bookmark",
 				"tags": [
 					"Bookmarks"
@@ -6623,7 +6623,7 @@
 						"description": "No content"
 					}
 				},
-				"description": "Remove a bookmark\r\n\r\nDeletes a bookmark for a specific post. Only the user who created\r\nthe bookmark can remove it.",
+				"description": "Remove a bookmark\n\nDeletes a bookmark for a specific post. Only the user who created\nthe bookmark can remove it.",
 				"summary": "Delete a bookmark",
 				"tags": [
 					"Bookmarks"
@@ -6669,7 +6669,7 @@
 						}
 					}
 				},
-				"description": "Check if a username is available\r\n\r\nReturns availability status for real-time validation during registration.\r\nUsername must be between 3-30 characters to be considered valid.",
+				"description": "Check if a username is available\n\nReturns availability status for real-time validation during registration.\nUsername must be between 3-30 characters to be considered valid.",
 				"summary": "Check username availability",
 				"tags": [
 					"Authentication"

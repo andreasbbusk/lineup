@@ -41,16 +41,16 @@ export class ConversationsController extends Controller {
     });
   }
 
-  @Security("bearerAuth")
-  @Get("unread-count")
-  public async getUnreadCount(
-    @Request() req: ExpressRequest
-  ): Promise<{ unread_count: number }> {
-    return handleControllerRequest(this, async () => {
-      const userId = await extractUserId(req);
-      return this.service.getUnreadCount(userId, getToken(req));
-    });
-  }
+@Security("bearerAuth")
+@Get("unread-count")
+public async getUnreadCount(
+  @Request() req: ExpressRequest
+): Promise<{ count: number }> {  // Changed from unread_count to count
+  return handleControllerRequest(this, async () => {
+    const userId = await extractUserId(req);
+    return this.service.getUnreadCount(userId, getToken(req));
+  });
+}
 
   @Security("bearerAuth")
   @Get("{conversationId}")

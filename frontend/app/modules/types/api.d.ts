@@ -4158,7 +4158,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** Format: double */
-                        unread_count: number;
+                        count: number;
                     };
                 };
             };
