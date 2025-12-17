@@ -233,7 +233,8 @@ Vi traf en designbeslutning om at kombinere Services-fanen, så den viser både 
 
 ### Forbedret Chat-baseret Samarbejdsflow
 
-Vi har forbedret og tydeliggjort samarbejdsflowet baseret på forespørgsler (requests). Når en bruger (OP) opretter en samarbejdsforespørgsel, kan andre brugere åbne en chat direkte baseret på den forespørgsel. I denne chat kan brugerne diskutere og planlægge, om de ønsker at gå videre med samarbejdet. Hvis de beslutter sig for at fortsætte, kan OP klikke på "resolve", hvilket:
+Vi har forbedret og tydeliggjort samarbejdsflowet baseret på forespørgsler (requests). Når en bruger (OP) opretter en samarbejdsforespørgsel, kan andre brugere åbne en chat direkte baseret på den forespørgsel. I denne chat kan brugerne diskutere og planlægge, om de ønsker at gå videre med samarbejdet. Hvis de beslutter sig for at fortsætte, kan OP gå på sin profil under "posts", og resolve post. 
+For ikke at skulle lave en helt store data migration til slut i projektet, besluttede vi os for at de personer man kan vælge i "post collaborators" på profile, er de personer der har clicket "start chat" på et af dine post requests. Idéen her er at i en 100% endelig version, vil man kunne resolve et post request, og vælge en user den er resolved med. Det er så de her users, som der ville blive vist på post collaborators. 
 
 - Tilføjer et "resolved" tag til request-posten
 - Arkiverer forespørgslen så den ikke længere er synlig i hovedfeedet
