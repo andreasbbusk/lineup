@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPost, resolvePost } from "@/app/modules/api/postsApi";
 import type { CreatePostBody, PostResponse } from "@/app/modules/api/postsApi";
+import { NOTIFICATION_QUERY_KEYS } from "@/app/modules/features/notifications";
 
 /**
  * Hook for creating a new post
@@ -51,6 +52,13 @@ export function useCreatePost(options?: {
           exact: false,
         });
       }
+
+      // Invalidate notification queries when creating post (creates notifications for tagged users)
+      // This includes unread count since unreadCount key starts with ["notifications"]
+      void queryClient.invalidateQueries({
+        queryKey: NOTIFICATION_QUERY_KEYS.all,
+        exact: false,
+      });
 
       // Call custom onSuccess if provided
       options?.onSuccess?.(newPost);

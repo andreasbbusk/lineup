@@ -2,7 +2,8 @@ import { apiClient, handleApiError } from "../../api/apiClient";
 import type { components } from "../../types/api";
 
 type NotificationResponse = components["schemas"]["NotificationResponse"];
-type GroupedNotificationsResponse = components["schemas"]["GroupedNotificationsResponse"];
+type GroupedNotificationsResponse =
+  components["schemas"]["GroupedNotificationsResponse"];
 /**
  * Get notifications for the authenticated user
  * Returns notifications grouped by type for easy filtering
@@ -44,33 +45,16 @@ export async function getNotifications(options?: {
 
 /**
  * Get unread notification count
- * Returns the count of unread notifications
+ * Returns the count of unread notifications using the optimized count endpoint
  */
 export async function getUnreadCount(): Promise<number> {
-  const { data, error, response } = await apiClient.GET("/notifications", {
-    params: {
-      query: {
-        unreadOnly: true,
-        limit: 1,
-      },
-    },
-  });
+  const { data, error, response } = await apiClient.GET("/notifications/count");
 
   if (error) {
     handleApiError(error, response);
   }
 
-  // If no data or notifications, return 0
-  if (!data || !data.notifications) {
-    return 0;
-  }
-
-  // If we got notifications, we need to check if there are more
-  // For now, we'll return a boolean indicator (1 if unread, 0 if none)
-  // A proper count endpoint would be better, but this works for badge display
-  return Array.isArray(data.notifications) && data.notifications.length > 0
-    ? 1
-    : 0;
+  return data?.count ?? 0;
 }
 
 /**
@@ -118,7 +102,21 @@ export async function deleteNotification(
     }
   );
 
+  // Verify we got a response first
+  if (!response) {
+    throw new Error("Failed to delete notification: No response from server");
+  }
+
+  // Check for errors (but openapi-fetch may not set error for 204 responses)
   if (error) {
     handleApiError(error, response);
+  }
+
+  // Verify successful deletion (204 No Content is expected for DELETE)
+  // openapi-fetch may not set error for 204 responses, so check status explicitly
+  if (response.status !== 204 && response.status !== 200) {
+    throw new Error(
+      `Failed to delete notification: Unexpected status ${response.status}`
+    );
   }
 }
