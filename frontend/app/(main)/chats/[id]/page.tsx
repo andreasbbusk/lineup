@@ -239,7 +239,9 @@ export default function ChatPage({ params }: ChatPageProps) {
           <div className="bg-white">
             <EditModeBanner />
             <MessageInput
-              onSendMessage={sendMessage}
+              onSendMessage={(content, replyToMessageId) =>
+                sendMessage({ content, replyToMessageId })
+              }
               onEditMessage={(messageId, content) =>
                 editMessage({ messageId, content })
               }

@@ -8,7 +8,6 @@ type MessageGroupingConfig = {
 export type MessageGroupingInfo = {
   showAvatar: boolean;
   showTimestamp: boolean;
-  isFirstUnread: boolean;
 };
 
 export function shouldShowAvatar(
@@ -41,29 +40,6 @@ export function shouldShowTimestamp(
   );
 }
 
-export function isFirstUnreadMessage(
-  message: Message,
-  prevMessage: Message | undefined,
-  currentUserId: string,
-  messageIndex: number
-): boolean {
-  if (message.senderId === currentUserId) return false;
-
-  const isCurrentUnread =
-    message.readReceipts &&
-    !message.readReceipts.some((receipt) => receipt.userId === currentUserId);
-
-  if (!isCurrentUnread) return false;
-
-  return (
-    messageIndex === 0 ||
-    (prevMessage?.readReceipts?.some(
-      (receipt) => receipt.userId === currentUserId
-    ) ??
-      false)
-  );
-}
-
 export function getMessageGroupingInfo(
   message: Message,
   prevMessage: Message | undefined,
@@ -75,11 +51,5 @@ export function getMessageGroupingInfo(
   return {
     showAvatar: shouldShowAvatar(message, nextMessage),
     showTimestamp: shouldShowTimestamp(message, prevMessage, config),
-    isFirstUnread: isFirstUnreadMessage(
-      message,
-      prevMessage,
-      currentUserId,
-      messageIndex
-    ),
   };
 }

@@ -13,51 +13,44 @@ const messageEventConfig = {
   table: "messages" as const,
 };
 
-export function useMessageSubscription(conversationId: string | null) {
+export function useGlobalMessageSubscription(userId: string | null) {
   const queryClient = useQueryClient();
   const setTyping = useTypingStore((state) => state.setTyping);
 
   useEffect(() => {
-    if (!conversationId) return;
+    if (!userId) return;
 
     const channel = supabase
-      .channel(`messages:${conversationId}`)
+      .channel(`global-messages:${userId}`)
       .on(
         "postgres_changes",
-        {
-          ...messageEventConfig,
-          event: "INSERT",
-          filter: `conversation_id=eq.${conversationId}`,
-        },
+        { ...messageEventConfig, event: "INSERT" },
         (payload) =>
           handleMessageInsert(queryClient, payload, {
-            initializeCacheIfMissing: true,
             onMessageReceived: (convId, senderId) =>
               setTyping(convId, senderId, false),
           })
       )
       .on(
         "postgres_changes",
-        {
-          ...messageEventConfig,
-          event: "UPDATE",
-          filter: `conversation_id=eq.${conversationId}`,
-        },
-        (payload) => handleMessageUpdate(queryClient, payload)
+        { ...messageEventConfig, event: "UPDATE" },
+        (payload) =>
+          handleMessageUpdate(queryClient, payload, {
+            onlyUpdateIfCacheExists: true,
+          })
       )
       .on(
         "postgres_changes",
-        {
-          ...messageEventConfig,
-          event: "DELETE",
-          filter: `conversation_id=eq.${conversationId}`,
-        },
-        (payload) => handleMessageDelete(queryClient, payload)
+        { ...messageEventConfig, event: "DELETE" },
+        (payload) =>
+          handleMessageDelete(queryClient, payload, {
+            onlyUpdateIfCacheExists: true,
+          })
       )
       .subscribe();
 
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [conversationId, queryClient, setTyping]);
+  }, [userId, queryClient, setTyping]);
 }

@@ -376,7 +376,7 @@ h3,
 }
 
 .swipeable-list-item__leading-actions {
-    background-color: #3b82f6 !important;
+    background-color: var(--color-dark-cyan-blue) !important;
 }
 
 .swipeable-list-item__trailing-actions {

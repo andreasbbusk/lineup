@@ -72,6 +72,7 @@ export {
 // ============================================================================
 
 export { useMessageSubscription } from "./hooks/realtime/useMessageSubscription";
+export { useGlobalMessageSubscription } from "./hooks/realtime/useGlobalMessageSubscription";
 export { useConversationSubscription } from "./hooks/realtime/useConversationSubscription";
 export { useTypingSubscription } from "./hooks/realtime/useTypingSubscription";
 export { useTypingStore } from "./stores/typingStore";
@@ -138,7 +139,6 @@ export { mapRealtimeMessage } from "./utils/realtimeAdapter";
 export {
   shouldShowAvatar,
   shouldShowTimestamp,
-  isFirstUnreadMessage,
   getMessageGroupingInfo,
 } from "./utils/messageGrouping";
 

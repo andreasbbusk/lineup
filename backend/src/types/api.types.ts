@@ -692,36 +692,6 @@ export interface ConversationResponse {
 // ==================== Message Types ====================
 
 /**
- * API response format for a message read receipt
- *
- * @example
- * {
- *   "messageId": "msg-789",
- *   "userId": "user-456",
- *   "readAt": "2024-01-20T16:05:00Z",
- *   "user": {
- *     "id": "user-456",
- *     "username": "janedoe",
- *     "firstName": "Jane",
- *     "lastName": "Doe",
- *     "avatarUrl": "https://..."
- *   }
- * }
- */
-export interface MessageReadReceiptResponse {
-  messageId: string;
-  userId: string;
-  readAt: string | null;
-  user?: {
-    id: string;
-    username: string;
-    firstName?: string | null;
-    lastName?: string | null;
-    avatarUrl?: string | null;
-  };
-}
-
-/**
  * API response format for a message
  * Represents a message in a conversation with sender info and optional reply
  *
@@ -738,10 +708,8 @@ export interface MessageReadReceiptResponse {
  *   "deletedAt": null,
  *   "replyToMessageId": null,
  *   "createdAt": "2024-01-20T16:00:00Z",
- *   "sentViaWebsocket": false,
  *   "sender": { "id": "user-123", "username": "johndoe", ... },
  *   "replyTo": null,
- *   "readReceipts": [...],
  *   "media": []
  * }
  */
@@ -757,7 +725,6 @@ export interface MessageResponse {
   deletedAt?: string | null;
   replyToMessageId?: string | null;
   createdAt: string | null;
-  sentViaWebsocket: boolean | null;
   sender?: {
     id: string;
     username: string;
@@ -766,7 +733,6 @@ export interface MessageResponse {
     avatarUrl?: string | null;
   };
   replyTo?: MessageResponse | null;
-  readReceipts?: MessageReadReceiptResponse[];
   media?: Array<{
     id: string;
     url: string;
@@ -813,7 +779,6 @@ export interface PaginatedMessagesResponse {
  *   "isArchived": false,
  *   "createdAt": "2024-01-20T16:00:00Z",
  *   "readAt": null,
- *   "sentViaWebsocket": true,
  *   "actor": { "id": "user-123", "username": "johndoe", ... }
  * }
  */
@@ -831,7 +796,6 @@ export interface NotificationResponse {
   isArchived: boolean | null;
   createdAt: string | null;
   readAt?: string | null;
-  sentViaWebsocket: boolean | null;
   actor?: {
     id: string;
     username: string;

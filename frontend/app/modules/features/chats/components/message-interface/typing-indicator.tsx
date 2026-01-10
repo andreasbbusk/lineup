@@ -39,9 +39,9 @@ export function TypingIndicator({
 
   return (
     <motion.div
-      initial={prefersReducedMotion ? undefined : { opacity: 0, y: 10 }}
-      animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
-      exit={prefersReducedMotion ? undefined : { opacity: 0, y: -10 }}
+      initial={prefersReducedMotion ? undefined : { opacity: 0 }}
+      animate={prefersReducedMotion ? undefined : { opacity: 1 }}
+      exit={prefersReducedMotion ? undefined : { opacity: 0 }}
       transition={{ duration: 0.2 }}
       className="flex gap-2 mb-4"
     >

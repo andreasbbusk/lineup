@@ -22,7 +22,6 @@ const MESSAGE_SELECT = `
   deleted_at,
   reply_to_message_id,
   created_at,
-  sent_via_websocket,
   status,
   sender:profiles!messages_sender_id_fkey(id, username, first_name, last_name, avatar_url)
 `;
@@ -92,8 +91,35 @@ export class MessagesService {
       ? allMessages.slice(0, pagination.limit)
       : allMessages;
 
+    // Fetch reply_to messages separately for messages that have reply_to_message_id
+    const replyToMessageIds = messagesToReturn
+      .map((msg) => msg.reply_to_message_id)
+      .filter((id): id is string => id !== null);
+
+    let replyToMessagesMap = new Map();
+    if (replyToMessageIds.length > 0) {
+      const { data: replyToData } = await supabase
+        .from("messages")
+        .select(MESSAGE_SELECT)
+        .in("id", replyToMessageIds);
+
+      if (replyToData) {
+        replyToData.forEach((msg) => {
+          replyToMessagesMap.set(msg.id, msg);
+        });
+      }
+    }
+
+    // Attach reply_to messages to the main messages
+    const messagesWithReplies = messagesToReturn.map((msg) => ({
+      ...msg,
+      reply_to: msg.reply_to_message_id
+        ? replyToMessagesMap.get(msg.reply_to_message_id) || null
+        : null,
+    }));
+
     // Reverse to chronological order (oldest first) and map to camelCase
-    const sortedMessages = messagesToReturn.reverse();
+    const sortedMessages = messagesWithReplies.reverse();
     const mappedMessages = mapMessagesToResponse(sortedMessages);
 
     // nextCursor is the oldest message ID (first in the sorted array)
@@ -255,22 +281,6 @@ export class MessagesService {
 
   async markAsRead(userId: string, messageIds: string[]) {
     if (!messageIds.length) return { success: true };
-
-    const receipts = messageIds.map((id) => ({
-      message_id: id,
-      user_id: userId,
-    }));
-
-    const { error: receiptError } = await supabase
-      .from("message_read_receipts")
-      .upsert(receipts, { onConflict: "message_id,user_id" });
-
-    if (receiptError)
-      throw createHttpError({
-        message: `Read receipt failed: ${receiptError.message}`,
-        statusCode: 500,
-        code: "DATABASE_ERROR",
-      });
 
     const { data: message } = await supabase
       .from("messages")

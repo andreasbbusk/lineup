@@ -137,15 +137,27 @@ export function useSendMessage(conversationId: string, userId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (content: string) =>
+    mutationFn: ({
+      content,
+      replyToMessageId,
+    }: {
+      content: string;
+      replyToMessageId?: string | null;
+    }) =>
       chatApi.sendMessage({
         conversation_id: conversationId,
         content,
         media_ids: [],
-        reply_to_message_id: null,
+        reply_to_message_id: replyToMessageId ?? null,
       }),
 
-    onMutate: async (content: string) => {
+    onMutate: async ({
+      content,
+      replyToMessageId,
+    }: {
+      content: string;
+      replyToMessageId?: string | null;
+    }) => {
       const tempId = `temp-${Date.now()}-${Math.random()}`;
 
       await queryClient.cancelQueries({
@@ -169,16 +181,21 @@ export function useSendMessage(conversationId: string, userId: string) {
         editedAt: null,
         isDeleted: null,
         deletedAt: null,
-        replyToMessageId: null,
+        replyToMessageId: replyToMessageId ?? null,
         createdAt: new Date().toISOString(),
-        sentViaWebsocket: null,
         sender: undefined,
         replyTo: null,
-        readReceipts: [],
         media: [],
       };
 
-      addMessageToCache(queryClient, conversationId, optimisticMessage);
+      // Initialize cache if missing since user is actively sending a message
+      addMessageToCache(
+        queryClient,
+        conversationId,
+        optimisticMessage,
+        "end",
+        true
+      );
 
       // Optimistically update conversation list (non-infinite structure)
       const conversationsSnapshot = queryClient.getQueryData(chatKeys.lists());

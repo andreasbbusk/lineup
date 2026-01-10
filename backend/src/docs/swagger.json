@@ -1856,10 +1856,6 @@
 						"type": "string",
 						"nullable": true
 					},
-					"sentViaWebsocket": {
-						"type": "boolean",
-						"nullable": true
-					},
 					"actor": {
 						"properties": {
 							"avatarUrl": {
@@ -1895,8 +1891,7 @@
 					"title",
 					"isRead",
 					"isArchived",
-					"createdAt",
-					"sentViaWebsocket"
+					"createdAt"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -2127,10 +2122,6 @@
 						"type": "string",
 						"nullable": true
 					},
-					"sentViaWebsocket": {
-						"type": "boolean",
-						"nullable": true
-					},
 					"sender": {
 						"properties": {
 							"avatarUrl": {
@@ -2166,12 +2157,6 @@
 						],
 						"nullable": true
 					},
-					"readReceipts": {
-						"items": {
-							"$ref": "#/components/schemas/MessageReadReceiptResponse"
-						},
-						"type": "array"
-					},
 					"media": {
 						"items": {
 							"properties": {
@@ -2206,72 +2191,10 @@
 					"content",
 					"isEdited",
 					"isDeleted",
-					"createdAt",
-					"sentViaWebsocket"
+					"createdAt"
 				],
 				"type": "object",
 				"additionalProperties": false
-			},
-			"MessageReadReceiptResponse": {
-				"description": "API response format for a message read receipt",
-				"properties": {
-					"messageId": {
-						"type": "string"
-					},
-					"userId": {
-						"type": "string"
-					},
-					"readAt": {
-						"type": "string",
-						"nullable": true
-					},
-					"user": {
-						"properties": {
-							"avatarUrl": {
-								"type": "string",
-								"nullable": true
-							},
-							"lastName": {
-								"type": "string",
-								"nullable": true
-							},
-							"firstName": {
-								"type": "string",
-								"nullable": true
-							},
-							"username": {
-								"type": "string"
-							},
-							"id": {
-								"type": "string"
-							}
-						},
-						"required": [
-							"username",
-							"id"
-						],
-						"type": "object"
-					}
-				},
-				"required": [
-					"messageId",
-					"userId",
-					"readAt"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"messageId": "msg-789",
-					"userId": "user-456",
-					"readAt": "2024-01-20T16:05:00Z",
-					"user": {
-						"id": "user-456",
-						"username": "janedoe",
-						"firstName": "Jane",
-						"lastName": "Doe",
-						"avatarUrl": "https://..."
-					}
-				}
 			},
 			"PaginatedMessagesResponse": {
 				"description": "API response format for paginated messages\nUsed by GET /messages/:conversationId endpoint",
@@ -5232,9 +5155,6 @@
 										"status": {
 											"type": "string"
 										},
-										"sent_via_websocket": {
-											"type": "boolean"
-										},
 										"sender_id": {
 											"type": "string"
 										},
@@ -5274,7 +5194,6 @@
 									},
 									"required": [
 										"status",
-										"sent_via_websocket",
 										"sender_id",
 										"reply_to_message_id",
 										"media_ids",

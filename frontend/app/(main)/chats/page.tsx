@@ -7,6 +7,7 @@ import {
   ConversationList,
   useConversations,
   useConversationSubscription,
+  useGlobalMessageSubscription,
   useLeaveConversation,
 } from "@/app/modules/features/chats";
 import { useAppStore } from "@/app/modules/stores/Store";
@@ -46,8 +47,9 @@ export default function ChatsPage() {
     router.push(`/chats/${conversationId}/settings`);
   };
 
-  // Real-time subscription for conversation updates
+  // Real-time subscriptions for conversation and message updates
   useConversationSubscription(user?.id ?? "");
+  useGlobalMessageSubscription(user?.id ?? "");
 
   if (!user) return null;
 

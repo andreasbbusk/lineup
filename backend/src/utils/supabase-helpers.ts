@@ -70,14 +70,6 @@ export type MessageRow = Database["public"]["Tables"]["messages"]["Row"];
 export type MessageInsert = Database["public"]["Tables"]["messages"]["Insert"];
 export type MessageUpdate = Database["public"]["Tables"]["messages"]["Update"];
 
-// Message Read Receipts table types
-export type MessageReadReceiptRow =
-  Database["public"]["Tables"]["message_read_receipts"]["Row"];
-export type MessageReadReceiptInsert =
-  Database["public"]["Tables"]["message_read_receipts"]["Insert"];
-export type MessageReadReceiptUpdate =
-  Database["public"]["Tables"]["message_read_receipts"]["Update"];
-
 // Notifications table types
 export type NotificationRow =
   Database["public"]["Tables"]["notifications"]["Row"];

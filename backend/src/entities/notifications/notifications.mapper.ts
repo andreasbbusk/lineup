@@ -56,7 +56,6 @@ export function mapNotificationToResponse(
     isArchived: null, // Field not in current database schema - maybe implement later if needed?
     createdAt: notification.created_at,
     readAt: notification.read_at ?? null,
-    sentViaWebsocket: notification.sent_via_websocket,
     actor: notification.actor
       ? mapPartialProfileToUser(notification.actor)
       : undefined,

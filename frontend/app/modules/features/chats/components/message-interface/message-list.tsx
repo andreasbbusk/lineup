@@ -5,7 +5,7 @@ import { getMessageGroupingInfo } from "../../utils/messageGrouping";
 import { Message } from "../../types";
 import { MessageBubble } from "./message-bubble";
 import { MessageCircle } from "lucide-react";
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { useReducedMotion } from "@/app/modules/hooks/useReducedMotion";
 
 type MessageListProps = {
@@ -33,25 +33,6 @@ export function TimestampDivider({ timestamp }: { timestamp: string }) {
       <span className="text-xs text-grey bg-white px-3 py-1 rounded-full">
         {timestamp}
       </span>
-    </motion.div>
-  );
-}
-
-export function UnreadDivider() {
-  const prefersReducedMotion = useReducedMotion();
-
-  return (
-    <motion.div
-      initial={prefersReducedMotion ? false : { opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="flex items-center gap-3 my-4"
-    >
-      <div className="flex-1 h-px bg-light-grey" />
-      <span className="text-xs font-medium text-grey uppercase tracking-wide">
-        Unread Messages
-      </span>
-      <div className="flex-1 h-px bg-light-grey" />
     </motion.div>
   );
 }
@@ -123,14 +104,13 @@ export function MessageList({
         <>
           {messages.map((message, index) => {
             const isMe = message.senderId === currentUserId;
-            const { showAvatar, showTimestamp, isFirstUnread } =
-              getMessageGroupingInfo(
-                message,
-                messages[index - 1],
-                messages[index + 1],
-                currentUserId,
-                index
-              );
+            const { showAvatar, showTimestamp } = getMessageGroupingInfo(
+              message,
+              messages[index - 1],
+              messages[index + 1],
+              currentUserId,
+              index
+            );
 
             // Generate stable key that persists across temp -> server ID transition
             // Use createdAt as the stable identifier since it doesn't change
@@ -144,12 +124,11 @@ export function MessageList({
                   />
                 )}
 
-                {isFirstUnread && <UnreadDivider />}
-
                 <MessageBubble
                   message={message}
                   isMe={isMe}
                   showAvatar={showAvatar}
+                  allMessages={messages}
                 />
               </div>
             );

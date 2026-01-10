@@ -2,7 +2,7 @@ import { Message } from "../types";
 
 /**
  * Raw message record from Supabase realtime events (snake_case)
- * 
+ *
  * Note: This is ONLY used for Supabase Realtime events which come directly
  * from the database in snake_case format. API responses are now camelCase
  * from the backend and don't need mapping.
@@ -19,7 +19,6 @@ export type DbMessageRecord = {
   deleted_at?: string | null;
   reply_to_message_id?: string | null;
   created_at: string | null;
-  sent_via_websocket?: boolean | null;
 };
 
 /**
@@ -42,11 +41,11 @@ export type DbMessageWithSender = DbMessageRecord & {
 
 /**
  * Converts a raw Supabase Realtime event (snake_case) into our frontend Message type (camelCase).
- * 
+ *
  * Note: Realtime events do NOT include relations (sender, media, replyTo),
  * so those will be undefined. The message will still render, just without
  * sender info until the cache is refreshed.
- */ 
+ */
 export function mapRealtimeMessage(row: DbMessageRecord): Message {
   return {
     id: row.id,
@@ -60,7 +59,6 @@ export function mapRealtimeMessage(row: DbMessageRecord): Message {
     deletedAt: row.deleted_at ?? null,
     replyToMessageId: row.reply_to_message_id ?? null,
     createdAt: row.created_at,
-    sentViaWebsocket: row.sent_via_websocket ?? false,
     // Relations are missing in raw realtime events
     sender: undefined,
     replyTo: undefined,
@@ -69,9 +67,9 @@ export function mapRealtimeMessage(row: DbMessageRecord): Message {
 }
 
 /**
- * Converts a complete database message with sender relation (snake_case) 
+ * Converts a complete database message with sender relation (snake_case)
  * into our frontend Message type (camelCase).
- * 
+ *
  * Use this when you fetch the complete message with sender data from the database.
  */
 export function mapMessageWithSender(row: DbMessageWithSender): Message {
@@ -87,7 +85,6 @@ export function mapMessageWithSender(row: DbMessageWithSender): Message {
     deletedAt: row.deleted_at ?? null,
     replyToMessageId: row.reply_to_message_id ?? null,
     createdAt: row.created_at,
-    sentViaWebsocket: row.sent_via_websocket ?? false,
     sender: row.sender
       ? {
           id: row.sender.id,

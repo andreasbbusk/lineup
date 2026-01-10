@@ -45,7 +45,7 @@ const createLeadingActions = (
   return (
     <LeadingActions>
       <SwipeAction onClick={() => onNavigateToSettings(conversation.id)}>
-        <div className="flex flex-col items-center justify-center h-full px-6 bg-dark-cyan-blue">
+        <div className="flex flex-col items-center justify-center h-full px-6">
           <Info size={20} className="text-white" />
           <span className="text-xs font-medium text-white mt-1">Info</span>
         </div>

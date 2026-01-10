@@ -2315,7 +2315,6 @@ export interface components {
             isArchived: boolean | null;
             createdAt: string | null;
             readAt?: string | null;
-            sentViaWebsocket: boolean | null;
             actor?: {
                 avatarUrl?: string | null;
                 lastName?: string | null;
@@ -2423,7 +2422,6 @@ export interface components {
             deletedAt?: string | null;
             replyToMessageId?: string | null;
             createdAt: string | null;
-            sentViaWebsocket: boolean | null;
             sender?: {
                 avatarUrl?: string | null;
                 lastName?: string | null;
@@ -3967,7 +3965,6 @@ export interface operations {
                 content: {
                     "application/json": {
                         status: string;
-                        sent_via_websocket: boolean;
                         sender_id: string;
                         reply_to_message_id: string;
                         media_ids: string[];

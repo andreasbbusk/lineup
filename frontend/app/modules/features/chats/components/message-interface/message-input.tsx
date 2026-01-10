@@ -8,10 +8,12 @@ import {
 } from "@/app/modules/components/radix-popover";
 import { TYPING_INDICATOR_TIMEOUT_MS } from "../../constants";
 import { useMessageActionsStore } from "../../stores/messageStore";
+import { X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 type MessageInputProps = {
   onTyping?: (isTyping: boolean) => void;
-  onSendMessage: (content: string) => void;
+  onSendMessage: (content: string, replyToMessageId?: string | null) => void;
   onEditMessage?: (messageId: string, content: string) => void;
   isDisabled?: boolean;
 };
@@ -35,17 +37,19 @@ export function MessageInput({
 
   const { activeMessageAction, clearAction } = useMessageActionsStore();
   const isEditing = activeMessageAction?.type === "edit";
+  const isReplying = activeMessageAction?.type === "reply";
+  const replyToMessage = activeMessageAction?.replyToMessage;
 
   // Sync content when entering/exiting edit mode
   useEffect(() => {
     if (isEditing && activeMessageAction?.originalContent) {
       setContent(activeMessageAction.originalContent);
-    } else if (!isEditing) {
+    } else if (!isEditing && !isReplying) {
       setContent("");
     }
     // We only want to run this when the *mode* changes, not on every render
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditing]);
+  }, [isEditing, isReplying]);
 
   const updateTyping = (typing: boolean) => {
     if (typing !== isTyping) {
@@ -61,12 +65,14 @@ export function MessageInput({
     if (isEditing && onEditMessage && activeMessageAction) {
       onEditMessage(activeMessageAction.messageId, trimmed);
     } else {
-      onSendMessage(trimmed);
+      const replyToMessageId = isReplying ? replyToMessage?.id : null;
+      onSendMessage(trimmed, replyToMessageId ?? undefined);
       setContent("");
     }
 
     clearTimeout(timeout.current);
     updateTyping(false);
+    clearAction();
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,13 +103,53 @@ export function MessageInput({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") handleSend();
-    if (e.key === "Escape" && isEditing) clearAction();
+    if (e.key === "Escape" && (isEditing || isReplying)) clearAction();
+  };
+
+  const handleCancelReply = () => {
+    clearAction();
   };
 
   useEffect(() => () => clearTimeout(timeout.current), []);
 
+  // Truncate message content for preview
+  const getReplyPreview = (content: string | null | undefined) => {
+    if (!content) return "";
+    return content.length > 50 ? `${content.slice(0, 50)}...` : content;
+  };
+
   return (
-    <div className="border-t border-light-grey p-4 bg-white flex items-center gap-2">
+    <div className="border-t border-light-grey bg-white">
+      <AnimatePresence>
+        {isReplying && replyToMessage && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="px-4 pt-3 pb-2 border-b border-light-grey flex items-center gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="text-xs text-grey mb-1">
+                  Replying to {replyToMessage.sender?.firstName || replyToMessage.sender?.username || "User"}
+                </div>
+                <div className="text-sm text-black truncate">
+                  {getReplyPreview(replyToMessage.content)}
+                </div>
+              </div>
+              <button
+                onClick={handleCancelReply}
+                className="shrink-0 p-1 hover:bg-melting-glacier rounded-full transition-colors"
+                aria-label="Cancel reply"
+              >
+                <X size={16} className="text-grey" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <div className="p-4 flex items-center gap-2">
       <Popover>
         <PopoverTrigger asChild>
           <div>
@@ -111,7 +157,7 @@ export function MessageInput({
               variant="icon"
               onClick={() => {}}
               icon="plus"
-              disabled={isDisabled || isEditing}
+              disabled={isDisabled || isEditing || isReplying}
             />
           </div>
         </PopoverTrigger>
@@ -141,7 +187,7 @@ export function MessageInput({
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
-        placeholder={isEditing ? "Edit message..." : "Aa"}
+        placeholder={isEditing ? "Edit message..." : isReplying ? "Type a reply..." : "Aa"}
         disabled={isDisabled}
       />
       <Button
@@ -150,6 +196,7 @@ export function MessageInput({
         icon={isEditing ? "send" : content ? "send" : "mic"}
         disabled={isDisabled}
       />
+      </div>
     </div>
   );
 }

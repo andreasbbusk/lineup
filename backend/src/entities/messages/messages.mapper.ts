@@ -1,7 +1,4 @@
-import {
-  MessageResponse,
-  MessageReadReceiptResponse,
-} from "../../types/api.types.js";
+import { MessageResponse } from "../../types/api.types.js";
 
 /**
  * Internal types for documentation and IDE autocomplete.
@@ -22,13 +19,6 @@ type Media = {
   type: string;
 };
 
-type ReadReceipt = {
-  message_id: string;
-  user_id: string;
-  read_at: string | null;
-  user?: Profile;
-};
-
 const mapProfile = (p: Profile) => ({
   id: p.id,
   username: p.username,
@@ -44,13 +34,6 @@ const mapMedia = (m: Media) => ({
   type: m.type,
 });
 
-const mapReadReceipt = (r: ReadReceipt): MessageReadReceiptResponse => ({
-  messageId: r.message_id,
-  userId: r.user_id,
-  readAt: r.read_at,
-  user: r.user ? mapProfile(r.user) : undefined,
-});
-
 export function mapMessageToResponse(message: any): MessageResponse {
   return {
     id: message.id,
@@ -64,12 +47,10 @@ export function mapMessageToResponse(message: any): MessageResponse {
     deletedAt: message.deleted_at ?? null,
     replyToMessageId: message.reply_to_message_id ?? null,
     createdAt: message.created_at,
-    sentViaWebsocket: message.sent_via_websocket,
     sender: message.sender ? mapProfile(message.sender) : undefined,
     replyTo: message.reply_to
       ? mapMessageToResponse(message.reply_to)
       : undefined,
-    readReceipts: message.read_receipts?.map(mapReadReceipt),
     media: message.media?.map(mapMedia),
   };
 }

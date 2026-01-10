@@ -401,7 +401,6 @@ export type Database = {
           media_ids: string[] | null
           reply_to_message_id: string | null
           sender_id: string
-          sent_via_websocket: boolean | null
           status: string | null
         }
         Insert: {
@@ -416,7 +415,6 @@ export type Database = {
           media_ids?: string[] | null
           reply_to_message_id?: string | null
           sender_id: string
-          sent_via_websocket?: boolean | null
           status?: string | null
         }
         Update: {
@@ -431,7 +429,6 @@ export type Database = {
           media_ids?: string[] | null
           reply_to_message_id?: string | null
           sender_id?: string
-          sent_via_websocket?: boolean | null
           status?: string | null
         }
         Relationships: [

@@ -30,12 +30,30 @@ export const addMessageToCache = (
   queryClient: QueryClient,
   conversationId: string,
   message: Message,
-  position: "start" | "end" = "end"
+  position: "start" | "end" = "end",
+  initializeIfMissing: boolean = false
 ) => {
   queryClient.setQueryData<InfiniteData<PaginatedMessages>>(
     chatKeys.messages(conversationId),
     (oldData) => {
-      if (!oldData) return oldData;
+      // If cache doesn't exist and we're allowed to initialize it
+      if (!oldData) {
+        if (initializeIfMissing) {
+          return {
+            pages: [
+              {
+                messages: [message],
+                hasMore: true,
+                nextCursor: null,
+              },
+            ],
+            pageParams: [undefined],
+          };
+        }
+        // If cache doesn't exist and we shouldn't initialize, return undefined
+        // This will leave the cache unchanged (still undefined)
+        return oldData;
+      }
 
       const updatedPages = [...oldData.pages];
       const targetPage = position === "end" ? updatedPages[0] : updatedPages[updatedPages.length - 1];
